@@ -1,38 +1,36 @@
 # Farmers Fightback
 
-A static one-page site for the Farmers Fightback coalition, designed to be deployed via GitHub Pages.
+Homepage for the Farmers Fightback campaign — a farmer-led coalition from the Wallaloo & Gre Gre district fighting the $11.4B VNI West transmission line.
 
-## Structure
+Built from a design handoff bundle. Static site, no build step.
 
-- `index.html` — page markup, all sections in one document
-- `styles.css` — design system, layout, responsive rules
-- `script.js` — sticky-header, mobile menu, scroll reveals, animated counters, form validation
+## Files
+
+- `index.html` — page shell, loads React 18 + Babel from unpkg
+- `app.jsx` — the homepage app (hero, impact bar, latest video, summary + map, petition, action cards, quote, donate band, newsletter, footer, video modal)
+- `styles.css` — design tokens (navy `#12354B`, red `#C62828`), components, responsive rules
+- `assets/logo.png` — campaign logo
 - `.nojekyll` — disables Jekyll processing on GitHub Pages
 
 ## Deploy via GitHub Pages (Deploy from a branch)
 
-1. Push this branch to GitHub (already done if you got here from Claude Code).
-2. In the repo on GitHub, go to **Settings → Pages**.
-3. Under **Build and deployment**, set:
-   - **Source**: *Deploy from a branch*
-   - **Branch**: `claude/deploy-github-pages-UAofF` (or whichever branch you merge this into — typically `main`)
-   - **Folder**: `/ (root)`
-4. Click **Save**. The first deploy takes about a minute. The site URL will appear at the top of the Pages settings page.
+1. In the repo on GitHub: **Settings → Pages**.
+2. **Source**: *Deploy from a branch* — **Branch**: `claude/deploy-github-pages-UAofF`, folder `/ (root)` → **Save**.
+3. The site URL appears at the top of the Pages settings page after ~1 minute.
 
-> Tip: GitHub Pages is happiest serving from `main` or `gh-pages`. If you'd like, merge this branch into `main` and point Pages there.
+> Pages also works from `main` or `gh-pages` if you'd prefer to merge there.
 
 ## Local preview
 
-Any static server works:
+Any static server works. The page loads React + Babel from unpkg, so it will compile JSX in the browser on first load.
 
 ```sh
 python3 -m http.server 8000
-# then open http://localhost:8000
+# open http://localhost:8000
 ```
 
-## Customizing
+## Productionising
 
-- Replace stat numbers in `index.html` (`data-count` attributes inside `.stats`).
-- Swap testimonial copy and story cards directly in `index.html`.
-- Tweak the palette via the CSS custom properties at the top of `styles.css`.
-- The signup form is client-side only — wire it up to a service like Mailchimp, ConvertKit, or Formspree by changing the submit handler in `script.js`.
+For a production deploy, swap the in-browser Babel/JSX setup for a real build (Vite, esbuild) — the CDN approach is fine for a campaign microsite but adds ~200 KB and a JSX-compile step on first load.
+
+Replace the striped `Placeholder` blocks in `app.jsx` with real photos / video as they're produced — each one is labelled with its intended content (e.g. `HERO · PROTEST CONVOY AT PARLIAMENT`).
