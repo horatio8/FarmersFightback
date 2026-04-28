@@ -194,10 +194,10 @@ function IntroVideo() {
       <div className="ff-wrap ff-intro-inner">
         <div className="ff-intro-copy">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Who we are</span>
-          <h2 className="ff-h2">A farmer-led fight for the food bowl of Victoria.</h2>
+          <h2 className="ff-h2">A farmer-led fight for every Aussie farmer.</h2>
           <p className="ff-lede">
-            We're the families, neighbours and tradies of Wallaloo &amp; Gre Gre —
-            and the 23,000+ Australians standing with us. Here's the story in a couple of minutes.
+            What started in Central Victoria is now a national campaign with 35,000+
+            Australians standing with us. Here's the story in a minute:
           </p>
         </div>
         <div className="ff-intro-player">
