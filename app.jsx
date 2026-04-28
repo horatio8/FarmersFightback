@@ -117,9 +117,6 @@ function Hero({ onWatch }) {
       </video>
       <div className="ff-hero-scrim" />
       <div className="ff-wrap ff-hero-content">
-        <span className="ff-eyebrow ff-eyebrow--light">
-          <span className="ff-eyebrow-dot" /> Wallaloo &amp; Gre Gre · Western Victoria
-        </span>
         <h1 className="ff-hero-title">
           Fighting for <em>farmers</em>,<br/>
           food &amp; <em>our future</em>.
@@ -133,13 +130,6 @@ function Hero({ onWatch }) {
           <button className="ff-btn ff-btn--ghost ff-btn--lg" onClick={onWatch}>
             <span className="ff-play">▶</span> Watch the evidence
           </button>
-        </div>
-        <div className="ff-hero-meta">
-          <span>4 videos released</span>
-          <span className="ff-dot">•</span>
-          <span>3 media statements</span>
-          <span className="ff-dot">•</span>
-          <span>As seen on ABC, 7News &amp; The Weekly Times</span>
         </div>
       </div>
       <button className="ff-hero-scroll" aria-label="Scroll to story" onClick={() => window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' })}>
