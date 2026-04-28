@@ -292,10 +292,12 @@ function Summary() {
 }
 
 // ---------- Petition form ----------
+const PETITION_RECEIVER = "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2";
+
 function Petition() {
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", affected: "" });
   const [errors, setErrors] = useState({});
-  const [state, setState] = useState("idle"); // idle | submitting | done
+  const [state, setState] = useState("idle"); // idle | submitting | done | error
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const validate = () => {
@@ -303,16 +305,33 @@ function Petition() {
     if (!form.first.trim()) e.first = "Required";
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
-    if (!/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
+    if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
     if (!form.affected) e.affected = "Please choose";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
-  const submit = (ev) => {
+  const submit = async (ev) => {
     ev.preventDefault();
     if (!validate()) return;
     setState("submitting");
-    setTimeout(() => setState("done"), 900);
+    const body = new URLSearchParams({
+      first_name: form.first.trim(),
+      last_name: form.last.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      postcode: form.postcode.trim(),
+    });
+    try {
+      await fetch(PETITION_RECEIVER, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+      setState("done");
+    } catch (err) {
+      setState("error");
+    }
   };
 
   if (state === "done") {
@@ -405,6 +424,11 @@ function Petition() {
           <button className="ff-btn ff-btn--red ff-btn--block" disabled={state==="submitting"}>
             {state === "submitting" ? "Signing..." : "Sign the petition"}
           </button>
+          {state === "error" && (
+            <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>
+              Something went wrong sending that. Please check your connection and try again.
+            </p>
+          )}
           <p className="ff-form-fine">
             By signing, you agree to receive campaign updates. Authorised by Ben Duxson,
             Wallaloo &amp; Gre Gre District Association.
