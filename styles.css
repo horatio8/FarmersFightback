@@ -234,8 +234,10 @@ img { max-width: 100%; display: block; }
 .ff-hero--cinematic { min-height: clamp(560px, 88vh, 900px); display: flex; align-items: flex-end; color: #fff; overflow: hidden; }
 .ff-hero-bg {
   position: absolute; inset: 0;
+  width: 100%; height: 100%;
   aspect-ratio: auto !important;
   border-radius: 0;
+  object-fit: cover;
 }
 .ff-hero-bg .ff-ph-inner {
   position: absolute; bottom: 18px; right: 18px;

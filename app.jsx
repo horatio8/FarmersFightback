@@ -101,12 +101,20 @@ function Nav({ onDonate }) {
 function Hero({ onWatch }) {
   return (
     <section id="home" className="ff-hero ff-hero--cinematic">
-      <Placeholder
-        label="HERO · PROTEST CONVOY AT PARLIAMENT"
-        ratio="auto"
-        tone="dust"
+      <video
         className="ff-hero-bg"
-      />
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+      >
+        <source
+          src="https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4"
+          type="video/mp4"
+        />
+      </video>
       <div className="ff-hero-scrim" />
       <div className="ff-wrap ff-hero-content">
         <span className="ff-eyebrow ff-eyebrow--light">
