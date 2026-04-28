@@ -1,5 +1,9 @@
 /* global React, ReactDOM */
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, createContext, useContext } = React;
+
+const CONTENT_URL = "content/site.json";
+const ContentContext = createContext(null);
+const useContent = () => useContext(ContentContext);
 
 // ---------- Placeholder image helper ----------
 function Placeholder({ label, ratio = "16/9", tone = "navy", className = "", children }) {
@@ -29,22 +33,26 @@ function Placeholder({ label, ratio = "16/9", tone = "navy", className = "", chi
   );
 }
 
-// ---------- Navigation ----------
+const html = (s) => ({ __html: s });
+
+// ---------- Top banner ----------
 function TopBanner() {
+  const c = useContent().topBanner;
+  if (!c.enabled) return null;
   return (
     <div className="ff-topbanner">
       <div className="ff-wrap ff-topbanner-inner">
         <span className="ff-topbanner-pulse" />
-        <span>
-          <strong>23,418 Australians</strong> have signed the petition — add your name.
-        </span>
-        <a href="#petition" className="ff-topbanner-link">Sign now →</a>
+        <span><strong>{c.boldText}</strong> {c.text}</span>
+        <a href={c.linkHref} className="ff-topbanner-link">{c.linkText}</a>
       </div>
     </div>
   );
 }
 
+// ---------- Navigation ----------
 function Nav({ onDonate }) {
+  const c = useContent().nav;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -53,14 +61,6 @@ function Nav({ onDonate }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const items = [
-    { label: "Home", href: "#home", active: true },
-    { label: "The Evidence", href: "#evidence" },
-    { label: "News", href: "#news" },
-    { label: "Know Your Rights", href: "#rights" },
-    { label: "Hold the Gate", href: "#gate" },
-    { label: "About", href: "#about" },
-  ];
   return (
     <nav className={`ff-nav ${scrolled ? "is-scrolled" : ""}`}>
       <div className="ff-wrap ff-nav-inner">
@@ -68,14 +68,14 @@ function Nav({ onDonate }) {
           <img src="assets/logo.png" alt="Farmers Fightback" />
         </a>
         <ul className="ff-nav-list">
-          {items.map(i => (
+          {c.items.map((i) => (
             <li key={i.label}>
               <a href={i.href} className={i.active ? "is-active" : ""}>{i.label}</a>
             </li>
           ))}
         </ul>
         <div className="ff-nav-actions">
-          <button className="ff-btn ff-btn--red" onClick={onDonate}>Donate</button>
+          <button className="ff-btn ff-btn--red" onClick={onDonate}>{c.donateLabel}</button>
           <button
             className="ff-hamburger"
             aria-label="Open menu"
@@ -88,7 +88,7 @@ function Nav({ onDonate }) {
       </div>
       {open && (
         <div className="ff-mobile-menu">
-          {items.map(i => (
+          {c.items.map((i) => (
             <a key={i.label} href={i.href} onClick={() => setOpen(false)}>{i.label}</a>
           ))}
         </div>
@@ -97,38 +97,26 @@ function Nav({ onDonate }) {
   );
 }
 
-// ---------- Hero (cinematic) ----------
+// ---------- Hero ----------
 function Hero({ onWatch }) {
+  const c = useContent().hero;
   return (
     <section id="home" className="ff-hero ff-hero--cinematic">
       <video
         className="ff-hero-bg"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-hidden="true"
+        autoPlay muted loop playsInline preload="metadata" aria-hidden="true"
+        key={c.videoUrl}
       >
-        <source
-          src="https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4"
-          type="video/mp4"
-        />
+        <source src={c.videoUrl} type="video/mp4" />
       </video>
       <div className="ff-hero-scrim" />
       <div className="ff-wrap ff-hero-content">
-        <h1 className="ff-hero-title">
-          Fighting for <em>farmers</em>,<br/>
-          food &amp; <em>our future</em>.
-        </h1>
-        <p className="ff-hero-sub">
-          23,000+ Australians standing against the $11.4B VNI West transmission line —
-          and the corporate thugs sent to bully farmers off their own land.
-        </p>
+        <h1 className="ff-hero-title" dangerouslySetInnerHTML={html(c.titleHtml)} />
+        <p className="ff-hero-sub">{c.subtitle}</p>
         <div className="ff-hero-cta">
-          <a href="#petition" className="ff-btn ff-btn--red ff-btn--lg">Sign the petition</a>
+          <a href={c.primaryCtaHref} className="ff-btn ff-btn--red ff-btn--lg">{c.primaryCtaLabel}</a>
           <button className="ff-btn ff-btn--ghost ff-btn--lg" onClick={onWatch}>
-            <span className="ff-play">▶</span> Watch the evidence
+            <span className="ff-play">▶</span> {c.secondaryCtaLabel}
           </button>
         </div>
       </div>
@@ -159,12 +147,7 @@ function useCountUp(target, duration = 1400) {
 }
 
 function ImpactBar() {
-  const stats = [
-    { value: 23418, label: "Signatures", suffix: "", grow: "+1,204 this week" },
-    { value: 4,     label: "Videos released", suffix: "", grow: "Evidence archive" },
-    { value: 3,     label: "Media statements", suffix: "", grow: "ABC · 7News · WTimes" },
-    { value: 187,   label: "Farms affected", suffix: "", grow: "Across 3 LGAs" },
-  ];
+  const stats = useContent().impactStats;
   return (
     <section className="ff-impact">
       <div className="ff-wrap ff-impact-inner">
@@ -187,23 +170,18 @@ function ImpactStat({ value, label, suffix, grow }) {
 
 // ---------- Intro video ----------
 function IntroVideo() {
+  const c = useContent().intro;
   return (
     <section className="ff-section ff-intro">
       <div className="ff-wrap ff-intro-inner">
         <div className="ff-intro-copy">
-          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Who we are</span>
-          <h2 className="ff-h2">A farmer-led fight for every Aussie farmer.</h2>
-          <p className="ff-lede">
-            What started in Central Victoria is now a national campaign with 35,000+
-            Australians standing with us. Here's the story in a minute:
-          </p>
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2">{c.heading}</h2>
+          <p className="ff-lede">{c.lede}</p>
         </div>
         <div className="ff-intro-player">
-          <video controls playsInline muted loop autoPlay preload="metadata">
-            <source
-              src="https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
-              type="video/mp4"
-            />
+          <video controls playsInline muted loop autoPlay preload="metadata" key={c.videoUrl}>
+            <source src={c.videoUrl} type="video/mp4" />
             Your browser doesn't support embedded video.
           </video>
         </div>
@@ -214,42 +192,38 @@ function IntroVideo() {
 
 // ---------- Latest video ----------
 function LatestVideo({ onOpen }) {
+  const c = useContent().latestVideo;
   const [playing, setPlaying] = useState(false);
   return (
     <section id="evidence" className="ff-section ff-video">
       <div className="ff-wrap ff-video-inner">
         <div className="ff-video-copy">
-          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Latest evidence · Video 4</span>
-          <h2 className="ff-h2">
-            "This'll be used as <em>evidence against you.</em>"
-          </h2>
-          <p className="ff-lede">
-            Filmed at dawn during lambing. Maiden ewes scattered across the paddock.
-            A contractor reads from a script, threatens a half-million-dollar fine,
-            and demands access the landholder never agreed to.
-          </p>
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2" dangerouslySetInnerHTML={html(c.headingHtml)} />
+          <p className="ff-lede">{c.lede}</p>
           <ul className="ff-video-meta">
-            <li><strong>Filmed</strong> April 2026</li>
-            <li><strong>Location</strong> Western Victoria</li>
-            <li><strong>Runtime</strong> 3:42</li>
+            {c.meta.map((m, i) => (
+              <li key={i}><strong>{m.label}</strong> {m.value}</li>
+            ))}
           </ul>
           <div className="ff-video-actions">
-            <a href="#evidence" className="ff-link ff-link--red">See all 4 videos →</a>
-            <a href="#rights" className="ff-link">Read your legal rights →</a>
+            {c.links.map((l, i) => (
+              <a key={i} href={l.href} className={`ff-link ${l.red ? "ff-link--red" : ""}`}>{l.label}</a>
+            ))}
           </div>
         </div>
         <button
           className={`ff-video-player ${playing ? "is-playing" : ""}`}
           onClick={() => { setPlaying(true); onOpen?.(); }}
-          aria-label="Play Video 4"
+          aria-label="Play latest video"
         >
-          <Placeholder label="VIDEO 4 · LAMBING SEASON · 3:42" ratio="16/9" tone="paddock" />
+          <Placeholder label={c.thumbLabel} ratio="16/9" tone="paddock" />
           <div className="ff-video-overlay">
             <div className="ff-video-play">▶</div>
-            <div className="ff-video-timecode">03:42</div>
+            <div className="ff-video-timecode">{c.timecode}</div>
             <div className="ff-video-caption">
-              <span className="ff-video-badge">NEW</span>
-              Video 4 — "Corporate thugs threaten $500K fine"
+              <span className="ff-video-badge">{c.badgeText}</span>
+              {c.captionText}
             </div>
           </div>
         </button>
@@ -260,30 +234,23 @@ function LatestVideo({ onOpen }) {
 
 // ---------- Campaign summary + map ----------
 function Summary() {
+  const c = useContent().summary;
   return (
     <section className="ff-section ff-summary">
       <div className="ff-wrap ff-summary-inner">
         <div className="ff-summary-copy">
-          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> What's at stake</span>
-          <h2 className="ff-h2">The $11.4 billion line they're bulldozing through our food bowl.</h2>
-          <p>
-            <strong>VNI West</strong> is a 400-kilometre high-voltage transmission line
-            proposed to cut through some of Victoria's most productive cropping and grazing country.
-            Farmers were never meaningfully consulted. Alternative routes were never seriously considered.
-          </p>
-          <p>
-            Behind it sits AEMO, AusNet, and <strong>Iberdrola</strong> — an €80-billion Spanish
-            multinational now sending contractors onto family farms, unannounced,
-            with threats and clipboards.
-          </p>
-          <p>
-            We're a farmer-led coalition from the Wallaloo &amp; Gre Gre district.
-            We're not anti-renewables. We're anti being walked over.
-          </p>
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2">{c.heading}</h2>
+          {c.paragraphsHtml.map((p, i) => (
+            <p key={i} dangerouslySetInnerHTML={html(p)} />
+          ))}
           <div className="ff-summary-stats">
-            <div><div className="ff-stat-n">400<span>km</span></div><div className="ff-stat-l">Transmission corridor</div></div>
-            <div><div className="ff-stat-n">$11.4<span>B</span></div><div className="ff-stat-l">Project cost</div></div>
-            <div><div className="ff-stat-n">€80<span>B</span></div><div className="ff-stat-l">Iberdrola market cap</div></div>
+            {c.stats.map((s, i) => (
+              <div key={i}>
+                <div className="ff-stat-n">{s.number}<span>{s.unit}</span></div>
+                <div className="ff-stat-l">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
         <div className="ff-summary-map">
@@ -317,12 +284,11 @@ function Summary() {
 }
 
 // ---------- Petition form ----------
-const PETITION_RECEIVER = "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2";
-
 function Petition() {
+  const c = useContent().petition;
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", affected: "" });
   const [errors, setErrors] = useState({});
-  const [state, setState] = useState("idle"); // idle | submitting | done | error
+  const [state, setState] = useState("idle");
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const validate = () => {
@@ -347,7 +313,7 @@ function Petition() {
       postcode: form.postcode.trim(),
     });
     try {
-      await fetch(PETITION_RECEIVER, {
+      await fetch(c.receiverUrl, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -360,31 +326,31 @@ function Petition() {
   };
 
   if (state === "done") {
+    const newCount = c.currentCount + 1;
+    const pct = Math.min(100, (newCount / c.goal) * 100);
+    const headingHtml = c.thanksHeadingHtml.replace("{{count}}", newCount.toLocaleString());
+    const lede = c.thanksLede.replace("{{first}}", form.first);
     return (
       <section id="petition" className="ff-section ff-petition">
         <div className="ff-wrap ff-petition-inner ff-petition-done">
           <div className="ff-petition-copy">
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Signed · Thank you</span>
-            <h2 className="ff-h2">You just became number <em>{(23419).toLocaleString()}</em>.</h2>
-            <p className="ff-lede">
-              Welcome to the fight, {form.first}. We'll email you when the next video drops
-              and when farmers need backup at the gate.
-            </p>
+            <h2 className="ff-h2" dangerouslySetInnerHTML={html(headingHtml)} />
+            <p className="ff-lede">{lede}</p>
             <div className="ff-petition-next">
               <a href="#donate" className="ff-btn ff-btn--red">Chip in to the fight</a>
               <button className="ff-btn ff-btn--outline" onClick={() => {
-                const text = "I just signed the Farmers Fightback petition. Join 23,000+ Australians: farmersfightback.com";
-                navigator.clipboard?.writeText(text);
+                navigator.clipboard?.writeText(c.shareText);
                 alert("Share link copied — paste it anywhere.");
               }}>Share with your mates</button>
             </div>
           </div>
           <div className="ff-petition-thanks">
             <div className="ff-petition-tally">
-              <div className="ff-tally-num">23,419</div>
+              <div className="ff-tally-num">{newCount.toLocaleString()}</div>
               <div className="ff-tally-label">Signatures and counting</div>
-              <div className="ff-tally-bar"><div className="ff-tally-fill" style={{ width: "46.8%" }}/></div>
-              <div className="ff-tally-goal">46.8% toward our 50,000 goal</div>
+              <div className="ff-tally-bar"><div className="ff-tally-fill" style={{ width: pct.toFixed(1) + "%" }}/></div>
+              <div className="ff-tally-goal">{pct.toFixed(1)}% toward our {c.goal.toLocaleString()} goal</div>
             </div>
           </div>
         </div>
@@ -392,30 +358,29 @@ function Petition() {
     );
   }
 
+  const remaining = Math.max(0, c.nextMilestone - c.currentCount);
+  const milestonePct = Math.min(100, (c.currentCount / c.nextMilestone) * 100);
+
   return (
     <section id="petition" className="ff-section ff-petition">
       <div className="ff-wrap ff-petition-inner">
         <div className="ff-petition-copy">
-          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sign the petition</span>
-          <h2 className="ff-h2">Add your name. Draw the line.</h2>
-          <p className="ff-lede">
-            Every signature is a letter to Spring Street and Canberra.
-            It tells them Victorian farmers aren't a speed bump —
-            and it tells the next farmer facing a contractor at the gate that they're not alone.
-          </p>
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2">{c.heading}</h2>
+          <p className="ff-lede">{c.lede}</p>
           <div className="ff-petition-bullets">
-            <div><span className="ff-check">✓</span> Your details stay on-shore and are never sold</div>
-            <div><span className="ff-check">✓</span> Weekly campaign updates — unsubscribe any time</div>
-            <div><span className="ff-check">✓</span> Authorised by Ben Duxson, Wallaloo VIC</div>
+            {c.bullets.map((b, i) => (
+              <div key={i}><span className="ff-check">✓</span> {b}</div>
+            ))}
           </div>
         </div>
         <form className="ff-petition-form" onSubmit={submit} noValidate>
           <div className="ff-form-header">
             <div>
-              <div className="ff-form-count">23,418</div>
-              <div className="ff-form-count-l">have already signed — 1,582 to 25k</div>
+              <div className="ff-form-count">{c.currentCount.toLocaleString()}</div>
+              <div className="ff-form-count-l">have already signed — {remaining.toLocaleString()} to {(c.nextMilestone/1000)+"k"}</div>
             </div>
-            <div className="ff-form-bar"><div style={{ width: "93.7%" }}/></div>
+            <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }}/></div>
           </div>
           <div className="ff-form-row">
             <Field label="First name" error={errors.first}>
@@ -447,17 +412,14 @@ function Petition() {
             </div>
           </Field>
           <button className="ff-btn ff-btn--red ff-btn--block" disabled={state==="submitting"}>
-            {state === "submitting" ? "Signing..." : "Sign the petition"}
+            {state === "submitting" ? c.submittingLabel : c.submitLabel}
           </button>
           {state === "error" && (
             <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>
               Something went wrong sending that. Please check your connection and try again.
             </p>
           )}
-          <p className="ff-form-fine">
-            By signing, you agree to receive campaign updates. Authorised by Ben Duxson,
-            Wallaloo &amp; Gre Gre District Association.
-          </p>
+          <p className="ff-form-fine">{c.fineprint}</p>
         </form>
       </div>
     </section>
@@ -475,44 +437,16 @@ function Field({ label, error, children }) {
 
 // ---------- Action cards ----------
 function ActionCards() {
-  const cards = [
-    {
-      kicker: "01 / Evidence",
-      title: "Watch what's happening on our farms",
-      body: "Four videos. Four confrontations. Zero filter. Start with Video 4 — the lambing-season threat.",
-      cta: "See all four videos",
-      href: "#evidence",
-      tone: "paddock",
-      label: "VIDEO THUMB · VIDEO 4",
-    },
-    {
-      kicker: "02 / Rights",
-      title: "Know your rights before they knock",
-      body: "Section 93 notices, the Land Access Code, your right to record. Plain English. Free template letters.",
-      cta: "Read the guide",
-      href: "#rights",
-      tone: "dust",
-      label: "PHOTO · GATE + PADLOCK",
-    },
-    {
-      kicker: "03 / Gate",
-      title: "Join Hold the Gate",
-      body: "A statewide network of farmers, neighbours and witnesses. When the contractors come, we come too.",
-      cta: "Find your local group",
-      href: "#gate",
-      tone: "red",
-      label: "PHOTO · COMMUNITY HALL",
-    },
-  ];
+  const c = useContent().actions;
   return (
     <section className="ff-section ff-actions">
       <div className="ff-wrap">
         <div className="ff-actions-head">
-          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> How you can help</span>
-          <h2 className="ff-h2">Three ways to hold the line.</h2>
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2">{c.heading}</h2>
         </div>
         <div className="ff-actions-grid">
-          {cards.map((c, i) => <ActionCard key={i} {...c} />)}
+          {c.cards.map((card, i) => <ActionCard key={i} {...card} />)}
         </div>
       </div>
     </section>
@@ -535,20 +469,17 @@ function ActionCard({ kicker, title, body, cta, href, tone, label }) {
   );
 }
 
-// ---------- Quote / farmer voice ----------
+// ---------- Quote ----------
 function Quote() {
+  const c = useContent().quote;
   return (
     <section className="ff-section ff-quote">
       <div className="ff-wrap ff-quote-inner">
         <div className="ff-quote-mark">"</div>
-        <blockquote>
-          They came back <em>two days later.</em> Mid-lambing. Reading from a script.
-          Telling me I'd cop a five-hundred-thousand-dollar fine if I didn't let them through
-          <span className="ff-quote-strong"> my own front gate.</span>
-        </blockquote>
+        <blockquote dangerouslySetInnerHTML={html(c.html)} />
         <figcaption>
-          <div className="ff-quote-name">— Rob, fourth-generation farmer</div>
-          <div className="ff-quote-place">Western Victoria · filmed April 2026</div>
+          <div className="ff-quote-name">{c.name}</div>
+          <div className="ff-quote-place">{c.place}</div>
         </figcaption>
       </div>
     </section>
@@ -557,25 +488,20 @@ function Quote() {
 
 // ---------- Donate band ----------
 function DonateBand() {
-  const tiers = [25, 50, 100, 250];
-  const [pick, setPick] = useState(50);
+  const c = useContent().donate;
+  const [pick, setPick] = useState(c.defaultPick);
   const [monthly, setMonthly] = useState(false);
   return (
     <section id="donate" className="ff-section ff-donate">
       <div className="ff-wrap ff-donate-inner">
         <div className="ff-donate-copy">
-          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> Chip in</span>
-          <h2 className="ff-h2 ff-h2--light">Every dollar fights for a farm.</h2>
-          <p>
-            Legal advice for farmers on the corridor. Camera gear for the next confrontation.
-            Printing, fuel, hall hire, ads that won't air on commercial radio.
-            We run lean. You keep us in the paddock.
-          </p>
+          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2 ff-h2--light">{c.heading}</h2>
+          <p>{c.body}</p>
           <ul className="ff-donate-where">
-            <li><span>42%</span> Legal &amp; ombudsman costs</li>
-            <li><span>28%</span> Video production &amp; distribution</li>
-            <li><span>20%</span> Community organising</li>
-            <li><span>10%</span> Campaign materials</li>
+            {c.where.map((w, i) => (
+              <li key={i}><span>{w.percent}</span> {w.label}</li>
+            ))}
           </ul>
         </div>
         <div className="ff-donate-form">
@@ -584,15 +510,10 @@ function DonateBand() {
             <button className={monthly ? "is-on" : ""} onClick={() => setMonthly(true)}>Monthly</button>
           </div>
           <div className="ff-donate-tiers">
-            {tiers.map(t => (
-              <button key={t} className={`ff-donate-tier ${pick===t ? "is-on" : ""}`} onClick={() => setPick(t)}>
-                <span className="ff-donate-tier-n">${t}</span>
-                <span className="ff-donate-tier-l">
-                  {t===25 && "Prints 100 flyers"}
-                  {t===50 && "An hour of legal advice"}
-                  {t===100 && "Fills a ute for a week"}
-                  {t===250 && "Camera kit for a farmer"}
-                </span>
+            {c.tiers.map(t => (
+              <button key={t.amount} className={`ff-donate-tier ${pick===t.amount ? "is-on" : ""}`} onClick={() => setPick(t.amount)}>
+                <span className="ff-donate-tier-n">${t.amount}</span>
+                <span className="ff-donate-tier-l">{t.label}</span>
               </button>
             ))}
           </div>
@@ -606,7 +527,7 @@ function DonateBand() {
           <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg">
             Donate ${pick} {monthly ? "/month" : "now"}
           </button>
-          <p className="ff-donate-fine">Secure processing via Campaign Nucleus. Not tax-deductible.</p>
+          <p className="ff-donate-fine">{c.fineprint}</p>
         </div>
       </div>
     </section>
@@ -615,22 +536,23 @@ function DonateBand() {
 
 // ---------- Newsletter ----------
 function Newsletter() {
+  const c = useContent().newsletter;
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   return (
     <section className="ff-section ff-news">
       <div className="ff-wrap ff-news-inner">
         <div>
-          <h3 className="ff-h3">Get the next video before the nightly news does.</h3>
-          <p>Weekly dispatches from the corridor. No spam, no corporate chaff.</p>
+          <h3 className="ff-h3">{c.heading}</h3>
+          <p>{c.lede}</p>
         </div>
         <form className="ff-news-form" onSubmit={(e) => { e.preventDefault(); if(email) setDone(true); }}>
           {done ? (
-            <div className="ff-news-done">✓ You're on the list. Keep an eye on your inbox.</div>
+            <div className="ff-news-done">{c.doneText}</div>
           ) : (
             <>
-              <input type="email" required placeholder="you@farm.com.au" value={email} onChange={e=>setEmail(e.target.value)}/>
-              <button className="ff-btn ff-btn--red">Subscribe</button>
+              <input type="email" required placeholder={c.placeholder} value={email} onChange={e=>setEmail(e.target.value)}/>
+              <button className="ff-btn ff-btn--red">{c.ctaLabel}</button>
             </>
           )}
         </form>
@@ -641,48 +563,34 @@ function Newsletter() {
 
 // ---------- Footer ----------
 function Footer() {
+  const c = useContent().footer;
   return (
     <footer className="ff-footer">
       <div className="ff-wrap ff-footer-inner">
         <div className="ff-footer-brand">
           <img src="assets/logo.png" alt="Farmers Fightback" />
-          <p>
-            A farmer-led coalition from the Wallaloo &amp; Gre Gre District Association —
-            fighting the VNI West transmission line and defending the food bowl of Victoria.
-          </p>
+          <p>{c.blurb}</p>
           <div className="ff-footer-social">
-            <a href="#" aria-label="TikTok">TikTok</a>
-            <a href="#" aria-label="Facebook">Facebook</a>
-            <a href="#" aria-label="Instagram">Instagram</a>
+            {c.social.map((s, i) => (
+              <a key={i} href={s.href} aria-label={s.label}>{s.label}</a>
+            ))}
           </div>
         </div>
         <div className="ff-footer-cols">
-          <div>
-            <h4>Campaign</h4>
-            <a href="#evidence">The Evidence</a>
-            <a href="#news">News &amp; media</a>
-            <a href="#rights">Know your rights</a>
-            <a href="#gate">Hold the Gate</a>
-          </div>
-          <div>
-            <h4>Take action</h4>
-            <a href="#petition">Sign the petition</a>
-            <a href="#donate">Donate</a>
-            <a href="#">Volunteer</a>
-            <a href="#">Submit evidence</a>
-          </div>
-          <div>
-            <h4>Contact</h4>
-            <a href="mailto:hello@farmersfightback.com">hello@farmersfightback.com</a>
-            <a href="#">Media enquiries</a>
-            <a href="#">Press kit</a>
-          </div>
+          {c.columns.map((col, i) => (
+            <div key={i}>
+              <h4>{col.heading}</h4>
+              {col.links.map((l, j) => (
+                <a key={j} href={l.href}>{l.label}</a>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
       <div className="ff-footer-base">
         <div className="ff-wrap ff-footer-base-inner">
-          <span>Authorised by Ben Duxson, Wallaloo VIC · © 2026 Farmers Fightback</span>
-          <span>Built on Campaign Nucleus</span>
+          <span>{c.legal}</span>
+          <span>{c.platform}</span>
         </div>
       </div>
     </footer>
@@ -691,6 +599,7 @@ function Footer() {
 
 // ---------- Video modal ----------
 function VideoModal({ open, onClose }) {
+  const c = useContent().latestVideo;
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -708,8 +617,8 @@ function VideoModal({ open, onClose }) {
         <button className="ff-modal-close" onClick={onClose} aria-label="Close">×</button>
         <Placeholder label="VIDEO PLAYER · EMBED GOES HERE" ratio="16/9" tone="navy" />
         <div className="ff-modal-caption">
-          <strong>Video 4 — Lambing Season · 3:42</strong>
-          <span>Western Victoria · April 2026 · Filmed under the Surveillance Devices Act 1999 (Vic)</span>
+          <strong>{c.captionText}</strong>
+          <span>{c.thumbLabel}</span>
         </div>
       </div>
     </div>
@@ -718,9 +627,29 @@ function VideoModal({ open, onClose }) {
 
 // ---------- App ----------
 function App() {
+  const [content, setContent] = useState(null);
+  const [error, setError] = useState(null);
   const [modal, setModal] = useState(false);
+
+  useEffect(() => {
+    fetch(CONTENT_URL, { cache: "no-cache" })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(setContent)
+      .catch(e => setError(e.message || "Failed to load content"));
+  }, []);
+
+  if (error) {
+    return (
+      <div style={{ padding: "60px 24px", textAlign: "center", fontFamily: "system-ui" }}>
+        <h2>Couldn't load site content</h2>
+        <p style={{ color: "#666" }}>Could not fetch <code>{CONTENT_URL}</code> ({error}).</p>
+      </div>
+    );
+  }
+  if (!content) return null;
+
   return (
-    <>
+    <ContentContext.Provider value={content}>
       <TopBanner />
       <Nav onDonate={() => document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" })}/>
       <main>
@@ -737,7 +666,7 @@ function App() {
       </main>
       <Footer />
       <VideoModal open={modal} onClose={() => setModal(false)} />
-    </>
+    </ContentContext.Provider>
   );
 }
 

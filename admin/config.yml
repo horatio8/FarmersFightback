@@ -1,0 +1,252 @@
+backend:
+  name: github
+  repo: horatio8/FarmersFightback
+  branch: claude/deploy-github-pages-UAofF
+  # The OAuth proxy URL — set this to the URL of your deployed
+  # github-oauth proxy (Cloudflare Worker / Vercel / Render).
+  # See README for setup steps. Until this is set, login won't work.
+  base_url: https://REPLACE-WITH-YOUR-OAUTH-PROXY.workers.dev
+
+# Where uploads (images) are committed in the repo, and the public URL
+# they're served from once GitHub Pages picks them up.
+media_folder: assets/uploads
+public_folder: assets/uploads
+
+publish_mode: simple
+
+# Force JSON files to round-trip with stable formatting
+slug:
+  encoding: ascii
+  clean_accents: true
+
+collections:
+  - name: site
+    label: Site content
+    description: All copy, numbers, links, and media URLs for the homepage.
+    files:
+      - file: content/site.json
+        name: site
+        label: Homepage
+        format: json
+        editor:
+          preview: false
+        fields:
+          - label: Top banner
+            name: topBanner
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Show banner, name: enabled, widget: boolean, default: true }
+              - { label: Bold text, name: boldText, widget: string }
+              - { label: Rest of message, name: text, widget: string }
+              - { label: Link text, name: linkText, widget: string }
+              - { label: Link href, name: linkHref, widget: string }
+
+          - label: Navigation
+            name: nav
+            widget: object
+            collapsed: true
+            fields:
+              - label: Items
+                name: items
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Href, name: href, widget: string }
+                  - { label: Active, name: active, widget: boolean, default: false }
+              - { label: Donate button label, name: donateLabel, widget: string }
+
+          - label: Hero
+            name: hero
+            widget: object
+            fields:
+              - { label: Background video URL (mp4), name: videoUrl, widget: string }
+              - label: Title (HTML allowed; <em> and <br/> supported)
+                name: titleHtml
+                widget: text
+              - { label: Subtitle, name: subtitle, widget: text }
+              - { label: Primary CTA label, name: primaryCtaLabel, widget: string }
+              - { label: Primary CTA href, name: primaryCtaHref, widget: string }
+              - { label: Secondary CTA label (opens video modal), name: secondaryCtaLabel, widget: string }
+
+          - label: Impact stats
+            name: impactStats
+            widget: list
+            fields:
+              - { label: Value (number), name: value, widget: number, value_type: int }
+              - { label: Label, name: label, widget: string }
+              - { label: Suffix (e.g. "+", "M+"), name: suffix, widget: string, required: false, default: "" }
+              - { label: Sub-label / growth, name: grow, widget: string }
+
+          - label: Intro panel
+            name: intro
+            widget: object
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - { label: Paragraph, name: lede, widget: text }
+              - { label: Video URL (mp4), name: videoUrl, widget: string }
+
+          - label: Latest video block
+            name: latestVideo
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - label: Heading (HTML allowed)
+                name: headingHtml
+                widget: text
+              - { label: Paragraph, name: lede, widget: text }
+              - label: Meta facts
+                name: meta
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Value, name: value, widget: string }
+              - { label: Thumbnail caption, name: thumbLabel, widget: string }
+              - { label: Timecode, name: timecode, widget: string }
+              - { label: Badge text, name: badgeText, widget: string }
+              - { label: Caption text, name: captionText, widget: string }
+              - label: Links
+                name: links
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Href, name: href, widget: string }
+                  - { label: Red style, name: red, widget: boolean, default: false }
+
+          - label: What's at stake (summary)
+            name: summary
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - label: Paragraphs (HTML allowed)
+                name: paragraphsHtml
+                widget: list
+                field: { label: Paragraph, name: text, widget: text }
+              - label: Stats (right of copy)
+                name: stats
+                widget: list
+                fields:
+                  - { label: Number, name: number, widget: string }
+                  - { label: Unit (e.g. km, B), name: unit, widget: string }
+                  - { label: Label, name: label, widget: string }
+
+          - label: Petition
+            name: petition
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - { label: Paragraph, name: lede, widget: text }
+              - label: Bullets
+                name: bullets
+                widget: list
+                field: { label: Bullet, name: text, widget: string }
+              - { label: Form receiver URL (Campaign Nucleus), name: receiverUrl, widget: string }
+              - { label: Current signature count, name: currentCount, widget: number, value_type: int }
+              - { label: Next milestone (e.g. 25000), name: nextMilestone, widget: number, value_type: int }
+              - { label: Goal (e.g. 50000), name: goal, widget: number, value_type: int }
+              - { label: Submit button label, name: submitLabel, widget: string }
+              - { label: Submitting label, name: submittingLabel, widget: string }
+              - label: Thanks heading (use {{count}} for new signature number)
+                name: thanksHeadingHtml
+                widget: text
+              - label: Thanks lede (use {{first}} for first name)
+                name: thanksLede
+                widget: text
+              - { label: Share text (clipboard), name: shareText, widget: text }
+              - { label: Form fineprint, name: fineprint, widget: text }
+
+          - label: Action cards
+            name: actions
+            widget: object
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - label: Cards
+                name: cards
+                widget: list
+                fields:
+                  - { label: Kicker (e.g. "01 / Evidence"), name: kicker, widget: string }
+                  - { label: Title, name: title, widget: string }
+                  - { label: Body, name: body, widget: text }
+                  - { label: CTA text, name: cta, widget: string }
+                  - { label: CTA href, name: href, widget: string }
+                  - label: Tone (placeholder colour)
+                    name: tone
+                    widget: select
+                    options: [navy, dust, red, paddock, sky]
+                  - { label: Placeholder label, name: label, widget: string }
+
+          - label: Pull quote
+            name: quote
+            widget: object
+            fields:
+              - label: Quote (HTML allowed)
+                name: html
+                widget: text
+              - { label: Name, name: name, widget: string }
+              - { label: Place / context, name: place, widget: string }
+
+          - label: Donate band
+            name: donate
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - { label: Body, name: body, widget: text }
+              - label: Where the money goes
+                name: where
+                widget: list
+                fields:
+                  - { label: Percent, name: percent, widget: string }
+                  - { label: Label, name: label, widget: string }
+              - label: Donation tiers
+                name: tiers
+                widget: list
+                fields:
+                  - { label: Amount ($), name: amount, widget: number, value_type: int }
+                  - { label: Label, name: label, widget: string }
+              - { label: Default selected tier, name: defaultPick, widget: number, value_type: int }
+              - { label: Fineprint, name: fineprint, widget: text }
+
+          - label: Newsletter
+            name: newsletter
+            widget: object
+            fields:
+              - { label: Heading, name: heading, widget: string }
+              - { label: Lede, name: lede, widget: text }
+              - { label: Email placeholder, name: placeholder, widget: string }
+              - { label: Subscribe button label, name: ctaLabel, widget: string }
+              - { label: Done message, name: doneText, widget: string }
+
+          - label: Footer
+            name: footer
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Brand blurb, name: blurb, widget: text }
+              - label: Social links
+                name: social
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Href, name: href, widget: string }
+              - label: Columns
+                name: columns
+                widget: list
+                fields:
+                  - { label: Heading, name: heading, widget: string }
+                  - label: Links
+                    name: links
+                    widget: list
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - { label: Href, name: href, widget: string }
+              - { label: Legal line, name: legal, widget: string }
+              - { label: Platform line, name: platform, widget: string }

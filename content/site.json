@@ -1,0 +1,194 @@
+{
+  "topBanner": {
+    "enabled": true,
+    "boldText": "23,418 Australians",
+    "text": "have signed the petition — add your name.",
+    "linkText": "Sign now →",
+    "linkHref": "#petition"
+  },
+  "nav": {
+    "items": [
+      { "label": "Home", "href": "#home", "active": true },
+      { "label": "The Evidence", "href": "#evidence", "active": false },
+      { "label": "News", "href": "#news", "active": false },
+      { "label": "Know Your Rights", "href": "#rights", "active": false },
+      { "label": "Hold the Gate", "href": "#gate", "active": false },
+      { "label": "About", "href": "#about", "active": false }
+    ],
+    "donateLabel": "Donate"
+  },
+  "hero": {
+    "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
+    "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
+    "subtitle": "23,000+ Australians standing against the $11.4B VNI West transmission line — and the corporate thugs sent to bully farmers off their own land.",
+    "primaryCtaLabel": "Sign the petition",
+    "primaryCtaHref": "#petition",
+    "secondaryCtaLabel": "Watch the evidence"
+  },
+  "impactStats": [
+    { "value": 23418, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
+    { "value": 4, "label": "Videos released", "suffix": "", "grow": "Evidence archive" },
+    { "value": 3, "label": "Media statements", "suffix": "", "grow": "ABC · 7News · WTimes" },
+    { "value": 187, "label": "Farms affected", "suffix": "", "grow": "Across 3 LGAs" }
+  ],
+  "intro": {
+    "eyebrow": "Who we are",
+    "heading": "A farmer-led fight for every Aussie farmer.",
+    "lede": "What started in Central Victoria is now a national campaign with 35,000+ Australians standing with us. Here's the story in a minute:",
+    "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
+  },
+  "latestVideo": {
+    "eyebrow": "Latest evidence · Video 4",
+    "headingHtml": "\"This'll be used as <em>evidence against you.</em>\"",
+    "lede": "Filmed at dawn during lambing. Maiden ewes scattered across the paddock. A contractor reads from a script, threatens a half-million-dollar fine, and demands access the landholder never agreed to.",
+    "meta": [
+      { "label": "Filmed", "value": "April 2026" },
+      { "label": "Location", "value": "Western Victoria" },
+      { "label": "Runtime", "value": "3:42" }
+    ],
+    "thumbLabel": "VIDEO 4 · LAMBING SEASON · 3:42",
+    "timecode": "03:42",
+    "badgeText": "NEW",
+    "captionText": "Video 4 — \"Corporate thugs threaten $500K fine\"",
+    "links": [
+      { "label": "See all 4 videos →", "href": "#evidence", "red": true },
+      { "label": "Read your legal rights →", "href": "#rights", "red": false }
+    ]
+  },
+  "summary": {
+    "eyebrow": "What's at stake",
+    "heading": "The $11.4 billion line they're bulldozing through our food bowl.",
+    "paragraphsHtml": [
+      "<strong>VNI West</strong> is a 400-kilometre high-voltage transmission line proposed to cut through some of Victoria's most productive cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
+      "Behind it sits AEMO, AusNet, and <strong>Iberdrola</strong> — an €80-billion Spanish multinational now sending contractors onto family farms, unannounced, with threats and clipboards.",
+      "We're a farmer-led coalition from the Wallaloo &amp; Gre Gre district. We're not anti-renewables. We're anti being walked over."
+    ],
+    "stats": [
+      { "number": "400", "unit": "km", "label": "Transmission corridor" },
+      { "number": "$11.4", "unit": "B", "label": "Project cost" },
+      { "number": "€80", "unit": "B", "label": "Iberdrola market cap" }
+    ]
+  },
+  "petition": {
+    "eyebrow": "Sign the petition",
+    "heading": "Add your name. Draw the line.",
+    "lede": "Every signature is a letter to Spring Street and Canberra. It tells them Victorian farmers aren't a speed bump — and it tells the next farmer facing a contractor at the gate that they're not alone.",
+    "bullets": [
+      "Your details stay on-shore and are never sold",
+      "Weekly campaign updates — unsubscribe any time",
+      "Authorised by Ben Duxson, Wallaloo VIC"
+    ],
+    "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2",
+    "currentCount": 23418,
+    "nextMilestone": 25000,
+    "goal": 50000,
+    "submitLabel": "Sign the petition",
+    "submittingLabel": "Signing...",
+    "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
+    "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
+    "shareText": "I just signed the Farmers Fightback petition. Join 23,000+ Australians: farmersfightback.com",
+    "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Wallaloo & Gre Gre District Association."
+  },
+  "actions": {
+    "eyebrow": "How you can help",
+    "heading": "Three ways to hold the line.",
+    "cards": [
+      {
+        "kicker": "01 / Evidence",
+        "title": "Watch what's happening on our farms",
+        "body": "Four videos. Four confrontations. Zero filter. Start with Video 4 — the lambing-season threat.",
+        "cta": "See all four videos",
+        "href": "#evidence",
+        "tone": "paddock",
+        "label": "VIDEO THUMB · VIDEO 4"
+      },
+      {
+        "kicker": "02 / Rights",
+        "title": "Know your rights before they knock",
+        "body": "Section 93 notices, the Land Access Code, your right to record. Plain English. Free template letters.",
+        "cta": "Read the guide",
+        "href": "#rights",
+        "tone": "dust",
+        "label": "PHOTO · GATE + PADLOCK"
+      },
+      {
+        "kicker": "03 / Gate",
+        "title": "Join Hold the Gate",
+        "body": "A statewide network of farmers, neighbours and witnesses. When the contractors come, we come too.",
+        "cta": "Find your local group",
+        "href": "#gate",
+        "tone": "red",
+        "label": "PHOTO · COMMUNITY HALL"
+      }
+    ]
+  },
+  "quote": {
+    "html": "They came back <em>two days later.</em> Mid-lambing. Reading from a script. Telling me I'd cop a five-hundred-thousand-dollar fine if I didn't let them through<span class=\"ff-quote-strong\"> my own front gate.</span>",
+    "name": "— Rob, fourth-generation farmer",
+    "place": "Western Victoria · filmed April 2026"
+  },
+  "donate": {
+    "eyebrow": "Chip in",
+    "heading": "Every dollar fights for a farm.",
+    "body": "Legal advice for farmers on the corridor. Camera gear for the next confrontation. Printing, fuel, hall hire, ads that won't air on commercial radio. We run lean. You keep us in the paddock.",
+    "where": [
+      { "percent": "42%", "label": "Legal & ombudsman costs" },
+      { "percent": "28%", "label": "Video production & distribution" },
+      { "percent": "20%", "label": "Community organising" },
+      { "percent": "10%", "label": "Campaign materials" }
+    ],
+    "tiers": [
+      { "amount": 25, "label": "Prints 100 flyers" },
+      { "amount": 50, "label": "An hour of legal advice" },
+      { "amount": 100, "label": "Fills a ute for a week" },
+      { "amount": 250, "label": "Camera kit for a farmer" }
+    ],
+    "defaultPick": 50,
+    "fineprint": "Secure processing via Campaign Nucleus. Not tax-deductible."
+  },
+  "newsletter": {
+    "heading": "Get the next video before the nightly news does.",
+    "lede": "Weekly dispatches from the corridor. No spam, no corporate chaff.",
+    "placeholder": "you@farm.com.au",
+    "ctaLabel": "Subscribe",
+    "doneText": "✓ You're on the list. Keep an eye on your inbox."
+  },
+  "footer": {
+    "blurb": "A farmer-led coalition from the Wallaloo & Gre Gre District Association — fighting the VNI West transmission line and defending the food bowl of Victoria.",
+    "social": [
+      { "label": "TikTok", "href": "#" },
+      { "label": "Facebook", "href": "#" },
+      { "label": "Instagram", "href": "#" }
+    ],
+    "columns": [
+      {
+        "heading": "Campaign",
+        "links": [
+          { "label": "The Evidence", "href": "#evidence" },
+          { "label": "News & media", "href": "#news" },
+          { "label": "Know your rights", "href": "#rights" },
+          { "label": "Hold the Gate", "href": "#gate" }
+        ]
+      },
+      {
+        "heading": "Take action",
+        "links": [
+          { "label": "Sign the petition", "href": "#petition" },
+          { "label": "Donate", "href": "#donate" },
+          { "label": "Volunteer", "href": "#" },
+          { "label": "Submit evidence", "href": "#" }
+        ]
+      },
+      {
+        "heading": "Contact",
+        "links": [
+          { "label": "hello@farmersfightback.com", "href": "mailto:hello@farmersfightback.com" },
+          { "label": "Media enquiries", "href": "#" },
+          { "label": "Press kit", "href": "#" }
+        ]
+      }
+    ],
+    "legal": "Authorised by Ben Duxson, Wallaloo VIC · © 2026 Farmers Fightback",
+    "platform": "Built on Campaign Nucleus"
+  }
+}
