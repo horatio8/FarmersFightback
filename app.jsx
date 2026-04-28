@@ -187,6 +187,33 @@ function ImpactStat({ value, label, suffix, grow }) {
   );
 }
 
+// ---------- Intro video ----------
+function IntroVideo() {
+  return (
+    <section className="ff-section ff-intro">
+      <div className="ff-wrap ff-intro-inner">
+        <div className="ff-intro-copy">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Who we are</span>
+          <h2 className="ff-h2">A farmer-led fight for the food bowl of Victoria.</h2>
+          <p className="ff-lede">
+            We're the families, neighbours and tradies of Wallaloo &amp; Gre Gre —
+            and the 23,000+ Australians standing with us. Here's the story in a couple of minutes.
+          </p>
+        </div>
+        <div className="ff-intro-player">
+          <video controls playsInline muted loop autoPlay preload="metadata">
+            <source
+              src="https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
+              type="video/mp4"
+            />
+            Your browser doesn't support embedded video.
+          </video>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ---------- Latest video ----------
 function LatestVideo({ onOpen }) {
   const [playing, setPlaying] = useState(false);
@@ -701,6 +728,7 @@ function App() {
       <main>
         <Hero onWatch={() => setModal(true)} />
         <ImpactBar />
+        <IntroVideo />
         <LatestVideo onOpen={() => setModal(true)} />
         <Summary />
         <Petition />

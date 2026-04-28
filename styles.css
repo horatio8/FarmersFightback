@@ -392,6 +392,34 @@ img { max-width: 100%; display: block; }
   .ff-impact-stat { border-left: 0; padding: 0; }
 }
 
+/* ============ Intro video ============ */
+.ff-intro { background: var(--ff-paper); }
+.ff-intro-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 4vw, 48px);
+  text-align: center;
+  align-items: center;
+}
+.ff-intro-copy { max-width: 720px; margin: 0 auto; }
+.ff-intro-copy .ff-lede { margin-left: auto; margin-right: auto; }
+.ff-intro-player {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: var(--ff-radius-lg);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 30px 60px -20px rgba(18,53,75,.4);
+}
+.ff-intro-player video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 /* ============ Latest video ============ */
 .ff-video-inner {
   display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(30px, 5vw, 80px);
