@@ -491,6 +491,30 @@ function DonateBand() {
   const c = useContent().donate;
   const [pick, setPick] = useState(c.defaultPick);
   const [monthly, setMonthly] = useState(false);
+
+  const matchedTier = c.tiers.find(t => Number(t.amount) === Number(pick));
+  const isCustom = !matchedTier;
+  const stripeUrl = isCustom
+    ? (monthly ? c.customMonthlyUrl : c.customOneOffUrl)
+    : (monthly ? matchedTier.monthlyUrl : matchedTier.oneOffUrl);
+  const ready = !!stripeUrl;
+  const validAmount = Number(pick) > 0;
+  const canDonate = ready && validAmount;
+
+  const onDonate = () => {
+    if (!canDonate) return;
+    window.location.href = stripeUrl;
+  };
+
+  let helpMsg = c.fineprint;
+  if (!validAmount) {
+    helpMsg = "Choose an amount above to continue.";
+  } else if (!ready) {
+    helpMsg = isCustom
+      ? `Custom ${monthly ? "monthly" : "one-off"} donations aren't set up yet — pick a fixed amount or check back soon.`
+      : `${monthly ? "Monthly" : "One-off"} donations of $${pick} aren't set up yet — try a different amount or frequency.`;
+  }
+
   return (
     <section id="donate" className="ff-section ff-donate">
       <div className="ff-wrap ff-donate-inner">
@@ -506,12 +530,17 @@ function DonateBand() {
         </div>
         <div className="ff-donate-form">
           <div className="ff-donate-toggle">
-            <button className={!monthly ? "is-on" : ""} onClick={() => setMonthly(false)}>One-off</button>
-            <button className={monthly ? "is-on" : ""} onClick={() => setMonthly(true)}>Monthly</button>
+            <button type="button" className={!monthly ? "is-on" : ""} onClick={() => setMonthly(false)}>One-off</button>
+            <button type="button" className={monthly ? "is-on" : ""} onClick={() => setMonthly(true)}>Monthly</button>
           </div>
           <div className="ff-donate-tiers">
             {c.tiers.map(t => (
-              <button key={t.amount} className={`ff-donate-tier ${pick===t.amount ? "is-on" : ""}`} onClick={() => setPick(t.amount)}>
+              <button
+                key={t.amount}
+                type="button"
+                className={`ff-donate-tier ${Number(pick)===Number(t.amount) ? "is-on" : ""}`}
+                onClick={() => setPick(t.amount)}
+              >
                 <span className="ff-donate-tier-n">${t.amount}</span>
                 <span className="ff-donate-tier-l">{t.label}</span>
               </button>
@@ -521,13 +550,25 @@ function DonateBand() {
             <span>Other amount</span>
             <div className="ff-donate-other-in">
               <em>$</em>
-              <input type="number" placeholder="Custom" value={pick} onChange={e => setPick(Number(e.target.value)||0)}/>
+              <input
+                type="number"
+                min="1"
+                placeholder="Custom"
+                value={pick}
+                onChange={e => setPick(Number(e.target.value)||0)}
+              />
             </div>
           </label>
-          <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg">
+          <button
+            type="button"
+            className="ff-btn ff-btn--red ff-btn--block ff-btn--lg"
+            disabled={!canDonate}
+            onClick={onDonate}
+            aria-disabled={!canDonate}
+          >
             Donate ${pick} {monthly ? "/month" : "now"}
           </button>
-          <p className="ff-donate-fine">{c.fineprint}</p>
+          <p className="ff-donate-fine">{helpMsg}</p>
         </div>
       </div>
     </section>

@@ -138,13 +138,15 @@
       { "percent": "10%", "label": "Campaign materials" }
     ],
     "tiers": [
-      { "amount": 25, "label": "Prints 100 flyers" },
-      { "amount": 50, "label": "An hour of legal advice" },
-      { "amount": 100, "label": "Fills a ute for a week" },
-      { "amount": 250, "label": "Camera kit for a farmer" }
+      { "amount": 25,  "label": "Prints 100 flyers",        "oneOffUrl": "", "monthlyUrl": "" },
+      { "amount": 50,  "label": "An hour of legal advice",  "oneOffUrl": "", "monthlyUrl": "" },
+      { "amount": 100, "label": "Fills a ute for a week",   "oneOffUrl": "", "monthlyUrl": "" },
+      { "amount": 250, "label": "Camera kit for a farmer",  "oneOffUrl": "", "monthlyUrl": "" }
     ],
+    "customOneOffUrl": "",
+    "customMonthlyUrl": "",
     "defaultPick": 50,
-    "fineprint": "Secure processing via Campaign Nucleus. Not tax-deductible."
+    "fineprint": "Secure processing via Stripe. Receipts sent to your inbox. Not tax-deductible."
   },
   "newsletter": {
     "heading": "Get the next video before the nightly news does.",

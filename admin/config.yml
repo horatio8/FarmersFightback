@@ -209,9 +209,22 @@ collections:
               - label: Donation tiers
                 name: tiers
                 widget: list
+                hint: For each tier, paste the matching Stripe Payment Link URL for one-off and monthly. Get them from https://dashboard.stripe.com/payment-links
                 fields:
                   - { label: Amount ($), name: amount, widget: number, value_type: int }
                   - { label: Label, name: label, widget: string }
+                  - { label: Stripe one-off Payment Link URL, name: oneOffUrl, widget: string, required: false, default: "" }
+                  - { label: Stripe monthly Payment Link URL, name: monthlyUrl, widget: string, required: false, default: "" }
+              - label: Stripe link — custom one-off (customer-chosen amount)
+                name: customOneOffUrl
+                widget: string
+                required: false
+                default: ""
+              - label: Stripe link — custom monthly (customer-chosen amount)
+                name: customMonthlyUrl
+                widget: string
+                required: false
+                default: ""
               - { label: Default selected tier, name: defaultPick, widget: number, value_type: int }
               - { label: Fineprint, name: fineprint, widget: text }
 
