@@ -168,11 +168,12 @@ function ImpactStat({ value, label, suffix, grow }) {
   );
 }
 
-// ---------- Intro video ----------
-function IntroVideo() {
+// ---------- Who we are ----------
+function WhoWeAre() {
   const c = useContent().intro;
+  const p = c.presidentBlock;
   return (
-    <section className="ff-section ff-intro">
+    <section id="about" className="ff-section ff-intro">
       <div className="ff-wrap ff-intro-inner">
         <div className="ff-intro-copy">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
@@ -185,6 +186,60 @@ function IntroVideo() {
             Your browser doesn't support embedded video.
           </video>
         </div>
+      </div>
+
+      {p && (
+        <div className="ff-wrap ff-president">
+          <div className="ff-president-card">
+            <span className="ff-card-kicker">{p.title}</span>
+            <h3 className="ff-president-name">{p.name}</h3>
+            {p.bioParagraphs.map((para, i) => <p key={i}>{para}</p>)}
+            <p className="ff-president-tagline">{p.tagline}</p>
+          </div>
+        </div>
+      )}
+
+      {c.supporters && (
+        <div className="ff-wrap ff-supporters">
+          <h3 className="ff-h3">{c.supportersHeading}</h3>
+          <ul className="ff-supporters-grid">
+            {c.supporters.map((s, i) => (
+              <li key={i} className="ff-supporter">
+                <span className="ff-supporter-tick" aria-hidden="true">+</span>
+                <div>
+                  <strong>{s.title}</strong>
+                  <p>{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ---------- Media coverage ----------
+function MediaCoverage() {
+  const c = useContent().media;
+  if (!c) return null;
+  return (
+    <section id="news" className="ff-section ff-media">
+      <div className="ff-wrap">
+        <div className="ff-media-head">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2">{c.heading}</h2>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+        <ul className="ff-media-list">
+          {c.items.map((m, i) => (
+            <li key={i} className="ff-media-item">
+              <span className="ff-media-outlet">{m.outlet}</span>
+              <span className="ff-media-headline">{m.headline}</span>
+              {m.note && <span className="ff-media-note">{m.note}</span>}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -225,6 +280,48 @@ function YouTubeEmbed({ youtubeId, ratio = "16/9", title }) {
   );
 }
 
+// ---------- Movement (origin / by-the-numbers / three campaigns) ----------
+function Movement({ m }) {
+  return (
+    <div className="ff-movement">
+      <div className="ff-wrap ff-movement-origin">
+        <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {m.eyebrow}</span>
+        <h3 className="ff-movement-h2">{m.originHeading}</h3>
+        <div className="ff-movement-origin-body">
+          {m.originParagraphs.map((p, i) => <p key={i}>{p}</p>)}
+        </div>
+      </div>
+
+      <div className="ff-wrap ff-movement-numbers">
+        <h3 className="ff-h3 ff-movement-h3">{m.numbersHeading}</h3>
+        <ul className="ff-numbers-grid">
+          {m.numbers.map((n, i) => (
+            <li key={i} className="ff-number-card">
+              <div className="ff-number-n">{n.value}</div>
+              <div className="ff-number-l">{n.label}</div>
+              <div className="ff-number-s">{n.sub}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="ff-wrap ff-movement-campaigns">
+        <h3 className="ff-h3 ff-movement-h3">{m.campaignsHeading}</h3>
+        <p className="ff-lede">{m.campaignsLede}</p>
+        <div className="ff-campaigns-grid">
+          {m.campaigns.map((cm, i) => (
+            <article key={i} className="ff-campaign-card">
+              <span className="ff-campaign-kicker">{cm.kicker}</span>
+              <h4 className="ff-campaign-title">{cm.title}</h4>
+              <p>{cm.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Evidence ----------
 function Evidence() {
   const c = useContent().evidence;
@@ -259,6 +356,8 @@ function Evidence() {
           ))}
         </ul>
       </div>
+
+      {c.movement && <Movement m={c.movement} />}
 
       <div className="ff-wrap ff-evidence-band">
         <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.shortsHeading}</span>
@@ -784,12 +883,13 @@ function App() {
       <main>
         <Hero onWatch={scrollTo("evidence")} />
         <ImpactBar />
-        <IntroVideo />
         <Evidence />
         <Summary />
+        <MediaCoverage />
         <Petition />
         <ActionCards />
         <Quote />
+        <WhoWeAre />
         <DonateBand />
         <Newsletter />
       </main>

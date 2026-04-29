@@ -1,7 +1,7 @@
 {
   "topBanner": {
     "enabled": true,
-    "boldText": "23,418 Australians",
+    "boldText": "35,000+ Australians",
     "text": "have signed the petition — add your name.",
     "linkText": "Sign now →",
     "linkHref": "#petition"
@@ -20,38 +20,110 @@
   "hero": {
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
-    "subtitle": "23,000+ Australians standing against the $11.4B VNI West transmission line — and the corporate thugs sent to bully farmers off their own land.",
+    "subtitle": "35,000+ Australians standing against the $11.4B VNI West transmission line — and the corporate thugs sent to bully farmers off their own land.",
     "primaryCtaLabel": "Sign the petition",
     "primaryCtaHref": "#petition",
     "secondaryCtaLabel": "Watch the evidence"
   },
   "impactStats": [
-    { "value": 23418, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
+    { "value": 35000, "label": "Signatures", "suffix": "+", "grow": "Every state & territory" },
+    { "value": 36000, "label": "Facebook followers", "suffix": "+", "grow": "Growing weekly" },
     { "value": 7, "label": "Videos released", "suffix": "", "grow": "200k+ total views" },
-    { "value": 0, "label": "Media coverage", "suffix": "", "grow": "Zero stories run" },
     { "value": 0, "label": "Govt responses", "suffix": "", "grow": "Silence from Spring St" }
   ],
   "intro": {
     "eyebrow": "Who we are",
-    "heading": "A farmer-led fight for every Aussie farmer.",
-    "lede": "What started in Central Victoria is now a national campaign with 35,000+ Australians standing with us. Here's the story in a minute:",
-    "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
+    "heading": "Farmer-led. Community-funded. Non-partisan.",
+    "lede": "Farmers Fightback is led by the Wallaloo & Gre Gre District Association — a farmer-led coalition from the heart of Australia's broadacre farming belt. We are not activists. We are not funded by corporations or political parties. We are farming families who were told that multinational energy companies have more right to our land than we do. And we said no.",
+    "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4",
+    "presidentBlock": {
+      "name": "Ben Duxson",
+      "title": "President, Wallaloo & Gre Gre District Association",
+      "bioParagraphs": [
+        "Our president, Ben Duxson, is a sixth-generation Kanya farmer. His family has been on this land for over a century. He didn't choose this fight. None of us did. But when corporate contractors started arriving on soldier settlement farms — farms built by diggers who fought for this country — reading from scripts and threatening fines, we didn't have a choice.",
+        "This is a genuine, non-partisan, community-funded movement. Every dollar comes from individual Australians. Every volunteer comes from farming communities and the suburbs. Every supporter shares the same belief: that if the government can do this to a farmer, they can do it to anyone."
+      ],
+      "tagline": "We're not anti-renewables. We're anti being walked over."
+    },
+    "supportersHeading": "Standing with us",
+    "supporters": [
+      { "title": "Farming families", "body": "Across Australia, who understand what it means to have your livelihood threatened by a government decision made hundreds of kilometres away." },
+      { "title": "Returned servicemen & women", "body": "And their families — people for whom the soldier settlement connection is personal and the ANZAC Day timing is an affront." },
+      { "title": "Property rights advocates", "body": "Australians who defend castle doctrine and believe that your gate is your gate, regardless of who is standing on the other side of it." },
+      { "title": "Rural community members", "body": "Small business owners, tradespeople, teachers, and healthcare workers who know that when farms die, towns die." },
+      { "title": "Urban supporters", "body": "In Melbourne, Sydney, Brisbane, and beyond who see the broader principle: if government contractors can enter your property without identifying themselves, nobody's home is safe." },
+      { "title": "Food security advocates", "body": "Australians concerned about food security and the future of Australian agriculture." }
+    ]
+  },
+  "media": {
+    "eyebrow": "In the press",
+    "heading": "Coverage of the Farmers Fightback story.",
+    "lede": "Despite national significance, the major metro broadcasters have largely ignored this story. We invite every media outlet in Australia to watch the footage on this page and then explain to their audience why this story doesn't deserve coverage.",
+    "items": [
+      { "outlet": "Stock & Land", "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys", "note": "Reporting on 100% failure rate of VicGrid accessing properties" },
+      { "outlet": "Stock & Land", "headline": "Farmers challenge VNI West power project access in Victoria", "note": "150+ people at farm gate blockade" },
+      { "outlet": "Stock & Land", "headline": "Farmer blockade halts VNI West employee access for third straight day", "note": "Sustained multi-day protest actions" },
+      { "outlet": "The Weekly Advertiser", "headline": "Farmers dig in: new bill 'acquisition by stealth'", "note": "Standing room only at Marnoo Cricket Club meeting" },
+      { "outlet": "ARR News", "headline": "District farmers fight back", "note": "Feature on the growing movement" },
+      { "outlet": "The Standard", "headline": "'When will insanity end': farmer fury over power play", "note": "" },
+      { "outlet": "Sky News", "headline": "National broadcast coverage", "note": "Led to 5,000 new supporters in a single night" },
+      { "outlet": "Hey Farmer Farmer Podcast", "headline": "Interview with Ben Duxson", "note": "On the movement's origins" }
+    ]
   },
   "evidence": {
     "eyebrow": "The evidence",
     "heading": "The evidence they don't want you to see.",
-    "intro": "Raw, unfiltered footage of corporate contractors threatening Australian farmers on their own land. No editing. No spin. Just the truth they're trying to bury.",
+    "intro": "Raw footage. Real farmers. Real threats. This is what's happening to Australian farming families — and nobody's talking about it.",
     "paragraphsHtml": [
-      "Across Australia, farming families are being visited by corporate contractors who arrive unannounced, read from legal scripts, threaten massive fines, and demand access to private land — land that has been in families for generations. <strong>They dress like authority. They talk like authority. They are not authority.</strong> They are employees of multinational energy corporations worth tens of billions of dollars. And they have been sent to bully ordinary Australians off their own property.",
-      "Every video below is real. Unedited. Filmed by the farmers themselves. Because when the government won't listen, when the media won't cover it, and when the corporations won't stop — the only thing left is the footage."
+      "Across Australia, farming families are being targeted by energy corporations backed by government power. Corporate contractors arrive unannounced on private land — land that has been in families for generations, some of it soldier settlement country granted to returned servicemen after the World Wars. They read from legal scripts. They threaten fines of up to <strong>$6,000</strong>. They demand access to property without proper notice, without consent, and without a shred of respect.",
+      "<strong>They dress like authority. They talk like authority. They are not authority.</strong> They are employees of multinational energy corporations — companies worth tens of billions of dollars — sent to bully ordinary Australians off their own land so transmission towers can be bulldozed through the nation's food bowl.",
+      "Every piece of evidence on this page is real. Filmed by the farmers themselves. Exposed by a movement that started with a handful of families talking around a kitchen table and has grown into a national campaign with <strong>35,000+ supporters</strong>, 36,000+ Facebook followers, and hundreds of donors from every state and territory."
     ],
-    "callout": "Watch it. Share it. Make them explain it.",
+    "callout": "The government won't investigate. The media won't cover it. The corporations won't stop. So we're putting the evidence where everyone can see it.",
     "stats": [
-      { "value": "7", "label": "Videos released" },
-      { "value": "200k+", "label": "Total views" },
-      { "value": "0", "label": "Media coverage" },
+      { "value": "35k+", "label": "Petition signatures" },
+      { "value": "200k+", "label": "Combined video views" },
+      { "value": "100%", "label": "VicGrid failure rate" },
       { "value": "0", "label": "Government responses" }
     ],
+    "movement": {
+      "eyebrow": "The movement",
+      "originHeading": "How it started",
+      "originParagraphs": [
+        "Farmers Fightback began in the paddocks and kitchens of Western Victoria. Not in a boardroom. Not in a political office. On the land.",
+        "The Wallaloo and Gre Gre districts sit in the heart of Australia's broadacre farming belt. These are soldier settlement properties — land granted to returned servicemen after the First and Second World Wars so they could build a life and feed a nation. Families have been farming here for generations. Some properties have been in the same family for over a century.",
+        "When the government announced an $11.4 billion transmission line that would cut directly through this country — through the farms of digger families, through land that has been farmed, cared for, and defended for generations — local farmers formed the Wallaloo & Gre Gre District Association to fight back.",
+        "What started as a few families became a district. Then a region. Then a national movement."
+      ],
+      "numbersHeading": "By the numbers",
+      "numbers": [
+        { "value": "35,000+", "label": "Petition signatures", "sub": "From every state & territory" },
+        { "value": "36,000+", "label": "Facebook followers", "sub": "Growing weekly" },
+        { "value": "100%", "label": "Failure rate", "sub": "VicGrid hasn't accessed a property in 3 weeks" },
+        { "value": "200k+", "label": "Combined video views", "sub": "Across 7 evidence videos" },
+        { "value": "Hundreds", "label": "Individual donors", "sub": "From every state & territory" },
+        { "value": "0", "label": "Government responses", "sub": "Three weeks of silence" }
+      ],
+      "campaignsHeading": "Three campaigns, one fight",
+      "campaignsLede": "Farmers Fightback runs three interconnected campaigns. Each addresses a different dimension of the crisis facing rural Australia. Together, they build a picture of systemic government failure.",
+      "campaigns": [
+        {
+          "kicker": "01",
+          "title": "VNI West Launch Campaign",
+          "body": "The original fight. Corporate contractors arriving unannounced on properties. Farmers who asked for identification threatened with fines. Property rights decimated. Farms critical to the Australian food bowl treated like a gap on a map."
+        },
+        {
+          "kicker": "02",
+          "title": "Fuel & Fertiliser Crisis",
+          "body": "While the VNI West fight made headlines, another crisis was crushing farming families. Fuel and fertiliser costs rose 200% in a single year. Crop prices stalled. The maths stopped working. Input costs exceeded returns. Farmers were being asked to plant at a loss."
+        },
+        {
+          "kicker": "03",
+          "title": "Hold the Gate",
+          "body": "The centrepiece action. A farm gate compliance operation across soldier settlement properties. Volunteers from across Australia standing with farming families at their gates. Not to confront. To document. To observe. Every contractor is asked to identify themselves. Every interaction is filmed and logged."
+        }
+      ]
+    },
     "shortsHeading": "60 seconds of truth.",
     "shortsLede": "Short, sharp, undeniable. Each clip is under a minute. Each one shows a corporate contractor threatening an Australian farmer on their own land. Watch them all. Then ask yourself why this isn't on the nightly news.",
     "shorts": [
@@ -142,35 +214,37 @@
     "ctaEyebrow": "What now",
     "ctaHeading": "This is happening right now.",
     "ctaParagraphsHtml": [
-      "Every video on this page was filmed by an Australian farmer on their own property. No actors. No scripts. No editing. Just ordinary people being threatened by corporate contractors sent by energy companies worth tens of billions of dollars.",
+      "Every video on this page was filmed by an Australian farmer on their own property. Every statistic is real. Every claim can be verified. This is not a fringe issue. This is <strong>35,000 Australians</strong> — from every state and territory — who have drawn a line.",
       "The government won't investigate. The media won't cover it. The corporations won't stop.",
-      "<strong>So we're putting the evidence where everyone can see it. And we're asking you to do three things:</strong>"
+      "<strong>So we're asking you to do three things:</strong>"
     ],
     "ctaSteps": [
       "Watch the footage. All of it. Then make up your own mind.",
       "Share it. Send it to everyone you know. Post it. Email it. Text it. Make it impossible to ignore.",
-      "Sign the petition. Add your name to the 23,000+ Australians who have already drawn the line."
+      "Sign the petition. Add your name to the 35,000+ Australians who have already drawn the line."
     ],
     "ctaCloser": "Because if this can happen to a farmer, it can happen to anyone.",
     "ctaButtons": [
       { "label": "Sign the petition", "href": "#petition", "primary": true },
       { "label": "Share the evidence", "action": "share" },
-      { "label": "Know your rights", "href": "#rights" }
+      { "label": "Know your rights", "href": "#rights" },
+      { "label": "Hold the gate", "href": "#gate" }
     ],
     "shareTitle": "The Evidence — Farmers Fightback",
-    "shareText": "Corporate contractors are threatening Australian farmers on their own land. Watch the evidence they're trying to bury. #FarmersFightback #HandsOffOurLand"
+    "shareText": "35,000 Australians have drawn the line. Corporate contractors are threatening farmers on soldier settlement land — land built by diggers. We filmed everything. Watch the evidence. #FarmersFightback #HandsOffOurLand #HoldTheGate"
   },
   "summary": {
     "eyebrow": "What's at stake",
     "heading": "The $11.4 billion line they're bulldozing through our food bowl.",
     "paragraphsHtml": [
-      "<strong>VNI West</strong> is a 400-kilometre high-voltage transmission line proposed to cut through some of Victoria's most productive cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
+      "<strong>VNI West</strong> is a 400-kilometre high-voltage transmission line proposed to cut through some of Australia's most productive cropping and grazing country. Originally costed at $3.8 billion, it blew out to $7.6 billion. Current estimates put it at <strong>$11.4 billion</strong> — the most expensive transmission project in Australian history.",
       "Behind it sits AEMO, AusNet, and <strong>Iberdrola</strong> — an €80-billion Spanish multinational now sending contractors onto family farms, unannounced, with threats and clipboards.",
-      "We're a farmer-led coalition from the Wallaloo &amp; Gre Gre district. We're not anti-renewables. We're anti being walked over."
+      "The proposed route cuts directly through soldier settlement farms — land granted to returned servicemen after the World Wars. Families were never meaningfully consulted. Alternative routes were never seriously considered. The farms were treated like a gap on a map.",
+      "<strong>If contractors can enter your property without identifying themselves, that precedent doesn't stop at one farm gate. It applies to every Australian property.</strong>"
     ],
     "stats": [
       { "number": "400", "unit": "km", "label": "Transmission corridor" },
-      { "number": "$11.4", "unit": "B", "label": "Project cost" },
+      { "number": "$11.4", "unit": "B", "label": "Cost (was $3.8B)" },
       { "number": "€80", "unit": "B", "label": "Iberdrola market cap" }
     ]
   },
@@ -184,14 +258,14 @@
       "Authorised by Ben Duxson, Wallaloo VIC"
     ],
     "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2",
-    "currentCount": 23418,
-    "nextMilestone": 25000,
+    "currentCount": 35000,
+    "nextMilestone": 40000,
     "goal": 50000,
     "submitLabel": "Sign the petition",
     "submittingLabel": "Signing...",
     "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
     "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
-    "shareText": "I just signed the Farmers Fightback petition. Join 23,000+ Australians: farmersfightback.com",
+    "shareText": "I just signed the Farmers Fightback petition. Join 35,000+ Australians: farmersfightback.com",
     "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Wallaloo & Gre Gre District Association."
   },
   "actions": {
