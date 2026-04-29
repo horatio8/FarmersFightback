@@ -10,8 +10,8 @@
     "items": [
       { "label": "Home", "href": "#home", "active": true },
       { "label": "The Evidence", "href": "#evidence", "active": false },
+      { "label": "Take Action", "href": "#action", "active": false },
       { "label": "News", "href": "#news", "active": false },
-      { "label": "Know Your Rights", "href": "#rights", "active": false },
       { "label": "Hold the Gate", "href": "#gate", "active": false },
       { "label": "About", "href": "#about", "active": false }
     ],
@@ -249,24 +249,63 @@
     ]
   },
   "petition": {
-    "eyebrow": "Sign the petition",
+    "eyebrow": "Take action",
     "heading": "Add your name. Draw the line.",
-    "lede": "Every signature is a letter to Spring Street and Canberra. It tells them Victorian farmers aren't a speed bump — and it tells the next farmer facing a contractor at the gate that they're not alone.",
+    "lede": "Every signature is a letter to Spring Street and Canberra. It tells them Australian farmers aren't a speed bump — and it tells the next farmer facing a contractor at the gate that they're not alone.",
+    "demandsIntro": "Sign your name to demand:",
+    "demands": [
+      { "numeral": "I",   "text": "An independent investigation into VicGrid contractor conduct — including police-style scripts, threatened fines, and access attempts without proper notice." },
+      { "numeral": "II",  "text": "Statutory protection of soldier-settlement land and farming families against compulsory access without consent and full 48-hour notice." },
+      { "numeral": "III", "text": "Genuine community consultation on every major energy infrastructure project — not box-ticking after a route has already been drawn." },
+      { "numeral": "IV",  "text": "Public release of all VNI West cost estimates, alternative routes considered, and the contractor scripts being used at farm gates." }
+    ],
     "bullets": [
       "Your details stay on-shore and are never sold",
       "Weekly campaign updates — unsubscribe any time",
       "Authorised by Ben Duxson, Wallaloo VIC"
     ],
+    "trustBadges": [
+      { "label": "On-shore data only", "icon": "lock" },
+      { "label": "Never sold or shared", "icon": "shield" },
+      { "label": "Unsubscribe anytime", "icon": "tick" }
+    ],
     "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2",
     "currentCount": 35000,
     "nextMilestone": 40000,
     "goal": 50000,
-    "submitLabel": "Sign the petition",
-    "submittingLabel": "Signing...",
-    "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
-    "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
-    "shareText": "I just signed the Farmers Fightback petition. Join 35,000+ Australians: farmersfightback.com",
-    "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Wallaloo & Gre Gre District Association."
+    "countries": [
+      { "code": "AU", "label": "Australia", "dial": "+61" },
+      { "code": "NZ", "label": "New Zealand", "dial": "+64" },
+      { "code": "GB", "label": "United Kingdom", "dial": "+44" },
+      { "code": "US", "label": "United States", "dial": "+1" },
+      { "code": "CA", "label": "Canada", "dial": "+1" },
+      { "code": "IE", "label": "Ireland", "dial": "+353" },
+      { "code": "OTHER", "label": "Other", "dial": "" }
+    ],
+    "consentLabel": "I agree to receive campaign updates and accept the privacy policy. I can unsubscribe at any time.",
+    "submitLabel": "Add my signature →",
+    "submittingLabel": "Adding your signature…",
+    "thanksEyebrow": "Signed · thank you",
+    "thanksHeadingHtml": "Welcome to the fight, <em>{{first}}</em>.",
+    "thanksLede": "You just became signature number {{count}}. Here's what to do next — every one of these matters.",
+    "shareHeading": "Share the petition",
+    "shareLede": "The fastest way to grow this movement is one mate at a time. Pick your platform:",
+    "shareText": "I just signed the Farmers Fightback petition. 35,000+ Australians are drawing the line. Add your name → farmersfightback.com",
+    "shareLinks": [
+      { "platform": "facebook",  "label": "Facebook" },
+      { "platform": "x",         "label": "X" },
+      { "platform": "whatsapp",  "label": "WhatsApp" },
+      { "platform": "telegram",  "label": "Telegram" },
+      { "platform": "email",     "label": "Email" },
+      { "platform": "copy",      "label": "Copy link" }
+    ],
+    "postSignHeading": "Then take it further",
+    "postSignCtas": [
+      { "kicker": "01 / Chip in",       "title": "Fund the fight",        "body": "Legal advice for farmers on the corridor. Camera gear for the next confrontation. Hall hire. Every dollar fights for a farm.", "label": "Donate (AUD)",      "href": "#donate", "primary": true },
+      { "kicker": "02 / Hold the gate", "title": "Stand at a farm gate",  "body": "When contractors come, we come too. Find your local Hold the Gate group and be there next time.",                                "label": "Find your group",   "href": "#gate" },
+      { "kicker": "03 / Know rights",  "title": "Know your rights",      "body": "Section 93 notices, the Land Access Code, your right to record and refuse. Plain English. Free template letters.",               "label": "Read the guide",    "href": "#rights" }
+    ],
+    "fineprint": "Authorised by Ben Duxson, Wallaloo & Gre Gre District Association."
   },
   "actions": {
     "eyebrow": "How you can help",

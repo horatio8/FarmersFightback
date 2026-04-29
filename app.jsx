@@ -495,34 +495,64 @@ function Summary() {
   );
 }
 
-// ---------- Petition form ----------
-function Petition() {
+// ---------- Take Action ----------
+// ---------- Take Action (petition + share + post-sign CTAs) ----------
+function shareUrlFor(platform, text, url) {
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(url);
+  switch (platform) {
+    case "facebook": return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+    case "x":        return `https://twitter.com/intent/tweet?text=${t}&url=${u}`;
+    case "whatsapp": return `https://wa.me/?text=${t}%20${u}`;
+    case "telegram": return `https://t.me/share/url?url=${u}&text=${t}`;
+    case "email":    return `mailto:?subject=${encodeURIComponent("Sign the Farmers Fightback petition")}&body=${t}%0A%0A${u}`;
+    default: return null;
+  }
+}
+
+function TakeAction() {
   const c = useContent().petition;
-  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", affected: "" });
+  const defaultCountry = (c.countries && c.countries[0]) || { code: "AU", label: "Australia", dial: "+61" };
+  const [form, setForm] = useState({
+    first: "", last: "", email: "", phone: "", postcode: "",
+    country: defaultCountry.code, affected: "", consent: false
+  });
   const [errors, setErrors] = useState({});
   const [state, setState] = useState("idle");
-  const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const update = (k) => (e) => {
+    const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setForm(f => ({ ...f, [k]: v }));
+  };
+  const selectedCountry = (c.countries || []).find(x => x.code === form.country) || defaultCountry;
 
   const validate = () => {
     const e = {};
     if (!form.first.trim()) e.first = "Required";
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
-    if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
+    if (form.country === "AU" && form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
     if (!form.affected) e.affected = "Please choose";
+    if (!form.consent) e.consent = "Tick to continue";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
   const submit = async (ev) => {
     ev.preventDefault();
     if (!validate()) return;
     setState("submitting");
+    const phone = form.phone.trim()
+      ? (selectedCountry.dial && !form.phone.trim().startsWith("+") ? `${selectedCountry.dial} ${form.phone.trim()}` : form.phone.trim())
+      : "";
     const body = new URLSearchParams({
       first_name: form.first.trim(),
       last_name: form.last.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim(),
+      phone,
       postcode: form.postcode.trim(),
+      country: selectedCountry.label,
+      affected: form.affected,
     });
     try {
       await fetch(c.receiverUrl, {
@@ -540,29 +570,57 @@ function Petition() {
   if (state === "done") {
     const newCount = c.currentCount + 1;
     const pct = Math.min(100, (newCount / c.goal) * 100);
-    const headingHtml = c.thanksHeadingHtml.replace("{{count}}", newCount.toLocaleString());
-    const lede = c.thanksLede.replace("{{first}}", form.first);
+    const headingHtml = c.thanksHeadingHtml.replace("{{first}}", form.first);
+    const lede = c.thanksLede
+      .replace("{{first}}", form.first)
+      .replace("{{count}}", newCount.toLocaleString());
+    const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "") + "#action";
+    const copyShare = () => {
+      navigator.clipboard?.writeText(`${c.shareText} ${pageUrl}`);
+      alert("Share link copied — paste it anywhere.");
+    };
     return (
-      <section id="petition" className="ff-section ff-petition">
-        <div className="ff-wrap ff-petition-inner ff-petition-done">
-          <div className="ff-petition-copy">
-            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Signed · Thank you</span>
+      <section id="action" className="ff-section ff-action ff-action--done">
+        <a id="petition" aria-hidden="true" />
+        <div className="ff-wrap ff-action-thanks">
+          <div className="ff-action-thanks-head">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.thanksEyebrow}</span>
             <h2 className="ff-h2" dangerouslySetInnerHTML={html(headingHtml)} />
             <p className="ff-lede">{lede}</p>
-            <div className="ff-petition-next">
-              <a href="#donate" className="ff-btn ff-btn--red">Chip in to the fight</a>
-              <button className="ff-btn ff-btn--outline" onClick={() => {
-                navigator.clipboard?.writeText(c.shareText);
-                alert("Share link copied — paste it anywhere.");
-              }}>Share with your mates</button>
+          </div>
+
+          <div className="ff-action-tally">
+            <div className="ff-tally-num">{newCount.toLocaleString()}</div>
+            <div className="ff-tally-label">Signatures and counting</div>
+            <div className="ff-tally-bar"><div className="ff-tally-fill" style={{ width: pct.toFixed(1) + "%" }} /></div>
+            <div className="ff-tally-goal">{pct.toFixed(1)}% toward our {c.goal.toLocaleString()} goal</div>
+          </div>
+
+          <div className="ff-action-share">
+            <h3 className="ff-h3">{c.shareHeading}</h3>
+            <p>{c.shareLede}</p>
+            <div className="ff-share-row">
+              {(c.shareLinks || []).map((s, i) => {
+                const isCopy = s.platform === "copy";
+                const url = isCopy ? null : shareUrlFor(s.platform, c.shareText, pageUrl);
+                const cls = `ff-share-btn ff-share-btn--${s.platform}`;
+                if (isCopy) return <button key={i} type="button" className={cls} onClick={copyShare}>{s.label}</button>;
+                return <a key={i} href={url} target="_blank" rel="noopener noreferrer" className={cls}>{s.label}</a>;
+              })}
             </div>
           </div>
-          <div className="ff-petition-thanks">
-            <div className="ff-petition-tally">
-              <div className="ff-tally-num">{newCount.toLocaleString()}</div>
-              <div className="ff-tally-label">Signatures and counting</div>
-              <div className="ff-tally-bar"><div className="ff-tally-fill" style={{ width: pct.toFixed(1) + "%" }}/></div>
-              <div className="ff-tally-goal">{pct.toFixed(1)}% toward our {c.goal.toLocaleString()} goal</div>
+
+          <div className="ff-action-next">
+            <h3 className="ff-h3">{c.postSignHeading}</h3>
+            <div className="ff-action-next-grid">
+              {(c.postSignCtas || []).map((cta, i) => (
+                <a key={i} href={cta.href} className={`ff-action-next-card ${cta.primary ? "is-primary" : ""}`}>
+                  <span className="ff-card-kicker">{cta.kicker}</span>
+                  <h4>{cta.title}</h4>
+                  <p>{cta.body}</p>
+                  <span className="ff-action-next-cta">{cta.label} <span aria-hidden="true">→</span></span>
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -574,58 +632,103 @@ function Petition() {
   const milestonePct = Math.min(100, (c.currentCount / c.nextMilestone) * 100);
 
   return (
-    <section id="petition" className="ff-section ff-petition">
-      <div className="ff-wrap ff-petition-inner">
-        <div className="ff-petition-copy">
+    <section id="action" className="ff-section ff-action">
+      <a id="petition" aria-hidden="true" />
+      <div className="ff-wrap ff-action-inner">
+        <div className="ff-action-copy">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h2 className="ff-h2">{c.heading}</h2>
           <p className="ff-lede">{c.lede}</p>
-          <div className="ff-petition-bullets">
-            {c.bullets.map((b, i) => (
-              <div key={i}><span className="ff-check">✓</span> {b}</div>
-            ))}
-          </div>
+
+          {c.demands && c.demands.length > 0 && (
+            <div className="ff-demands">
+              {c.demandsIntro && <p className="ff-demands-intro">{c.demandsIntro}</p>}
+              <ol className="ff-demands-list">
+                {c.demands.map((d, i) => (
+                  <li key={i} className="ff-demand">
+                    <span className="ff-demand-numeral">{d.numeral}</span>
+                    <span className="ff-demand-text">{d.text}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {c.trustBadges && (
+            <ul className="ff-trust-row">
+              {c.trustBadges.map((b, i) => (
+                <li key={i} className="ff-trust-badge">
+                  <span className={`ff-trust-icon ff-trust-icon--${b.icon}`} aria-hidden="true" />
+                  <span>{b.label}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <form className="ff-petition-form" onSubmit={submit} noValidate>
+
+        <form className="ff-action-form" onSubmit={submit} noValidate>
           <div className="ff-form-header">
             <div>
               <div className="ff-form-count">{c.currentCount.toLocaleString()}</div>
-              <div className="ff-form-count-l">have already signed — {remaining.toLocaleString()} to {(c.nextMilestone/1000)+"k"}</div>
+              <div className="ff-form-count-l">have already signed — {remaining.toLocaleString()} to {(c.nextMilestone / 1000) + "k"}</div>
             </div>
-            <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }}/></div>
+            <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }} /></div>
           </div>
+
           <div className="ff-form-row">
             <Field label="First name" error={errors.first}>
-              <input value={form.first} onChange={update("first")} autoComplete="given-name"/>
+              <input value={form.first} onChange={update("first")} autoComplete="given-name" />
             </Field>
             <Field label="Last name" error={errors.last}>
-              <input value={form.last} onChange={update("last")} autoComplete="family-name"/>
+              <input value={form.last} onChange={update("last")} autoComplete="family-name" />
             </Field>
           </div>
+
           <Field label="Email" error={errors.email}>
-            <input type="email" value={form.email} onChange={update("email")} autoComplete="email"/>
+            <input type="email" value={form.email} onChange={update("email")} autoComplete="email" />
           </Field>
+
           <div className="ff-form-row">
-            <Field label="Phone (optional)">
-              <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel"/>
+            <Field label="Country">
+              <select value={form.country} onChange={update("country")} autoComplete="country">
+                {(c.countries || []).map(co => (
+                  <option key={co.code} value={co.code}>{co.label}</option>
+                ))}
+              </select>
             </Field>
             <Field label="Postcode" error={errors.postcode}>
-              <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4}/>
+              <input value={form.postcode} onChange={update("postcode")} inputMode={form.country === "AU" ? "numeric" : "text"} maxLength={form.country === "AU" ? 4 : 10} autoComplete="postal-code" />
             </Field>
           </div>
+
+          <Field label="Phone (optional)">
+            <div className="ff-phone-input">
+              {selectedCountry.dial && <span className="ff-phone-dial">{selectedCountry.dial}</span>}
+              <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" />
+            </div>
+          </Field>
+
           <Field label="Are you a directly affected landowner?" error={errors.affected}>
             <div className="ff-radio-row">
               {["Yes, on the corridor", "Yes, neighbouring", "No, standing with them"].map(opt => (
                 <label key={opt} className={`ff-radio ${form.affected === opt ? "is-on" : ""}`}>
-                  <input type="radio" name="affected" value={opt} checked={form.affected===opt} onChange={update("affected")}/>
+                  <input type="radio" name="affected" value={opt} checked={form.affected === opt} onChange={update("affected")} />
                   <span>{opt}</span>
                 </label>
               ))}
             </div>
           </Field>
-          <button className="ff-btn ff-btn--red ff-btn--block" disabled={state==="submitting"}>
+
+          <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
+            <input type="checkbox" checked={form.consent} onChange={update("consent")} />
+            <span>{c.consentLabel}</span>
+          </label>
+          {errors.consent && <span className="ff-field-err">— {errors.consent}</span>}
+
+          <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
             {state === "submitting" ? c.submittingLabel : c.submitLabel}
           </button>
+
           {state === "error" && (
             <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>
               Something went wrong sending that. Please check your connection and try again.
@@ -886,7 +989,7 @@ function App() {
         <Evidence />
         <Summary />
         <MediaCoverage />
-        <Petition />
+        <TakeAction />
         <ActionCards />
         <Quote />
         <WhoWeAre />
