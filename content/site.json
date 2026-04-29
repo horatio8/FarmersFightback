@@ -138,15 +138,17 @@
       { "percent": "10%", "label": "Campaign materials" }
     ],
     "tiers": [
-      { "amount": 25,  "label": "Prints 100 flyers",        "oneOffUrl": "", "monthlyUrl": "" },
-      { "amount": 50,  "label": "An hour of legal advice",  "oneOffUrl": "", "monthlyUrl": "" },
-      { "amount": 100, "label": "Fills a ute for a week",   "oneOffUrl": "", "monthlyUrl": "" },
-      { "amount": 250, "label": "Camera kit for a farmer",  "oneOffUrl": "", "monthlyUrl": "" }
+      { "amount": 25,  "label": "Prints 100 flyers",        "oneOffUrl": "https://buy.stripe.com/9B64gybB4ghler10libV600", "monthlyUrl": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },
+      { "amount": 50,  "label": "An hour of legal advice",  "oneOffUrl": "https://buy.stripe.com/8x26oG20u4yDfv5d84bV601", "monthlyUrl": "https://buy.stripe.com/00wcN4bB4d592IjfgcbV605" },
+      { "amount": 100, "label": "Fills a ute for a week",   "oneOffUrl": "https://buy.stripe.com/3cI8wO20ud59er11pmbV602", "monthlyUrl": "https://buy.stripe.com/5kQ00i0Wqe9d3Mn7NKbV606" },
+      { "amount": 250, "label": "Camera kit for a farmer",  "oneOffUrl": "https://buy.stripe.com/6oU14m20u6GL4Qr5FCbV603", "monthlyUrl": "https://buy.stripe.com/00w9ASbB47KPaaL1pmbV607" }
     ],
-    "customOneOffUrl": "",
+    "customOneOffUrl": "https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608",
     "customMonthlyUrl": "",
     "defaultPick": 50,
-    "fineprint": "Secure processing via Stripe. Receipts sent to your inbox. Not tax-deductible."
+    "currency": "AUD",
+    "currencySymbol": "$",
+    "fineprint": "Secure processing via Stripe. All amounts in AUD. Receipts sent to your inbox. Not tax-deductible."
   },
   "newsletter": {
     "heading": "Get the next video before the nightly news does.",

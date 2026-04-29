@@ -489,6 +489,8 @@ function Quote() {
 // ---------- Donate band ----------
 function DonateBand() {
   const c = useContent().donate;
+  const currency = c.currency || "AUD";
+  const sym = c.currencySymbol || "$";
   const [pick, setPick] = useState(c.defaultPick);
   const [monthly, setMonthly] = useState(false);
 
@@ -512,7 +514,7 @@ function DonateBand() {
   } else if (!ready) {
     helpMsg = isCustom
       ? `Custom ${monthly ? "monthly" : "one-off"} donations aren't set up yet — pick a fixed amount or check back soon.`
-      : `${monthly ? "Monthly" : "One-off"} donations of $${pick} aren't set up yet — try a different amount or frequency.`;
+      : `${monthly ? "Monthly" : "One-off"} donations of ${sym}${pick} ${currency} aren't set up yet — try a different amount or frequency.`;
   }
 
   return (
@@ -541,15 +543,15 @@ function DonateBand() {
                 className={`ff-donate-tier ${Number(pick)===Number(t.amount) ? "is-on" : ""}`}
                 onClick={() => setPick(t.amount)}
               >
-                <span className="ff-donate-tier-n">${t.amount}</span>
+                <span className="ff-donate-tier-n">{sym}{t.amount}</span>
                 <span className="ff-donate-tier-l">{t.label}</span>
               </button>
             ))}
           </div>
           <label className="ff-donate-other">
-            <span>Other amount</span>
+            <span>Other amount ({currency})</span>
             <div className="ff-donate-other-in">
-              <em>$</em>
+              <em>{sym}</em>
               <input
                 type="number"
                 min="1"
@@ -566,7 +568,7 @@ function DonateBand() {
             onClick={onDonate}
             aria-disabled={!canDonate}
           >
-            Donate ${pick} {monthly ? "/month" : "now"}
+            Donate {sym}{pick} {currency} {monthly ? "/month" : "now"}
           </button>
           <p className="ff-donate-fine">{helpMsg}</p>
         </div>
