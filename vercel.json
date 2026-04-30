@@ -2,11 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    { "source": "/take-action/hold-the-gate",       "destination": "/petitions/hold-the-gate.html" },
-    { "source": "/take-action/baldwins",            "destination": "/petitions/baldwins.html" },
-    { "source": "/take-action/fuel-and-fertiliser", "destination": "/petitions/fuel-and-fertiliser.html" }
-  ],
   "headers": [
     {
       "source": "/content/site.json",
