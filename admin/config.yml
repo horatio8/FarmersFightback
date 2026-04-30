@@ -75,7 +75,7 @@ collections:
             fields:
               - { label: Value (number), name: value, widget: number, value_type: int }
               - { label: Label, name: label, widget: string }
-              - { label: Suffix (e.g. "+", "M+"), name: suffix, widget: string, required: false, default: "" }
+              - { label: "Suffix (e.g. + or M+)", name: suffix, widget: string, required: false, default: "" }
               - { label: Sub-label / growth, name: grow, widget: string }
 
           - label: Intro panel
@@ -263,3 +263,185 @@ collections:
                       - { label: Href, name: href, widget: string }
               - { label: Legal line, name: legal, widget: string }
               - { label: Platform line, name: platform, widget: string }
+
+          # ---------- News page ----------
+          - label: News page
+            name: news
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - { label: Lede, name: lede, widget: text }
+              - label: YouTube auto-feed
+                name: youtube
+                widget: object
+                fields:
+                  - { label: "Channel ID (UC…)", name: channelId, widget: string, hint: "Find at youtube.com/<your-channel> → View page source → search for externalId" }
+                  - { label: "@handle", name: handle, widget: string }
+                  - { label: Channel URL, name: url, widget: string }
+                  - { label: Section heading, name: heading, widget: string }
+                  - { label: Section lede, name: lede, widget: text }
+              - label: Newsletter archive
+                name: newsletter
+                widget: object
+                fields:
+                  - { label: Section heading, name: heading, widget: string }
+                  - { label: Section lede, name: lede, widget: text }
+                  - { label: Subscribe URL, name: subscribeUrl, widget: string, required: false }
+                  - label: Items
+                    name: items
+                    widget: list
+                    fields:
+                      - { label: Title, name: title, widget: string }
+                      - { label: Date, name: date, widget: date }
+                      - { label: Excerpt, name: excerpt, widget: text }
+                      - { label: URL, name: url, widget: string, required: false }
+              - label: Social accounts
+                name: socials
+                widget: object
+                fields:
+                  - { label: Section heading, name: heading, widget: string }
+                  - { label: Section lede, name: lede, widget: text }
+                  - label: Accounts
+                    name: accounts
+                    widget: list
+                    fields:
+                      - { label: Platform, name: platform, widget: select, options: [youtube, tiktok, x, facebook, instagram, threads, linkedin] }
+                      - { label: Handle / display name, name: handle, widget: string }
+                      - { label: URL, name: url, widget: string }
+                  - label: Embedded feed (optional)
+                    name: embed
+                    widget: object
+                    required: false
+                    fields:
+                      - { label: Kind, name: kind, widget: select, options: [tiktok, none], default: none }
+                      - { label: Username (no @), name: username, widget: string, required: false }
+              - label: Press coverage
+                name: press
+                widget: object
+                fields:
+                  - { label: Section heading, name: heading, widget: string }
+                  - { label: Section lede, name: lede, widget: text }
+                  - label: Items
+                    name: items
+                    widget: list
+                    fields:
+                      - { label: Outlet, name: outlet, widget: string }
+                      - { label: Headline, name: headline, widget: string }
+                      - { label: URL, name: url, widget: string, required: false }
+
+          # ---------- Take Action umbrella ----------
+          - label: Take Action page
+            name: takeAction
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Eyebrow, name: eyebrow, widget: string }
+              - { label: Heading, name: heading, widget: string }
+              - { label: Lede, name: lede, widget: text }
+              - label: Campaign cards
+                name: campaigns
+                widget: list
+                fields:
+                  - { label: Slug (URL), name: slug, widget: string, hint: "Used in URL: /take-action/<slug>" }
+                  - { label: Kicker, name: kicker, widget: string }
+                  - { label: Title, name: title, widget: string }
+                  - { label: Summary, name: summary, widget: text }
+                  - { label: CTA label, name: cta, widget: string }
+                  - { label: Tone, name: tone, widget: select, options: [navy, red, paddock], default: navy }
+              - label: Trust badges
+                name: trustBadges
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Icon, name: icon, widget: select, options: [lock, shield, tick] }
+
+          # ---------- Petitions (one per Take Action campaign) ----------
+          - label: Petitions
+            name: petitions
+            widget: object
+            collapsed: true
+            summary: "{{petitions | keys | length}} petitions"
+            fields:
+              - label: Hold the Gate
+                name: hold-the-gate
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: Slug, name: slug, widget: string, default: hold-the-gate }
+                  - { label: Campaign name, name: campaign, widget: string }
+                  - { label: Eyebrow, name: eyebrow, widget: string }
+                  - { label: Heading, name: heading, widget: string }
+                  - { label: Lede, name: lede, widget: text }
+                  - { label: Demands intro, name: demandsIntro, widget: string }
+                  - label: Demands
+                    name: demands
+                    widget: list
+                    fields:
+                      - { label: Numeral, name: numeral, widget: string }
+                      - { label: Text, name: text, widget: text }
+                  - { label: Current count, name: currentCount, widget: number, value_type: int }
+                  - { label: Next milestone, name: nextMilestone, widget: number, value_type: int }
+                  - { label: Goal, name: goal, widget: number, value_type: int }
+                  - { label: Submit label, name: submitLabel, widget: string }
+                  - { label: Submitting label, name: submittingLabel, widget: string }
+                  - { label: "Thanks heading HTML (supports first placeholder)", name: thanksHeadingHtml, widget: string }
+                  - { label: "Thanks lede (supports first + count placeholders)", name: thanksLede, widget: text }
+                  - { label: Share text, name: shareText, widget: text }
+                  - { label: "Back link href", name: ctaHrefBack, widget: string }
+                  - { label: Tone, name: tone, widget: select, options: [navy, red, paddock] }
+              - label: Baldwins
+                name: baldwins
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: Slug, name: slug, widget: string, default: baldwins }
+                  - { label: Campaign name, name: campaign, widget: string }
+                  - { label: Eyebrow, name: eyebrow, widget: string }
+                  - { label: Heading, name: heading, widget: string }
+                  - { label: Lede, name: lede, widget: text }
+                  - { label: Demands intro, name: demandsIntro, widget: string }
+                  - label: Demands
+                    name: demands
+                    widget: list
+                    fields:
+                      - { label: Numeral, name: numeral, widget: string }
+                      - { label: Text, name: text, widget: text }
+                  - { label: Current count, name: currentCount, widget: number, value_type: int }
+                  - { label: Next milestone, name: nextMilestone, widget: number, value_type: int }
+                  - { label: Goal, name: goal, widget: number, value_type: int }
+                  - { label: Submit label, name: submitLabel, widget: string }
+                  - { label: Submitting label, name: submittingLabel, widget: string }
+                  - { label: "Thanks heading HTML (supports first placeholder)", name: thanksHeadingHtml, widget: string }
+                  - { label: "Thanks lede (supports first + count placeholders)", name: thanksLede, widget: text }
+                  - { label: Share text, name: shareText, widget: text }
+                  - { label: "Back link href", name: ctaHrefBack, widget: string }
+                  - { label: Tone, name: tone, widget: select, options: [navy, red, paddock] }
+              - label: Fuel & Fertiliser
+                name: fuel-and-fertiliser
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: Slug, name: slug, widget: string, default: fuel-and-fertiliser }
+                  - { label: Campaign name, name: campaign, widget: string }
+                  - { label: Eyebrow, name: eyebrow, widget: string }
+                  - { label: Heading, name: heading, widget: string }
+                  - { label: Lede, name: lede, widget: text }
+                  - { label: Demands intro, name: demandsIntro, widget: string }
+                  - label: Demands
+                    name: demands
+                    widget: list
+                    fields:
+                      - { label: Numeral, name: numeral, widget: string }
+                      - { label: Text, name: text, widget: text }
+                  - { label: Current count, name: currentCount, widget: number, value_type: int }
+                  - { label: Next milestone, name: nextMilestone, widget: number, value_type: int }
+                  - { label: Goal, name: goal, widget: number, value_type: int }
+                  - { label: Submit label, name: submitLabel, widget: string }
+                  - { label: Submitting label, name: submittingLabel, widget: string }
+                  - { label: "Thanks heading HTML (supports first placeholder)", name: thanksHeadingHtml, widget: string }
+                  - { label: "Thanks lede (supports first + count placeholders)", name: thanksLede, widget: text }
+                  - { label: Share text, name: shareText, widget: text }
+                  - { label: "Back link href", name: ctaHrefBack, widget: string }
+                  - { label: Tone, name: tone, widget: select, options: [navy, red, paddock] }

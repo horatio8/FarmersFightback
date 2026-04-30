@@ -1,7 +1,7 @@
 /* global React, ReactDOM */
 const { useState, useEffect, createContext, useContext } = React;
 
-const CONTENT_URL = "content/site.json";
+const CONTENT_URL = (typeof window !== "undefined" && window.__FF_CONTENT_URL) || "content/site.json";
 const ContentContext = createContext(null);
 const useContent = () => useContext(ContentContext);
 
@@ -668,11 +668,429 @@ function VideoModal({ open, onClose }) {
   );
 }
 
-// ---------- App ----------
+// ---------- Shared page shell (Nav + Footer + TopBanner) ----------
+function PageShell({ children, hideTopBanner }) {
+  const onDonate = () => {
+    if (window.location.pathname === "/" || window.location.pathname === "/index.html") {
+      document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.location.href = "/#donate";
+    }
+  };
+  return (
+    <>
+      {!hideTopBanner && <TopBanner />}
+      <Nav onDonate={onDonate} />
+      <main>{children}</main>
+      <Footer />
+    </>
+  );
+}
+
+// ---------- HomePage (the original homepage layout) ----------
+function HomePage() {
+  const [modal, setModal] = useState(false);
+  return (
+    <>
+      <TopBanner />
+      <Nav onDonate={() => document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" })} />
+      <main>
+        <Hero onWatch={() => setModal(true)} />
+        <ImpactBar />
+        <IntroVideo />
+        <LatestVideo onOpen={() => setModal(true)} />
+        <Summary />
+        <Petition />
+        <ActionCards />
+        <Quote />
+        <DonateBand />
+        <Newsletter />
+      </main>
+      <Footer />
+      <VideoModal open={modal} onClose={() => setModal(false)} />
+    </>
+  );
+}
+
+// ---------- News page ----------
+function NewsPage() {
+  const c = useContent().news;
+  return (
+    <PageShell>
+      <section className="ff-section ff-news-hero">
+        <div className="ff-wrap ff-news-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-news-h1">{c.heading}</h1>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+      {c.youtube && <YouTubeFeed cfg={c.youtube} />}
+      {c.newsletter && <NewsletterSection cfg={c.newsletter} />}
+      {c.socials && <SocialFeeds cfg={c.socials} />}
+      {c.press && <PressList cfg={c.press} />}
+    </PageShell>
+  );
+}
+
+function YouTubeFeed({ cfg }) {
+  const [items, setItems] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    fetch(`/api/youtube?channelId=${encodeURIComponent(cfg.channelId)}`)
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(d => setItems(d.items || []))
+      .catch(e => setError(String(e)));
+  }, [cfg.channelId]);
+  return (
+    <section className="ff-section ff-yt-section">
+      <div className="ff-wrap">
+        <div className="ff-news-band">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {cfg.heading}</span>
+          <p className="ff-news-band-lede">{cfg.lede}</p>
+          <a href={cfg.url} target="_blank" rel="noopener noreferrer" className="ff-link ff-link--red">Visit channel →</a>
+        </div>
+        {!items && !error && <p className="ff-news-empty">Loading latest videos…</p>}
+        {error && (
+          <p className="ff-news-empty">
+            Couldn't load the live YouTube feed right now. <a href={cfg.url} target="_blank" rel="noopener noreferrer">Open the channel directly →</a>
+          </p>
+        )}
+        {items && items.length > 0 && (
+          <div className="ff-yt-grid">
+            {items.slice(0, 9).map((v, i) => (
+              <article key={i} className="ff-yt-card">
+                <a href={v.link} target="_blank" rel="noopener noreferrer" className="ff-yt-card-media" aria-label={`Watch: ${v.title}`}>
+                  <img src={v.thumbnail || `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`} alt="" loading="lazy" />
+                  <span className="ff-yt-play" aria-hidden="true">▶</span>
+                </a>
+                <div className="ff-yt-card-body">
+                  <span className="ff-card-kicker">{formatDate(v.published)}</span>
+                  <h3 className="ff-yt-card-title">{v.title}</h3>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function formatDate(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+  } catch { return ""; }
+}
+
+function NewsletterSection({ cfg }) {
+  return (
+    <section className="ff-section ff-news-letters">
+      <div className="ff-wrap">
+        <div className="ff-news-band">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {cfg.heading}</span>
+          <p className="ff-news-band-lede">{cfg.lede}</p>
+          {cfg.subscribeUrl && <a href={cfg.subscribeUrl} className="ff-link ff-link--red">Subscribe →</a>}
+        </div>
+        <ul className="ff-letter-list">
+          {(cfg.items || []).map((it, i) => (
+            <li key={i} className="ff-letter-item">
+              <span className="ff-letter-date">{formatDate(it.date)}</span>
+              <a href={it.url || "#"} className="ff-letter-link">
+                <span className="ff-letter-title">{it.title}</span>
+                {it.excerpt && <span className="ff-letter-excerpt">{it.excerpt}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function SocialFeeds({ cfg }) {
+  return (
+    <section className="ff-section ff-news-socials">
+      <div className="ff-wrap">
+        <div className="ff-news-band">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {cfg.heading}</span>
+          <p className="ff-news-band-lede">{cfg.lede}</p>
+        </div>
+        <ul className="ff-socials-grid">
+          {(cfg.accounts || []).map((s, i) => (
+            <li key={i}>
+              <a href={s.url} target="_blank" rel="noopener noreferrer" className={`ff-social-card ff-social-card--${s.platform}`}>
+                <span className="ff-social-platform">{s.platform}</span>
+                <span className="ff-social-handle">{s.handle}</span>
+                <span className="ff-social-cta">Open →</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        {cfg.embed && cfg.embed.kind === "tiktok" && (
+          <div className="ff-social-embed">
+            <blockquote className="tiktok-embed" cite={`https://www.tiktok.com/@${cfg.embed.username}`} data-unique-id={cfg.embed.username}>
+              <a href={`https://www.tiktok.com/@${cfg.embed.username}`}>@{cfg.embed.username}</a>
+            </blockquote>
+            <script async src="https://www.tiktok.com/embed.js"></script>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function PressList({ cfg }) {
+  return (
+    <section className="ff-section ff-news-press">
+      <div className="ff-wrap">
+        <div className="ff-news-band">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {cfg.heading}</span>
+          <p className="ff-news-band-lede">{cfg.lede}</p>
+        </div>
+        <ul className="ff-press-list">
+          {(cfg.items || []).map((it, i) => (
+            <li key={i} className="ff-press-item">
+              <span className="ff-press-outlet">{it.outlet}</span>
+              <a href={it.url || "#"} className="ff-press-headline">{it.headline}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ---------- Take Action index ----------
+function TakeActionIndex() {
+  const c = useContent().takeAction;
+  return (
+    <PageShell>
+      <section className="ff-section ff-takeaction-hero">
+        <div className="ff-wrap ff-takeaction-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-takeaction-h1">{c.heading}</h1>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+      <section className="ff-section ff-takeaction-grid-wrap">
+        <div className="ff-wrap">
+          <div className="ff-takeaction-grid">
+            {(c.campaigns || []).map((cm, i) => (
+              <a key={i} href={`/take-action/${cm.slug}`} className={`ff-takeaction-card ff-takeaction-card--${cm.tone || "navy"}`}>
+                <span className="ff-card-kicker">{cm.kicker}</span>
+                <h3 className="ff-takeaction-card-title">{cm.title}</h3>
+                <p>{cm.summary}</p>
+                <span className="ff-takeaction-card-cta">{cm.cta} <span aria-hidden="true">→</span></span>
+              </a>
+            ))}
+          </div>
+          {c.trustBadges && (
+            <ul className="ff-trust-row">
+              {c.trustBadges.map((b, i) => (
+                <li key={i} className="ff-trust-badge">
+                  <span className={`ff-trust-icon ff-trust-icon--${b.icon}`} aria-hidden="true" />
+                  <span>{b.label}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+// ---------- Petition page (parameterized by slug) ----------
+function shareUrlFor(platform, text, url) {
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(url);
+  switch (platform) {
+    case "facebook": return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+    case "x":        return `https://twitter.com/intent/tweet?text=${t}&url=${u}`;
+    case "whatsapp": return `https://wa.me/?text=${t}%20${u}`;
+    case "telegram": return `https://t.me/share/url?url=${u}&text=${t}`;
+    case "email":    return `mailto:?subject=${encodeURIComponent("Sign the petition")}&body=${t}%0A%0A${u}`;
+    default: return null;
+  }
+}
+
+function PetitionPage({ slug }) {
+  const all = useContent().petitions || {};
+  const p = all[slug];
+  const receiverUrl = useContent().petition?.receiverUrl;
+  if (!p) {
+    return (
+      <PageShell>
+        <section className="ff-section">
+          <div className="ff-wrap" style={{ textAlign: "center" }}>
+            <h1 className="ff-h2">Petition not found.</h1>
+            <p className="ff-lede" style={{ marginInline: "auto" }}>Try the <a href="/take-action">Take Action page</a>.</p>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", country: "AU", consent: false });
+  const [errors, setErrors] = useState({});
+  const [state, setState] = useState("idle");
+  const update = (k) => (e) => {
+    const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setForm(f => ({ ...f, [k]: v }));
+  };
+  const validate = () => {
+    const e = {};
+    if (!form.first.trim()) e.first = "Required";
+    if (!form.last.trim()) e.last = "Required";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+    if (form.country === "AU" && form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
+    if (!form.consent) e.consent = "Tick to continue";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+  const submit = async (ev) => {
+    ev.preventDefault();
+    if (!validate()) return;
+    setState("submitting");
+    const body = new URLSearchParams({
+      first_name: form.first.trim(),
+      last_name: form.last.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      postcode: form.postcode.trim(),
+      country: form.country,
+      campaign: p.campaign || p.slug,
+    });
+    try {
+      if (receiverUrl) {
+        await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      }
+      setState("done");
+    } catch { setState("error"); }
+  };
+
+  if (state === "done") {
+    const newCount = (p.currentCount || 0) + 1;
+    const pct = Math.min(100, (newCount / (p.goal || 1)) * 100);
+    const headingHtml = (p.thanksHeadingHtml || "").replace("{{first}}", form.first);
+    const lede = (p.thanksLede || "").replace("{{first}}", form.first).replace("{{count}}", newCount.toLocaleString());
+    const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
+    const copyShare = () => {
+      navigator.clipboard?.writeText(`${p.shareText} ${pageUrl}`);
+      alert("Share link copied — paste it anywhere.");
+    };
+    const platforms = [
+      { platform: "facebook", label: "Facebook" },
+      { platform: "x",        label: "X" },
+      { platform: "whatsapp", label: "WhatsApp" },
+      { platform: "telegram", label: "Telegram" },
+      { platform: "email",    label: "Email" },
+      { platform: "copy",     label: "Copy link" },
+    ];
+    return (
+      <PageShell>
+        <section className={`ff-section ff-petition-page ff-petition-page--${p.tone || "navy"} is-done`}>
+          <div className="ff-wrap ff-petition-page-thanks">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Signed · Thank you</span>
+            <h1 className="ff-h2" dangerouslySetInnerHTML={html(headingHtml)} />
+            <p className="ff-lede">{lede}</p>
+            <div className="ff-petition-tally">
+              <div className="ff-tally-num">{newCount.toLocaleString()}</div>
+              <div className="ff-tally-label">Signatures and counting</div>
+              <div className="ff-tally-bar"><div className="ff-tally-fill" style={{ width: pct.toFixed(1) + "%" }} /></div>
+              <div className="ff-tally-goal">{pct.toFixed(1)}% toward our {(p.goal || 0).toLocaleString()} goal</div>
+            </div>
+            <h3 className="ff-h3">Share the petition</h3>
+            <div className="ff-share-row">
+              {platforms.map((s, i) => {
+                const cls = `ff-share-btn ff-share-btn--${s.platform}`;
+                if (s.platform === "copy") return <button key={i} type="button" className={cls} onClick={copyShare}>{s.label}</button>;
+                return <a key={i} href={shareUrlFor(s.platform, p.shareText, pageUrl)} target="_blank" rel="noopener noreferrer" className={cls}>{s.label}</a>;
+              })}
+            </div>
+            <div className="ff-petition-page-next">
+              <a href="/#donate" className="ff-btn ff-btn--red">Chip in to the fight</a>
+              <a href={p.ctaHrefBack || "/take-action"} className="ff-btn ff-btn--outline">See other campaigns</a>
+            </div>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
+  const remaining = Math.max(0, (p.nextMilestone || 0) - (p.currentCount || 0));
+  const milestonePct = Math.min(100, ((p.currentCount || 0) / (p.nextMilestone || 1)) * 100);
+
+  return (
+    <PageShell>
+      <section className={`ff-section ff-petition-page ff-petition-page--${p.tone || "navy"}`}>
+        <div className="ff-wrap ff-petition-page-inner">
+          <div className="ff-petition-page-copy">
+            <a href={p.ctaHrefBack || "/take-action"} className="ff-back-link">← All campaigns</a>
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {p.eyebrow}</span>
+            <h1 className="ff-h2">{p.heading}</h1>
+            <p className="ff-lede">{p.lede}</p>
+            {p.demands && p.demands.length > 0 && (
+              <div className="ff-demands">
+                {p.demandsIntro && <p className="ff-demands-intro">{p.demandsIntro}</p>}
+                <ol className="ff-demands-list">
+                  {p.demands.map((d, i) => (
+                    <li key={i} className="ff-demand">
+                      <span className="ff-demand-numeral">{d.numeral}</span>
+                      <span className="ff-demand-text">{d.text}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </div>
+          <form className="ff-action-form" onSubmit={submit} noValidate>
+            <div className="ff-form-header">
+              <div>
+                <div className="ff-form-count">{(p.currentCount || 0).toLocaleString()}</div>
+                <div className="ff-form-count-l">have signed — {remaining.toLocaleString()} to {(((p.nextMilestone || 0) / 1000) | 0) + "k"}</div>
+              </div>
+              <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }} /></div>
+            </div>
+            <div className="ff-form-row">
+              <Field label="First name" error={errors.first}><input value={form.first} onChange={update("first")} autoComplete="given-name" /></Field>
+              <Field label="Last name" error={errors.last}><input value={form.last} onChange={update("last")} autoComplete="family-name" /></Field>
+            </div>
+            <Field label="Email" error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" /></Field>
+            <div className="ff-form-row">
+              <Field label="Country">
+                <select value={form.country} onChange={update("country")} autoComplete="country">
+                  <option value="AU">Australia</option><option value="NZ">New Zealand</option><option value="GB">United Kingdom</option>
+                  <option value="US">United States</option><option value="CA">Canada</option><option value="OTHER">Other</option>
+                </select>
+              </Field>
+              <Field label="Postcode" error={errors.postcode}>
+                <input value={form.postcode} onChange={update("postcode")} inputMode={form.country === "AU" ? "numeric" : "text"} maxLength={form.country === "AU" ? 4 : 10} autoComplete="postal-code" />
+              </Field>
+            </div>
+            <Field label="Phone (optional)"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" /></Field>
+            <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
+              <input type="checkbox" checked={form.consent} onChange={update("consent")} />
+              <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time.</span>
+            </label>
+            <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
+              {state === "submitting" ? p.submittingLabel : p.submitLabel}
+            </button>
+            {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
+            <p className="ff-form-fine">Authorised by Ben Duxson, Wallaloo & Gre Gre District Association.</p>
+          </form>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+// ---------- App (router) ----------
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
-  const [modal, setModal] = useState(false);
 
   useEffect(() => {
     fetch(CONTENT_URL, { cache: "no-cache" })
@@ -691,26 +1109,17 @@ function App() {
   }
   if (!content) return null;
 
-  return (
-    <ContentContext.Provider value={content}>
-      <TopBanner />
-      <Nav onDonate={() => document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" })}/>
-      <main>
-        <Hero onWatch={() => setModal(true)} />
-        <ImpactBar />
-        <IntroVideo />
-        <LatestVideo onOpen={() => setModal(true)} />
-        <Summary />
-        <Petition />
-        <ActionCards />
-        <Quote />
-        <DonateBand />
-        <Newsletter />
-      </main>
-      <Footer />
-      <VideoModal open={modal} onClose={() => setModal(false)} />
-    </ContentContext.Provider>
-  );
+  const root = document.getElementById("root");
+  const page = (root && root.dataset && root.dataset.page) || "home";
+  const slug = (root && root.dataset && root.dataset.petition) || "";
+
+  let view;
+  if (page === "news") view = <NewsPage />;
+  else if (page === "take-action") view = <TakeActionIndex />;
+  else if (page === "petition") view = <PetitionPage slug={slug} />;
+  else view = <HomePage />;
+
+  return <ContentContext.Provider value={content}>{view}</ContentContext.Provider>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);

@@ -8,14 +8,14 @@
   },
   "nav": {
     "items": [
-      { "label": "Home", "href": "#home", "active": true },
-      { "label": "The Evidence", "href": "#evidence", "active": false },
-      { "label": "News", "href": "#news", "active": false },
-      { "label": "Know Your Rights", "href": "#rights", "active": false },
-      { "label": "Hold the Gate", "href": "#gate", "active": false },
-      { "label": "About", "href": "#about", "active": false }
+      { "label": "Home", "href": "/", "active": true },
+      { "label": "The Evidence", "href": "/#evidence", "active": false },
+      { "label": "News", "href": "/news", "active": false },
+      { "label": "Take Action", "href": "/take-action", "active": false },
+      { "label": "About", "href": "/#about", "active": false }
     ],
-    "donateLabel": "Donate"
+    "donateLabel": "Donate",
+    "donateHref": "/#donate"
   },
   "hero": {
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
@@ -194,5 +194,160 @@
     ],
     "legal": "Authorised by Ben Duxson, Wallaloo VIC · © 2026 Farmers Fightback",
     "platform": "Built on Campaign Nucleus"
+  },
+  "news": {
+    "eyebrow": "News & media",
+    "heading": "News from the corridor.",
+    "lede": "Newsletters, social posts, and videos — straight from the paddock. Updated automatically as the campaign moves.",
+    "youtube": {
+      "channelId": "UCzyzVVV1N0FrtQklUhKvZCw",
+      "handle": "@FarmersFightback",
+      "url": "https://www.youtube.com/@FarmersFightback",
+      "heading": "Latest videos",
+      "lede": "Pulled live from the Farmers Fightback YouTube channel. Updates automatically when a new video drops."
+    },
+    "newsletter": {
+      "heading": "From the newsletter",
+      "lede": "Weekly dispatches from the corridor. Sent to 35,000+ supporters.",
+      "subscribeUrl": "/#newsletter",
+      "items": [
+        { "title": "Welcome to Farmers Fightback", "date": "2026-04-22", "excerpt": "How a kitchen-table conversation in Wallaloo became a national campaign.", "url": "#" },
+        { "title": "Hold the Gate launches statewide", "date": "2026-04-15", "excerpt": "150 volunteers showed up at three properties in 48 hours. Zero contractors got through.", "url": "#" },
+        { "title": "Fuel & fertiliser prices double in a year", "date": "2026-04-08", "excerpt": "A second crisis nobody's talking about. Why farming families are being asked to plant at a loss.", "url": "#" }
+      ]
+    },
+    "socials": {
+      "heading": "On the socials",
+      "lede": "Follow along across every platform — feeds embed live below.",
+      "accounts": [
+        { "platform": "youtube",   "handle": "@FarmersFightback", "url": "https://www.youtube.com/@FarmersFightback" },
+        { "platform": "tiktok",    "handle": "@farmersfightback", "url": "https://www.tiktok.com/@farmersfightback" },
+        { "platform": "x",         "handle": "@farmersfightback", "url": "https://x.com/farmersfightback" },
+        { "platform": "facebook",  "handle": "Farmers Fightback", "url": "https://www.facebook.com/farmersfightback" },
+        { "platform": "instagram", "handle": "@farmersfightback", "url": "https://www.instagram.com/farmersfightback" }
+      ],
+      "embed": { "kind": "tiktok", "username": "farmersfightback" }
+    },
+    "press": {
+      "heading": "In the press",
+      "lede": "Selected coverage. The metro broadcasters are still missing in action.",
+      "items": [
+        { "outlet": "Stock & Land", "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys", "url": "#" },
+        { "outlet": "Stock & Land", "headline": "Farmers challenge VNI West power project access in Victoria", "url": "#" },
+        { "outlet": "The Weekly Advertiser", "headline": "Farmers dig in: new bill 'acquisition by stealth'", "url": "#" },
+        { "outlet": "ARR News", "headline": "District farmers fight back", "url": "#" },
+        { "outlet": "Sky News", "headline": "National broadcast leads to 5,000 new supporters in a single night", "url": "#" }
+      ]
+    }
+  },
+  "takeAction": {
+    "eyebrow": "Take action",
+    "heading": "Pick a fight. Stand up.",
+    "lede": "Three live campaigns. Each one needs your name. Sign one, sign them all — every signature is a letter to Spring Street and Canberra.",
+    "campaigns": [
+      {
+        "slug": "hold-the-gate",
+        "kicker": "01 / Hold the gate",
+        "title": "Hold the Gate.",
+        "summary": "Stand with farming families when corporate contractors come for their property. 100% failure rate so far. Let's keep it that way.",
+        "cta": "Sign the pledge",
+        "tone": "navy"
+      },
+      {
+        "slug": "baldwins",
+        "kicker": "02 / Baldwins",
+        "title": "Stop the Baldwins eviction.",
+        "summary": "A sixth-generation farming family on soldier-settlement land. Threatened with $6,000 fines for refusing access. Sign your name. Hold the line.",
+        "cta": "Sign the petition",
+        "tone": "red"
+      },
+      {
+        "slug": "fuel-and-fertiliser",
+        "kicker": "03 / Fuel & fertiliser",
+        "title": "End the fuel & fertiliser crisis.",
+        "summary": "Input costs up 200% in a year. Crop prices flat. Farmers being asked to plant at a loss. Demand a freeze, an inquiry, and a path back to viable.",
+        "cta": "Sign the petition",
+        "tone": "paddock"
+      }
+    ],
+    "trustBadges": [
+      { "label": "On-shore data only", "icon": "lock" },
+      { "label": "Never sold or shared", "icon": "shield" },
+      { "label": "Unsubscribe anytime", "icon": "tick" }
+    ]
+  },
+  "petitions": {
+    "hold-the-gate": {
+      "slug": "hold-the-gate",
+      "campaign": "Hold the Gate",
+      "eyebrow": "Pledge · Hold the gate",
+      "heading": "I'll stand at the gate.",
+      "lede": "Hold the Gate is a peaceful, legal, statewide network of farmers, neighbours and witnesses. When the contractors come, we come too. Add your name and your postcode — we'll let you know when a property near you needs backup.",
+      "demandsIntro": "By signing, I pledge to:",
+      "demands": [
+        { "numeral": "I",   "text": "Stand peacefully and lawfully with farming families when uninvited corporate contractors arrive at their property." },
+        { "numeral": "II",  "text": "Document and witness — film, log, and report any contractor who fails to identify themselves or follow the Land Access Code." },
+        { "numeral": "III", "text": "Show up when called. The network only works if we turn up. I'll respond to alerts within my postcode where I can." },
+        { "numeral": "IV",  "text": "De-escalate, never confront. Hold the Gate is not a protest. We're witnesses, not antagonists." }
+      ],
+      "currentCount": 4187,
+      "nextMilestone": 5000,
+      "goal": 10000,
+      "submitLabel": "Add my pledge →",
+      "submittingLabel": "Adding your pledge…",
+      "thanksHeadingHtml": "You're in, <em>{{first}}</em>.",
+      "thanksLede": "You're now in the Hold the Gate network — pledger number {{count}}. We'll text or email you when a property in your postcode needs backup. No spam, no chaff.",
+      "shareText": "I just joined Hold the Gate — the statewide network standing with farming families when corporate contractors come knocking. Add your pledge → farmersfightback.com/take-action/hold-the-gate",
+      "ctaHrefBack": "/take-action",
+      "tone": "navy"
+    },
+    "baldwins": {
+      "slug": "baldwins",
+      "campaign": "Baldwins Campaign",
+      "eyebrow": "Petition · Stop the Baldwins eviction",
+      "heading": "Hands off the Baldwins' farm.",
+      "lede": "The Baldwins are a sixth-generation family on a soldier-settlement farm in western Victoria — land granted to a returned digger after the First World War. Corporate contractors threatened them with $6,000 fines for refusing access. We will not let this stand. Sign the petition. Make Spring Street explain.",
+      "demandsIntro": "Sign your name to demand:",
+      "demands": [
+        { "numeral": "I",   "text": "Immediate suspension of all contractor access attempts on the Baldwins' property pending an independent investigation." },
+        { "numeral": "II",  "text": "A public apology from VicGrid for the conduct of contractors who threatened the Baldwins with $6,000 fines on their own land." },
+        { "numeral": "III", "text": "Statutory protection of all soldier-settlement properties from compulsory access without proper notice and consent." },
+        { "numeral": "IV",  "text": "Full disclosure of every contractor script, identification protocol, and access plan VicGrid is using on Victorian farms." }
+      ],
+      "currentCount": 12480,
+      "nextMilestone": 15000,
+      "goal": 25000,
+      "submitLabel": "Sign the petition →",
+      "submittingLabel": "Adding your signature…",
+      "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
+      "thanksLede": "You just became signature {{count}} on the Baldwins petition. The bigger this gets, the harder Spring Street will find it to ignore.",
+      "shareText": "Sign the petition to stop the Baldwins eviction. Sixth-generation farmers on soldier-settlement land — threatened with $6,000 fines on their own property. → farmersfightback.com/take-action/baldwins",
+      "ctaHrefBack": "/take-action",
+      "tone": "red"
+    },
+    "fuel-and-fertiliser": {
+      "slug": "fuel-and-fertiliser",
+      "campaign": "Fuel & Fertiliser Crisis",
+      "eyebrow": "Petition · Fuel & fertiliser crisis",
+      "heading": "Plant at a loss, or don't plant at all.",
+      "lede": "Fuel and fertiliser costs have risen 200% in a single year. Crop prices are flat. The maths stopped working. Farming families are being asked to plant a season at a guaranteed loss — or walk away from the only thing they know. We're demanding a freeze, an inquiry, and a path back to viable.",
+      "demandsIntro": "Sign your name to demand:",
+      "demands": [
+        { "numeral": "I",   "text": "An immediate ACCC inquiry into fuel and fertiliser pricing and supply concentration in Australian agriculture." },
+        { "numeral": "II",  "text": "A 12-month rebate scheme on diesel and key fertilisers for primary producers operating below cost." },
+        { "numeral": "III", "text": "Mandatory contract transparency between fertiliser distributors and Australian farmers — no more take-it-or-leave-it." },
+        { "numeral": "IV",  "text": "A national strategic-reserve plan for fertiliser inputs to insulate Australian food production from offshore price shocks." }
+      ],
+      "currentCount": 8642,
+      "nextMilestone": 10000,
+      "goal": 20000,
+      "submitLabel": "Sign the petition →",
+      "submittingLabel": "Adding your signature…",
+      "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
+      "thanksLede": "You're signature {{count}} on the Fuel & Fertiliser petition. We'll keep you updated as this campaign moves through the inquiry process.",
+      "shareText": "Australian farmers are being asked to plant at a loss while fuel and fertiliser costs double. Sign the petition for an ACCC inquiry and a rebate scheme. → farmersfightback.com/take-action/fuel-and-fertiliser",
+      "ctaHrefBack": "/take-action",
+      "tone": "paddock"
+    }
   }
 }
