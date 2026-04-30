@@ -190,156 +190,43 @@ function IntroVideo() {
   );
 }
 
-// ---------- YouTube lite embed (click to load) ----------
-function YouTubeEmbed({ youtubeId, ratio = "16/9", title }) {
-  const [play, setPlay] = useState(false);
-  if (play) {
-    return (
-      <div className="ff-yt" style={{ aspectRatio: ratio }}>
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
-          title={title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
+// ---------- Latest video ----------
+function LatestVideo({ onOpen }) {
+  const c = useContent().latestVideo;
+  const [playing, setPlaying] = useState(false);
   return (
-    <button
-      type="button"
-      className="ff-yt ff-yt-thumb"
-      style={{ aspectRatio: ratio }}
-      onClick={() => setPlay(true)}
-      aria-label={`Play: ${title}`}
-    >
-      <img
-        src={`https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`}
-        alt=""
-        loading="lazy"
-        aria-hidden="true"
-      />
-      <span className="ff-yt-play" aria-hidden="true">▶</span>
-    </button>
-  );
-}
-
-// ---------- Evidence ----------
-function Evidence() {
-  const c = useContent().evidence;
-
-  const shareEvidence = () => {
-    const url = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "") + "#evidence";
-    const data = { title: c.shareTitle, text: c.shareText, url };
-    if (typeof navigator !== "undefined" && navigator.share) {
-      navigator.share(data).catch(() => {});
-    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(`${c.shareText} ${url}`);
-      alert("Link copied — paste it anywhere.");
-    }
-  };
-
-  return (
-    <section id="evidence" className="ff-section ff-evidence">
-      <div className="ff-wrap ff-evidence-intro">
-        <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
-        <h2 className="ff-h2 ff-evidence-h2">{c.heading}</h2>
-        <p className="ff-lede ff-evidence-lede">{c.intro}</p>
-        {c.paragraphsHtml.map((p, i) => (
-          <p key={i} className="ff-evidence-p" dangerouslySetInnerHTML={html(p)} />
-        ))}
-        <p className="ff-evidence-callout">{c.callout}</p>
-        <ul className="ff-evidence-stats">
-          {c.stats.map((s, i) => (
-            <li key={i}>
-              <span className="ff-evidence-stat-n">{s.value}</span>
-              <span className="ff-evidence-stat-l">{s.label}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="ff-wrap ff-evidence-band">
-        <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.shortsHeading}</span>
-        <p className="ff-evidence-band-lede">{c.shortsLede}</p>
-      </div>
-
-      <div className="ff-wrap ff-shorts-grid">
-        {c.shorts.map((s, i) => (
-          <article key={i} className="ff-short-card">
-            <div className="ff-short-media">
-              <YouTubeEmbed youtubeId={s.youtubeId} ratio="9/16" title={s.title} />
-            </div>
-            <div className="ff-short-body">
-              <span className="ff-card-kicker">{s.kicker}</span>
-              <h3 className="ff-short-title">{s.title}</h3>
-              <blockquote className="ff-short-quote">"{s.quote}"</blockquote>
-              <ul className="ff-short-meta">
-                <li><strong>{s.views}</strong> views</li>
-                <li>{s.location}</li>
-                <li>Filmed {s.filmed}</li>
-              </ul>
-              <p className="ff-short-body-p">{s.body}</p>
-              <div className="ff-short-proves">
-                <span className="ff-short-proves-l">What this proves</span>
-                <p>{s.proves}</p>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="ff-wrap ff-evidence-band">
-        <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.longsHeading}</span>
-        <p className="ff-evidence-band-lede">{c.longsLede}</p>
-      </div>
-
-      <div className="ff-wrap ff-longs-stack">
-        {c.longs.map((l, i) => (
-          <article key={i} className="ff-long-card">
-            <div className="ff-long-media">
-              <YouTubeEmbed youtubeId={l.youtubeId} ratio="16/9" title={l.title} />
-            </div>
-            <div className="ff-long-body">
-              <span className="ff-card-kicker">{l.kicker}</span>
-              <h3 className="ff-long-title">{l.title}</h3>
-              <blockquote className="ff-short-quote">"{l.quote}"</blockquote>
-              <ul className="ff-short-meta">
-                <li><strong>{l.views}</strong> views</li>
-                <li>Runtime {l.runtime}</li>
-                <li>{l.location}</li>
-                <li>Filmed {l.filmed}</li>
-              </ul>
-              <p className="ff-short-body-p">{l.body}</p>
-              <div className="ff-short-proves">
-                <span className="ff-short-proves-l">What this proves</span>
-                <p>{l.proves}</p>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="ff-wrap ff-evidence-cta">
-        <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.ctaEyebrow}</span>
-        <h3 className="ff-evidence-cta-h">{c.ctaHeading}</h3>
-        {c.ctaParagraphsHtml.map((p, i) => (
-          <p key={i} dangerouslySetInnerHTML={html(p)} />
-        ))}
-        <ol className="ff-evidence-steps">
-          {c.ctaSteps.map((step, i) => <li key={i}>{step}</li>)}
-        </ol>
-        <p className="ff-evidence-closer">{c.ctaCloser}</p>
-        <div className="ff-evidence-cta-actions">
-          {c.ctaButtons.map((b, i) => {
-            const cls = `ff-btn ${b.primary ? "ff-btn--red" : "ff-btn--ghost"}`;
-            if (b.action === "share") {
-              return <button key={i} type="button" className={cls} onClick={shareEvidence}>{b.label}</button>;
-            }
-            return <a key={i} href={b.href} className={cls}>{b.label}</a>;
-          })}
+    <section id="evidence" className="ff-section ff-video">
+      <div className="ff-wrap ff-video-inner">
+        <div className="ff-video-copy">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h2 className="ff-h2" dangerouslySetInnerHTML={html(c.headingHtml)} />
+          <p className="ff-lede">{c.lede}</p>
+          <ul className="ff-video-meta">
+            {c.meta.map((m, i) => (
+              <li key={i}><strong>{m.label}</strong> {m.value}</li>
+            ))}
+          </ul>
+          <div className="ff-video-actions">
+            {c.links.map((l, i) => (
+              <a key={i} href={l.href} className={`ff-link ${l.red ? "ff-link--red" : ""}`}>{l.label}</a>
+            ))}
+          </div>
         </div>
+        <button
+          className={`ff-video-player ${playing ? "is-playing" : ""}`}
+          onClick={() => { setPlaying(true); onOpen?.(); }}
+          aria-label="Play latest video"
+        >
+          <Placeholder label={c.thumbLabel} ratio="16/9" tone="paddock" />
+          <div className="ff-video-overlay">
+            <div className="ff-video-play">▶</div>
+            <div className="ff-video-timecode">{c.timecode}</div>
+            <div className="ff-video-caption">
+              <span className="ff-video-badge">{c.badgeText}</span>
+              {c.captionText}
+            </div>
+          </div>
+        </button>
       </div>
     </section>
   );
@@ -753,10 +640,39 @@ function Footer() {
   );
 }
 
+// ---------- Video modal ----------
+function VideoModal({ open, onClose }) {
+  const c = useContent().latestVideo;
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="ff-modal" onClick={onClose}>
+      <div className="ff-modal-inner" onClick={e => e.stopPropagation()}>
+        <button className="ff-modal-close" onClick={onClose} aria-label="Close">×</button>
+        <Placeholder label="VIDEO PLAYER · EMBED GOES HERE" ratio="16/9" tone="navy" />
+        <div className="ff-modal-caption">
+          <strong>{c.captionText}</strong>
+          <span>{c.thumbLabel}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---------- App ----------
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
+  const [modal, setModal] = useState(false);
 
   useEffect(() => {
     fetch(CONTENT_URL, { cache: "no-cache" })
@@ -775,17 +691,15 @@ function App() {
   }
   if (!content) return null;
 
-  const scrollTo = (id) => () => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-
   return (
     <ContentContext.Provider value={content}>
       <TopBanner />
-      <Nav onDonate={scrollTo("donate")}/>
+      <Nav onDonate={() => document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" })}/>
       <main>
-        <Hero onWatch={scrollTo("evidence")} />
+        <Hero onWatch={() => setModal(true)} />
         <ImpactBar />
         <IntroVideo />
-        <Evidence />
+        <LatestVideo onOpen={() => setModal(true)} />
         <Summary />
         <Petition />
         <ActionCards />
@@ -794,6 +708,7 @@ function App() {
         <Newsletter />
       </main>
       <Footer />
+      <VideoModal open={modal} onClose={() => setModal(false)} />
     </ContentContext.Provider>
   );
 }

@@ -27,9 +27,9 @@
   },
   "impactStats": [
     { "value": 23418, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
-    { "value": 7, "label": "Videos released", "suffix": "", "grow": "200k+ total views" },
-    { "value": 0, "label": "Media coverage", "suffix": "", "grow": "Zero stories run" },
-    { "value": 0, "label": "Govt responses", "suffix": "", "grow": "Silence from Spring St" }
+    { "value": 4, "label": "Videos released", "suffix": "", "grow": "Evidence archive" },
+    { "value": 3, "label": "Media statements", "suffix": "", "grow": "ABC · 7News · WTimes" },
+    { "value": 187, "label": "Farms affected", "suffix": "", "grow": "Across 3 LGAs" }
   ],
   "intro": {
     "eyebrow": "Who we are",
@@ -37,128 +37,23 @@
     "lede": "What started in Central Victoria is now a national campaign with 35,000+ Australians standing with us. Here's the story in a minute:",
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
   },
-  "evidence": {
-    "eyebrow": "The evidence",
-    "heading": "The evidence they don't want you to see.",
-    "intro": "Raw, unfiltered footage of corporate contractors threatening Australian farmers on their own land. No editing. No spin. Just the truth they're trying to bury.",
-    "paragraphsHtml": [
-      "Across Australia, farming families are being visited by corporate contractors who arrive unannounced, read from legal scripts, threaten massive fines, and demand access to private land — land that has been in families for generations. <strong>They dress like authority. They talk like authority. They are not authority.</strong> They are employees of multinational energy corporations worth tens of billions of dollars. And they have been sent to bully ordinary Australians off their own property.",
-      "Every video below is real. Unedited. Filmed by the farmers themselves. Because when the government won't listen, when the media won't cover it, and when the corporations won't stop — the only thing left is the footage."
+  "latestVideo": {
+    "eyebrow": "Latest evidence · Video 4",
+    "headingHtml": "\"This'll be used as <em>evidence against you.</em>\"",
+    "lede": "Filmed at dawn during lambing. Maiden ewes scattered across the paddock. A contractor reads from a script, threatens a half-million-dollar fine, and demands access the landholder never agreed to.",
+    "meta": [
+      { "label": "Filmed", "value": "April 2026" },
+      { "label": "Location", "value": "Western Victoria" },
+      { "label": "Runtime", "value": "3:42" }
     ],
-    "callout": "Watch it. Share it. Make them explain it.",
-    "stats": [
-      { "value": "7", "label": "Videos released" },
-      { "value": "200k+", "label": "Total views" },
-      { "value": "0", "label": "Media coverage" },
-      { "value": "0", "label": "Government responses" }
-    ],
-    "shortsHeading": "60 seconds of truth.",
-    "shortsLede": "Short, sharp, undeniable. Each clip is under a minute. Each one shows a corporate contractor threatening an Australian farmer on their own land. Watch them all. Then ask yourself why this isn't on the nightly news.",
-    "shorts": [
-      {
-        "kicker": "Short 1",
-        "title": "\"Anything you do or say may be used as evidence.\"",
-        "youtubeId": "rBmLgl2AbkU",
-        "quote": "Anything you do or say may be used as evidence against you.",
-        "views": "1.9k",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "A corporate contractor arrives unannounced at a family farm gate and reads from a scripted legal warning — word for word — as if they were police. They're not police. They have no authority. But they've been trained to speak like they do. Watch as the farmer stands their ground while a hired suit tries to intimidate them off their own property.",
-        "proves": "Energy companies are coaching private contractors to use police-style language to intimidate farmers. This is deliberate psychological pressure designed to make landholders believe they have no rights. They do."
-      },
-      {
-        "kicker": "Short 2",
-        "title": "Corporate thugs pretending to be cops.",
-        "youtubeId": "yJtx6NN8Lls",
-        "quote": "They dress like authority. They talk like authority. They are not authority.",
-        "views": "26k",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "Contractors sent by energy companies arrive at farm gates wearing high-vis and lanyards, carrying clipboards and reading from scripts designed to sound like official law enforcement. They demand access. They cite legislation. They threaten fines. But they are private employees of private corporations — with no more legal authority than a door-to-door salesman.",
-        "proves": "This is a coordinated strategy. Energy corporations are deliberately dressing and scripting contractors to impersonate authority figures. Australian farmers are being psychologically manipulated on their own land by people who have zero legal power over them."
-      },
-      {
-        "kicker": "Short 3",
-        "title": "Silence is now a crime on your own farm.",
-        "youtubeId": "EzXHIsPoI2Y",
-        "quote": "You're standing on your own property. Saying nothing. And they're telling you that's a crime.",
-        "views": "59k",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "A farmer stands silently at their own gate. They don't yell. They don't threaten. They don't obstruct. They simply exist — on their own land — and refuse to engage with uninvited corporate contractors. The contractor's response? To warn them that their silence will be used against them. That doing nothing, on your own property, is now apparently an offence.",
-        "proves": "When silence on your own land is treated as obstruction, the law has been turned upside down. This footage shows exactly how far energy companies will go to strip farmers of their most basic right — the right to say nothing and be left alone on their own property."
-      },
-      {
-        "kicker": "Short 4",
-        "title": "No social license. No respect. No idea.",
-        "youtubeId": "FUIAWGi47Lw",
-        "quote": "No social license. No respect. No idea what they're walking into.",
-        "views": "1.8k",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "Corporate contractors arrive at a farm with zero community consultation, zero local knowledge, and zero respect for the people who work the land. They have clipboards and scripts but no understanding of the community they are about to destroy. This is what happens when billion-dollar energy projects are imposed from capital cities onto people who were never asked.",
-        "proves": "The complete absence of genuine consultation. These projects have no social license. The communities affected were never meaningfully consulted. The contractors sent to enforce access don't even know what the farms produce or who lives there. This is corporate colonialism in broad daylight."
-      },
-      {
-        "kicker": "Short 5",
-        "title": "They gave us 30 minutes notice. The law says 48 hours.",
-        "youtubeId": "J9WZJZ9AXG0",
-        "quote": "The law says 48 hours. They gave us 30 minutes. Because the law doesn't apply when the government is the one breaking it.",
-        "views": "975",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "Contractors give a farming family just 30 minutes' notice before attempting to access their property. The law requires 48 hours. Over 100 community members dropped everything and stood at the gate. The contractors didn't show. 100% failure rate across three weeks. Not one property accessed. Not a single boot on a single paddock.",
-        "proves": "The government can't even follow its own laws. The same authorities that threaten farmers with thousands of dollars in fines for standing on their own property can't comply with basic notice requirements that they wrote themselves. Rules for us, not for them."
-      }
-    ],
-    "longsHeading": "The full story. Uncut.",
-    "longsLede": "The shorts give you 60 seconds. These give you the full picture. Every word. Every threat. Every moment a corporate contractor tried to bully an Australian farmer — and failed.",
-    "longs": [
-      {
-        "kicker": "Video 6 · 5:05",
-        "title": "Farmer schooled the corporate thug he warned not to come.",
-        "youtubeId": "tRzqhDqvPiw",
-        "quote": "I warned you not to come. You came anyway. Now the whole country is watching.",
-        "views": "92k",
-        "runtime": "5:05",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "A farmer confronts a corporate contractor who was explicitly warned not to return to the property. The contractor came anyway — with a clipboard, a script, and the backing of a multinational energy corporation worth tens of billions. What follows is five minutes of a farmer calmly, clearly, and devastatingly dismantling every claim the contractor makes. No threats. No violence. Just truth — and a camera rolling.",
-        "proves": "Australian farmers know their rights better than the corporations trying to take their land. This footage went viral because it shows what happens when an ordinary person refuses to be bullied by corporate power. 92,000 views and counting. The contractors are trained. The farmers are ready."
-      },
-      {
-        "kicker": "Video 7 · 2:28",
-        "title": "Two farmers threatened in two days.",
-        "youtubeId": "luqolwpCZFU",
-        "quote": "Two farms. Two days. Same script. Same threats. Same corporation.",
-        "views": "30k",
-        "runtime": "2:28",
-        "location": "Regional Australia",
-        "filmed": "April 2026",
-        "body": "In the space of 48 hours, two separate farming families on two separate properties were visited by corporate contractors using identical scripts, identical threats, and identical intimidation tactics. Same company. Same playbook. Different families who didn't know each other — until now. This isn't a one-off. This is a systematic, industrialised campaign of intimidation targeting Australian farming families.",
-        "proves": "This is not isolated. This is coordinated corporate intimidation on a national scale. When two families in different locations receive identical threats within 48 hours, you're not looking at a rogue contractor — you're looking at a corporate program designed to break farmers one family at a time."
-      }
-    ],
-    "ctaEyebrow": "What now",
-    "ctaHeading": "This is happening right now.",
-    "ctaParagraphsHtml": [
-      "Every video on this page was filmed by an Australian farmer on their own property. No actors. No scripts. No editing. Just ordinary people being threatened by corporate contractors sent by energy companies worth tens of billions of dollars.",
-      "The government won't investigate. The media won't cover it. The corporations won't stop.",
-      "<strong>So we're putting the evidence where everyone can see it. And we're asking you to do three things:</strong>"
-    ],
-    "ctaSteps": [
-      "Watch the footage. All of it. Then make up your own mind.",
-      "Share it. Send it to everyone you know. Post it. Email it. Text it. Make it impossible to ignore.",
-      "Sign the petition. Add your name to the 23,000+ Australians who have already drawn the line."
-    ],
-    "ctaCloser": "Because if this can happen to a farmer, it can happen to anyone.",
-    "ctaButtons": [
-      { "label": "Sign the petition", "href": "#petition", "primary": true },
-      { "label": "Share the evidence", "action": "share" },
-      { "label": "Know your rights", "href": "#rights" }
-    ],
-    "shareTitle": "The Evidence — Farmers Fightback",
-    "shareText": "Corporate contractors are threatening Australian farmers on their own land. Watch the evidence they're trying to bury. #FarmersFightback #HandsOffOurLand"
+    "thumbLabel": "VIDEO 4 · LAMBING SEASON · 3:42",
+    "timecode": "03:42",
+    "badgeText": "NEW",
+    "captionText": "Video 4 — \"Corporate thugs threaten $500K fine\"",
+    "links": [
+      { "label": "See all 4 videos →", "href": "#evidence", "red": true },
+      { "label": "Read your legal rights →", "href": "#rights", "red": false }
+    ]
   },
   "summary": {
     "eyebrow": "What's at stake",
