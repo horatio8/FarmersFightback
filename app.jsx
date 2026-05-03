@@ -55,22 +55,54 @@ function Nav({ onDonate }) {
   const c = useContent().nav;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+  useEffect(() => {
+    if (!openMenu) return;
+    const close = (e) => {
+      if (!e.target.closest(".ff-nav-list")) setOpenMenu(null);
+    };
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [openMenu]);
+  const logoSrc = window.location.pathname.split("/").length > 2 ? "../assets/logo.png" : "assets/logo.png";
+  const homeHref = "/";
   return (
     <nav className={`ff-nav ${scrolled ? "is-scrolled" : ""}`}>
       <div className="ff-wrap ff-nav-inner">
-        <a href="#home" className="ff-logo" aria-label="Farmers Fightback home">
-          <img src="assets/logo.png" alt="Farmers Fightback" />
+        <a href={homeHref} className="ff-logo" aria-label="Farmers Fightback home">
+          <img src={logoSrc} alt="Farmers Fightback" />
         </a>
         <ul className="ff-nav-list">
           {c.items.map((i) => (
-            <li key={i.label}>
-              <a href={i.href} className={i.active ? "is-active" : ""}>{i.label}</a>
+            <li key={i.label} className={`ff-nav-item ${i.children ? "has-children" : ""} ${openMenu === i.label ? "is-open" : ""}`}>
+              {i.children ? (
+                <>
+                  <button
+                    type="button"
+                    className={`ff-nav-trigger ${i.active ? "is-active" : ""}`}
+                    aria-haspopup="true"
+                    aria-expanded={openMenu === i.label}
+                    onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === i.label ? null : i.label); }}
+                  >
+                    {i.label} <span className="ff-nav-caret" aria-hidden="true">▾</span>
+                  </button>
+                  <ul className="ff-nav-dropdown" role="menu">
+                    {i.children.map((c2) => (
+                      <li key={c2.label} role="none">
+                        <a href={c2.href} role="menuitem">{c2.label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <a href={i.href} className={i.active ? "is-active" : ""}>{i.label}</a>
+              )}
             </li>
           ))}
         </ul>
@@ -88,9 +120,15 @@ function Nav({ onDonate }) {
       </div>
       {open && (
         <div className="ff-mobile-menu">
-          {c.items.map((i) => (
-            <a key={i.label} href={i.href} onClick={() => setOpen(false)}>{i.label}</a>
-          ))}
+          {c.items.flatMap((i) => i.children
+            ? [
+                <a key={i.label} href={i.href} className="is-parent" onClick={() => setOpen(false)}>{i.label}</a>,
+                ...i.children.map((c2) => (
+                  <a key={i.label + c2.label} href={c2.href} className="is-child" onClick={() => setOpen(false)}>↳ {c2.label}</a>
+                ))
+              ]
+            : [<a key={i.label} href={i.href} onClick={() => setOpen(false)}>{i.label}</a>]
+          )}
         </div>
       )}
     </nav>
@@ -1022,6 +1060,146 @@ function PetitionPage({ slug }) {
 
   const remaining = Math.max(0, (p.nextMilestone || 0) - (p.currentCount || 0));
   const milestonePct = Math.min(100, ((p.currentCount || 0) / (p.nextMilestone || 1)) * 100);
+
+  const formBlock = (
+    <form id="sign" className="ff-action-form" onSubmit={submit} noValidate>
+      <div className="ff-form-header">
+        <div>
+          <div className="ff-form-count">{(p.currentCount || 0).toLocaleString()}</div>
+          <div className="ff-form-count-l">have signed — {remaining.toLocaleString()} to {(((p.nextMilestone || 0) / 1000) | 0) + "k"}</div>
+        </div>
+        <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }} /></div>
+      </div>
+      <div className="ff-form-row">
+        <Field label="First name" error={errors.first}><input value={form.first} onChange={update("first")} autoComplete="given-name" /></Field>
+        <Field label="Last name" error={errors.last}><input value={form.last} onChange={update("last")} autoComplete="family-name" /></Field>
+      </div>
+      <Field label="Email" error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" /></Field>
+      <div className="ff-form-row">
+        <Field label="Country">
+          <select value={form.country} onChange={update("country")} autoComplete="country">
+            <option value="AU">Australia</option><option value="NZ">New Zealand</option><option value="GB">United Kingdom</option>
+            <option value="US">United States</option><option value="CA">Canada</option><option value="OTHER">Other</option>
+          </select>
+        </Field>
+        <Field label="Postcode" error={errors.postcode}>
+          <input value={form.postcode} onChange={update("postcode")} inputMode={form.country === "AU" ? "numeric" : "text"} maxLength={form.country === "AU" ? 4 : 10} autoComplete="postal-code" />
+        </Field>
+      </div>
+      <Field label="Phone (optional)"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" /></Field>
+      <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
+        <input type="checkbox" checked={form.consent} onChange={update("consent")} />
+        <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time.</span>
+      </label>
+      <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
+        {state === "submitting" ? p.submittingLabel : p.submitLabel}
+      </button>
+      {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
+      <p className="ff-form-fine">Authorised by Ben Duxson, Wallaloo & Gre Gre District Association.</p>
+    </form>
+  );
+
+  if (p.layout === "long-form") {
+    return (
+      <PageShell>
+        {/* Hero — full-width navy */}
+        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"}`}>
+          <div className="ff-wrap">
+            <a href={p.ctaHrefBack || "/take-action"} className="ff-back-link ff-back-link--light">← All campaigns</a>
+            {p.heroEyebrow && <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {p.heroEyebrow}</span>}
+            <h1 className="ff-petition-hero-title" dangerouslySetInnerHTML={html(p.headingHtml || p.heading || "")} />
+            {p.subheading && <p className="ff-petition-hero-sub">{p.subheading}</p>}
+          </div>
+        </section>
+
+        {/* Context paragraphs */}
+        {p.context && p.context.length > 0 && (
+          <section className="ff-section ff-petition-context">
+            <div className="ff-wrap ff-petition-context-inner">
+              {p.context.map((para, i) => <p key={i}>{para}</p>)}
+            </div>
+          </section>
+        )}
+
+        {/* Petition statement card + form */}
+        <section className="ff-section ff-petition-form-section">
+          <div className="ff-wrap ff-petition-form-grid">
+            <div className="ff-petition-statement">
+              {p.petitionStatementHeading && <h2 className="ff-petition-statement-h">{p.petitionStatementHeading}</h2>}
+              <ol className="ff-petition-statement-list">
+                {(p.petitionStatement || []).map((s, i) => <li key={i}>{s}</li>)}
+              </ol>
+              {p.trustBadges && p.trustBadges.length > 0 && (
+                <ul className="ff-trust-row ff-trust-row--stacked">
+                  {p.trustBadges.map((b, i) => (
+                    <li key={i} className="ff-trust-badge ff-trust-badge--lg">
+                      <span className={`ff-trust-icon ff-trust-icon--${b.icon}`} aria-hidden="true" />
+                      <span>
+                        <strong>{b.label}</strong>
+                        {b.sub && <em>{b.sub}</em>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>{formBlock}</div>
+          </div>
+        </section>
+
+        {/* Why this matters */}
+        {p.whyMatters && p.whyMatters.length > 0 && (
+          <section className="ff-section ff-why-matters">
+            <div className="ff-wrap">
+              {p.whyMattersHeading && (
+                <header className="ff-why-matters-head">
+                  <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> The case</span>
+                  <h2 className="ff-h2">{p.whyMattersHeading}</h2>
+                </header>
+              )}
+              <div className="ff-why-matters-grid">
+                {p.whyMatters.map((wm, i) => (
+                  <article key={i} className="ff-why-card">
+                    <span className="ff-why-num">{String(i + 1).padStart(2, "0")}</span>
+                    <h3 className="ff-why-h">{wm.heading}</h3>
+                    <p>{wm.body}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Bottom CTA */}
+        {p.bottomCta && (
+          <section className="ff-petition-bottom-cta">
+            <div className="ff-wrap ff-petition-bottom-cta-inner">
+              <h2 className="ff-h2 ff-h2--light">{p.bottomCta.heading}</h2>
+              <p>{p.bottomCta.body}</p>
+              <div className="ff-petition-bottom-actions">
+                <a href={p.bottomCta.primaryAnchor || "#sign"} className="ff-btn ff-btn--red ff-btn--lg">{p.bottomCta.primaryLabel}</a>
+                <a href={p.bottomCta.secondaryHref || "/#donate"} className="ff-btn ff-btn--ghost ff-btn--lg">{p.bottomCta.secondaryLabel}</a>
+              </div>
+              <div className="ff-petition-bottom-share">
+                <span className="ff-petition-bottom-share-l">Share the petition</span>
+                <div className="ff-share-row">
+                  {[
+                    { platform: "facebook", label: "Facebook" },
+                    { platform: "x",        label: "X" },
+                    { platform: "whatsapp", label: "WhatsApp" },
+                    { platform: "email",    label: "Email" },
+                  ].map((s, i) => {
+                    const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
+                    return <a key={i} href={shareUrlFor(s.platform, p.shareText, pageUrl)} target="_blank" rel="noopener noreferrer" className={`ff-share-btn ff-share-btn--${s.platform}`}>{s.label}</a>;
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>

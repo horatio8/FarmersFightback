@@ -11,7 +11,18 @@
       { "label": "Home", "href": "/", "active": true },
       { "label": "The Evidence", "href": "/#evidence", "active": false },
       { "label": "News", "href": "/news", "active": false },
-      { "label": "Take Action", "href": "/take-action", "active": false },
+      {
+        "label": "Take Action",
+        "href": "/take-action",
+        "active": false,
+        "children": [
+          { "label": "All campaigns", "href": "/take-action" },
+          { "label": "Remove Us From The REZ", "href": "/take-action/remove-us-from-the-rez" },
+          { "label": "Hold the Gate", "href": "/take-action/hold-the-gate" },
+          { "label": "Stop the Baldwins eviction", "href": "/take-action/baldwins" },
+          { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser" }
+        ]
+      },
       { "label": "About", "href": "/#about", "active": false }
     ],
     "donateLabel": "Donate",
@@ -246,6 +257,14 @@
     "lede": "Three live campaigns. Each one needs your name. Sign one, sign them all — every signature is a letter to Spring Street and Canberra.",
     "campaigns": [
       {
+        "slug": "remove-us-from-the-rez",
+        "kicker": "Live · Remove us from the REZ",
+        "title": "Remove us from the REZ.",
+        "summary": "Wallaloo & Gre Gre farmers said NO at every consultation. VicGrid ignored them. Demand the district be removed from the Grampians Wimmera REZ.",
+        "cta": "Sign the petition",
+        "tone": "navy"
+      },
+      {
         "slug": "hold-the-gate",
         "kicker": "01 / Hold the gate",
         "title": "Hold the Gate.",
@@ -277,6 +296,78 @@
     ]
   },
   "petitions": {
+    "remove-us-from-the-rez": {
+      "slug": "remove-us-from-the-rez",
+      "campaign": "Remove Us From The REZ",
+      "layout": "long-form",
+      "tone": "navy",
+      "heroEyebrow": "Live petition",
+      "headingHtml": "Remove us from the REZ.",
+      "subheading": "The farmers of western Victoria have said NO — again and again. It's time VicGrid listened.",
+      "context": [
+        "The Victorian Government wants to force a Renewable Energy Zone onto some of the most productive farmland in the state — despite the landowners saying NO at every single consultation.",
+        "The Wallaloo and Gre Gre District Alliance represents farming families who have mapped their properties to show unanimous opposition. They don't want turbines. They don't want solar farms. They don't want battery storage. They don't want transmission lines. None of it.",
+        "VicGrid has ignored them every time. This petition demands they stop."
+      ],
+      "petitionStatementHeading": "We, the undersigned, demand that:",
+      "petitionStatement": [
+        "The Wallaloo and Gre Gre district be immediately reclassified as an \"Avoidance Area\" or \"Deprioritised Area\" under the Victorian Transmission Plan.",
+        "The district be completely removed from the Grampians Wimmera Renewable Energy Zone.",
+        "VicGrid comply with its obligations under the International Association of Public Participation (IAP2) framework and genuinely respect community consultation outcomes.",
+        "No renewable energy infrastructure — including turbines, solar panels, battery energy storage systems (BESS), or transmission lines — be approved on land where the landowner has explicitly refused."
+      ],
+      "demandsIntro": "",
+      "demands": [],
+      "trustBadges": [
+        { "label": "Privacy Protected", "icon": "lock",   "sub": "Your details are never shared." },
+        { "label": "Community Verified", "icon": "shield", "sub": "Backed by WAGGDA Inc." },
+        { "label": "Farmer Led",        "icon": "tick",   "sub": "Built by the people it affects." }
+      ],
+      "currentCount": 0,
+      "nextMilestone": 5000,
+      "goal": 25000,
+      "submitLabel": "Add my name →",
+      "submittingLabel": "Adding your signature…",
+      "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
+      "thanksLede": "You're signature {{count}} on the Remove Us From The REZ petition. Share it with everyone you know — VicGrid is far harder to ignore at 25,000 voices than at 5,000.",
+      "shareText": "Victorian farmers said NO to being forced into a Renewable Energy Zone. VicGrid ignored them. Sign the petition: farmersfightback.com/take-action/remove-us-from-the-rez #FarmersFightback #RemoveUsFromTheREZ",
+      "ctaHrefBack": "/take-action",
+      "whyMattersHeading": "Why this matters",
+      "whyMatters": [
+        {
+          "heading": "They said NO. VicGrid didn't listen.",
+          "body": "The farming families of the Wallaloo and Gre Gre district have engaged in good faith with VicGrid at every consultation opportunity. They attended meetings. They made submissions. They mapped every single property to show unified opposition. The result? They were placed into Tier 1 and Tier 2 areas, and then shoved into the Grampians Wimmera REZ anyway. This isn't consultation. It's a tick-box exercise. The community has lodged a formal complaint that VicGrid has violated the International Association of Public Participation (IAP2) standards it is legally bound to follow."
+        },
+        {
+          "heading": "This is some of the most productive farmland in Australia.",
+          "body": "The land targeted for the REZ is highly productive food and fibre country. These aren't hobby farms. These are generational agricultural businesses that feed the nation. Industrial renewable infrastructure — turbines, solar arrays, battery storage, transmission lines — would permanently damage this land and destroy its productive capacity. You cannot run a precision farming operation under a transmission line. You cannot lamb under turbines. You cannot insure a property next to a battery storage facility. The damage is not temporary. It is permanent."
+        },
+        {
+          "heading": "The environment they claim to protect will be destroyed.",
+          "body": "The district contains internationally recognised Key Biodiversity Areas with some of the most critically threatened woodland and grassland ecosystems in Victoria. These areas provide habitat for critically endangered birds and fauna. The farming properties themselves provide the biolinks — the ecological corridors — between these irreplaceable habitats. The Victorian Government's own biodiversity mapping shows this. Their own handbook for renewable energy development says areas like this should be avoided. They're ignoring their own rules."
+        },
+        {
+          "heading": "The CFA won't fight fires on REZ land.",
+          "body": "Local Country Fire Authority brigades have made it clear: they will not fight fires on any property hosting renewable energy infrastructure. These brigades are active members of FAROV (Fire and Rescue Organisations of Victoria) and they are not bluffing. In a region where bushfire is a constant threat, this alone makes the area completely unsuitable for a Renewable Energy Zone. People could die."
+        },
+        {
+          "heading": "Unprecedented powers, zero accountability.",
+          "body": "The recently announced VicGrid Stage Reform Bill gives VicGrid extraordinary and unprecedented powers to operate within a REZ — with virtually no accountability. These powers will have immediate impact on land valuations and liveability. The Victorian Transmission Plan also assumes VNI West will proceed before it has even gone through the formal planning approval process. The government is treating the outcome as a fait accompli. If the planning process isn't independent, what is the point of having one?"
+        },
+        {
+          "heading": "We are not misinformed. We do not consent.",
+          "body": "The community wants to make something crystal clear: they are not misinformed. They are not confused. They are not being manipulated by outside interests. They are successful farmers and successful business owners who perfectly understand what is being proposed — and they do not consent. No amount of \"community benefit funds\" will change this. The community calls these payments what they are: bribes. Blood money designed to buy silence while their land is industrialised by foreign-owned corporations that will never set foot on the soil they destroy."
+        }
+      ],
+      "bottomCta": {
+        "heading": "Stand with the farmers.",
+        "body": "Sign the petition. Share it with everyone you know. These families have done everything right — and they've been ignored. Help us make sure that stops today.",
+        "primaryLabel": "Sign the petition ↑",
+        "primaryAnchor": "#sign",
+        "secondaryLabel": "Donate",
+        "secondaryHref": "/#donate"
+      }
+    },
     "hold-the-gate": {
       "slug": "hold-the-gate",
       "campaign": "Hold the Gate",

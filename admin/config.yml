@@ -364,6 +364,61 @@ collections:
             collapsed: true
             summary: "{{petitions | keys | length}} petitions"
             fields:
+              - label: Remove Us From The REZ
+                name: remove-us-from-the-rez
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: Slug, name: slug, widget: string, default: remove-us-from-the-rez }
+                  - { label: Campaign name, name: campaign, widget: string }
+                  - { label: Layout, name: layout, widget: select, options: [long-form, simple], default: long-form }
+                  - { label: Tone, name: tone, widget: select, options: [navy, red, paddock] }
+                  - { label: Hero eyebrow, name: heroEyebrow, widget: string, required: false }
+                  - { label: Hero heading (HTML), name: headingHtml, widget: string }
+                  - { label: Hero subheading, name: subheading, widget: text }
+                  - label: Context paragraphs (above the form)
+                    name: context
+                    widget: list
+                    field: { label: Paragraph, name: text, widget: text }
+                  - { label: Petition statement heading, name: petitionStatementHeading, widget: string }
+                  - label: Petition statement clauses
+                    name: petitionStatement
+                    widget: list
+                    field: { label: Clause, name: text, widget: text }
+                  - label: Trust badges
+                    name: trustBadges
+                    widget: list
+                    fields:
+                      - { label: Label, name: label, widget: string }
+                      - { label: Icon, name: icon, widget: select, options: [lock, shield, tick] }
+                      - { label: Sub-label, name: sub, widget: string, required: false }
+                  - { label: Current count, name: currentCount, widget: number, value_type: int }
+                  - { label: Next milestone, name: nextMilestone, widget: number, value_type: int }
+                  - { label: Goal, name: goal, widget: number, value_type: int }
+                  - { label: Submit label, name: submitLabel, widget: string }
+                  - { label: Submitting label, name: submittingLabel, widget: string }
+                  - { label: "Thanks heading HTML (supports first placeholder)", name: thanksHeadingHtml, widget: string }
+                  - { label: "Thanks lede (supports first + count placeholders)", name: thanksLede, widget: text }
+                  - { label: Share text, name: shareText, widget: text }
+                  - { label: "Back link href", name: ctaHrefBack, widget: string }
+                  - { label: "Why this matters — heading", name: whyMattersHeading, widget: string }
+                  - label: "Why this matters — blocks"
+                    name: whyMatters
+                    widget: list
+                    fields:
+                      - { label: Heading, name: heading, widget: string }
+                      - { label: Body, name: body, widget: text }
+                  - label: "Bottom CTA"
+                    name: bottomCta
+                    widget: object
+                    fields:
+                      - { label: Heading, name: heading, widget: string }
+                      - { label: Body, name: body, widget: text }
+                      - { label: Primary button label, name: primaryLabel, widget: string }
+                      - { label: Primary button anchor, name: primaryAnchor, widget: string, default: "#sign" }
+                      - { label: Secondary button label, name: secondaryLabel, widget: string }
+                      - { label: Secondary button href, name: secondaryHref, widget: string, default: "/#donate" }
+
               - label: Hold the Gate
                 name: hold-the-gate
                 widget: object
