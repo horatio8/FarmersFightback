@@ -72,7 +72,7 @@
     "paragraphsHtml": [
       "<strong>VNI West</strong> is a 400-kilometre high-voltage transmission line proposed to cut through some of Victoria's most productive cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
       "Behind it sits AEMO, AusNet, and <strong>Iberdrola</strong> — an €80-billion Spanish multinational now sending contractors onto family farms, unannounced, with threats and clipboards.",
-      "We're a farmer-led coalition from the Wallaloo &amp; Gre Gre district. We're not anti-renewables. We're anti being walked over."
+      "We're Farmers Fightback — a farmer-led coalition from regional western Victoria. We're not anti-renewables. We're anti being walked over."
     ],
     "stats": [
       { "number": "400", "unit": "km", "label": "Transmission corridor" },
@@ -87,7 +87,7 @@
     "bullets": [
       "Your details stay on-shore and are never sold",
       "Weekly campaign updates — unsubscribe any time",
-      "Authorised by Ben Duxson, Wallaloo VIC"
+      "Authorised by Ben Duxson, Farmers Fightback"
     ],
     "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2",
     "currentCount": 23418,
@@ -98,7 +98,7 @@
     "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
     "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
     "shareText": "I just signed the Farmers Fightback petition. Join 23,000+ Australians: farmersfightback.com",
-    "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Wallaloo & Gre Gre District Association."
+    "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Farmers Fightback."
   },
   "actions": {
     "eyebrow": "How you can help",
@@ -169,7 +169,7 @@
     "doneText": "✓ You're on the list. Keep an eye on your inbox."
   },
   "footer": {
-    "blurb": "A farmer-led coalition from the Wallaloo & Gre Gre District Association — fighting the VNI West transmission line and defending the food bowl of Victoria.",
+    "blurb": "Farmers Fightback — a farmer-led coalition fighting the VNI West transmission line and defending the food bowl of Victoria.",
     "social": [
       { "label": "TikTok", "href": "#" },
       { "label": "Facebook", "href": "#" },
@@ -203,7 +203,7 @@
         ]
       }
     ],
-    "legal": "Authorised by Ben Duxson, Wallaloo VIC · © 2026 Farmers Fightback",
+    "legal": "Authorised by Ben Duxson · © 2026 Farmers Fightback",
     "platform": "Built on Campaign Nucleus"
   },
   "news": {
@@ -222,7 +222,7 @@
       "lede": "Weekly dispatches from the corridor. Sent to 35,000+ supporters.",
       "subscribeUrl": "/#newsletter",
       "items": [
-        { "title": "Welcome to Farmers Fightback", "date": "2026-04-22", "excerpt": "How a kitchen-table conversation in Wallaloo became a national campaign.", "url": "#" },
+        { "title": "Welcome to Farmers Fightback", "date": "2026-04-22", "excerpt": "How a kitchen-table conversation in western Victoria became a national campaign.", "url": "#" },
         { "title": "Hold the Gate launches statewide", "date": "2026-04-15", "excerpt": "150 volunteers showed up at three properties in 48 hours. Zero contractors got through.", "url": "#" },
         { "title": "Fuel & fertiliser prices double in a year", "date": "2026-04-08", "excerpt": "A second crisis nobody's talking about. Why farming families are being asked to plant at a loss.", "url": "#" }
       ]
@@ -260,7 +260,7 @@
         "slug": "remove-us-from-the-rez",
         "kicker": "Live · Remove us from the REZ",
         "title": "Remove us from the REZ.",
-        "summary": "Wallaloo & Gre Gre farmers said NO at every consultation. VicGrid ignored them. Demand the district be removed from the Grampians Wimmera REZ.",
+        "summary": "Western Victorian farmers said NO at every consultation. VicGrid ignored them. Demand the district be removed from the Grampians Wimmera REZ.",
         "cta": "Sign the petition",
         "tone": "navy"
       },
@@ -306,12 +306,12 @@
       "subheading": "The farmers of western Victoria have said NO — again and again. It's time VicGrid listened.",
       "context": [
         "The Victorian Government wants to force a Renewable Energy Zone onto some of the most productive farmland in the state — despite the landowners saying NO at every single consultation.",
-        "The Wallaloo and Gre Gre District Alliance represents farming families who have mapped their properties to show unanimous opposition. They don't want turbines. They don't want solar farms. They don't want battery storage. They don't want transmission lines. None of it.",
+        "Farmers Fightback represents the farming families on the corridor who have mapped their properties to show unanimous opposition. They don't want turbines. They don't want solar farms. They don't want battery storage. They don't want transmission lines. None of it.",
         "VicGrid has ignored them every time. This petition demands they stop."
       ],
       "petitionStatementHeading": "We, the undersigned, demand that:",
       "petitionStatement": [
-        "The Wallaloo and Gre Gre district be immediately reclassified as an \"Avoidance Area\" or \"Deprioritised Area\" under the Victorian Transmission Plan.",
+        "The affected farming district be immediately reclassified as an \"Avoidance Area\" or \"Deprioritised Area\" under the Victorian Transmission Plan.",
         "The district be completely removed from the Grampians Wimmera Renewable Energy Zone.",
         "VicGrid comply with its obligations under the International Association of Public Participation (IAP2) framework and genuinely respect community consultation outcomes.",
         "No renewable energy infrastructure — including turbines, solar panels, battery energy storage systems (BESS), or transmission lines — be approved on land where the landowner has explicitly refused."
@@ -320,7 +320,7 @@
       "demands": [],
       "trustBadges": [
         { "label": "Privacy Protected", "icon": "lock",   "sub": "Your details are never shared." },
-        { "label": "Community Verified", "icon": "shield", "sub": "Backed by WAGGDA Inc." },
+        { "label": "Community Verified", "icon": "shield", "sub": "Backed by Farmers Fightback Inc." },
         { "label": "Farmer Led",        "icon": "tick",   "sub": "Built by the people it affects." }
       ],
       "currentCount": 0,
@@ -336,7 +336,7 @@
       "whyMatters": [
         {
           "heading": "They said NO. VicGrid didn't listen.",
-          "body": "The farming families of the Wallaloo and Gre Gre district have engaged in good faith with VicGrid at every consultation opportunity. They attended meetings. They made submissions. They mapped every single property to show unified opposition. The result? They were placed into Tier 1 and Tier 2 areas, and then shoved into the Grampians Wimmera REZ anyway. This isn't consultation. It's a tick-box exercise. The community has lodged a formal complaint that VicGrid has violated the International Association of Public Participation (IAP2) standards it is legally bound to follow."
+          "body": "The farming families on the corridor have engaged in good faith with VicGrid at every consultation opportunity. They attended meetings. They made submissions. They mapped every single property to show unified opposition. The result? They were placed into Tier 1 and Tier 2 areas, and then shoved into the Grampians Wimmera REZ anyway. This isn't consultation. It's a tick-box exercise. Farmers Fightback has lodged a formal complaint that VicGrid has violated the International Association of Public Participation (IAP2) standards it is legally bound to follow."
         },
         {
           "heading": "This is some of the most productive farmland in Australia.",

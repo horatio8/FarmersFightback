@@ -1095,7 +1095,7 @@ function PetitionPage({ slug }) {
         {state === "submitting" ? p.submittingLabel : p.submitLabel}
       </button>
       {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
-      <p className="ff-form-fine">Authorised by Ben Duxson, Wallaloo & Gre Gre District Association.</p>
+      <p className="ff-form-fine">Authorised by Ben Duxson, Farmers Fightback.</p>
     </form>
   );
 
@@ -1257,7 +1257,7 @@ function PetitionPage({ slug }) {
               {state === "submitting" ? p.submittingLabel : p.submitLabel}
             </button>
             {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
-            <p className="ff-form-fine">Authorised by Ben Duxson, Wallaloo & Gre Gre District Association.</p>
+            <p className="ff-form-fine">Authorised by Ben Duxson, Farmers Fightback.</p>
           </form>
         </div>
       </section>
