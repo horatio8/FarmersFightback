@@ -274,9 +274,9 @@
       },
       {
         "slug": "baldwins",
-        "kicker": "02 / Baldwins",
-        "title": "Stop the Baldwins eviction.",
-        "summary": "A sixth-generation farming family on soldier-settlement land. Threatened with $6,000 fines for refusing access. Sign your name. Hold the line.",
+        "kicker": "02 / Baldwin Defence",
+        "title": "Resign, Minister.",
+        "summary": "Greg called 000 on trespassers. Vic Police charged the farmer. On 27 April 2026 the DPP withdrew every charge. There was no case. The Minister must resign.",
         "cta": "Sign the petition",
         "tone": "red"
       },
@@ -394,10 +394,11 @@
     },
     "baldwins": {
       "slug": "baldwins",
-      "campaign": "Baldwins Campaign",
-      "eyebrow": "Petition · Stop the Baldwins eviction",
-      "heading": "Hands off the Baldwins' farm.",
-      "lede": "The Baldwins are a sixth-generation family on a soldier-settlement farm in western Victoria — land granted to a returned digger after the First World War. Corporate contractors threatened them with $6,000 fines for refusing access. We will not let this stand. Sign the petition. Make Spring Street explain.",
+      "layout": "floodlight",
+      "campaign": "Baldwin Defence — Resign Minister",
+      "eyebrow": "Petition · Baldwin Defence",
+      "heading": "Charges dropped. The Minister must resign.",
+      "lede": "Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On 27 April 2026, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.",
       "demandsIntro": "Sign your name to demand:",
       "demands": [
         { "numeral": "I",   "text": "Immediate suspension of all contractor access attempts on the Baldwins' property pending an independent investigation." },
@@ -412,7 +413,7 @@
       "submittingLabel": "Adding your signature…",
       "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
       "thanksLede": "You just became signature {{count}} on the Baldwins petition. The bigger this gets, the harder Spring Street will find it to ignore.",
-      "shareText": "Sign the petition to stop the Baldwins eviction. Sixth-generation farmers on soldier-settlement land — threatened with $6,000 fines on their own property. → farmersfightback.com/take-action/baldwins",
+      "shareText": "Charges dropped. The DPP withdrew every charge against Greg and Bill Baldwin. The Victorian Energy Minister must resign. Sign the petition → farmersfightback.com/take-action/baldwins #ResignMinister #ChargesDropped",
       "ctaHrefBack": "/take-action",
       "tone": "red"
     },

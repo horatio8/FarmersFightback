@@ -954,10 +954,501 @@ function shareUrlFor(platform, text, url) {
   }
 }
 
+// ---------- Baldwin Defence (V1 · Floodlight) ----------
+// Self-contained themed page (deep navy + hi-vis yellow) — does NOT inherit
+// site styles. Renders only when petition slug === "baldwins".
+// Locked, lawyer-reviewed copy — see /design_handoff_baldwin_campaign/README.md.
+function BaldwinFloodlight({ p, receiverUrl }) {
+  const C = {
+    navy: "#0E2940", navyDeep: "#081826",
+    bone: "#F5F1E8", boneDim: "#D9D3C5",
+    yellow: "#F4C430", yellowDeep: "#E0AE1F",
+    rule: "rgba(245,241,232,0.18)",
+    mute: "rgba(245,241,232,0.62)",
+  };
+  const fonts = {
+    display: '"Archivo Narrow", "Oswald", "Bebas Neue", Impact, sans-serif',
+    sans: '"Inter", "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif',
+    mono: '"JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace',
+  };
+
+  // Live-ish counter
+  const [count, setCount] = useState(p.currentCount || 51427);
+  useEffect(() => {
+    const t = setInterval(() => setCount(x => x + Math.floor(Math.random() * 3)), 2500);
+    return () => clearInterval(t);
+  }, []);
+
+  // Form state — wires the SIGN action below the action grid
+  const [form, setForm] = useState({ first: "", last: "", email: "", postcode: "", consent: false });
+  const [errors, setErrors] = useState({});
+  const [state, setState] = useState("idle");
+  const update = (k) => (e) => {
+    const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setForm(f => ({ ...f, [k]: v }));
+  };
+  const submit = async (ev) => {
+    ev.preventDefault();
+    const e = {};
+    if (!form.first.trim()) e.first = "Required";
+    if (!form.last.trim()) e.last = "Required";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+    if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
+    if (!form.consent) e.consent = "Tick to continue";
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setState("submitting");
+    const body = new URLSearchParams({
+      first_name: form.first.trim(), last_name: form.last.trim(),
+      email: form.email.trim(), postcode: form.postcode.trim(),
+      campaign: "Baldwin Defence — Resign Minister",
+    });
+    try {
+      if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      setState("done");
+    } catch { setState("error"); }
+  };
+
+  // Locked copy
+  const acts = [
+    { n: "01", date: "13 NOV 2025", tag: "TRESPASS",
+      title: "Greg called triple zero on his own farm.",
+      body: "VicGrid contractors entered the Baldwin property in western Victoria. They had been served previous refusals, written notice, and a 48-hour access notice the family had not consented to. Greg called 000. Bill — Greg's brother and a CFA volunteer — arrived to support him. Neighbours arrived. The contractors left." },
+    { n: "02", date: "NOV 2025 — MAR 2026", tag: "THE CHARGES",
+      title: "Police did not charge the trespassers. They charged the farmers.",
+      body: "Greg with unlawful imprisonment. Bill with unlawful imprisonment AND assault. Both Baldwins were arrested at Rupanyup Police Station and fingerprinted. Bill was first ordered to attend the station while he was actively fighting a fire on a neighbour's property as a CFA volunteer." },
+    { n: "03", date: "27 APR 2026", tag: "DPP WITHDRAWS", highlight: true,
+      title: "The DPP withdrew every charge. There was no case.",
+      body: "In the Magistrates' Court, the Director of Public Prosecutions withdrew every charge against Greg and Bill Baldwin. No conviction. No trial. No basis. The Crown said in plain language what the family had said all along: there was no case to answer." },
+    { n: "04", date: "16 MAR 2026", tag: "FORCED ACCESS",
+      title: "The same Minister. A new law. The same farms. 30 days.",
+      body: "The same week the family was in court, VicGrid posted letters to multiple western Victorian properties advising they would use new powers under amended Victorian energy legislation to FORCE access in 30 days. Same project. Same villains. Different vehicle." },
+  ];
+  const pillars = [
+    "A farmer rang triple zero. They charged the farmer.",
+    "The court agreed. The DPP withdrew. There was no case.",
+    "Same Minister. New law. Same farms. 30 days.",
+    "We are not victims. We are landholders. Resign.",
+  ];
+  const actions = [
+    { n: "01", t: "Sign the petition",   d: "Add your name to the call for the Minister to resign. Farmers Fightback-endorsed. Delivered to Spring St.", cta: "SIGN",   primary: true,  href: "#sign" },
+    { n: "02", t: "Email the Minister",  d: "Pre-written letter, your name on it. Sent to the Minister's office and your local MP in two clicks.",       cta: "EMAIL",  href: "mailto:lily.dambrosio@parliament.vic.gov.au?subject=Resign%2C%20Minister&body=Dear%20Minister%20D%27Ambrosio%2C%0A%0AThe%20DPP%20has%20withdrawn%20every%20charge%20against%20Greg%20and%20Bill%20Baldwin.%20There%20was%20no%20case.%20I%20am%20writing%20to%20demand%20your%20resignation%2C%20a%20review%20of%20Vic%20Police%20and%20OPP%20conduct%2C%20and%20suspension%20of%20forced-access%20powers%20under%20the%20amended%20energy%20legislation.%0A%0AYours%2C%0A" },
+    { n: "03", t: "Share Greg's address", d: "One-tap share to X, Facebook, Instagram. Use #ResignMinister and #ChargesDropped.",                          cta: "SHARE",  href: "#share" },
+    { n: "04", t: "Donate to defence",   d: "Recovery of legal costs and prep for civil action. Every dollar receipted by the Baldwin family solicitor.", cta: "DONATE", href: "/#donate" },
+  ];
+
+  // Inline keyframes + responsive collapse, scoped via class names
+  const css = `
+    @keyframes v1pan { 0%{background-position:0 0,0 0} 100%{background-position:0 0,200px 0} }
+    @keyframes v1blink { 50%{opacity:.4} }
+    .fl-root { background: ${C.navy}; color: ${C.bone}; font-family: ${fonts.sans}; min-height: 100vh; }
+    .fl-root a { color: inherit; text-decoration: none; }
+    .fl-root *, .fl-root *::before, .fl-root *::after { box-sizing: border-box; }
+    .fl-pad { padding-left: 56px; padding-right: 56px; }
+    .fl-h1 { font: 900 124px/0.92 ${fonts.display}; letter-spacing: -0.015em; text-transform: uppercase; margin: 24px 0 0; }
+    .fl-h2 { font: 900 80px/0.95 ${fonts.display}; letter-spacing: -0.01em; text-transform: uppercase; margin: 0; }
+    .fl-h2--sm { font-size: 60px; line-height: 1; }
+    .fl-grid-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: end; }
+    .fl-grid-demand { display: grid; grid-template-columns: 0.6fr 1fr; gap: 56px; }
+    .fl-grid-counter { display: grid; grid-template-columns: 1fr 0.8fr; gap: 64px; align-items: end; }
+    .fl-grid-timeline { display: grid; grid-template-columns: 180px 1fr; column-gap: 48px; position: relative; }
+    .fl-grid-pillars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid ${C.rule}; }
+    .fl-grid-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid ${C.rule}; }
+    .fl-grid-footer { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 32px; }
+    @media (max-width: 1199px) {
+      .fl-grid-hero, .fl-grid-demand, .fl-grid-counter { grid-template-columns: 1fr; gap: 32px; }
+      .fl-h1 { font-size: 88px; }
+    }
+    @media (max-width: 899px) {
+      .fl-grid-actions { grid-template-columns: repeat(2, 1fr); }
+      .fl-grid-pillars { grid-template-columns: 1fr; }
+      .fl-grid-footer { grid-template-columns: 1fr 1fr; }
+      .fl-grid-timeline { grid-template-columns: 1fr; }
+      .fl-rail { display: none !important; }
+      .fl-date-col { text-align: left !important; padding-bottom: 8px !important; padding-right: 0 !important; }
+    }
+    @media (max-width: 599px) {
+      .fl-pad { padding-left: 20px; padding-right: 20px; }
+      .fl-h1 { font-size: 64px; }
+      .fl-h2 { font-size: 56px; }
+      .fl-h2--sm { font-size: 44px; }
+      .fl-grid-actions, .fl-grid-footer { grid-template-columns: 1fr; }
+      .fl-kicker { flex-direction: column; gap: 6px; align-items: flex-start; }
+    }
+  `;
+
+  const Eyebrow = ({ children, color = C.yellow }) => (
+    <div style={{ font: `700 12px/1 ${fonts.mono}`, color, letterSpacing: ".18em", textTransform: "uppercase" }}>{children}</div>
+  );
+
+  const Btn = ({ children, primary, mono, href, type, onClick, disabled, fullWidth }) => {
+    const props = {
+      style: {
+        appearance: "none", border: "none", cursor: disabled ? "not-allowed" : "pointer",
+        background: primary ? C.yellow : "transparent",
+        color: primary ? C.navyDeep : C.bone,
+        font: `800 ${mono ? 13 : 16}px/1 ${mono ? fonts.mono : fonts.sans}`,
+        letterSpacing: mono ? ".14em" : ".02em",
+        textTransform: mono ? "uppercase" : "none",
+        padding: primary ? "20px 28px" : "18px 24px",
+        boxShadow: primary ? "none" : `inset 0 0 0 1.5px ${C.bone}`,
+        display: "inline-flex", alignItems: "center", gap: 12, textAlign: "left",
+        opacity: disabled ? 0.6 : 1, width: fullWidth ? "100%" : undefined, justifyContent: fullWidth ? "center" : undefined,
+      },
+      onClick, type,
+    };
+    if (href) return <a {...props} href={href}>{children}<span style={{ fontSize: 18 }}>→</span></a>;
+    return <button {...props} disabled={disabled}>{children}<span style={{ fontSize: 18 }}>→</span></button>;
+  };
+
+  const Rule = () => <div style={{ height: 1, background: C.rule, width: "100%" }} />;
+
+  const VideoSlot = () => (
+    <div style={{
+      position: "relative", width: "100%", aspectRatio: "16/9",
+      background: C.navyDeep, overflow: "hidden", border: `1px solid ${C.rule}`,
+    }}>
+      <div style={{
+        position: "absolute", inset: 0,
+        background: `radial-gradient(ellipse at 30% 60%, rgba(244,196,48,0.12) 0%, transparent 55%), repeating-linear-gradient(98deg, rgba(245,241,232,.03) 0 22px, rgba(245,241,232,.06) 22px 44px)`,
+        animation: "v1pan 22s linear infinite",
+      }} />
+      <div style={{
+        position: "absolute", top: 18, left: 20, display: "flex", alignItems: "center", gap: 10,
+        font: `600 11px/1 ${fonts.mono}`, letterSpacing: ".14em", color: C.bone, textTransform: "uppercase",
+      }}>
+        <span style={{ width: 8, height: 8, borderRadius: 8, background: C.yellow, animation: "v1blink 1.4s infinite" }} />
+        LIVE · GREG BALDWIN · ON HIS LAND
+      </div>
+      <div style={{
+        position: "absolute", bottom: 20, left: 20, right: 20, display: "flex",
+        justifyContent: "space-between", alignItems: "flex-end",
+        font: `500 11px/1 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase",
+      }}>
+        <span>00:00 / 03:42 — MUTED</span>
+        <span>WESTERN VIC · MAY 2026</span>
+      </div>
+      <div style={{
+        position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)",
+        width: 86, height: 86, borderRadius: 86, border: `2px solid ${C.yellow}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(14,41,64,0.7)",
+      }}>
+        <div style={{ width: 0, height: 0, borderLeft: `22px solid ${C.yellow}`, borderTop: "14px solid transparent", borderBottom: "14px solid transparent", marginLeft: 6 }} />
+      </div>
+    </div>
+  );
+
+  const PhotoSlot = ({ label, h = 420 }) => (
+    <div style={{
+      width: "100%", height: h,
+      background: `repeating-linear-gradient(135deg, rgba(245,241,232,.04) 0 14px, rgba(245,241,232,.07) 14px 28px), ${C.navyDeep}`,
+      border: `1px solid ${C.rule}`, position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <div style={{ position: "absolute", top: 14, left: 14, font: `500 11px/1 ${fonts.mono}`, letterSpacing: ".08em", color: C.yellow, textTransform: "uppercase" }}>◉ PHOTO</div>
+      <div style={{ font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", textAlign: "center", maxWidth: "60%" }}>{label}</div>
+    </div>
+  );
+
+  return (
+    <>
+      <style>{css}</style>
+      <div className="fl-root">
+        {/* NAV */}
+        <div className="fl-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 56px", borderBottom: `1px solid ${C.rule}` }}>
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 30, height: 30, background: C.yellow, clipPath: "polygon(50% 0,100% 38%,82% 100%,18% 100%,0 38%)" }} />
+            <div style={{ font: `900 14px/1 ${fonts.display}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Farmers Fightback</div>
+          </a>
+          <div style={{ display: "flex", gap: 28, font: `600 12px/1 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", flexWrap: "wrap" }}>
+            <a href="#story">The Story</a>
+            <a href="#demand">The Demand</a>
+            <a href="/news">Press</a>
+            <a href="/#donate">Donate</a>
+            <span style={{ color: C.yellow }}>● BALDWIN DEFENCE</span>
+          </div>
+        </div>
+
+        {/* KICKER STRIP */}
+        <div className="fl-kicker" style={{ background: C.yellow, color: C.navyDeep, padding: "10px 56px", display: "flex", justifyContent: "space-between", font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span>● UPDATED 07 MAY 2026 · 18:42 AEST</span>
+          <span>CHARGES DROPPED · THE MINISTER MUST RESIGN</span>
+          <span>SHARE → #ResignMinister · #ChargesDropped</span>
+        </div>
+
+        {/* HERO */}
+        <div className="fl-pad" style={{ padding: "64px 56px 48px" }}>
+          <div className="fl-grid-hero">
+            <div>
+              <Eyebrow>Baldwin Defence · Phase 01 — Vindication</Eyebrow>
+              <h1 className="fl-h1">
+                Charges<br/>
+                <span style={{ color: C.yellow }}>dropped.</span><br/>
+                The Minister<br/>
+                must resign.
+              </h1>
+              <p style={{ margin: "36px 0 0", maxWidth: 560, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
+                Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
+              </p>
+              <div style={{ display: "flex", gap: 14, marginTop: 36, flexWrap: "wrap" }}>
+                <Btn primary mono href="#sign">Sign the petition</Btn>
+                <Btn mono href={actions[1].href}>Email the Minister</Btn>
+              </div>
+            </div>
+            <VideoSlot />
+          </div>
+        </div>
+
+        <Rule />
+
+        {/* DEMAND PANEL */}
+        <div id="demand" className="fl-pad" style={{ padding: "64px 56px", background: C.navyDeep }}>
+          <div className="fl-grid-demand">
+            <div>
+              <Eyebrow>The Demand</Eyebrow>
+              <div style={{ font: `700 14px/1.5 ${fonts.mono}`, color: C.mute, marginTop: 22, textTransform: "uppercase", letterSpacing: ".1em" }}>
+                To: The Hon. Lily D'Ambrosio MP<br/>Victorian Minister for Energy and Resources
+              </div>
+              <div style={{ marginTop: 28, padding: "14px 18px", border: `1.5px dashed ${C.yellow}`, color: C.yellow, font: `700 11px/1.5 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", display: "inline-block" }}>
+                ● ACTIVE PETITION · FARMERS FIGHTBACK-ENDORSED
+              </div>
+            </div>
+            <div>
+              <h2 className="fl-h2 fl-h2--sm">
+                Resign. Explain. <span style={{ color: C.yellow }}>Repeal.</span>
+              </h2>
+              <ol style={{ margin: "32px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 22, font: `500 18px/1.55 ${fonts.sans}`, color: C.bone }}>
+                {[
+                  ["01.", "The Minister for Energy and Resources resigns."],
+                  ["02.", "An independent review of Vic Police and OPP conduct in the Baldwin matter."],
+                  ["03.", "Forced-access powers in the amended energy legislation suspended pending a parliamentary inquiry."],
+                ].map(([n, t]) => (
+                  <li key={n} style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 8, alignItems: "baseline" }}>
+                    <span style={{ font: `800 22px/1 ${fonts.mono}`, color: C.yellow }}>{n}</span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <Rule />
+
+        {/* COUNTER STRIP */}
+        <div className="fl-pad" style={{ padding: "56px 56px 64px" }}>
+          <div className="fl-grid-counter">
+            <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ font: `900 96px/0.9 ${fonts.display}`, color: C.yellow, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{count.toLocaleString("en-AU")}</div>
+              <div style={{ font: `600 14px/1.4 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".12em" }}>signatures<br/>demanding the Minister resign</div>
+            </div>
+            <div>
+              <Eyebrow>Goal · 50,000</Eyebrow>
+              <div style={{ position: "relative", height: 18, background: "rgba(245,241,232,0.08)", marginTop: 14 }}>
+                <div style={{ position: "absolute", inset: 0, width: "100%", background: C.yellow }} />
+                <div style={{ position: "absolute", right: -2, top: -10, bottom: -10, width: 2, background: C.bone }} />
+              </div>
+              <div style={{ font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, marginTop: 12, textTransform: "uppercase", letterSpacing: ".12em" }}>
+                Threshold met. Spring St handover scheduled — date TBC, next 60 days.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Rule />
+
+        {/* STORY TIMELINE */}
+        <div id="story" className="fl-pad" style={{ padding: "88px 56px 64px" }}>
+          <Eyebrow>The Story · One Page</Eyebrow>
+          <h2 className="fl-h2" style={{ marginTop: 20, maxWidth: 980 }}>From triple zero <span style={{ color: C.yellow }}>to no case to answer.</span></h2>
+          <div className="fl-grid-timeline" style={{ marginTop: 64 }}>
+            <div className="fl-rail" style={{ position: "absolute", left: 220, top: 0, bottom: 0, width: 2, background: C.rule }} />
+            {acts.map((a, i) => (
+              <React.Fragment key={a.n}>
+                <div className="fl-date-col" style={{ paddingTop: 8, textAlign: "right", paddingRight: 24, font: `700 13px/1.4 ${fonts.mono}`, color: a.highlight ? C.yellow : C.bone, textTransform: "uppercase", letterSpacing: ".12em", paddingBottom: 64 }}>
+                  <div>{a.date}</div>
+                  <div style={{ marginTop: 8, color: C.mute, fontWeight: 500 }}>{a.tag}</div>
+                </div>
+                <div style={{ position: "relative", paddingBottom: 64, paddingLeft: 36 }}>
+                  <div style={{ position: "absolute", left: -7, top: 14, width: 16, height: 16, borderRadius: 16, background: a.highlight ? C.yellow : C.navyDeep, boxShadow: a.highlight ? `0 0 0 4px ${C.navy}` : `inset 0 0 0 2px ${C.bone}` }} />
+                  <div style={{ font: `900 22px/1 ${fonts.mono}`, color: a.highlight ? C.yellow : C.bone, letterSpacing: ".04em" }}>{a.n}</div>
+                  <h3 style={{ margin: "14px 0 0", font: `700 32px/1.15 ${fonts.sans}`, letterSpacing: "-0.01em", color: a.highlight ? C.yellow : C.bone, maxWidth: 720 }}>{a.title}</h3>
+                  <p style={{ margin: "14px 0 0", maxWidth: 680, font: `400 16px/1.65 ${fonts.sans}`, color: C.bone }}>{a.body}</p>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        <Rule />
+
+        {/* PILLARS POSTER */}
+        <div className="fl-pad" style={{ padding: "88px 56px", background: C.navyDeep }}>
+          <Eyebrow>Messaging · The Public Record</Eyebrow>
+          <div className="fl-grid-pillars" style={{ marginTop: 36 }}>
+            {pillars.map((p2, i) => (
+              <div key={i} style={{
+                padding: "40px 36px",
+                borderRight: i % 2 === 0 ? `1px solid ${C.rule}` : "none",
+                borderBottom: i < 2 ? `1px solid ${C.rule}` : "none",
+                minHeight: 180, display: "flex", flexDirection: "column", justifyContent: "space-between",
+              }}>
+                <div style={{ font: `700 12px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase" }}>Pillar 0{i + 1}</div>
+                <div style={{ font: `800 28px/1.15 ${fonts.sans}`, letterSpacing: "-0.01em", marginTop: 16 }}>{p2}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Rule />
+
+        {/* ACTION GRID */}
+        <div className="fl-pad" style={{ padding: "88px 56px 56px" }}>
+          <Eyebrow>What you do today</Eyebrow>
+          <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Four moves. <span style={{ color: C.yellow }}>Pick one.</span></h2>
+          <div className="fl-grid-actions">
+            {actions.map((a, i) => (
+              <a key={a.n} href={a.href} style={{
+                padding: "36px 32px",
+                background: a.primary ? C.yellow : "transparent",
+                color: a.primary ? C.navyDeep : C.bone,
+                borderRight: i < 3 ? `1px solid ${a.primary ? "rgba(14,41,64,.18)" : C.rule}` : "none",
+                display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 320,
+              }}>
+                <div>
+                  <div style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", opacity: .7 }}>Action {a.n}</div>
+                  <div style={{ font: `800 32px/1.1 ${fonts.sans}`, marginTop: 18, letterSpacing: "-0.01em" }}>{a.t}</div>
+                  <div style={{ font: `400 14px/1.55 ${fonts.sans}`, marginTop: 14, color: a.primary ? "rgba(8,24,38,.78)" : C.bone, opacity: a.primary ? 1 : .82 }}>{a.d}</div>
+                </div>
+                <div style={{ marginTop: 24, display: "inline-flex", alignItems: "center", gap: 10, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>{a.cta} <span style={{ fontSize: 18 }}>→</span></div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* SIGN — inline form (wired to Campaign Nucleus receiver) */}
+        <div id="sign" className="fl-pad" style={{ padding: "0 56px 88px" }}>
+          {state === "done" ? (
+            <div style={{ background: C.yellow, color: C.navyDeep, padding: "48px 40px", display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center" }}>
+              <div>
+                <div style={{ font: `700 12px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Signed · Thank you</div>
+                <h3 style={{ margin: "12px 0 8px", font: `900 44px/1 ${fonts.display}`, textTransform: "uppercase" }}>You're {(count + 1).toLocaleString("en-AU")}.</h3>
+                <p style={{ margin: 0, font: `400 16px/1.55 ${fonts.sans}` }}>Now share Greg's address. Every signature past 50k strengthens the handover at Spring St.</p>
+              </div>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <a href={actions[2].href} style={{ background: C.navyDeep, color: C.yellow, padding: "16px 22px", font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>SHARE →</a>
+                <a href="/#donate" style={{ background: "transparent", color: C.navyDeep, padding: "16px 22px", boxShadow: `inset 0 0 0 2px ${C.navyDeep}`, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>DONATE →</a>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={submit} style={{ background: C.navyDeep, border: `1px solid ${C.rule}`, padding: "48px 44px" }}>
+              <Eyebrow>Sign · Petition</Eyebrow>
+              <h3 style={{ margin: "16px 0 28px", font: `900 44px/1 ${fonts.display}`, textTransform: "uppercase" }}>Add your name. <span style={{ color: C.yellow }}>Now.</span></h3>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, maxWidth: 720 }}>
+                {[
+                  { k: "first", label: "First name", auto: "given-name" },
+                  { k: "last",  label: "Last name",  auto: "family-name" },
+                ].map(f => (
+                  <label key={f.k} style={{ display: "block" }}>
+                    <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>{f.label}{errors[f.k] && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors[f.k]}</em>}</span>
+                    <input value={form[f.k]} onChange={update(f.k)} autoComplete={f.auto} style={{ width: "100%", padding: "14px 16px", background: C.navy, border: `1.5px solid ${errors[f.k] ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+                  </label>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 200px", gap: 14, marginTop: 14, maxWidth: 720 }}>
+                <label>
+                  <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Email{errors.email && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.email}</em>}</span>
+                  <input type="email" value={form.email} onChange={update("email")} autoComplete="email" style={{ width: "100%", padding: "14px 16px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+                </label>
+                <label>
+                  <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Postcode{errors.postcode && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.postcode}</em>}</span>
+                  <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} autoComplete="postal-code" style={{ width: "100%", padding: "14px 16px", background: C.navy, border: `1.5px solid ${errors.postcode ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+                </label>
+              </div>
+              <label style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 12, marginTop: 22, alignItems: "start", maxWidth: 720, font: `400 13px/1.5 ${fonts.sans}`, color: C.mute, cursor: "pointer" }}>
+                <input type="checkbox" checked={form.consent} onChange={update("consent")} style={{ width: 20, height: 20, marginTop: 1, accentColor: C.yellow }} />
+                <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time. {errors.consent && <em style={{ fontStyle: "normal", color: C.yellow }}>— {errors.consent}</em>}</span>
+              </label>
+              <div style={{ marginTop: 26, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+                <Btn primary mono type="submit" disabled={state === "submitting"}>{state === "submitting" ? "Signing…" : "Sign the petition"}</Btn>
+                {state === "error" && <span style={{ color: C.yellow, font: `500 13px/1.4 ${fonts.mono}` }}>Something went wrong. Try again.</span>}
+                <span style={{ color: C.mute, font: `500 11px/1.4 ${fonts.mono}`, letterSpacing: ".12em", textTransform: "uppercase" }}>Authorised by Ben Duxson, Farmers Fightback</span>
+              </div>
+            </form>
+          )}
+        </div>
+
+        <Rule />
+
+        {/* SHARE ROW */}
+        <div id="share" className="fl-pad" style={{ padding: "56px 56px" }}>
+          <Eyebrow>Share · Greg's Address</Eyebrow>
+          <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {[
+              { p: "facebook", l: "Facebook" },
+              { p: "x",        l: "X" },
+              { p: "whatsapp", l: "WhatsApp" },
+              { p: "telegram", l: "Telegram" },
+              { p: "email",    l: "Email" },
+            ].map(s => {
+              const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
+              return (
+                <a key={s.p} href={shareUrlFor(s.p, p.shareText || "Charges dropped. The Minister must resign. #ResignMinister #ChargesDropped", pageUrl)} target="_blank" rel="noopener noreferrer"
+                   style={{ padding: "14px 18px", background: "transparent", boxShadow: `inset 0 0 0 1.5px ${C.bone}`, color: C.bone, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>
+                  {s.l} →
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* PHOTO BAND */}
+        <div className="fl-pad" style={{ padding: "0 56px 88px" }}>
+          <PhotoSlot label="GREG ON HIS LAND · WIDE · LOOKING AT CAMERA · WORKING CLOTHES" h={420} />
+        </div>
+
+        <Rule />
+
+        {/* FOOTER */}
+        <div className="fl-pad" style={{ padding: "56px 56px 64px", background: C.navyDeep }}>
+          <div className="fl-grid-footer">
+            <div>
+              <div style={{ font: `900 16px/1 ${fonts.display}`, letterSpacing: ".2em", textTransform: "uppercase" }}>Farmers<br/>Fightback</div>
+              <p style={{ font: `400 13px/1.6 ${fonts.sans}`, color: C.mute, marginTop: 18, maxWidth: 280 }}>Fighting for farmers, food &amp; our future. 35,000+ strong across regional Australia.</p>
+            </div>
+            {[
+              ["The Campaign", [["Baldwin Defence", "/take-action/baldwins"], ["VNI West", "/#evidence"], ["Resign Minister", "#sign"], ["Forced Access", "/take-action/remove-us-from-the-rez"]]],
+              ["Take Action",  [["Sign petition", "#sign"], ["Email Minister", actions[1].href], ["Share Greg's video", "#share"], ["Donate", "/#donate"]]],
+              ["Press",        [["News", "/news"], ["Contact", "mailto:hello@farmersfightback.com"]]],
+            ].map(([h, items]) => (
+              <div key={h}>
+                <div style={{ font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase" }}>{h}</div>
+                <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
+                  {items.map(([label, href]) => <a key={label} href={href} style={{ font: `500 14px/1.4 ${fonts.sans}`, color: C.bone }}>{label}</a>)}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 56, paddingTop: 24, borderTop: `1px solid ${C.rule}`, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, font: `500 11px/1.5 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".12em" }}>
+            <span>© Farmers Fightback 2026 · Authorised by Ben Duxson, Farmers Fightback</span>
+            <span>farmersfightback.com/take-action/baldwins</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 function PetitionPage({ slug }) {
   const all = useContent().petitions || {};
   const p = all[slug];
   const receiverUrl = useContent().petition?.receiverUrl;
+
+  // Slug-specific themed templates
+  if (slug === "baldwins" && p) {
+    return <BaldwinFloodlight p={p} receiverUrl={receiverUrl} />;
+  }
+
   if (!p) {
     return (
       <PageShell>
