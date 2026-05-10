@@ -974,6 +974,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
   // Live-ish counter
   const [count, setCount] = useState(p.currentCount || 51427);
+  const [navOpen, setNavOpen] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setCount(x => x + Math.floor(Math.random() * 3)), 2500);
     return () => clearInterval(t);
@@ -1064,6 +1065,19 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     .fl-grid-pillars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid ${C.rule}; }
     .fl-grid-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid ${C.rule}; }
     .fl-grid-footer { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 32px; }
+
+    /* Nav — hamburger hidden by default (shown only on mobile) */
+    .fl-nav-links { display: flex; gap: 28px; }
+    .fl-burger { display: none; background: transparent; border: 0; padding: 8px; cursor: pointer; }
+    .fl-burger span { display: block; width: 26px; height: 2.5px; background: ${C.bone}; margin: 5px 0; transition: transform .2s ease, opacity .2s ease; }
+    .fl-burger.is-open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .fl-burger.is-open span:nth-child(2) { opacity: 0; }
+    .fl-burger.is-open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+    .fl-mobilenav { display: none; background: ${C.navyDeep}; border-bottom: 1px solid ${C.rule}; padding: 8px 20px 18px; }
+    .fl-mobilenav a { display: block; padding: 14px 4px; font: 700 14px/1 ${fonts.mono}; letter-spacing: .14em; text-transform: uppercase; color: ${C.bone}; border-bottom: 1px solid ${C.rule}; }
+    .fl-mobilenav a:last-child { border-bottom: 0; }
+    .fl-mobilenav .is-primary { color: ${C.yellow}; }
+
     @media (max-width: 1199px) {
       .fl-grid-hero, .fl-grid-demand, .fl-grid-counter { grid-template-columns: 1fr; gap: 32px; }
       .fl-h1 { font-size: 88px; }
@@ -1076,13 +1090,47 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       .fl-rail { display: none !important; }
       .fl-date-col { text-align: left !important; padding-bottom: 8px !important; padding-right: 0 !important; }
     }
-    @media (max-width: 599px) {
+
+    /* ─── Mobile (< 720px): hamburger nav, no kicker, reordered hero ─── */
+    @media (max-width: 719px) {
       .fl-pad { padding-left: 20px; padding-right: 20px; }
-      .fl-h1 { font-size: 64px; }
-      .fl-h2 { font-size: 56px; }
-      .fl-h2--sm { font-size: 44px; }
+      .fl-h1 { font-size: clamp(44px, 13vw, 60px); line-height: 0.94; margin-top: 0; }
+      .fl-h2 { font-size: clamp(36px, 10vw, 52px); }
+      .fl-h2--sm { font-size: clamp(32px, 9vw, 44px); }
       .fl-grid-actions, .fl-grid-footer { grid-template-columns: 1fr; }
-      .fl-kicker { flex-direction: column; gap: 6px; align-items: flex-start; }
+
+      /* Hide the yellow update kicker strip on mobile */
+      .fl-kicker { display: none !important; }
+
+      /* Show hamburger; hide the inline desktop nav links */
+      .fl-nav-links { display: none; }
+      .fl-burger { display: inline-block; }
+      .fl-nav-wrap { padding: 14px 20px !important; }
+      .fl-logo img { height: 30px !important; }
+      .fl-mobilenav.is-open { display: block; }
+
+      /* Hero — flex column so we can reorder on mobile.
+         Order: H1 → form → body → demand → CTAs (sign block is now in reach). */
+      .fl-hero { display: flex; flex-direction: column; padding: 28px 20px 36px !important; gap: 0; }
+      .fl-hero-headline { order: 1; margin: 0 0 24px; }
+      .fl-hero-form     { order: 2; margin: 0 0 32px; max-width: none !important; }
+      .fl-hero-body     { order: 3; margin: 0 0 28px !important; font-size: 17px !important; line-height: 1.5 !important; }
+      .fl-hero-demand   { order: 4; margin: 0 0 28px !important; max-width: none !important; }
+      .fl-hero-ctas     { order: 5; margin: 0 !important; }
+      .fl-hero-ctas a, .fl-hero-ctas button { width: 100%; justify-content: space-between; }
+
+      /* Section vertical rhythm — tighter on mobile */
+      .fl-section-mob { padding-top: 56px !important; padding-bottom: 56px !important; }
+      .fl-anchor-mob  { padding-top: 56px !important; padding-bottom: 56px !important; }
+
+      /* Counter — smaller heading number */
+      .fl-counter-num { font-size: 64px !important; }
+
+      /* Timeline — tighter dot offsets when rail is gone */
+      .fl-date-col { padding-bottom: 6px !important; }
+
+      /* Watch Greg eyebrow row — single column */
+      .fl-watchgreg-head { flex-direction: column !important; align-items: flex-start !important; gap: 6px !important; }
     }
   `;
 
@@ -1209,21 +1257,39 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       <style>{css}</style>
       <div className="fl-root">
         {/* NAV */}
-        <div className="fl-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 56px", borderBottom: `1px solid ${C.rule}` }}>
-          <a href="/" style={{ display: "flex", alignItems: "center" }} aria-label="Farmers Fightback home">
+        <div className="fl-nav-wrap fl-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 56px", borderBottom: `1px solid ${C.rule}` }}>
+          <a href="/" className="fl-logo" style={{ display: "flex", alignItems: "center" }} aria-label="Farmers Fightback home">
             <img
               src="/assets/logo.png"
               alt="Farmers Fightback"
               style={{ height: 38, width: "auto", display: "block", filter: "brightness(0) invert(1)" }}
             />
           </a>
-          <div style={{ display: "flex", gap: 28, font: `600 12px/1 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", flexWrap: "wrap" }}>
+          <div className="fl-nav-links" style={{ font: `600 12px/1 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", flexWrap: "wrap" }}>
             <a href="#story">The Story</a>
             <a href="#demand">The Demand</a>
             <a href="/news">Press</a>
             <a href="/#donate">Donate</a>
             <span style={{ color: C.yellow }}>● BALDWIN DEFENCE</span>
           </div>
+          <button
+            type="button"
+            className={`fl-burger ${navOpen ? "is-open" : ""}`}
+            aria-label="Open menu"
+            aria-expanded={navOpen}
+            onClick={() => setNavOpen(v => !v)}
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+
+        {/* MOBILE MENU (only shown on mobile via CSS) */}
+        <div className={`fl-mobilenav ${navOpen ? "is-open" : ""}`}>
+          <a href="#sign" className="is-primary" onClick={() => setNavOpen(false)}>● Sign the petition</a>
+          <a href="#story" onClick={() => setNavOpen(false)}>The Story</a>
+          <a href="#demand" onClick={() => setNavOpen(false)}>The Demand</a>
+          <a href="/news" onClick={() => setNavOpen(false)}>Press</a>
+          <a href="/#donate" onClick={() => setNavOpen(false)}>Donate</a>
         </div>
 
         {/* KICKER STRIP */}
@@ -1234,19 +1300,19 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         </div>
 
         {/* HERO */}
-        <div className="fl-pad" style={{ padding: "64px 56px 48px" }}>
-          <h1 className="fl-h1">
+        <div className="fl-hero fl-pad" style={{ padding: "64px 56px 48px" }}>
+          <h1 className="fl-h1 fl-hero-headline">
             Charges<br/>
             <span style={{ color: C.yellow }}>dropped.</span><br/>
             The Minister<br/>
             must resign.
           </h1>
-          <p style={{ margin: "36px 0 0", maxWidth: 720, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
+          <p className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
             Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
           </p>
 
           {/* DEMAND — pulled into the hero above the form */}
-          <div id="demand" style={{ marginTop: 56, maxWidth: 820 }}>
+          <div id="demand" className="fl-hero-demand" style={{ marginTop: 56, maxWidth: 820 }}>
             <h2 className="fl-h2 fl-h2--sm">
               Resign. Investigate. <span style={{ color: C.yellow }}>Repeal.</span>
             </h2>
@@ -1264,10 +1330,10 @@ function BaldwinFloodlight({ p, receiverUrl }) {
             </ol>
           </div>
 
-          <div style={{ marginTop: 48, maxWidth: 720 }}>
+          <div className="fl-hero-form" style={{ marginTop: 48, maxWidth: 720 }}>
             {signFormBlock}
           </div>
-          <div style={{ display: "flex", gap: 14, marginTop: 28, flexWrap: "wrap" }}>
+          <div className="fl-hero-ctas" style={{ display: "flex", gap: 14, marginTop: 28, flexWrap: "wrap" }}>
             <Btn mono href={actions[1].href}>Email the Minister</Btn>
             <Btn mono href="#story">Read the case</Btn>
           </div>
@@ -1279,7 +1345,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <div className="fl-pad" style={{ padding: "56px 56px 64px" }}>
           <div className="fl-grid-counter">
             <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-              <div style={{ font: `900 96px/0.9 ${fonts.display}`, color: C.yellow, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{count.toLocaleString("en-AU")}</div>
+              <div className="fl-counter-num" style={{ font: `900 96px/0.9 ${fonts.display}`, color: C.yellow, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{count.toLocaleString("en-AU")}</div>
               <div style={{ font: `600 14px/1.4 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".12em" }}>signatures<br/>demanding the Minister resign</div>
             </div>
             <div>
@@ -1369,7 +1435,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         {/* WATCH GREG — full-width video block (was the form's old slot) */}
         <div id="watch" className="fl-pad" style={{ padding: "0 56px 88px" }}>
-          <div style={{ marginBottom: 24, display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
+          <div className="fl-watchgreg-head" style={{ marginBottom: 24, display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
             <Eyebrow>Watch Greg · On the record</Eyebrow>
             <span style={{ font: `500 12px/1.4 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Address to camera · 03:42 · Recorded May 2026</span>
           </div>
