@@ -1068,6 +1068,32 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     .fl-grid-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid ${C.rule}; }
     .fl-grid-footer { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 32px; }
 
+    /* Donate tiles — base + default ($135) + hover swap.
+       Default highlight on $135. When the grid is hovered, the default
+       loses its highlight unless it's also the one being hovered, so
+       the visual focus follows the cursor. The "Other" tile is always
+       yellow and is unaffected by these rules. */
+    .fl-donate-tile { background: transparent; color: ${C.bone}; }
+    .fl-donate-tile .fl-tile-kicker { color: ${C.yellow}; }
+    .fl-donate-tile .fl-tile-amount { color: ${C.bone}; }
+    .fl-donate-tile .fl-tile-cta { color: ${C.bone}; }
+    .fl-donate-tile.is-default,
+    .fl-donate-tile:not(.fl-donate-tile--other):hover {
+      background: ${C.yellow}; color: ${C.navyDeep};
+    }
+    .fl-donate-tile.is-default .fl-tile-kicker,
+    .fl-donate-tile:not(.fl-donate-tile--other):hover .fl-tile-kicker { color: ${C.navyDeep}; opacity: .7; }
+    .fl-donate-tile.is-default .fl-tile-amount,
+    .fl-donate-tile:not(.fl-donate-tile--other):hover .fl-tile-amount { color: ${C.navyDeep}; }
+    .fl-donate-tile.is-default .fl-tile-cta,
+    .fl-donate-tile:not(.fl-donate-tile--other):hover .fl-tile-cta { color: ${C.navyDeep}; }
+    .fl-donate-grid:hover .fl-donate-tile.is-default:not(:hover) {
+      background: transparent; color: ${C.bone};
+    }
+    .fl-donate-grid:hover .fl-donate-tile.is-default:not(:hover) .fl-tile-kicker { color: ${C.yellow}; opacity: 1; }
+    .fl-donate-grid:hover .fl-donate-tile.is-default:not(:hover) .fl-tile-amount { color: ${C.bone}; }
+    .fl-donate-grid:hover .fl-donate-tile.is-default:not(:hover) .fl-tile-cta { color: ${C.bone}; }
+
     /* Nav — hamburger hidden by default (shown only on mobile) */
     .fl-nav-links { display: flex; gap: 28px; }
     .fl-burger { display: none; background: transparent; border: 0; padding: 8px; cursor: pointer; }
@@ -1450,29 +1476,29 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         {/* DONATE — Stripe payment links */}
         <div id="donate" className="fl-donate fl-pad" style={{ padding: "88px 56px", background: C.navyDeep }}>
           <Eyebrow>Fund the fight</Eyebrow>
-          <h2 className="fl-h2" style={{ margin: "18px 0 14px" }}>Help the Baldwins. <span style={{ color: C.yellow }}>Pick an amount.</span></h2>
+          <h2 className="fl-h2" style={{ margin: "18px 0 14px" }}>Defend Aussie Farmers. <span style={{ color: C.yellow }}>Pick an amount.</span></h2>
           <p style={{ margin: "0 0 36px", maxWidth: 720, font: `400 17px/1.55 ${fonts.sans}`, color: C.bone }}>
-            Every dollar goes to recovery of legal costs, prep for civil action, and the fight to repeal forced-access powers. All amounts in AUD. Receipted by the Baldwin family solicitor. Stripe-secured.
+            <strong style={{ color: C.yellow, fontWeight: 700 }}>They have billions. We have you.</strong> Every dollar puts the Baldwin's story in front of Australians who haven't heard it yet — ads, video production, distribution, organising on the ground — and keeps the pressure on the Government until they back down. All amounts in AUD. Stripe-secured.
           </p>
           <div className="fl-donate-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, border: `1px solid ${C.rule}` }}>
             {[
               { amount: 35,   url: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q" },
               { amount: 65,   url: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R" },
-              { amount: 135,  url: "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S" },
+              { amount: 135,  url: "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", isDefault: true },
               { amount: 265,  url: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T" },
               { amount: 550,  url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U" },
               { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V" },
             ].map((d, i, arr) => (
-              <a key={d.amount} href={d.url} target="_top" rel="noopener" className="fl-donate-tile" style={{
+              <a key={d.amount} href={d.url} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
                 padding: "28px 24px", minHeight: 160,
                 borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",
                 borderBottom: i < arr.length - 2 ? `1px solid ${C.rule}` : "none",
-                background: "transparent", color: C.bone,
+                transition: "background .15s ease, color .15s ease",
               }}>
-                <div style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase", color: C.yellow }}>Donate</div>
-                <div style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, color: C.bone, letterSpacing: "-0.02em" }}>${d.amount}</div>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", color: C.bone }}>Give <span style={{ fontSize: 18 }}>→</span></div>
+                <div className="fl-tile-kicker" style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Donate</div>
+                <div className="fl-tile-amount" style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, letterSpacing: "-0.02em" }}>${d.amount}</div>
+                <div className="fl-tile-cta" style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>Give <span style={{ fontSize: 18 }}>→</span></div>
               </a>
             ))}
             {/* Other amount cell — uses custom-amount payment link */}
@@ -1487,7 +1513,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", color: C.navyDeep }}>Set amount <span style={{ fontSize: 18 }}>→</span></div>
             </a>
           </div>
-          <p style={{ margin: "20px 0 0", font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Stripe-secured · AUD · Tagged "Farmers Fightback" on every receipt</p>
+          <p style={{ margin: "20px 0 0", font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Stripe-secured · AUD</p>
         </div>
 
         <Rule />
