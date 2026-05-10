@@ -1113,7 +1113,9 @@ function BaldwinFloodlight({ p, receiverUrl }) {
          Order: H1 → form → body → demand → CTAs (sign block is now in reach). */
       .fl-hero { display: flex; flex-direction: column; padding: 28px 20px 36px !important; gap: 0; }
       .fl-hero-headline { order: 1; margin: 0 0 20px; }
-      .fl-hero-body     { order: 2; margin: 0 0 28px !important; font-size: 17px !important; line-height: 1.5 !important; }
+      .fl-hero-body     { order: 2; margin: 0 0 14px !important; }
+      .fl-hero-body p   { font-size: 17px !important; line-height: 1.35 !important; }
+      .fl-hero-body p + p { margin-top: 14px !important; }
       .fl-hero-form     { order: 3; margin: 0 0 32px; max-width: none !important; }
       .fl-hero-demand   { order: 4; margin: 0 0 28px !important; max-width: none !important; }
       .fl-hero-ctas     { order: 5; margin: 0 !important; }
@@ -1308,10 +1310,10 @@ function BaldwinFloodlight({ p, receiverUrl }) {
             must resign.
           </h1>
           <div className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720 }}>
-            <p style={{ margin: 0, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
+            <p style={{ margin: 0, font: `400 19px/1.4 ${fonts.sans}`, color: C.bone }}>
               For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1800s, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg and his son Bill were the ones charged, not the trespasser.</strong> The Minister has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Minister must resign.
             </p>
-            <p style={{ margin: "22px 0 0", font: `700 clamp(20px, 2.2vw, 24px)/1.35 ${fonts.sans}`, color: C.yellow, letterSpacing: "-0.005em" }}>
+            <p style={{ margin: "18px 0 0", font: `700 clamp(20px, 2.2vw, 24px)/1.25 ${fonts.sans}`, color: C.yellow, letterSpacing: "-0.005em" }}>
               FIRST THE BALDWIN'S HOME, YOURS NEXT: Sign the petition today!
             </p>
           </div>
