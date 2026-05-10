@@ -1307,9 +1307,14 @@ function BaldwinFloodlight({ p, receiverUrl }) {
             The Minister<br/>
             must resign.
           </h1>
-          <p className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
-            Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
-          </p>
+          <div className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720 }}>
+            <p style={{ margin: 0, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
+              For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1800s, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg and his son Bill were the ones charged, not the trespasser.</strong> The Minister has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Minister must resign.
+            </p>
+            <p style={{ margin: "22px 0 0", font: `700 clamp(20px, 2.2vw, 24px)/1.35 ${fonts.sans}`, color: C.yellow, letterSpacing: "-0.005em" }}>
+              FIRST THE BALDWIN'S HOME, YOURS NEXT: Sign the petition today!
+            </p>
+          </div>
 
           {/* DEMAND — pulled into the hero above the form */}
           <div id="demand" className="fl-hero-demand" style={{ marginTop: 56, maxWidth: 820 }}>
