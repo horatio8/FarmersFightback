@@ -981,7 +981,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   }, []);
 
   // Form state — wires the SIGN action below the action grid
-  const [form, setForm] = useState({ first: "", last: "", email: "", postcode: "" });
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });
   const [errors, setErrors] = useState({});
   const [state, setState] = useState("idle");
   const update = (k) => (e) => {
@@ -994,13 +994,15 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     if (!form.first.trim()) e.first = "Required";
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+    if (!form.phone.trim()) e.phone = "Required";
+    else if (!/^[+\d][\d\s\-()]{6,}$/.test(form.phone.trim())) e.phone = "Enter a valid mobile";
     if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
     setErrors(e);
     if (Object.keys(e).length) return;
     setState("submitting");
     const body = new URLSearchParams({
       first_name: form.first.trim(), last_name: form.last.trim(),
-      email: form.email.trim(), postcode: form.postcode.trim(),
+      email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
       campaign: "Baldwin Defence — Resign Minister",
     });
     try {
@@ -1134,6 +1136,28 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
       /* Watch Greg eyebrow row — single column */
       .fl-watchgreg-head { flex-direction: column !important; align-items: flex-start !important; gap: 6px !important; }
+
+      /* Donate grid — 2 columns on mobile, Other full-width */
+      .fl-donate { padding: 56px 20px !important; }
+      .fl-donate-grid { grid-template-columns: 1fr 1fr !important; }
+      .fl-donate-tile { min-height: 130px !important; padding: 22px 18px !important; }
+      .fl-donate-tile { border-right: 1px solid ${C.rule} !important; border-bottom: 1px solid ${C.rule} !important; }
+      .fl-donate-tile:nth-child(2n) { border-right: none !important; }
+      .fl-donate-tile--other { grid-column: span 2 !important; border-right: none !important; border-bottom: none !important; }
+
+      /* Sections after timeline — tighter padding */
+      .fl-section-aft { padding-top: 48px !important; padding-bottom: 48px !important; }
+      .fl-action-cell { min-height: auto !important; padding: 24px 20px !important; }
+      .fl-action-cell .fl-action-title { font-size: 24px !important; }
+      .fl-share-row a { width: 100%; justify-content: space-between; }
+      .fl-photo-band { padding: 0 20px 56px !important; }
+      .fl-photo-band > div { height: 240px !important; }
+      .fl-footer { padding: 40px 20px 48px !important; }
+    }
+    @media (max-width: 380px) {
+      .fl-donate-grid { grid-template-columns: 1fr !important; }
+      .fl-donate-tile { border-right: none !important; }
+      .fl-donate-tile--other { grid-column: auto !important; }
     }
   `;
 
@@ -1228,19 +1252,25 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       <h3 style={{ margin: "14px 0 22px", font: `900 40px/1 ${fonts.display}`, textTransform: "uppercase" }}>Add your name. <span style={{ color: C.yellow }}>Now.</span></h3>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {[
-          { k: "first", label: "First name", auto: "given-name" },
-          { k: "last",  label: "Last name",  auto: "family-name" },
+          { k: "first", label: "First name *", auto: "given-name", required: true },
+          { k: "last",  label: "Last name *",  auto: "family-name", required: true },
         ].map(f => (
           <label key={f.k} style={{ display: "block" }}>
             <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>{f.label}{errors[f.k] && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors[f.k]}</em>}</span>
-            <input value={form[f.k]} onChange={update(f.k)} autoComplete={f.auto} style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors[f.k] ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+            <input value={form[f.k]} onChange={update(f.k)} autoComplete={f.auto} required={f.required} aria-required={f.required} style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors[f.k] ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
           </label>
         ))}
       </div>
+      <div style={{ marginTop: 12 }}>
+        <label style={{ display: "block" }}>
+          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Email *{errors.email && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.email}</em>}</span>
+          <input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+        </label>
+      </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 12, marginTop: 12 }}>
         <label>
-          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Email{errors.email && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.email}</em>}</span>
-          <input type="email" value={form.email} onChange={update("email")} autoComplete="email" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Mobile *{errors.phone && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.phone}</em>}</span>
+          <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" required aria-required="true" placeholder="0400 000 000" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.phone ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
         </label>
         <label>
           <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Postcode{errors.postcode && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.postcode}</em>}</span>
@@ -1417,13 +1447,58 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         <Rule />
 
+        {/* DONATE — Stripe payment links */}
+        <div id="donate" className="fl-donate fl-pad" style={{ padding: "88px 56px", background: C.navyDeep }}>
+          <Eyebrow>Fund the fight</Eyebrow>
+          <h2 className="fl-h2" style={{ margin: "18px 0 14px" }}>Help the Baldwins. <span style={{ color: C.yellow }}>Pick an amount.</span></h2>
+          <p style={{ margin: "0 0 36px", maxWidth: 720, font: `400 17px/1.55 ${fonts.sans}`, color: C.bone }}>
+            Every dollar goes to recovery of legal costs, prep for civil action, and the fight to repeal forced-access powers. All amounts in AUD. Receipted by the Baldwin family solicitor. Stripe-secured.
+          </p>
+          <div className="fl-donate-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, border: `1px solid ${C.rule}` }}>
+            {[
+              { amount: 35,   url: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q" },
+              { amount: 65,   url: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R" },
+              { amount: 135,  url: "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S" },
+              { amount: 265,  url: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T" },
+              { amount: 550,  url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U" },
+              { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V" },
+            ].map((d, i, arr) => (
+              <a key={d.amount} href={d.url} target="_top" rel="noopener" className="fl-donate-tile" style={{
+                display: "flex", flexDirection: "column", justifyContent: "space-between",
+                padding: "28px 24px", minHeight: 160,
+                borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",
+                borderBottom: i < arr.length - 2 ? `1px solid ${C.rule}` : "none",
+                background: "transparent", color: C.bone,
+              }}>
+                <div style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase", color: C.yellow }}>Donate</div>
+                <div style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, color: C.bone, letterSpacing: "-0.02em" }}>${d.amount}</div>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", color: C.bone }}>Give <span style={{ fontSize: 18 }}>→</span></div>
+              </a>
+            ))}
+            {/* Other amount cell — uses custom-amount payment link */}
+            <a href="https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
+              display: "flex", flexDirection: "column", justifyContent: "space-between",
+              padding: "28px 24px", minHeight: 160,
+              background: C.yellow, color: C.navyDeep,
+              gridColumn: "span 2",
+            }}>
+              <div style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase", color: C.navyDeep, opacity: .75 }}>Choose your own</div>
+              <div style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, color: C.navyDeep, letterSpacing: "-0.02em" }}>Other</div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", color: C.navyDeep }}>Set amount <span style={{ fontSize: 18 }}>→</span></div>
+            </a>
+          </div>
+          <p style={{ margin: "20px 0 0", font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Stripe-secured · AUD · Tagged "Farmers Fightback" on every receipt</p>
+        </div>
+
+        <Rule />
+
         {/* ACTION GRID */}
-        <div className="fl-pad" style={{ padding: "88px 56px 56px" }}>
+        <div className="fl-pad fl-section-aft" style={{ padding: "88px 56px 56px" }}>
           <Eyebrow>What you do today</Eyebrow>
           <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Four moves. <span style={{ color: C.yellow }}>You choose.</span></h2>
           <div className="fl-grid-actions">
             {actions.map((a, i) => (
-              <a key={a.n} href={a.href} style={{
+              <a key={a.n} href={a.href} className="fl-action-cell" style={{
                 padding: "36px 32px",
                 background: a.primary ? C.yellow : "transparent",
                 color: a.primary ? C.navyDeep : C.bone,
@@ -1432,7 +1507,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               }}>
                 <div>
                   <div style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", opacity: .7 }}>Action {a.n}</div>
-                  <div style={{ font: `800 32px/1.1 ${fonts.sans}`, marginTop: 18, letterSpacing: "-0.01em" }}>{a.t}</div>
+                  <div className="fl-action-title" style={{ font: `800 32px/1.1 ${fonts.sans}`, marginTop: 18, letterSpacing: "-0.01em" }}>{a.t}</div>
                   <div style={{ font: `400 14px/1.55 ${fonts.sans}`, marginTop: 14, color: a.primary ? "rgba(8,24,38,.78)" : C.bone, opacity: a.primary ? 1 : .82 }}>{a.d}</div>
                 </div>
                 <div style={{ marginTop: 24, display: "inline-flex", alignItems: "center", gap: 10, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>{a.cta} <span style={{ fontSize: 18 }}>→</span></div>
@@ -1442,7 +1517,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         </div>
 
         {/* WATCH GREG — full-width video block (was the form's old slot) */}
-        <div id="watch" className="fl-pad" style={{ padding: "0 56px 88px" }}>
+        <div id="watch" className="fl-pad fl-section-aft" style={{ padding: "0 56px 88px" }}>
           <div className="fl-watchgreg-head" style={{ marginBottom: 24, display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
             <Eyebrow>Watch Greg · On the record</Eyebrow>
             <span style={{ font: `500 12px/1.4 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Address to camera · 03:42 · Recorded May 2026</span>
@@ -1453,21 +1528,28 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* SHARE ROW */}
-        <div id="share" className="fl-pad" style={{ padding: "56px 56px" }}>
+        <div id="share" className="fl-pad fl-section-aft" style={{ padding: "56px 56px" }}>
           <Eyebrow>Share · Greg's Address</Eyebrow>
-          <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>
+          <div className="fl-share-row" style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>
             {[
-              { p: "facebook", l: "Facebook" },
-              { p: "x",        l: "X" },
-              { p: "whatsapp", l: "WhatsApp" },
-              { p: "telegram", l: "Telegram" },
-              { p: "email",    l: "Email" },
+              { p: "facebook", l: "Facebook", brand: "#1877F2",
+                icon: <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M24 12a12 12 0 1 0-13.875 11.854V15.469H7.078V12h3.047V9.356c0-3.007 1.792-4.668 4.533-4.668 1.313 0 2.686.234 2.686.234v2.953h-1.513c-1.491 0-1.956.925-1.956 1.875V12h3.328l-.532 3.469h-2.796v8.385A12.001 12.001 0 0 0 24 12z"/></svg> },
+              { p: "x",        l: "X", brand: "#FFFFFF",
+                icon: <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg> },
+              { p: "whatsapp", l: "WhatsApp", brand: "#25D366",
+                icon: <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24z"/></svg> },
+              { p: "telegram", l: "Telegram", brand: "#29B6F6",
+                icon: <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg> },
+              { p: "email",    l: "Email", brand: "#F4C430",
+                icon: <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> },
             ].map(s => {
               const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
               return (
                 <a key={s.p} href={shareUrlFor(s.p, p.shareText || "Charges dropped. The Minister must resign. #ResignMinister #ChargesDropped", pageUrl)} target="_blank" rel="noopener noreferrer"
-                   style={{ padding: "14px 18px", background: "transparent", boxShadow: `inset 0 0 0 1.5px ${C.bone}`, color: C.bone, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>
-                  {s.l} →
+                   style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 18px", background: "transparent", boxShadow: `inset 0 0 0 1.5px ${C.bone}`, color: C.bone, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>
+                  <span style={{ color: s.brand, display: "inline-flex" }}>{s.icon}</span>
+                  <span>{s.l}</span>
+                  <span style={{ marginLeft: "auto", fontSize: 18 }}>→</span>
                 </a>
               );
             })}
@@ -1475,14 +1557,14 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         </div>
 
         {/* PHOTO BAND */}
-        <div className="fl-pad" style={{ padding: "0 56px 88px" }}>
+        <div className="fl-pad fl-photo-band" style={{ padding: "0 56px 88px" }}>
           <PhotoSlot label="GREG ON HIS LAND · WIDE · LOOKING AT CAMERA · WORKING CLOTHES" h={420} />
         </div>
 
         <Rule />
 
         {/* FOOTER */}
-        <div className="fl-pad" style={{ padding: "56px 56px 64px", background: C.navyDeep }}>
+        <div className="fl-pad fl-footer" style={{ padding: "56px 56px 64px", background: C.navyDeep }}>
           <div className="fl-grid-footer">
             <div>
               <div style={{ font: `900 16px/1 ${fonts.display}`, letterSpacing: ".2em", textTransform: "uppercase" }}>Farmers<br/>Fightback</div>
