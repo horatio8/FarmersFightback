@@ -1078,15 +1078,15 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     .fl-donate-tile .fl-tile-amount { color: ${C.bone}; }
     .fl-donate-tile .fl-tile-cta { color: ${C.bone}; }
     .fl-donate-tile.is-default,
-    .fl-donate-tile:not(.fl-donate-tile--other):hover {
+    .fl-donate-tile:hover {
       background: ${C.yellow}; color: ${C.navyDeep};
     }
     .fl-donate-tile.is-default .fl-tile-kicker,
-    .fl-donate-tile:not(.fl-donate-tile--other):hover .fl-tile-kicker { color: ${C.navyDeep}; opacity: .7; }
+    .fl-donate-tile:hover .fl-tile-kicker { color: ${C.navyDeep}; opacity: .7; }
     .fl-donate-tile.is-default .fl-tile-amount,
-    .fl-donate-tile:not(.fl-donate-tile--other):hover .fl-tile-amount { color: ${C.navyDeep}; }
+    .fl-donate-tile:hover .fl-tile-amount { color: ${C.navyDeep}; }
     .fl-donate-tile.is-default .fl-tile-cta,
-    .fl-donate-tile:not(.fl-donate-tile--other):hover .fl-tile-cta { color: ${C.navyDeep}; }
+    .fl-donate-tile:hover .fl-tile-cta { color: ${C.navyDeep}; }
     .fl-donate-grid:hover .fl-donate-tile.is-default:not(:hover) {
       background: transparent; color: ${C.bone};
     }
@@ -1505,12 +1505,12 @@ function BaldwinFloodlight({ p, receiverUrl }) {
             <a href="https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
               display: "flex", flexDirection: "column", justifyContent: "space-between",
               padding: "28px 24px", minHeight: 160,
-              background: C.yellow, color: C.navyDeep,
               gridColumn: "span 2",
+              transition: "background .15s ease, color .15s ease",
             }}>
-              <div style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase", color: C.navyDeep, opacity: .75 }}>Choose your own</div>
-              <div style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, color: C.navyDeep, letterSpacing: "-0.02em" }}>Other</div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", color: C.navyDeep }}>Set amount <span style={{ fontSize: 18 }}>→</span></div>
+              <div className="fl-tile-kicker" style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Choose your own</div>
+              <div className="fl-tile-amount" style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, letterSpacing: "-0.02em" }}>Other</div>
+              <div className="fl-tile-cta" style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>Set amount <span style={{ fontSize: 18 }}>→</span></div>
             </a>
           </div>
           <p style={{ margin: "20px 0 0", font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Stripe-secured · AUD</p>
