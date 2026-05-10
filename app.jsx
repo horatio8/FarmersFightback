@@ -980,7 +980,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   }, []);
 
   // Form state — wires the SIGN action below the action grid
-  const [form, setForm] = useState({ first: "", last: "", email: "", postcode: "", consent: false });
+  const [form, setForm] = useState({ first: "", last: "", email: "", postcode: "" });
   const [errors, setErrors] = useState({});
   const [state, setState] = useState("idle");
   const update = (k) => (e) => {
@@ -994,7 +994,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
     if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
-    if (!form.consent) e.consent = "Tick to continue";
     setErrors(e);
     if (Object.keys(e).length) return;
     setState("submitting");
@@ -1009,26 +1008,29 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     } catch { setState("error"); }
   };
 
-  // Locked copy
+  // Locked copy. <em> tags inside titleHtml render yellow (see <style> below).
   const acts = [
     { n: "01", date: "2023 → 2025", tag: "BACKSTORY",
-      title: "Three years of trespass. The family kept turning up.",
+      titleHtml: "<em>A community family targeted.</em> For three years.",
       body: "From 2023 onwards the Baldwins kept their heads down — running their farm, supporting their community, doing the work. Greg and Bill became two of the most visible spokespeople against VNI West: at meetings, on tractors, on the steps of Parliament. Through it all, contractors for the Transmission Company Victoria (TCV) — later rebadged as VicGrid VNI West — kept turning up on Baldwin land. Refused. Turned away. Came back." },
     { n: "02", date: "13 NOV 2025", tag: "TRESPASS",
-      title: "Greg called triple zero on his own farm.",
+      titleHtml: "Greg called triple zero <em>on his own farm</em>.",
       body: "TCV contractors entered the Baldwin property in western Victoria. They had been served previous refusals, written notice, and a 48-hour access notice the family had not consented to. Greg called 000. Bill — Greg's son and a CFA volunteer — arrived to support him. Neighbours arrived. The contractors left." },
     { n: "03", date: "DEC 2025", tag: "LICENCE PULLED",
-      title: "Their firearms licence was suspended four months before charges were laid.",
+      titleHtml: "Their firearms licence was suspended <em>four months before charges were laid</em>.",
       body: "Police authorised the suspension of the family's firearms licence in December 2025 — based on charges that did not yet exist. The charges were not formally laid until the following March. A working farm without firearms is a working farm exposed. The lawyer reviewing the brief later confirmed: the suspension was a pre-emptive move." },
     { n: "04", date: "NOV 2025 — MAR 2026", tag: "THE CHARGES",
-      title: "Police did not charge the trespassers. They charged the farmers.",
+      titleHtml: "Police did not charge the trespassers. <em>They charged the farmers.</em>",
       body: "Greg with unlawful imprisonment. Bill with unlawful imprisonment AND assault. Both Baldwins were arrested at Rupanyup Police Station and fingerprinted. Bill was first ordered to attend the station while he was actively fighting a fire on a neighbour's property as a CFA volunteer." },
     { n: "05", date: "27 APR 2026", tag: "DPP WITHDRAWS", highlight: true,
-      title: "The DPP withdrew every charge. There was no case.",
+      titleHtml: "The DPP withdrew every charge. There was no case.",
       body: "In the Magistrates' Court, the Director of Public Prosecutions withdrew every charge against Greg and Bill Baldwin. No conviction. No trial. No basis. The Crown said in plain language what the family had said all along: there was no case to answer." },
     { n: "06", date: "16 MAR 2026", tag: "FORCED ACCESS",
-      title: "The same Minister. A new law. The same farms. 30 days.",
+      titleHtml: "The same tactics. Against new farming families.",
       body: "The same week the family was in court, VicGrid posted letters to multiple western Victorian properties advising they would use new powers under amended Victorian energy legislation to FORCE access in 30 days. Same project. Same villains. Different vehicle." },
+    { n: "07", tag: "TAKE ACTION", cta: true,
+      titleHtml: "End this injustice now. <em>Sign the petition today.</em>",
+      ctaLabel: "Sign the petition today →", ctaHref: "#sign" },
   ];
   const pillars = [
     "A farmer rang triple zero. They charged the farmer.",
@@ -1054,6 +1056,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     .fl-h1 { font: 900 124px/0.92 ${fonts.display}; letter-spacing: -0.015em; text-transform: uppercase; margin: 24px 0 0; }
     .fl-h2 { font: 900 80px/0.95 ${fonts.display}; letter-spacing: -0.01em; text-transform: uppercase; margin: 0; }
     .fl-h2--sm { font-size: 60px; line-height: 1; }
+    .fl-act-title em { color: ${C.yellow}; font-style: normal; }
     .fl-grid-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: end; }
     .fl-grid-demand { display: grid; grid-template-columns: 0.6fr 1fr; gap: 56px; }
     .fl-grid-counter { display: grid; grid-template-columns: 1fr 0.8fr; gap: 64px; align-items: end; }
@@ -1193,10 +1196,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} autoComplete="postal-code" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.postcode ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
         </label>
       </div>
-      <label style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 12, marginTop: 18, alignItems: "start", font: `400 13px/1.5 ${fonts.sans}`, color: C.mute, cursor: "pointer" }}>
-        <input type="checkbox" checked={form.consent} onChange={update("consent")} style={{ width: 20, height: 20, marginTop: 1, accentColor: C.yellow }} />
-        <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time. {errors.consent && <em style={{ fontStyle: "normal", color: C.yellow }}>— {errors.consent}</em>}</span>
-      </label>
       <div style={{ marginTop: 22, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <Btn primary mono type="submit" disabled={state === "submitting"} fullWidth>{state === "submitting" ? "Signing…" : "Sign the petition"}</Btn>
         {state === "error" && <span style={{ color: C.yellow, font: `500 13px/1.4 ${fonts.mono}` }}>Something went wrong. Try again.</span>}
@@ -1249,13 +1248,13 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           {/* DEMAND — pulled into the hero above the form */}
           <div id="demand" style={{ marginTop: 56, maxWidth: 820 }}>
             <h2 className="fl-h2 fl-h2--sm">
-              Resign. Explain. <span style={{ color: C.yellow }}>Repeal.</span>
+              Resign. Investigate. <span style={{ color: C.yellow }}>Repeal.</span>
             </h2>
             <ol style={{ margin: "28px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 18, font: `500 18px/1.55 ${fonts.sans}`, color: C.bone }}>
               {[
-                ["01.", "The Minister for Energy and Resources resigns."],
-                ["02.", "An independent review of Vic Police and OPP conduct in the Baldwin matter."],
-                ["03.", "Forced-access powers in the amended energy legislation suspended pending a parliamentary inquiry."],
+                ["01.", "Lily Dambrosio, Minister for Energy and Resources must resign immediately."],
+                ["02.", "An independent review of VicGrid's conduct & trespass in the Baldwin matter."],
+                ["03.", "Immediate repeal of the forced-access powers in Victoria's energy legislation."],
               ].map(([n, t]) => (
                 <li key={n} style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 8, alignItems: "baseline" }}>
                   <span style={{ font: `800 22px/1 ${fonts.mono}`, color: C.yellow }}>{n}</span>
@@ -1298,23 +1297,44 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         <Rule />
 
+        {/* HEADLINE ANCHOR */}
+        <div className="fl-pad" style={{ padding: "96px 56px", background: C.navyDeep, textAlign: "center" }}>
+          <h2 className="fl-h2" style={{ fontSize: "clamp(56px, 8vw, 120px)", lineHeight: 0.95, margin: 0 }}>
+            <span style={{ color: C.yellow }}>Refusal</span> criminalised.
+          </h2>
+          <p style={{ margin: "28px auto 0", maxWidth: 720, font: `500 22px/1.4 ${fonts.sans}`, color: C.bone, letterSpacing: "-0.005em" }}>
+            First Baldwin's home. <span style={{ color: C.yellow }}>Yours next.</span>
+          </p>
+        </div>
+
+        <Rule />
+
         {/* STORY TIMELINE */}
         <div id="story" className="fl-pad" style={{ padding: "88px 56px 64px" }}>
           <Eyebrow>The Story · One Page</Eyebrow>
-          <h2 className="fl-h2" style={{ marginTop: 20, maxWidth: 980 }}>From triple zero <span style={{ color: C.yellow }}>to no case to answer.</span></h2>
+          <h2 className="fl-h2" style={{ marginTop: 20, maxWidth: 980 }}>From Triple Zero to <span style={{ color: C.yellow }}>Charges Dropped</span>.</h2>
           <div className="fl-grid-timeline" style={{ marginTop: 64 }}>
             <div className="fl-rail" style={{ position: "absolute", left: 220, top: 0, bottom: 0, width: 2, background: C.rule }} />
             {acts.map((a, i) => (
               <React.Fragment key={a.n}>
                 <div className="fl-date-col" style={{ paddingTop: 8, textAlign: "right", paddingRight: 24, font: `700 13px/1.4 ${fonts.mono}`, color: a.highlight ? C.yellow : C.bone, textTransform: "uppercase", letterSpacing: ".12em", paddingBottom: 64 }}>
-                  <div>{a.date}</div>
-                  <div style={{ marginTop: 8, color: C.mute, fontWeight: 500 }}>{a.tag}</div>
+                  {a.date && <div>{a.date}</div>}
+                  <div style={{ marginTop: a.date ? 8 : 0, color: a.cta ? C.yellow : C.mute, fontWeight: a.cta ? 700 : 500 }}>{a.tag}</div>
                 </div>
                 <div style={{ position: "relative", paddingBottom: 64, paddingLeft: 36 }}>
-                  <div style={{ position: "absolute", left: -7, top: 14, width: 16, height: 16, borderRadius: 16, background: a.highlight ? C.yellow : C.navyDeep, boxShadow: a.highlight ? `0 0 0 4px ${C.navy}` : `inset 0 0 0 2px ${C.bone}` }} />
-                  <div style={{ font: `900 22px/1 ${fonts.mono}`, color: a.highlight ? C.yellow : C.bone, letterSpacing: ".04em" }}>{a.n}</div>
-                  <h3 style={{ margin: "14px 0 0", font: `700 32px/1.15 ${fonts.sans}`, letterSpacing: "-0.01em", color: a.highlight ? C.yellow : C.bone, maxWidth: 720 }}>{a.title}</h3>
-                  <p style={{ margin: "14px 0 0", maxWidth: 680, font: `400 16px/1.65 ${fonts.sans}`, color: C.bone }}>{a.body}</p>
+                  <div style={{ position: "absolute", left: -7, top: 14, width: 16, height: 16, borderRadius: 16, background: (a.highlight || a.cta) ? C.yellow : C.navyDeep, boxShadow: (a.highlight || a.cta) ? `0 0 0 4px ${C.navy}` : `inset 0 0 0 2px ${C.bone}` }} />
+                  <div style={{ font: `900 22px/1 ${fonts.mono}`, color: (a.highlight || a.cta) ? C.yellow : C.bone, letterSpacing: ".04em" }}>{a.n}</div>
+                  <h3
+                    className="fl-act-title"
+                    style={{ margin: "14px 0 0", font: `700 32px/1.15 ${fonts.sans}`, letterSpacing: "-0.01em", color: a.highlight ? C.yellow : C.bone, maxWidth: 720 }}
+                    dangerouslySetInnerHTML={{ __html: a.titleHtml }}
+                  />
+                  {a.body && <p style={{ margin: "14px 0 0", maxWidth: 680, font: `400 16px/1.65 ${fonts.sans}`, color: C.bone }}>{a.body}</p>}
+                  {a.cta && a.ctaLabel && (
+                    <div style={{ marginTop: 22 }}>
+                      <Btn primary mono href={a.ctaHref || "#sign"}>{a.ctaLabel.replace(/\s*[→>]+\s*$/,"")}</Btn>
+                    </div>
+                  )}
                 </div>
               </React.Fragment>
             ))}
