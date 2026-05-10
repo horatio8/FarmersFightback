@@ -1112,9 +1112,9 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       /* Hero — flex column so we can reorder on mobile.
          Order: H1 → form → body → demand → CTAs (sign block is now in reach). */
       .fl-hero { display: flex; flex-direction: column; padding: 28px 20px 36px !important; gap: 0; }
-      .fl-hero-headline { order: 1; margin: 0 0 24px; }
-      .fl-hero-form     { order: 2; margin: 0 0 32px; max-width: none !important; }
-      .fl-hero-body     { order: 3; margin: 0 0 28px !important; font-size: 17px !important; line-height: 1.5 !important; }
+      .fl-hero-headline { order: 1; margin: 0 0 20px; }
+      .fl-hero-body     { order: 2; margin: 0 0 28px !important; font-size: 17px !important; line-height: 1.5 !important; }
+      .fl-hero-form     { order: 3; margin: 0 0 32px; max-width: none !important; }
       .fl-hero-demand   { order: 4; margin: 0 0 28px !important; max-width: none !important; }
       .fl-hero-ctas     { order: 5; margin: 0 !important; }
       .fl-hero-ctas a, .fl-hero-ctas button { width: 100%; justify-content: space-between; }
