@@ -1302,8 +1302,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <h2 className="fl-h2" style={{ fontSize: "clamp(56px, 8vw, 120px)", lineHeight: 0.95, margin: 0 }}>
             <span style={{ color: C.yellow }}>Refusal</span> criminalised.
           </h2>
-          <p style={{ margin: "28px auto 0", maxWidth: 720, font: `500 22px/1.4 ${fonts.sans}`, color: C.bone, letterSpacing: "-0.005em" }}>
-            First Baldwin's home. <span style={{ color: C.yellow }}>Yours next.</span>
+          <p style={{ margin: "36px auto 0", maxWidth: 1000, font: `600 clamp(28px, 4vw, 44px)/1.2 ${fonts.sans}`, color: C.bone, letterSpacing: "-0.01em" }}>
+            First the Baldwin's home. <span style={{ color: C.yellow }}>Yours next.</span>
           </p>
         </div>
 
