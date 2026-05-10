@@ -1227,7 +1227,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         {/* HERO */}
         <div className="fl-pad" style={{ padding: "64px 56px 48px" }}>
-          <Eyebrow>Baldwin Defence · Phase 01 — Vindication</Eyebrow>
           <h1 className="fl-h1">
             Charges<br/>
             <span style={{ color: C.yellow }}>dropped.</span><br/>
