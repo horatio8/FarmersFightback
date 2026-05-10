@@ -1227,24 +1227,22 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         {/* HERO */}
         <div className="fl-pad" style={{ padding: "64px 56px 48px" }}>
-          <div className="fl-grid-hero">
-            <div>
-              <Eyebrow>Baldwin Defence · Phase 01 — Vindication</Eyebrow>
-              <h1 className="fl-h1">
-                Charges<br/>
-                <span style={{ color: C.yellow }}>dropped.</span><br/>
-                The Minister<br/>
-                must resign.
-              </h1>
-              <p style={{ margin: "36px 0 0", maxWidth: 560, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
-                Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
-              </p>
-              <div style={{ display: "flex", gap: 14, marginTop: 36, flexWrap: "wrap" }}>
-                <Btn mono href={actions[1].href}>Email the Minister</Btn>
-                <Btn mono href="#story">Read the case</Btn>
-              </div>
-            </div>
+          <Eyebrow>Baldwin Defence · Phase 01 — Vindication</Eyebrow>
+          <h1 className="fl-h1">
+            Charges<br/>
+            <span style={{ color: C.yellow }}>dropped.</span><br/>
+            The Minister<br/>
+            must resign.
+          </h1>
+          <p style={{ margin: "36px 0 0", maxWidth: 720, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
+            Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
+          </p>
+          <div style={{ marginTop: 40, maxWidth: 720 }}>
             {signFormBlock}
+          </div>
+          <div style={{ display: "flex", gap: 14, marginTop: 28, flexWrap: "wrap" }}>
+            <Btn mono href={actions[1].href}>Email the Minister</Btn>
+            <Btn mono href="#story">Read the case</Btn>
           </div>
         </div>
 
