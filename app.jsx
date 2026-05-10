@@ -1011,16 +1011,22 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
   // Locked copy
   const acts = [
-    { n: "01", date: "13 NOV 2025", tag: "TRESPASS",
+    { n: "01", date: "2023 → 2025", tag: "BACKSTORY",
+      title: "Three years of trespass. The family kept turning up.",
+      body: "From 2023 onwards the Baldwins kept their heads down — running their farm, supporting their community, doing the work. Greg and Bill became two of the most visible spokespeople against VNI West: at meetings, on tractors, on the steps of Parliament. Through it all, contractors for the Transmission Company Victoria (TCV) — later rebadged as VicGrid VNI West — kept turning up on Baldwin land. Refused. Turned away. Came back." },
+    { n: "02", date: "13 NOV 2025", tag: "TRESPASS",
       title: "Greg called triple zero on his own farm.",
-      body: "VicGrid contractors entered the Baldwin property in western Victoria. They had been served previous refusals, written notice, and a 48-hour access notice the family had not consented to. Greg called 000. Bill — Greg's brother and a CFA volunteer — arrived to support him. Neighbours arrived. The contractors left." },
-    { n: "02", date: "NOV 2025 — MAR 2026", tag: "THE CHARGES",
+      body: "TCV contractors entered the Baldwin property in western Victoria. They had been served previous refusals, written notice, and a 48-hour access notice the family had not consented to. Greg called 000. Bill — Greg's son and a CFA volunteer — arrived to support him. Neighbours arrived. The contractors left." },
+    { n: "03", date: "DEC 2025", tag: "LICENCE PULLED",
+      title: "Their firearms licence was suspended four months before charges were laid.",
+      body: "Police authorised the suspension of the family's firearms licence in December 2025 — based on charges that did not yet exist. The charges were not formally laid until the following March. A working farm without firearms is a working farm exposed. The lawyer reviewing the brief later confirmed: the suspension was a pre-emptive move." },
+    { n: "04", date: "NOV 2025 — MAR 2026", tag: "THE CHARGES",
       title: "Police did not charge the trespassers. They charged the farmers.",
       body: "Greg with unlawful imprisonment. Bill with unlawful imprisonment AND assault. Both Baldwins were arrested at Rupanyup Police Station and fingerprinted. Bill was first ordered to attend the station while he was actively fighting a fire on a neighbour's property as a CFA volunteer." },
-    { n: "03", date: "27 APR 2026", tag: "DPP WITHDRAWS", highlight: true,
+    { n: "05", date: "27 APR 2026", tag: "DPP WITHDRAWS", highlight: true,
       title: "The DPP withdrew every charge. There was no case.",
       body: "In the Magistrates' Court, the Director of Public Prosecutions withdrew every charge against Greg and Bill Baldwin. No conviction. No trial. No basis. The Crown said in plain language what the family had said all along: there was no case to answer." },
-    { n: "04", date: "16 MAR 2026", tag: "FORCED ACCESS",
+    { n: "06", date: "16 MAR 2026", tag: "FORCED ACCESS",
       title: "The same Minister. A new law. The same farms. 30 days.",
       body: "The same week the family was in court, VicGrid posted letters to multiple western Victorian properties advising they would use new powers under amended Victorian energy legislation to FORCE access in 30 days. Same project. Same villains. Different vehicle." },
   ];
@@ -1205,9 +1211,12 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       <div className="fl-root">
         {/* NAV */}
         <div className="fl-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 56px", borderBottom: `1px solid ${C.rule}` }}>
-          <a href="/" style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 30, height: 30, background: C.yellow, clipPath: "polygon(50% 0,100% 38%,82% 100%,18% 100%,0 38%)" }} />
-            <div style={{ font: `900 14px/1 ${fonts.display}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Farmers Fightback</div>
+          <a href="/" style={{ display: "flex", alignItems: "center" }} aria-label="Farmers Fightback home">
+            <img
+              src="/assets/logo.png"
+              alt="Farmers Fightback"
+              style={{ height: 38, width: "auto", display: "block", filter: "brightness(0) invert(1)" }}
+            />
           </a>
           <div style={{ display: "flex", gap: 28, font: `600 12px/1 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", flexWrap: "wrap" }}>
             <a href="#story">The Story</a>
@@ -1236,46 +1245,32 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <p style={{ margin: "36px 0 0", maxWidth: 720, font: `400 19px/1.55 ${fonts.sans}`, color: C.bone }}>
             Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
           </p>
-          <div style={{ marginTop: 40, maxWidth: 720 }}>
+
+          {/* DEMAND — pulled into the hero above the form */}
+          <div id="demand" style={{ marginTop: 56, maxWidth: 820 }}>
+            <h2 className="fl-h2 fl-h2--sm">
+              Resign. Explain. <span style={{ color: C.yellow }}>Repeal.</span>
+            </h2>
+            <ol style={{ margin: "28px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 18, font: `500 18px/1.55 ${fonts.sans}`, color: C.bone }}>
+              {[
+                ["01.", "The Minister for Energy and Resources resigns."],
+                ["02.", "An independent review of Vic Police and OPP conduct in the Baldwin matter."],
+                ["03.", "Forced-access powers in the amended energy legislation suspended pending a parliamentary inquiry."],
+              ].map(([n, t]) => (
+                <li key={n} style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 8, alignItems: "baseline" }}>
+                  <span style={{ font: `800 22px/1 ${fonts.mono}`, color: C.yellow }}>{n}</span>
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div style={{ marginTop: 48, maxWidth: 720 }}>
             {signFormBlock}
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 28, flexWrap: "wrap" }}>
             <Btn mono href={actions[1].href}>Email the Minister</Btn>
             <Btn mono href="#story">Read the case</Btn>
-          </div>
-        </div>
-
-        <Rule />
-
-        {/* DEMAND PANEL */}
-        <div id="demand" className="fl-pad" style={{ padding: "64px 56px", background: C.navyDeep }}>
-          <div className="fl-grid-demand">
-            <div>
-              <Eyebrow>The Demand</Eyebrow>
-              <div style={{ font: `700 14px/1.5 ${fonts.mono}`, color: C.mute, marginTop: 22, textTransform: "uppercase", letterSpacing: ".1em" }}>
-                To: The Hon. Lily D'Ambrosio MP<br/>Victorian Minister for Energy and Resources
-              </div>
-              <div style={{ marginTop: 28, padding: "14px 18px", border: `1.5px dashed ${C.yellow}`, color: C.yellow, font: `700 11px/1.5 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase", display: "inline-block" }}>
-                ● ACTIVE PETITION · FARMERS FIGHTBACK-ENDORSED
-              </div>
-            </div>
-            <div>
-              <h2 className="fl-h2 fl-h2--sm">
-                Resign. Explain. <span style={{ color: C.yellow }}>Repeal.</span>
-              </h2>
-              <ol style={{ margin: "32px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 22, font: `500 18px/1.55 ${fonts.sans}`, color: C.bone }}>
-                {[
-                  ["01.", "The Minister for Energy and Resources resigns."],
-                  ["02.", "An independent review of Vic Police and OPP conduct in the Baldwin matter."],
-                  ["03.", "Forced-access powers in the amended energy legislation suspended pending a parliamentary inquiry."],
-                ].map(([n, t]) => (
-                  <li key={n} style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 8, alignItems: "baseline" }}>
-                    <span style={{ font: `800 22px/1 ${fonts.mono}`, color: C.yellow }}>{n}</span>
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
           </div>
         </div>
 
@@ -1328,30 +1323,10 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         <Rule />
 
-        {/* PILLARS POSTER */}
-        <div className="fl-pad" style={{ padding: "88px 56px", background: C.navyDeep }}>
-          <Eyebrow>Messaging · The Public Record</Eyebrow>
-          <div className="fl-grid-pillars" style={{ marginTop: 36 }}>
-            {pillars.map((p2, i) => (
-              <div key={i} style={{
-                padding: "40px 36px",
-                borderRight: i % 2 === 0 ? `1px solid ${C.rule}` : "none",
-                borderBottom: i < 2 ? `1px solid ${C.rule}` : "none",
-                minHeight: 180, display: "flex", flexDirection: "column", justifyContent: "space-between",
-              }}>
-                <div style={{ font: `700 12px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase" }}>Pillar 0{i + 1}</div>
-                <div style={{ font: `800 28px/1.15 ${fonts.sans}`, letterSpacing: "-0.01em", marginTop: 16 }}>{p2}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <Rule />
-
         {/* ACTION GRID */}
         <div className="fl-pad" style={{ padding: "88px 56px 56px" }}>
           <Eyebrow>What you do today</Eyebrow>
-          <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Four moves. <span style={{ color: C.yellow }}>Pick one.</span></h2>
+          <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Four moves. <span style={{ color: C.yellow }}>You choose.</span></h2>
           <div className="fl-grid-actions">
             {actions.map((a, i) => (
               <a key={a.n} href={a.href} style={{
