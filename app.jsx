@@ -1311,7 +1311,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </h1>
           <div className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720 }}>
             <p style={{ margin: 0, font: `400 19px/1.4 ${fonts.sans}`, color: C.bone }}>
-              For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1800s, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg and his son Bill were the ones charged, not the trespasser.</strong> The Minister has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Minister must resign.
+              For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1880, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg and his son Bill were the ones charged, not the trespasser.</strong> The Government has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Government must resign.
             </p>
             <p style={{ margin: "18px 0 0", font: `700 clamp(20px, 2.2vw, 24px)/1.25 ${fonts.sans}`, color: C.yellow, letterSpacing: "-0.005em" }}>
               FIRST THE BALDWIN'S HOME, YOURS NEXT: Sign the petition today!
