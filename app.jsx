@@ -1150,6 +1150,55 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     </div>
   );
 
+  // Sign form block — used in the hero (top of page) so the CTA is the
+  // first thing in reach. Same submit handler / receiver as before.
+  const signFormBlock = state === "done" ? (
+    <div id="sign" style={{ background: C.yellow, color: C.navyDeep, padding: "40px 36px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", gap: 14 }}>
+      <div style={{ font: `700 12px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Signed · Thank you</div>
+      <h3 style={{ margin: 0, font: `900 56px/0.95 ${fonts.display}`, textTransform: "uppercase" }}>You're {(count + 1).toLocaleString("en-AU")}.</h3>
+      <p style={{ margin: 0, font: `400 16px/1.55 ${fonts.sans}` }}>Now share Greg's address. Every signature past 50k strengthens the handover at Spring St.</p>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 6 }}>
+        <a href="#share" style={{ background: C.navyDeep, color: C.yellow, padding: "16px 22px", font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>SHARE →</a>
+        <a href="/#donate" style={{ background: "transparent", color: C.navyDeep, padding: "16px 22px", boxShadow: `inset 0 0 0 2px ${C.navyDeep}`, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>DONATE →</a>
+      </div>
+    </div>
+  ) : (
+    <form id="sign" onSubmit={submit} style={{ background: C.navyDeep, border: `1px solid ${C.rule}`, padding: "36px 32px" }}>
+      <Eyebrow>Sign · Petition</Eyebrow>
+      <h3 style={{ margin: "14px 0 22px", font: `900 40px/1 ${fonts.display}`, textTransform: "uppercase" }}>Add your name. <span style={{ color: C.yellow }}>Now.</span></h3>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {[
+          { k: "first", label: "First name", auto: "given-name" },
+          { k: "last",  label: "Last name",  auto: "family-name" },
+        ].map(f => (
+          <label key={f.k} style={{ display: "block" }}>
+            <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>{f.label}{errors[f.k] && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors[f.k]}</em>}</span>
+            <input value={form[f.k]} onChange={update(f.k)} autoComplete={f.auto} style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors[f.k] ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+          </label>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 12, marginTop: 12 }}>
+        <label>
+          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Email{errors.email && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.email}</em>}</span>
+          <input type="email" value={form.email} onChange={update("email")} autoComplete="email" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+        </label>
+        <label>
+          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Postcode{errors.postcode && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.postcode}</em>}</span>
+          <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} autoComplete="postal-code" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.postcode ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+        </label>
+      </div>
+      <label style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 12, marginTop: 18, alignItems: "start", font: `400 13px/1.5 ${fonts.sans}`, color: C.mute, cursor: "pointer" }}>
+        <input type="checkbox" checked={form.consent} onChange={update("consent")} style={{ width: 20, height: 20, marginTop: 1, accentColor: C.yellow }} />
+        <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time. {errors.consent && <em style={{ fontStyle: "normal", color: C.yellow }}>— {errors.consent}</em>}</span>
+      </label>
+      <div style={{ marginTop: 22, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <Btn primary mono type="submit" disabled={state === "submitting"} fullWidth>{state === "submitting" ? "Signing…" : "Sign the petition"}</Btn>
+        {state === "error" && <span style={{ color: C.yellow, font: `500 13px/1.4 ${fonts.mono}` }}>Something went wrong. Try again.</span>}
+      </div>
+      <div style={{ marginTop: 14, color: C.mute, font: `500 11px/1.4 ${fonts.mono}`, letterSpacing: ".12em", textTransform: "uppercase" }}>Authorised by Ben Duxson, Farmers Fightback</div>
+    </form>
+  );
+
   return (
     <>
       <style>{css}</style>
@@ -1191,11 +1240,11 @@ function BaldwinFloodlight({ p, receiverUrl }) {
                 Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On <strong style={{ color: C.yellow }}>27 April 2026</strong>, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.
               </p>
               <div style={{ display: "flex", gap: 14, marginTop: 36, flexWrap: "wrap" }}>
-                <Btn primary mono href="#sign">Sign the petition</Btn>
                 <Btn mono href={actions[1].href}>Email the Minister</Btn>
+                <Btn mono href="#story">Read the case</Btn>
               </div>
             </div>
-            <VideoSlot />
+            {signFormBlock}
           </div>
         </div>
 
@@ -1326,56 +1375,13 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </div>
         </div>
 
-        {/* SIGN — inline form (wired to Campaign Nucleus receiver) */}
-        <div id="sign" className="fl-pad" style={{ padding: "0 56px 88px" }}>
-          {state === "done" ? (
-            <div style={{ background: C.yellow, color: C.navyDeep, padding: "48px 40px", display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center" }}>
-              <div>
-                <div style={{ font: `700 12px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Signed · Thank you</div>
-                <h3 style={{ margin: "12px 0 8px", font: `900 44px/1 ${fonts.display}`, textTransform: "uppercase" }}>You're {(count + 1).toLocaleString("en-AU")}.</h3>
-                <p style={{ margin: 0, font: `400 16px/1.55 ${fonts.sans}` }}>Now share Greg's address. Every signature past 50k strengthens the handover at Spring St.</p>
-              </div>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <a href={actions[2].href} style={{ background: C.navyDeep, color: C.yellow, padding: "16px 22px", font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>SHARE →</a>
-                <a href="/#donate" style={{ background: "transparent", color: C.navyDeep, padding: "16px 22px", boxShadow: `inset 0 0 0 2px ${C.navyDeep}`, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>DONATE →</a>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={submit} style={{ background: C.navyDeep, border: `1px solid ${C.rule}`, padding: "48px 44px" }}>
-              <Eyebrow>Sign · Petition</Eyebrow>
-              <h3 style={{ margin: "16px 0 28px", font: `900 44px/1 ${fonts.display}`, textTransform: "uppercase" }}>Add your name. <span style={{ color: C.yellow }}>Now.</span></h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, maxWidth: 720 }}>
-                {[
-                  { k: "first", label: "First name", auto: "given-name" },
-                  { k: "last",  label: "Last name",  auto: "family-name" },
-                ].map(f => (
-                  <label key={f.k} style={{ display: "block" }}>
-                    <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>{f.label}{errors[f.k] && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors[f.k]}</em>}</span>
-                    <input value={form[f.k]} onChange={update(f.k)} autoComplete={f.auto} style={{ width: "100%", padding: "14px 16px", background: C.navy, border: `1.5px solid ${errors[f.k] ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
-                  </label>
-                ))}
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 200px", gap: 14, marginTop: 14, maxWidth: 720 }}>
-                <label>
-                  <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Email{errors.email && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.email}</em>}</span>
-                  <input type="email" value={form.email} onChange={update("email")} autoComplete="email" style={{ width: "100%", padding: "14px 16px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
-                </label>
-                <label>
-                  <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Postcode{errors.postcode && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.postcode}</em>}</span>
-                  <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} autoComplete="postal-code" style={{ width: "100%", padding: "14px 16px", background: C.navy, border: `1.5px solid ${errors.postcode ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
-                </label>
-              </div>
-              <label style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 12, marginTop: 22, alignItems: "start", maxWidth: 720, font: `400 13px/1.5 ${fonts.sans}`, color: C.mute, cursor: "pointer" }}>
-                <input type="checkbox" checked={form.consent} onChange={update("consent")} style={{ width: 20, height: 20, marginTop: 1, accentColor: C.yellow }} />
-                <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time. {errors.consent && <em style={{ fontStyle: "normal", color: C.yellow }}>— {errors.consent}</em>}</span>
-              </label>
-              <div style={{ marginTop: 26, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
-                <Btn primary mono type="submit" disabled={state === "submitting"}>{state === "submitting" ? "Signing…" : "Sign the petition"}</Btn>
-                {state === "error" && <span style={{ color: C.yellow, font: `500 13px/1.4 ${fonts.mono}` }}>Something went wrong. Try again.</span>}
-                <span style={{ color: C.mute, font: `500 11px/1.4 ${fonts.mono}`, letterSpacing: ".12em", textTransform: "uppercase" }}>Authorised by Ben Duxson, Farmers Fightback</span>
-              </div>
-            </form>
-          )}
+        {/* WATCH GREG — full-width video block (was the form's old slot) */}
+        <div id="watch" className="fl-pad" style={{ padding: "0 56px 88px" }}>
+          <div style={{ marginBottom: 24, display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
+            <Eyebrow>Watch Greg · On the record</Eyebrow>
+            <span style={{ font: `500 12px/1.4 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Address to camera · 03:42 · Recorded May 2026</span>
+          </div>
+          <VideoSlot />
         </div>
 
         <Rule />
