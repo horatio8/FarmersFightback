@@ -9,32 +9,33 @@
   "nav": {
     "items": [
       { "label": "Home", "href": "/", "active": true },
-      { "label": "The Evidence", "href": "/#evidence", "active": false },
-      { "label": "News", "href": "/news", "active": false },
+      { "label": "The Fight", "href": "/the-fight", "active": false },
       {
         "label": "Take Action",
         "href": "/take-action",
         "active": false,
         "children": [
-          { "label": "All campaigns", "href": "/take-action" },
-          { "label": "Remove Us From The REZ", "href": "/take-action/remove-us-from-the-rez" },
           { "label": "Hold the Gate", "href": "/take-action/hold-the-gate" },
-          { "label": "Stop the Baldwins eviction", "href": "/take-action/baldwins" },
-          { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser" }
+          { "label": "Back the Baldwins", "href": "/take-action/baldwins" },
+          { "label": "Stop the REZ", "href": "/take-action/remove-us-from-the-rez" },
+          { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser" },
+          { "label": "Volunteer", "href": "/take-action/volunteer" }
         ]
       },
-      { "label": "About", "href": "/#about", "active": false }
+      { "label": "News", "href": "/news", "active": false },
+      { "label": "Donate", "href": "/donate", "active": false },
+      { "label": "About", "href": "/#about", "active": false },
+      { "label": "Contact", "href": "/contact", "active": false }
     ],
     "donateLabel": "Donate",
-    "donateHref": "/#donate"
+    "donateHref": "/donate"
   },
   "hero": {
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
     "subtitle": "23,000+ Australians standing against the $11.4B VNI West transmission line — and the corporate thugs sent to bully farmers off their own land.",
     "primaryCtaLabel": "Sign the petition",
-    "primaryCtaHref": "#petition",
-    "secondaryCtaLabel": "Watch the evidence"
+    "primaryCtaHref": "/take-action/baldwins#sign"
   },
   "impactStats": [
     { "value": 23418, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
@@ -330,7 +331,7 @@
       "submittingLabel": "Adding your signature…",
       "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
       "thanksLede": "You're signature {{count}} on the Remove Us From The REZ petition. Share it with everyone you know — VicGrid is far harder to ignore at 25,000 voices than at 5,000.",
-      "shareText": "Victorian farmers said NO to being forced into a Renewable Energy Zone. VicGrid ignored them. Sign the petition: farmersfightback.com/take-action/remove-us-from-the-rez #FarmersFightback #RemoveUsFromTheREZ",
+      "shareText": "Victorian farmers said NO to being forced into a Renewable Energy Zone. VicGrid ignored them. Sign the petition at farmersfightback.com #FarmersFightback #RemoveUsFromTheREZ",
       "ctaHrefBack": "/take-action",
       "whyMattersHeading": "Why this matters",
       "whyMatters": [
@@ -370,27 +371,53 @@
     },
     "hold-the-gate": {
       "slug": "hold-the-gate",
+      "layout": "long-form",
       "campaign": "Hold the Gate",
-      "eyebrow": "Pledge · Hold the gate",
-      "heading": "I'll stand at the gate.",
-      "lede": "Hold the Gate is a peaceful, legal, statewide network of farmers, neighbours and witnesses. When the contractors come, we come too. Add your name and your postcode — we'll let you know when a property near you needs backup.",
-      "demandsIntro": "By signing, I pledge to:",
-      "demands": [
-        { "numeral": "I",   "text": "Stand peacefully and lawfully with farming families when uninvited corporate contractors arrive at their property." },
-        { "numeral": "II",  "text": "Document and witness — film, log, and report any contractor who fails to identify themselves or follow the Land Access Code." },
-        { "numeral": "III", "text": "Show up when called. The network only works if we turn up. I'll respond to alerts within my postcode where I can." },
-        { "numeral": "IV",  "text": "De-escalate, never confront. Hold the Gate is not a protest. We're witnesses, not antagonists." }
+      "tone": "navy",
+      "heroEyebrow": "Sign the petition",
+      "headingHtml": "Help our farmers fightback, before it's too late.",
+      "subheading": "Join 20,000+ Australians standing up for our farmers.",
+      "context": [
+        "Australian agriculture is the envy of the world, contributing over $80 billion to our national economy and sustaining rural communities that have stewarded the land for generations. In Victoria alone, our farmers produce $20.1 billion in food and fibre exports every year — more than any other state. But this security is being dismantled.",
+        "We are currently facing the largest forced acquisition of agricultural land in our history. Projects like VNI West plan to tear through the heart of our food bowl with 400km of high-voltage lines supported by steel towers up to 80 metres high — the height of a 25-storey building. This is not just an eyesore; it is a disaster waiting to happen."
       ],
-      "currentCount": 4187,
-      "nextMilestone": 5000,
-      "goal": 10000,
-      "submitLabel": "Add my pledge →",
-      "submittingLabel": "Adding your pledge…",
-      "thanksHeadingHtml": "You're in, <em>{{first}}</em>.",
-      "thanksLede": "You're now in the Hold the Gate network — pledger number {{count}}. We'll text or email you when a property in your postcode needs backup. No spam, no chaff.",
-      "shareText": "I just joined Hold the Gate — the statewide network standing with farming families when corporate contractors come knocking. Add your pledge → farmersfightback.com/take-action/hold-the-gate",
+      "petitionStatementHeading": "We stand with Aussie farmers, and will fight against any threat to our food security and farming rights.",
+      "petitionStatement": [
+        "Fire safety: Firefighting aircraft cannot operate safely near these transmission lines, and ground crews are often forced to maintain a 25-metre 'no-go' zone.",
+        "Biosecurity & production: The forced entry of heavy machinery risks spreading weeds and disease, while the fragmentation of paddocks destroys the efficiency of modern precision farming.",
+        "Cost blowouts: VNI West has nearly doubled to $7.6 billion — and is still climbing — without farmers consenting to any of it."
+      ],
+      "demandsIntro": "",
+      "demands": [],
+      "trustBadges": [
+        { "label": "Privacy Protected", "icon": "lock",   "sub": "Your details are never shared." },
+        { "label": "Farmer-led",        "icon": "shield", "sub": "Built by the families it affects." },
+        { "label": "Authorised",        "icon": "tick",   "sub": "Authorised by Ben Duxson, Wallaloo VIC." }
+      ],
+      "currentCount": 20184,
+      "nextMilestone": 25000,
+      "goal": 50000,
+      "submitLabel": "Sign the petition today →",
+      "submittingLabel": "Adding your signature…",
+      "thanksHeadingHtml": "Welcome to the fight, <em>{{first}}</em>.",
+      "thanksLede": "You're signature {{count}}. Share the petition with everyone you know — every name we add makes Spring St harder to ignore.",
+      "shareText": "Help our farmers fightback, before it's too late. Sign the petition → farmersfightback.com #FarmersFightback",
       "ctaHrefBack": "/take-action",
-      "tone": "navy"
+      "whyMattersHeading": "Why this fight matters.",
+      "whyMatters": [
+        { "heading": "$80 billion of food on the line.", "body": "Australian agriculture contributes over $80 billion to our national economy. Victoria's share alone is $20.1 billion. Industrial transmission lines through prime farmland don't just take a slice of one farm — they destroy the productivity of every paddock they cross." },
+        { "heading": "Fire crews won't fly near transmission lines.", "body": "Local CFA brigades have said it plainly: firefighting aircraft cannot operate safely near high-voltage transmission lines. Ground crews maintain a 25-metre no-go zone. In bushfire country, this isn't a hypothetical — it's the difference between containment and catastrophe." },
+        { "heading": "Heavy machinery brings weeds, disease, and ruined paddocks.", "body": "Forced contractor access drags weeds, soil pathogens, and biosecurity risks onto farms that have spent decades being managed carefully. Once fragmented by easements, modern precision farming becomes impossible — the maths stops working." },
+        { "heading": "Cost-blown to $11.4 billion. Still climbing.", "body": "VNI West was originally costed at $3.8 billion. It's now $11.4 billion. The Government keeps signing the cheque using farmers' land as collateral. Every blowout makes the case for an alternate route stronger — but they keep refusing to consider one." }
+      ],
+      "bottomCta": {
+        "heading": "Stand with Aussie farmers.",
+        "body": "Sign the petition. Share it with everyone you know. These farms feed the nation — and they're being taken without consent. Help us make sure the Government can't ignore us.",
+        "primaryLabel": "Sign the petition today ↑",
+        "primaryAnchor": "#sign",
+        "secondaryLabel": "Donate",
+        "secondaryHref": "/donate"
+      }
     },
     "baldwins": {
       "slug": "baldwins",
@@ -413,7 +440,7 @@
       "submittingLabel": "Adding your signature…",
       "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
       "thanksLede": "You just became signature {{count}} on the Baldwins petition. The bigger this gets, the harder Spring Street will find it to ignore.",
-      "shareText": "Charges dropped. The DPP withdrew every charge against Greg and Bill Baldwin. The Victorian Energy Minister must resign. Sign the petition → farmersfightback.com/take-action/baldwins #ResignMinister #ChargesDropped",
+      "shareText": "Charges dropped. The DPP withdrew every charge against Greg and Bill Baldwin. The Victorian Energy Minister must resign. Sign the petition at farmersfightback.com #ResignMinister #ChargesDropped",
       "ctaHrefBack": "/take-action",
       "tone": "red"
     },
@@ -437,9 +464,125 @@
       "submittingLabel": "Adding your signature…",
       "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
       "thanksLede": "You're signature {{count}} on the Fuel & Fertiliser petition. We'll keep you updated as this campaign moves through the inquiry process.",
-      "shareText": "Australian farmers are being asked to plant at a loss while fuel and fertiliser costs double. Sign the petition for an ACCC inquiry and a rebate scheme. → farmersfightback.com/take-action/fuel-and-fertiliser",
+      "shareText": "Australian farmers are being asked to plant at a loss while fuel and fertiliser costs double. Sign the petition for an ACCC inquiry and a rebate scheme at farmersfightback.com",
       "ctaHrefBack": "/take-action",
       "tone": "paddock"
     }
+  },
+  "theFight": {
+    "eyebrow": "The fight",
+    "heading": "What we're fighting for. What we're fighting against.",
+    "lede": "Farmers Fightback is a national, farmer-led movement standing against the Government's forced takeover of Australian farmland — and standing with the families fighting to keep their land, their food bowl, and their way of life.",
+    "panels": [
+      {
+        "kicker": "Fighting FOR",
+        "title": "Australian food security.",
+        "body": "Australian agriculture contributes over $80 billion to our economy. Victoria's farmers alone produce $20.1 billion in food and fibre every year — more than any other state. Industrial energy infrastructure punched through this country will permanently damage the most productive farmland in the southern hemisphere. We're fighting to keep food on Australian tables.",
+        "tone": "paddock"
+      },
+      {
+        "kicker": "Fighting FOR",
+        "title": "Property rights and the rule of law.",
+        "body": "Your gate is your gate. The right to refuse access to your own property is the most basic test of whether the law still applies to the Government. We're fighting for a country where a farmer who calls 000 on a trespasser isn't the one who ends up in handcuffs.",
+        "tone": "navy"
+      },
+      {
+        "kicker": "Fighting AGAINST",
+        "title": "The forced takeover of family farms.",
+        "body": "VNI West would tear 400 kilometres of high-voltage line through the heart of Victoria's food bowl — 80-metre steel towers, 70-metre easements, no consent. The same Government that promised consultation is now using forced-access powers to override every NO. We're fighting that, every farm, every gate.",
+        "tone": "red"
+      },
+      {
+        "kicker": "Fighting AGAINST",
+        "title": "The criminalisation of peaceful resistance.",
+        "body": "Greg Baldwin rang triple zero on his own farm. Vic Police charged him. The DPP withdrew every charge. There was no case. We will not accept a country where farmers are arrested for refusing trespassers. The Minister responsible must resign — and the forced-access laws must be repealed.",
+        "tone": "dust"
+      }
+    ],
+    "ctaHeading": "Pick a fight worth winning.",
+    "ctaBody": "Four live campaigns. Sign one. Sign them all. The Government has billions. We have you.",
+    "ctaButtons": [
+      { "label": "Take action", "href": "/take-action", "primary": true },
+      { "label": "Donate", "href": "/donate" }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "heading": "Get in touch.",
+    "lede": "We read every email. Whether you're a farmer at the gate, a journalist on deadline, a volunteer ready to turn up, or someone who just wants to help — write to us.",
+    "lanes": [
+      { "label": "General", "email": "hello@farmersfightback.com", "blurb": "Anything else — questions, ideas, stories from your district." },
+      { "label": "Media", "email": "media@farmersfightback.com", "blurb": "Press enquiries, interview requests, asset packs, on-record statements. Same-day reply." },
+      { "label": "Volunteers", "email": "volunteer@farmersfightback.com", "blurb": "Want to stand at a gate, run a stall, code a page, or organise locally — start here." },
+      { "label": "Affected landholders", "email": "support@farmersfightback.com", "blurb": "If contractors are coming to your property, we want to hear from you. Confidential." }
+    ],
+    "post": {
+      "name": "Farmers Fightback",
+      "lines": ["Authorised by Ben Duxson", "Wallaloo District", "Victoria, Australia"]
+    },
+    "form": {
+      "heading": "Or drop us a line",
+      "lede": "Quick message — we'll come back to you within 48 hours.",
+      "submitLabel": "Send message →",
+      "submittingLabel": "Sending…",
+      "doneHeading": "Got it. Talk soon.",
+      "doneBody": "Thanks for reaching out. We'll be in touch."
+    }
+  },
+  "donorPage": {
+    "eyebrow": "Donate",
+    "heading": "They have billions. We have you.",
+    "lede": "Farmers Fightback is funded by Australians, not corporations. Every dollar is spent on the things that move the needle — ads that put the story in front of more people, video production, organising on the ground, and the legal fight to repeal forced-access powers.",
+    "amounts": [
+      { "amount": 35,   "url": "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q", "tag": "Prints 500 leaflets" },
+      { "amount": 65,   "url": "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R", "tag": "An hour of legal counsel" },
+      { "amount": 135,  "url": "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", "tag": "A targeted ad set", "isDefault": true },
+      { "amount": 265,  "url": "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T", "tag": "A camera kit for a farmer" },
+      { "amount": 550,  "url": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", "tag": "A regional billboard for a week" },
+      { "amount": 1500, "url": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "tag": "Fund a full TV campaign run" }
+    ],
+    "otherUrl": "https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608",
+    "where": [
+      { "percent": "42%", "label": "Ads, media buying, social distribution" },
+      { "percent": "28%", "label": "Legal fight to repeal forced-access powers" },
+      { "percent": "20%", "label": "Community organising, Hold the Gate network" },
+      { "percent": "10%", "label": "Video, photography, campaign materials" }
+    ],
+    "monthlyHeading": "Or give monthly — they're not going anywhere, we're not either.",
+    "monthlyAmounts": [
+      { "amount": 25,  "url": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },
+      { "amount": 50,  "url": "https://buy.stripe.com/00wcN4bB4d592IjfgcbV605" },
+      { "amount": 100, "url": "https://buy.stripe.com/5kQ00i0Wqe9d3Mn7NKbV606" },
+      { "amount": 250, "url": "https://buy.stripe.com/00w9ASbB47KPaaL1pmbV607" }
+    ],
+    "fineprint": "Stripe-secured · All amounts in AUD · Not tax-deductible."
+  },
+  "volunteer": {
+    "eyebrow": "Volunteer",
+    "heading": "Volunteer with us.",
+    "lede": "Your time and skills can change the course of this fight. Whether you can give two hours a week or twenty, there's a place for you.",
+    "rolesHeading": "Volunteer roles.",
+    "rolesIntro": "Every role matters. Pick what fits your life right now.",
+    "roles": [
+      { "title": "Hold the Gate volunteer", "hours": "On-call · 1–3 events / month", "body": "Be on the alert network. When contractors arrive at a farm gate, we ping volunteers nearby and you turn up to witness, film, and stand peacefully with the family." },
+      { "title": "Local organiser", "hours": "6–12 hours / week", "body": "Run your district — meetings, doorknocks, letterbox drops, signups at the markets. Help build the local chapter that holds your MPs to account." },
+      { "title": "Digital campaigning", "hours": "5–10 hours / week", "body": "Help us reach more Australians online — paid social, organic content, email lists, supporter onboarding. Tech-comfortable, no specific platform required." },
+      { "title": "Content & comms", "hours": "3–6 hours / week", "body": "Write, edit, design, film, cut. Turn the campaign's raw material into the next viral short, op-ed, or supporter dispatch." },
+      { "title": "Events", "hours": "Variable", "body": "Public meetings, tractor rallies, hall-hires, the Spring St handover. If you've organised a school fete or a wedding, you can organise this." },
+      { "title": "Legal & policy support", "hours": "2–6 hours / week", "body": "Submissions, FOIs, briefing notes, parliamentary inquiry tracking. Lawyers, academics, and ex-public-servants especially welcome." }
+    ],
+    "formHeading": "Get started",
+    "formSubheading": "Register as a volunteer.",
+    "rolesFieldLabel": "Which roles interest you? (Pick any.)",
+    "submitLabel": "Submit application →",
+    "submittingLabel": "Submitting…",
+    "doneHeading": "Welcome to the fight.",
+    "doneBody": "Thanks for stepping up. We'll be in touch within 48 hours with your next move.",
+    "altHeading": "Prefer another way to help?",
+    "altBody": "Every contribution matters — your signature, your dollar, your time. Each one moves the needle.",
+    "altLinks": [
+      { "label": "Sign the petition →", "href": "/take-action/hold-the-gate" },
+      { "label": "Donate →", "href": "/donate" }
+    ]
   }
 }

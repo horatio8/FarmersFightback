@@ -153,9 +153,6 @@ function Hero({ onWatch }) {
         <p className="ff-hero-sub">{c.subtitle}</p>
         <div className="ff-hero-cta">
           <a href={c.primaryCtaHref} className="ff-btn ff-btn--red ff-btn--lg">{c.primaryCtaLabel}</a>
-          <button className="ff-btn ff-btn--ghost ff-btn--lg" onClick={onWatch}>
-            <span className="ff-play">▶</span> {c.secondaryCtaLabel}
-          </button>
         </div>
       </div>
       <button className="ff-hero-scroll" aria-label="Scroll to story" onClick={() => window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' })}>
@@ -1569,7 +1566,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               { p: "email",    l: "Email", brand: "#F4C430",
                 icon: <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> },
             ].map(s => {
-              const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
+              const pageUrl = "https://farmersfightback.com";
               return (
                 <a key={s.p} href={shareUrlFor(s.p, p.shareText || "Charges dropped. The Minister must resign. #ResignMinister #ChargesDropped", pageUrl)} target="_blank" rel="noopener noreferrer"
                    style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 18px", background: "transparent", boxShadow: `inset 0 0 0 1.5px ${C.bone}`, color: C.bone, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>
@@ -1685,7 +1682,7 @@ function PetitionPage({ slug }) {
     const pct = Math.min(100, (newCount / (p.goal || 1)) * 100);
     const headingHtml = (p.thanksHeadingHtml || "").replace("{{first}}", form.first);
     const lede = (p.thanksLede || "").replace("{{first}}", form.first).replace("{{count}}", newCount.toLocaleString());
-    const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
+    const pageUrl = "https://farmersfightback.com";
     const copyShare = () => {
       navigator.clipboard?.writeText(`${p.shareText} ${pageUrl}`);
       alert("Share link copied — paste it anywhere.");
@@ -1860,8 +1857,7 @@ function PetitionPage({ slug }) {
                     { platform: "whatsapp", label: "WhatsApp" },
                     { platform: "email",    label: "Email" },
                   ].map((s, i) => {
-                    const pageUrl = (typeof window !== "undefined" ? window.location.origin + window.location.pathname : "");
-                    return <a key={i} href={shareUrlFor(s.platform, p.shareText, pageUrl)} target="_blank" rel="noopener noreferrer" className={`ff-share-btn ff-share-btn--${s.platform}`}>{s.label}</a>;
+                    return <a key={i} href={shareUrlFor(s.platform, p.shareText, "https://farmersfightback.com")} target="_blank" rel="noopener noreferrer" className={`ff-share-btn ff-share-btn--${s.platform}`}>{s.label}</a>;
                   })}
                 </div>
               </div>
@@ -1937,6 +1933,294 @@ function PetitionPage({ slug }) {
 }
 
 // ---------- App (router) ----------
+// ---------- The Fight page ----------
+function TheFightPage() {
+  const c = useContent().theFight;
+  return (
+    <PageShell>
+      <section className="ff-section ff-thefight-hero">
+        <div className="ff-wrap ff-thefight-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-thefight-h1">{c.heading}</h1>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+      <section className="ff-section ff-thefight-grid-wrap">
+        <div className="ff-wrap">
+          <div className="ff-thefight-grid">
+            {(c.panels || []).map((p, i) => (
+              <article key={i} className={`ff-thefight-panel ff-thefight-panel--${p.tone || "navy"}`}>
+                <span className="ff-card-kicker">{p.kicker}</span>
+                <h3 className="ff-thefight-panel-title">{p.title}</h3>
+                <p>{p.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="ff-section ff-thefight-cta">
+        <div className="ff-wrap ff-thefight-cta-inner">
+          <h2 className="ff-h2 ff-h2--light">{c.ctaHeading}</h2>
+          <p>{c.ctaBody}</p>
+          <div className="ff-thefight-cta-buttons">
+            {(c.ctaButtons || []).map((b, i) => (
+              <a key={i} href={b.href} className={`ff-btn ff-btn--lg ${b.primary ? "ff-btn--red" : "ff-btn--ghost"}`}>{b.label}</a>
+            ))}
+          </div>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+// ---------- Contact page ----------
+function ContactPage() {
+  const c = useContent().contact;
+  const [form, setForm] = useState({ name: "", email: "", subject: "General", message: "" });
+  const [state, setState] = useState("idle");
+  const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+  const submit = (ev) => {
+    ev.preventDefault();
+    const lane = (c.lanes || []).find(l => l.label === form.subject) || (c.lanes || [])[0];
+    const to = lane?.email || "hello@farmersfightback.com";
+    const subj = encodeURIComponent(`[${form.subject}] from ${form.name || "Farmers Fightback supporter"}`);
+    const body = encodeURIComponent(`${form.message}\n\n— ${form.name}\n${form.email}`);
+    setState("done");
+    window.location.href = `mailto:${to}?subject=${subj}&body=${body}`;
+  };
+  return (
+    <PageShell>
+      <section className="ff-section ff-contact-hero">
+        <div className="ff-wrap ff-contact-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-contact-h1">{c.heading}</h1>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+      <section className="ff-section ff-contact-body">
+        <div className="ff-wrap ff-contact-body-inner">
+          <div className="ff-contact-lanes">
+            <h2 className="ff-h3">Direct lines.</h2>
+            <ul>
+              {(c.lanes || []).map((l, i) => (
+                <li key={i} className="ff-contact-lane">
+                  <span className="ff-contact-lane-label">{l.label}</span>
+                  <a href={`mailto:${l.email}`} className="ff-contact-lane-email">{l.email}</a>
+                  <p>{l.blurb}</p>
+                </li>
+              ))}
+            </ul>
+            {c.post && (
+              <div className="ff-contact-post">
+                <span className="ff-contact-lane-label">By post</span>
+                <p>
+                  <strong>{c.post.name}</strong><br/>
+                  {(c.post.lines || []).map((ln, i) => <span key={i}>{ln}<br/></span>)}
+                </p>
+              </div>
+            )}
+          </div>
+          <form className="ff-action-form ff-contact-form" onSubmit={submit} noValidate>
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.form?.heading}</span>
+            <h3 className="ff-h3" style={{ marginTop: 10 }}>Drop us a line.</h3>
+            <p className="ff-lede" style={{ marginBottom: 18, fontSize: 15 }}>{c.form?.lede}</p>
+            {state === "done" ? (
+              <div style={{ background: "var(--ff-paper-2)", padding: 22, borderRadius: 6 }}>
+                <strong>{c.form?.doneHeading}</strong>
+                <p style={{ margin: "8px 0 0", color: "var(--ff-ink-2)" }}>{c.form?.doneBody}</p>
+              </div>
+            ) : (
+              <>
+                <Field label="Your name"><input value={form.name} onChange={update("name")} autoComplete="name" required /></Field>
+                <Field label="Email"><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required /></Field>
+                <Field label="What's it about?">
+                  <select value={form.subject} onChange={update("subject")}>
+                    {(c.lanes || []).map(l => <option key={l.label} value={l.label}>{l.label}</option>)}
+                  </select>
+                </Field>
+                <Field label="Message">
+                  <textarea value={form.message} onChange={update("message")} rows={5} required style={{ width: "100%", padding: "12px 14px", fontFamily: "var(--ff-sans)", fontSize: 15, border: "1.5px solid var(--ff-rule-2)", background: "#fff", borderRadius: "var(--ff-radius)", resize: "vertical" }} />
+                </Field>
+                <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" type="submit">{c.form?.submitLabel || "Send message →"}</button>
+              </>
+            )}
+          </form>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+// ---------- Donor page ("They have billions. We have you.") ----------
+function DonorPage() {
+  const c = useContent().donorPage;
+  return (
+    <PageShell>
+      <section className="ff-section ff-donor-hero">
+        <div className="ff-wrap ff-donor-hero-inner">
+          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-h2--light ff-donor-h1">{c.heading}</h1>
+          <p className="ff-donor-lede">{c.lede}</p>
+        </div>
+      </section>
+      <section className="ff-section ff-donor-amounts">
+        <div className="ff-wrap">
+          <h2 className="ff-h3" style={{ marginBottom: 18 }}>Give once.</h2>
+          <div className="ff-donor-grid">
+            {(c.amounts || []).map(a => (
+              <a key={a.amount} href={a.url} target="_top" rel="noopener" className={`ff-donor-tile ${a.isDefault ? "is-default" : ""}`}>
+                <span className="ff-donor-kicker">Donate</span>
+                <span className="ff-donor-amount">${a.amount}</span>
+                {a.tag && <span className="ff-donor-tag">{a.tag}</span>}
+                <span className="ff-donor-cta">Give <span aria-hidden="true">→</span></span>
+              </a>
+            ))}
+            <a href={c.otherUrl} target="_top" rel="noopener" className="ff-donor-tile ff-donor-tile--other">
+              <span className="ff-donor-kicker">Choose your own</span>
+              <span className="ff-donor-amount">Other</span>
+              <span className="ff-donor-tag">Set the amount that feels right</span>
+              <span className="ff-donor-cta">Give <span aria-hidden="true">→</span></span>
+            </a>
+          </div>
+          {c.monthlyHeading && c.monthlyAmounts && (
+            <div className="ff-donor-monthly">
+              <h2 className="ff-h3">{c.monthlyHeading}</h2>
+              <div className="ff-donor-monthly-grid">
+                {c.monthlyAmounts.map(a => (
+                  <a key={a.amount} href={a.url} target="_top" rel="noopener" className="ff-donor-monthly-tile">
+                    <span className="ff-donor-monthly-amount">${a.amount}</span>
+                    <span className="ff-donor-monthly-period">/ month</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {c.where && (
+            <div className="ff-donor-where">
+              <h2 className="ff-h3">Where your money goes.</h2>
+              <ul>
+                {c.where.map((w, i) => (
+                  <li key={i}><strong>{w.percent}</strong><span>{w.label}</span></li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <p className="ff-donor-fineprint">{c.fineprint}</p>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+// ---------- Volunteer page ----------
+function VolunteerPage() {
+  const c = useContent().volunteer;
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", roles: [], consent: false });
+  const [state, setState] = useState("idle");
+  const [errors, setErrors] = useState({});
+  const receiverUrl = useContent().petition?.receiverUrl;
+  const toggleRole = (r) => setForm(f => ({ ...f, roles: f.roles.includes(r) ? f.roles.filter(x => x !== r) : [...f.roles, r] }));
+  const submit = async (ev) => {
+    ev.preventDefault();
+    const e = {};
+    if (!form.first.trim()) e.first = "Required";
+    if (!form.last.trim()) e.last = "Required";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+    if (!form.phone.trim()) e.phone = "Required";
+    if (!form.consent) e.consent = "Tick to continue";
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setState("submitting");
+    const body = new URLSearchParams({
+      first_name: form.first.trim(), last_name: form.last.trim(),
+      email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
+      roles: form.roles.join(", "), campaign: "Volunteer",
+    });
+    try {
+      if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      setState("done");
+    } catch { setState("error"); }
+  };
+  return (
+    <PageShell>
+      <section className="ff-section ff-vol-hero">
+        <div className="ff-wrap ff-vol-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-vol-h1">{c.heading}</h1>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+      <section className="ff-section ff-vol-roles">
+        <div className="ff-wrap">
+          <h2 className="ff-h2" style={{ fontSize: "clamp(28px, 3.4vw, 44px)", marginBottom: 8 }}>{c.rolesHeading}</h2>
+          <p className="ff-lede" style={{ marginBottom: 28 }}>{c.rolesIntro}</p>
+          <ul className="ff-vol-roles-grid">
+            {(c.roles || []).map((r, i) => (
+              <li key={i} className="ff-vol-role">
+                <span className="ff-card-kicker">{r.hours}</span>
+                <h3>{r.title}</h3>
+                <p>{r.body}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+      <section className="ff-section ff-vol-form-section">
+        <div className="ff-wrap ff-vol-form-wrap">
+          <div className="ff-vol-form-head">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.formHeading}</span>
+            <h2 className="ff-h2" style={{ fontSize: "clamp(28px, 3.4vw, 44px)" }}>{c.formSubheading}</h2>
+          </div>
+          {state === "done" ? (
+            <div className="ff-action-form" style={{ textAlign: "center" }}>
+              <h3 className="ff-h3">{c.doneHeading}</h3>
+              <p style={{ color: "var(--ff-ink-2)", marginTop: 8 }}>{c.doneBody}</p>
+            </div>
+          ) : (
+            <form className="ff-action-form" onSubmit={submit} noValidate>
+              <div className="ff-form-row">
+                <Field label="First name *" error={errors.first}><input value={form.first} onChange={(e) => setForm(f => ({ ...f, first: e.target.value }))} autoComplete="given-name" required /></Field>
+                <Field label="Last name *" error={errors.last}><input value={form.last} onChange={(e) => setForm(f => ({ ...f, last: e.target.value }))} autoComplete="family-name" required /></Field>
+              </div>
+              <Field label="Email *" error={errors.email}><input type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} autoComplete="email" required /></Field>
+              <div className="ff-form-row">
+                <Field label="Mobile *" error={errors.phone}><input type="tel" value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} autoComplete="tel" required placeholder="0400 000 000" /></Field>
+                <Field label="Postcode"><input value={form.postcode} onChange={(e) => setForm(f => ({ ...f, postcode: e.target.value }))} inputMode="numeric" maxLength={4} autoComplete="postal-code" /></Field>
+              </div>
+              <Field label={c.rolesFieldLabel || "Which roles interest you?"}>
+                <div className="ff-vol-role-checks">
+                  {(c.roles || []).map((r, i) => (
+                    <label key={i} className={`ff-vol-role-check ${form.roles.includes(r.title) ? "is-on" : ""}`}>
+                      <input type="checkbox" checked={form.roles.includes(r.title)} onChange={() => toggleRole(r.title)} />
+                      <span>{r.title}</span>
+                    </label>
+                  ))}
+                </div>
+              </Field>
+              <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
+                <input type="checkbox" checked={form.consent} onChange={(e) => setForm(f => ({ ...f, consent: e.target.checked }))} />
+                <span>I agree to receive campaign updates from Farmers Fightback. Unsubscribe any time.</span>
+              </label>
+              <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
+                {state === "submitting" ? c.submittingLabel : c.submitLabel}
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
+      <section className="ff-section ff-vol-alt">
+        <div className="ff-wrap ff-vol-alt-inner">
+          <h2 className="ff-h3">{c.altHeading}</h2>
+          <p>{c.altBody}</p>
+          <div className="ff-vol-alt-links">
+            {(c.altLinks || []).map((l, i) => <a key={i} href={l.href} className="ff-link ff-link--red">{l.label}</a>)}
+          </div>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
@@ -1966,6 +2250,10 @@ function App() {
   if (page === "news") view = <NewsPage />;
   else if (page === "take-action") view = <TakeActionIndex />;
   else if (page === "petition") view = <PetitionPage slug={slug} />;
+  else if (page === "the-fight") view = <TheFightPage />;
+  else if (page === "contact") view = <ContactPage />;
+  else if (page === "donate") view = <DonorPage />;
+  else if (page === "volunteer") view = <VolunteerPage />;
   else view = <HomePage />;
 
   return <ContentContext.Provider value={content}>{view}</ContentContext.Provider>;
