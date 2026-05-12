@@ -793,18 +793,24 @@ function YouTubeFeed({ cfg }) {
         {items && items.length > 0 && (
           <div className="ff-yt-grid">
             {items.slice(0, 9).map((v, i) => (
-              <article key={i} className="ff-yt-card">
-                <a href={v.link} target="_blank" rel="noopener noreferrer" className="ff-yt-card-media" aria-label={`Watch: ${v.title}`}>
+              <a key={i} href={v.link} target="_blank" rel="noopener noreferrer" className="ff-yt-card" aria-label={`Watch on YouTube: ${v.title}`}>
+                <div className="ff-yt-card-media">
                   <img src={v.thumbnail || `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`} alt="" loading="lazy" />
                   <span className="ff-yt-play" aria-hidden="true">▶</span>
-                </a>
-                <div className="ff-yt-card-body">
-                  <span className="ff-card-kicker">{formatDate(v.published)}</span>
-                  <h3 className="ff-yt-card-title">{v.title}</h3>
                 </div>
-              </article>
+                <div className="ff-yt-card-body">
+                  {v.published && <span className="ff-card-kicker">{formatDate(v.published)}</span>}
+                  <h3 className="ff-yt-card-title">{v.title}</h3>
+                  <span className="ff-yt-card-cta">Watch on YouTube <span aria-hidden="true">→</span></span>
+                </div>
+              </a>
             ))}
           </div>
+        )}
+        {items && items.length === 0 && (
+          <p className="ff-news-empty">
+            No videos to show right now. <a href={cfg.url} target="_blank" rel="noopener noreferrer">Open the channel on YouTube →</a>
+          </p>
         )}
       </div>
     </section>
