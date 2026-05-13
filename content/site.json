@@ -32,6 +32,7 @@
   },
   "hero": {
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
+    "heroImage": "assets/uploads/combine-sunset.jpg",
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
     "subtitle": "23,000+ Australians standing against the $11.4B VNI West transmission line — and the corporate thugs sent to bully farmers off their own land.",
     "primaryCtaLabel": "Sign the petition",
@@ -374,6 +375,7 @@
       "layout": "long-form",
       "campaign": "Hold the Gate",
       "tone": "navy",
+      "heroImage": "assets/uploads/tractor-ploughing.jpg",
       "heroEyebrow": "Sign the petition",
       "headingHtml": "Help our farmers fightback, before it's too late.",
       "subheading": "Join 20,000+ Australians standing up for our farmers.",
@@ -470,6 +472,7 @@
     }
   },
   "theFight": {
+    "heroImage": "assets/uploads/shearing-shed.jpg",
     "eyebrow": "The fight",
     "heading": "What we're fighting for. What we're fighting against.",
     "lede": "Farmers Fightback is a national, farmer-led movement standing against the Government's forced takeover of Australian farmland — and standing with the families fighting to keep their land, their food bowl, and their way of life.",
@@ -507,6 +510,7 @@
     ]
   },
   "contact": {
+    "heroImage": "",
     "eyebrow": "Contact",
     "heading": "Get in touch.",
     "lede": "We read every email. Whether you're a farmer at the gate, a journalist on deadline, a volunteer ready to turn up, or someone who just wants to help — write to us.",
@@ -530,6 +534,7 @@
     }
   },
   "donorPage": {
+    "heroImage": "assets/uploads/lambs-sunset.jpg",
     "eyebrow": "Donate",
     "heading": "They have billions. We have you.",
     "lede": "Farmers Fightback is funded by Australians, not corporations. Every dollar is spent on the things that move the needle — ads that put the story in front of more people, video production, organising on the ground, and the legal fight to repeal forced-access powers.",
@@ -558,6 +563,7 @@
     "fineprint": "Stripe-secured · All amounts in AUD · Not tax-deductible."
   },
   "volunteer": {
+    "heroImage": "assets/uploads/combine-harvest.jpg",
     "eyebrow": "Volunteer",
     "heading": "Volunteer with us.",
     "lede": "Your time and skills can change the course of this fight. Whether you can give two hours a week or twenty, there's a place for you.",

@@ -1332,6 +1332,31 @@ img { max-width: 100%; display: block; }
 .ff-petition-bottom-share .ff-share-btn::before { filter: brightness(0) invert(1); }
 .ff-petition-bottom-share .ff-share-btn:hover::before { filter: none; }
 
+/* ============ Image hero (reusable) ============
+   Adds a full-bleed background image to any hero section. The
+   scrim sits between the image and the content for legibility. */
+.ff-imghero {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+  isolation: isolate;
+}
+.ff-imghero > .ff-wrap { position: relative; z-index: 2; }
+.ff-imghero-scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(18,53,75,0.55) 0%, rgba(18,53,75,0.78) 100%);
+  pointer-events: none;
+}
+.ff-imghero--dark .ff-imghero-scrim {
+  background: linear-gradient(180deg, rgba(8,24,38,0.6) 0%, rgba(8,24,38,0.86) 100%);
+}
+.ff-imghero .ff-eyebrow { color: rgba(255,255,255,.86); }
+.ff-imghero .ff-h2 { color: #fff; }
+.ff-imghero .ff-lede { color: rgba(255,255,255,.92); }
+.ff-imghero .ff-h2 em { color: var(--ff-red); }
+
 /* ============ The Fight page ============ */
 .ff-thefight-hero { background: var(--ff-paper); padding-top: clamp(48px, 6vw, 80px); padding-bottom: clamp(28px, 4vw, 50px); }
 .ff-thefight-hero-inner { max-width: 820px; }

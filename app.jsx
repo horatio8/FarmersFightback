@@ -140,13 +140,18 @@ function Hero({ onWatch }) {
   const c = useContent().hero;
   return (
     <section id="home" className="ff-hero ff-hero--cinematic">
-      <video
-        className="ff-hero-bg"
-        autoPlay muted loop playsInline preload="metadata" aria-hidden="true"
-        key={c.videoUrl}
-      >
-        <source src={c.videoUrl} type="video/mp4" />
-      </video>
+      {c.videoUrl ? (
+        <video
+          className="ff-hero-bg"
+          autoPlay muted loop playsInline preload="metadata" aria-hidden="true"
+          key={c.videoUrl}
+          poster={c.heroImage || undefined}
+        >
+          <source src={c.videoUrl} type="video/mp4" />
+        </video>
+      ) : c.heroImage ? (
+        <img className="ff-hero-bg" src={c.heroImage} alt="" aria-hidden="true" />
+      ) : null}
       <div className="ff-hero-scrim" />
       <div className="ff-wrap ff-hero-content">
         <h1 className="ff-hero-title" dangerouslySetInnerHTML={html(c.titleHtml)} />
@@ -1777,7 +1782,8 @@ function PetitionPage({ slug }) {
     return (
       <PageShell>
         {/* Hero — full-width navy */}
-        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"}`}>
+        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"} ${p.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={p.heroImage ? { backgroundImage: `url(${p.heroImage})` } : undefined}>
+          {p.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
           <div className="ff-wrap">
             <a href={p.ctaHrefBack || "/take-action"} className="ff-back-link ff-back-link--light">← All campaigns</a>
             {p.heroEyebrow && <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {p.heroEyebrow}</span>}
@@ -1944,7 +1950,8 @@ function TheFightPage() {
   const c = useContent().theFight;
   return (
     <PageShell>
-      <section className="ff-section ff-thefight-hero">
+      <section className={`ff-section ff-thefight-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-thefight-hero-inner">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h1 className="ff-h2 ff-thefight-h1">{c.heading}</h1>
@@ -1996,7 +2003,8 @@ function ContactPage() {
   };
   return (
     <PageShell>
-      <section className="ff-section ff-contact-hero">
+      <section className={`ff-section ff-contact-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-contact-hero-inner">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h1 className="ff-h2 ff-contact-h1">{c.heading}</h1>
@@ -2062,7 +2070,8 @@ function DonorPage() {
   const c = useContent().donorPage;
   return (
     <PageShell>
-      <section className="ff-section ff-donor-hero">
+      <section className={`ff-section ff-donor-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-donor-hero-inner">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h1 className="ff-h2 ff-h2--light ff-donor-h1">{c.heading}</h1>
@@ -2149,7 +2158,8 @@ function VolunteerPage() {
   };
   return (
     <PageShell>
-      <section className="ff-section ff-vol-hero">
+      <section className={`ff-section ff-vol-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-vol-hero-inner">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h1 className="ff-h2 ff-vol-h1">{c.heading}</h1>
