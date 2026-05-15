@@ -1023,19 +1023,19 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   const acts = [
     { n: "01", date: "2023 → 2025", tag: "BACKSTORY",
       titleHtml: "<em>A community family targeted.</em> For three years.",
-      body: "From 2023 onwards the Baldwins kept their heads down — running their farm, supporting their community, doing the work. Greg and Bill became two of the most visible spokespeople against VNI West: at meetings, on tractors, on the steps of Parliament. Through it all, contractors for the Transmission Company Victoria (TCV) — later rebadged as VicGrid VNI West — kept turning up on Baldwin land. Refused. Turned away. Came back." },
+      body: "From 2023 onwards the Baldwins kept their heads down — running their farm, supporting their community, doing the work. Greg became one of the most visible spokespeople against VNI West: at meetings, on tractors, on the steps of Parliament. Through it all, contractors for the Transmission Company Victoria (TCV) — later rebadged as VicGrid VNI West — kept turning up on Baldwin land. Refused. Turned away. Came back." },
     { n: "02", date: "13 NOV 2025", tag: "TRESPASS",
       titleHtml: "Greg called triple zero <em>on his own farm</em>.",
-      body: "TCV contractors entered the Baldwin property in western Victoria. They had been served previous refusals, written notice, and a 48-hour access notice the family had not consented to. Greg called 000. Bill — Greg's son and a CFA volunteer — arrived to support him. Neighbours arrived. The contractors left." },
+      body: "TCV contractors entered the Baldwin property in western Victoria. They had been served previous refusals, written notice, and a 48-hour access notice the family had not consented to. Greg called 000. Neighbours arrived. The contractors left." },
     { n: "03", date: "DEC 2025", tag: "LICENCE PULLED",
       titleHtml: "Their firearms licence was suspended <em>four months before charges were laid</em>.",
       body: "Police authorised the suspension of the family's firearms licence in December 2025 — based on charges that did not yet exist. The charges were not formally laid until the following March. A working farm without firearms is a working farm exposed. The lawyer reviewing the brief later confirmed: the suspension was a pre-emptive move." },
     { n: "04", date: "NOV 2025 — MAR 2026", tag: "THE CHARGES",
-      titleHtml: "Police did not charge the trespassers. <em>They charged the farmers.</em>",
-      body: "Greg with unlawful imprisonment. Bill with unlawful imprisonment AND assault. Both Baldwins were arrested at Rupanyup Police Station and fingerprinted. Bill was first ordered to attend the station while he was actively fighting a fire on a neighbour's property as a CFA volunteer." },
+      titleHtml: "Police did not charge the trespassers. <em>They charged the farmer.</em>",
+      body: "Greg was charged with unlawful imprisonment for refusing trespassers on his own land. He was ordered to present at Rupanyup Police Station, where he was arrested, fingerprinted, and processed like a criminal." },
     { n: "05", date: "27 APR 2026", tag: "DPP WITHDRAWS", highlight: true,
       titleHtml: "The DPP withdrew every charge. There was no case.",
-      body: "In the Magistrates' Court, the Director of Public Prosecutions withdrew every charge against Greg and Bill Baldwin. No conviction. No trial. No basis. The Crown said in plain language what the family had said all along: there was no case to answer." },
+      body: "In the Magistrates' Court, the Director of Public Prosecutions withdrew every charge against Greg Baldwin. No conviction. No trial. No basis. The Crown said in plain language what the family had said all along: there was no case to answer." },
     { n: "06", date: "16 MAR 2026", tag: "FORCED ACCESS",
       titleHtml: "The same tactics. Against new farming families.",
       body: "The same week the family was in court, VicGrid posted letters to multiple western Victorian properties advising they would use new powers under amended Victorian energy legislation to FORCE access in 30 days. Same project. Same villains. Different vehicle." },
@@ -1376,7 +1376,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </h1>
           <div className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720 }}>
             <p style={{ margin: 0, font: `400 19px/1.4 ${fonts.sans}`, color: C.bone }}>
-              For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1880, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg and his son Bill were the ones charged, not the trespasser.</strong> The Government has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Government must resign.
+              For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1880, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg was the one charged, not the trespasser.</strong> The Government has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Government must resign.
             </p>
             <p className="fl-hero-body-cta" style={{ margin: "18px 0 0", font: `700 clamp(20px, 2.2vw, 24px)/1.25 ${fonts.sans}`, color: C.yellow, letterSpacing: "-0.005em" }}>
               FIRST THE BALDWIN'S HOME, YOURS NEXT: Sign the petition today!
