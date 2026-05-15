@@ -24,7 +24,7 @@
       },
       { "label": "News", "href": "/news", "active": false },
       { "label": "Donate", "href": "/donate", "active": false },
-      { "label": "About", "href": "/#about", "active": false },
+      { "label": "About", "href": "/about-us", "active": false },
       { "label": "Contact", "href": "/contact", "active": false }
     ],
     "donateLabel": "Donate",
@@ -513,24 +513,20 @@
     "heroImage": "",
     "eyebrow": "Contact",
     "heading": "Get in touch.",
-    "lede": "We read every email. Whether you're a farmer at the gate, a journalist on deadline, a volunteer ready to turn up, or someone who just wants to help — write to us.",
-    "lanes": [
-      { "label": "General", "email": "hello@farmersfightback.com", "blurb": "Anything else — questions, ideas, stories from your district." },
-      { "label": "Media", "email": "media@farmersfightback.com", "blurb": "Press enquiries, interview requests, asset packs, on-record statements. Same-day reply." },
-      { "label": "Volunteers", "email": "volunteer@farmersfightback.com", "blurb": "Want to stand at a gate, run a stall, code a page, or organise locally — start here." },
-      { "label": "Affected landholders", "email": "support@farmersfightback.com", "blurb": "If contractors are coming to your property, we want to hear from you. Confidential." }
+    "lede": "Send us a message and we'll come back to you. Whether you're a farmer at the gate, a journalist on deadline, a volunteer ready to turn up, or someone who just wants to help — write to us using the form below.",
+    "subjects": [
+      { "label": "General enquiry", "blurb": "Anything else — questions, ideas, stories from your district." },
+      { "label": "Media", "blurb": "Press enquiries, interview requests, asset packs, on-record statements. Same-day reply." },
+      { "label": "Volunteer", "blurb": "Want to stand at a gate, run a stall, code a page, or organise locally — start here." },
+      { "label": "Affected landholder", "blurb": "If contractors are coming to your property, we want to hear from you. Confidential." }
     ],
-    "post": {
-      "name": "Farmers Fightback",
-      "lines": ["Authorised by Ben Duxson", "Wallaloo District", "Victoria, Australia"]
-    },
     "form": {
-      "heading": "Or drop us a line",
-      "lede": "Quick message — we'll come back to you within 48 hours.",
+      "heading": "Send us a message",
+      "lede": "We come back to every message within 48 hours.",
       "submitLabel": "Send message →",
       "submittingLabel": "Sending…",
       "doneHeading": "Got it. Talk soon.",
-      "doneBody": "Thanks for reaching out. We'll be in touch."
+      "doneBody": "Thanks for reaching out. We'll be in touch within 48 hours."
     }
   },
   "donorPage": {
@@ -590,5 +586,51 @@
       { "label": "Sign the petition →", "href": "/take-action/hold-the-gate" },
       { "label": "Donate →", "href": "/donate" }
     ]
+  },
+  "aboutUs": {
+    "heroImage": "assets/uploads/kelpie-mustering.jpg",
+    "eyebrow": "About us",
+    "heading": "Left with no choice. Farmers Fightback.",
+    "subheading": "Born for the soil. Built for the fight.",
+    "stat": { "value": "20,000+", "label": "Australians standing up for our farmers" },
+    "sections": [
+      {
+        "kicker": "Our roots",
+        "title": "From a kitchen-table revolt to a national front.",
+        "paragraphs": [
+          "This campaign was born from the soil of the Wimmera, sparked by a small but determined group of farming families who refused to stand by as their livelihoods were mapped over by bureaucrats in city offices.",
+          "What began as a local stand against the VNI West \"Option 5\" route has grown into a fierce defence of our region's future. We saw firsthand how the Australian Energy Market Operator (AEMO) and government bodies treated our prime agricultural land — generations of stewardship and high-quality protein production — as merely vacant space for infrastructure.",
+          "Our community faced the terrifying reality of high-voltage transmission lines cutting through our paddocks, bringing with them unacceptable biosecurity risks, dismantling our ability to use modern ag-tech, and — most critically — creating a fire hazard that would leave our volunteer brigades unable to defend our homes. We realised that if we didn't hold the line here, no farming community in Australia would be safe."
+        ]
+      },
+      {
+        "kicker": "Where we are now",
+        "title": "A united, national front for farmers' rights.",
+        "paragraphs": [
+          "Today, Farmers Fightback is a national organisation uniting farmers, food producers, and rural families across Australia to preserve autonomy over our land. We are fighting back against not only reckless energy infrastructure like VNI West, but also the wave of ridiculous and punitive legislation that threatens the viability of our industry.",
+          "We fundamentally reject a system that steamrolls rural communities and sacrifices the very land that feeds the nation. From blocking access to Transmission Company Victoria (TCV) to challenging heavy-handed regulatory overreach, we are demanding a fair go.",
+          "We stand for the right to farm without interference — ensuring that the voice of the bush is powerful enough to stop bad laws and protect intergenerational farms for the future."
+        ]
+      }
+    ],
+    "principles": {
+      "heading": "What we stand for.",
+      "items": [
+        { "title": "Right to farm",       "body": "Without interference. Without forced access. Without being mapped over by people who've never set foot on the soil." },
+        { "title": "Food security first", "body": "Australia's prime agricultural land is not vacant space for infrastructure. It is the food bowl of the nation. We defend it." },
+        { "title": "Real consultation",   "body": "Genuine community consent — not a tick-box exercise after the route is already drawn. Communities must have meaningful power to say no." },
+        { "title": "Intergenerational",   "body": "Family farms have been stewarded for generations. We fight to keep them in the hands of the families who built them — for the generations that come next." }
+      ]
+    },
+    "cta": {
+      "heading": "Stand with the farmers.",
+      "body": "We've gone from a kitchen-table conversation to a national movement of 20,000+ Australians. The next step is yours.",
+      "buttons": [
+        { "label": "Sign the petition", "href": "/take-action/hold-the-gate", "primary": true },
+        { "label": "Volunteer",         "href": "/take-action/volunteer" },
+        { "label": "Donate",            "href": "/donate" }
+      ]
+    },
+    "authorised": "Authorised by Ben Duxson, Farmers Fightback"
   }
 }

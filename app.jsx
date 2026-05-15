@@ -1989,18 +1989,34 @@ function TheFightPage() {
 // ---------- Contact page ----------
 function ContactPage() {
   const c = useContent().contact;
-  const [form, setForm] = useState({ name: "", email: "", subject: "General", message: "" });
+  const receiverUrl = useContent().petition?.receiverUrl;
+  const subjects = c.subjects || c.lanes || [{ label: "General enquiry" }];
+  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: subjects[0]?.label || "General", message: "" });
   const [state, setState] = useState("idle");
+  const [errors, setErrors] = useState({});
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
-  const submit = (ev) => {
+  const submit = async (ev) => {
     ev.preventDefault();
-    const lane = (c.lanes || []).find(l => l.label === form.subject) || (c.lanes || [])[0];
-    const to = lane?.email || "hello@farmersfightback.com";
-    const subj = encodeURIComponent(`[${form.subject}] from ${form.name || "Farmers Fightback supporter"}`);
-    const body = encodeURIComponent(`${form.message}\n\n— ${form.name}\n${form.email}`);
-    setState("done");
-    window.location.href = `mailto:${to}?subject=${subj}&body=${body}`;
+    const e = {};
+    if (!form.name.trim()) e.name = "Required";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+    if (!form.message.trim()) e.message = "Tell us what's going on";
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setState("submitting");
+    const body = new URLSearchParams({
+      first_name: form.name.trim(), email: form.email.trim(),
+      phone: form.phone.trim(), postcode: "",
+      campaign: `Contact — ${form.subject}`,
+      subject: form.subject,
+      message: form.message,
+    });
+    try {
+      if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      setState("done");
+    } catch { setState("error"); }
   };
+  const activeSubject = subjects.find(s => s.label === form.subject) || subjects[0];
   return (
     <PageShell>
       <section className={`ff-section ff-contact-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
@@ -2012,55 +2028,109 @@ function ContactPage() {
         </div>
       </section>
       <section className="ff-section ff-contact-body">
-        <div className="ff-wrap ff-contact-body-inner">
-          <div className="ff-contact-lanes">
-            <h2 className="ff-h3">Direct lines.</h2>
-            <ul>
-              {(c.lanes || []).map((l, i) => (
-                <li key={i} className="ff-contact-lane">
-                  <span className="ff-contact-lane-label">{l.label}</span>
-                  <a href={`mailto:${l.email}`} className="ff-contact-lane-email">{l.email}</a>
-                  <p>{l.blurb}</p>
-                </li>
-              ))}
-            </ul>
-            {c.post && (
-              <div className="ff-contact-post">
-                <span className="ff-contact-lane-label">By post</span>
-                <p>
-                  <strong>{c.post.name}</strong><br/>
-                  {(c.post.lines || []).map((ln, i) => <span key={i}>{ln}<br/></span>)}
-                </p>
-              </div>
-            )}
-          </div>
+        <div className="ff-wrap ff-contact-body-inner ff-contact-body-inner--single">
           <form className="ff-action-form ff-contact-form" onSubmit={submit} noValidate>
-            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.form?.heading}</span>
-            <h3 className="ff-h3" style={{ marginTop: 10 }}>Drop us a line.</h3>
-            <p className="ff-lede" style={{ marginBottom: 18, fontSize: 15 }}>{c.form?.lede}</p>
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.form?.heading || "Send us a message"}</span>
+            <p className="ff-lede" style={{ margin: "12px 0 22px", fontSize: 15 }}>{c.form?.lede}</p>
             {state === "done" ? (
-              <div style={{ background: "var(--ff-paper-2)", padding: 22, borderRadius: 6 }}>
-                <strong>{c.form?.doneHeading}</strong>
-                <p style={{ margin: "8px 0 0", color: "var(--ff-ink-2)" }}>{c.form?.doneBody}</p>
+              <div style={{ background: "var(--ff-paper-2)", padding: 28, borderRadius: 6, textAlign: "center" }}>
+                <strong style={{ fontSize: 20, color: "var(--ff-navy)" }}>{c.form?.doneHeading}</strong>
+                <p style={{ margin: "10px 0 0", color: "var(--ff-ink-2)" }}>{c.form?.doneBody}</p>
               </div>
             ) : (
               <>
-                <Field label="Your name"><input value={form.name} onChange={update("name")} autoComplete="name" required /></Field>
-                <Field label="Email"><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required /></Field>
+                <div className="ff-form-row">
+                  <Field label="Your name *" error={errors.name}><input value={form.name} onChange={update("name")} autoComplete="name" required /></Field>
+                  <Field label="Email *" error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required /></Field>
+                </div>
+                <Field label="Phone (optional)"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" placeholder="0400 000 000" /></Field>
                 <Field label="What's it about?">
                   <select value={form.subject} onChange={update("subject")}>
-                    {(c.lanes || []).map(l => <option key={l.label} value={l.label}>{l.label}</option>)}
+                    {subjects.map(s => <option key={s.label} value={s.label}>{s.label}</option>)}
                   </select>
+                  {activeSubject?.blurb && <span style={{ display: "block", fontSize: 13, color: "var(--ff-muted)", marginTop: 6 }}>{activeSubject.blurb}</span>}
                 </Field>
-                <Field label="Message">
-                  <textarea value={form.message} onChange={update("message")} rows={5} required style={{ width: "100%", padding: "12px 14px", fontFamily: "var(--ff-sans)", fontSize: 15, border: "1.5px solid var(--ff-rule-2)", background: "#fff", borderRadius: "var(--ff-radius)", resize: "vertical" }} />
+                <Field label="Message *" error={errors.message}>
+                  <textarea value={form.message} onChange={update("message")} rows={6} required style={{ width: "100%", padding: "12px 14px", fontFamily: "var(--ff-sans)", fontSize: 15, border: "1.5px solid var(--ff-rule-2)", background: "#fff", borderRadius: "var(--ff-radius)", resize: "vertical" }} />
                 </Field>
-                <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" type="submit">{c.form?.submitLabel || "Send message →"}</button>
+                <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" type="submit" disabled={state === "submitting"}>
+                  {state === "submitting" ? (c.form?.submittingLabel || "Sending…") : (c.form?.submitLabel || "Send message →")}
+                </button>
+                {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
+                <p className="ff-form-fine">We come back to every message within 48 hours.</p>
               </>
             )}
           </form>
         </div>
       </section>
+    </PageShell>
+  );
+}
+
+// ---------- About Us page ----------
+function AboutUsPage() {
+  const c = useContent().aboutUs;
+  return (
+    <PageShell>
+      <section className={`ff-section ff-aboutus-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
+        <div className="ff-wrap ff-aboutus-hero-inner">
+          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-h2--light ff-aboutus-h1">{c.heading}</h1>
+          {c.subheading && <p className="ff-aboutus-sub">{c.subheading}</p>}
+          {c.stat && (
+            <div className="ff-aboutus-stat">
+              <span className="ff-aboutus-stat-n">{c.stat.value}</span>
+              <span className="ff-aboutus-stat-l">{c.stat.label}</span>
+            </div>
+          )}
+        </div>
+      </section>
+      <section className="ff-section ff-aboutus-sections">
+        <div className="ff-wrap">
+          {(c.sections || []).map((s, i) => (
+            <article key={i} className="ff-aboutus-section">
+              <span className="ff-card-kicker">{s.kicker}</span>
+              <h2 className="ff-h2 ff-aboutus-section-h">{s.title}</h2>
+              <div className="ff-aboutus-paras">
+                {(s.paragraphs || []).map((p, j) => <p key={j}>{p}</p>)}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      {c.principles && (
+        <section className="ff-section ff-aboutus-principles">
+          <div className="ff-wrap">
+            <h2 className="ff-h2 ff-aboutus-principles-h">{c.principles.heading}</h2>
+            <ul className="ff-aboutus-principles-grid">
+              {(c.principles.items || []).map((p, i) => (
+                <li key={i} className="ff-aboutus-principle">
+                  <span className="ff-aboutus-principle-n">{String(i + 1).padStart(2, "0")}</span>
+                  <h3>{p.title}</h3>
+                  <p>{p.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+      {c.cta && (
+        <section className="ff-section ff-aboutus-cta">
+          <div className="ff-wrap ff-aboutus-cta-inner">
+            <h2 className="ff-h2 ff-h2--light">{c.cta.heading}</h2>
+            <p>{c.cta.body}</p>
+            <div className="ff-aboutus-cta-buttons">
+              {(c.cta.buttons || []).map((b, i) => (
+                <a key={i} href={b.href} className={`ff-btn ff-btn--lg ${b.primary ? "ff-btn--red" : "ff-btn--ghost"}`}>{b.label}</a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      {c.authorised && (
+        <p className="ff-aboutus-authorised">{c.authorised}</p>
+      )}
     </PageShell>
   );
 }
@@ -2268,6 +2338,7 @@ function App() {
   else if (page === "petition") view = <PetitionPage slug={slug} />;
   else if (page === "the-fight") view = <TheFightPage />;
   else if (page === "contact") view = <ContactPage />;
+  else if (page === "about-us") view = <AboutUsPage />;
   else if (page === "donate") view = <DonorPage />;
   else if (page === "volunteer") view = <VolunteerPage />;
   else view = <HomePage />;
