@@ -1051,7 +1051,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   ];
   const actions = [
     { n: "01", t: "Sign the petition",   d: "Add your name to the call for the Minister to resign. Farmers Fightback-endorsed. Delivered to Spring St.", cta: "SIGN",   primary: true,  href: "#sign" },
-    { n: "02", t: "Email the Minister",  d: "Pre-written letter, your name on it. Sent to the Minister's office and your local MP in two clicks.",       cta: "EMAIL",  href: "mailto:lily.dambrosio@parliament.vic.gov.au?subject=Resign%2C%20Minister&body=Dear%20Minister%20D%27Ambrosio%2C%0A%0AThe%20DPP%20has%20withdrawn%20every%20charge%20against%20Greg%20and%20Bill%20Baldwin.%20There%20was%20no%20case.%20I%20am%20writing%20to%20demand%20your%20resignation%2C%20a%20review%20of%20Vic%20Police%20and%20OPP%20conduct%2C%20and%20suspension%20of%20forced-access%20powers%20under%20the%20amended%20energy%20legislation.%0A%0AYours%2C%0A" },
+    { n: "02", t: "Email the Minister",  d: "Pre-written letter, your name on it. Sent to the Minister's office and your local MP in two clicks.",       cta: "EMAIL",  href: "mailto:lily.dambrosio@parliament.vic.gov.au?subject=Resign%2C%20Minister&body=Dear%20Minister%20Dambrosio%2C%0A%0AThe%20DPP%20has%20withdrawn%20every%20charge%20against%20Greg%20Baldwin.%20There%20was%20no%20case.%20I%20am%20writing%20to%20demand%20your%20resignation%2C%20a%20review%20of%20Vic%20Police%20and%20OPP%20conduct%2C%20and%20suspension%20of%20forced-access%20powers%20under%20the%20amended%20energy%20legislation.%0A%0AYours%2C%0A" },
     { n: "03", t: "Share Greg's address", d: "One-tap share to X, Facebook, Instagram. Use #ResignMinister and #ChargesDropped.",                          cta: "SHARE",  href: "#share" },
     { n: "04", t: "Donate to defence",   d: "Recovery of legal costs and prep for civil action. Every dollar receipted by the Baldwin family solicitor.", cta: "DONATE", href: "/#donate" },
   ];
@@ -1335,8 +1335,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <div className="fl-nav-links" style={{ font: `600 12px/1 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", flexWrap: "wrap" }}>
             <a href="#story">The Story</a>
             <a href="#demand">The Demand</a>
-            <a href="/news">Press</a>
-            <a href="/#donate">Donate</a>
+            <a href="/media">Press</a>
+            <a href="#donate">Donate</a>
             <span style={{ color: C.yellow }}>● BALDWIN DEFENCE</span>
           </div>
           <button
@@ -1355,8 +1355,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <a href="#sign" className="is-primary" onClick={() => setNavOpen(false)}>● Sign the petition</a>
           <a href="#story" onClick={() => setNavOpen(false)}>The Story</a>
           <a href="#demand" onClick={() => setNavOpen(false)}>The Demand</a>
-          <a href="/news" onClick={() => setNavOpen(false)}>Press</a>
-          <a href="/#donate" onClick={() => setNavOpen(false)}>Donate</a>
+          <a href="/media" onClick={() => setNavOpen(false)}>Press</a>
+          <a href="#donate" onClick={() => setNavOpen(false)}>Donate</a>
         </div>
 
         {/* KICKER STRIP */}
@@ -1549,17 +1549,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
             ))}
           </div>
         </div>
-
-        {/* WATCH GREG — full-width video block (was the form's old slot) */}
-        <div id="watch" className="fl-pad fl-section-aft" style={{ padding: "0 56px 88px" }}>
-          <div className="fl-watchgreg-head" style={{ marginBottom: 24, display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
-            <Eyebrow>Watch Greg · On the record</Eyebrow>
-            <span style={{ font: `500 12px/1.4 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Address to camera · 03:42 · Recorded May 2026</span>
-          </div>
-          <VideoSlot />
-        </div>
-
-        <Rule />
 
         {/* SHARE ROW */}
         <div id="share" className="fl-pad fl-section-aft" style={{ padding: "56px 56px" }}>
@@ -1782,7 +1771,7 @@ function PetitionPage({ slug }) {
     return (
       <PageShell>
         {/* Hero — full-width navy */}
-        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"} ${p.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={p.heroImage ? { backgroundImage: `url(${p.heroImage})` } : undefined}>
+        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"} ${p.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={p.heroImage ? { backgroundImage: `url(${p.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
           {p.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
           <div className="ff-wrap">
             <a href={p.ctaHrefBack || "/take-action"} className="ff-back-link ff-back-link--light">← All campaigns</a>
@@ -1950,7 +1939,7 @@ function TheFightPage() {
   const c = useContent().theFight;
   return (
     <PageShell>
-      <section className={`ff-section ff-thefight-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+      <section className={`ff-section ff-thefight-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-thefight-hero-inner">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
@@ -2019,7 +2008,7 @@ function ContactPage() {
   const activeSubject = subjects.find(s => s.label === form.subject) || subjects[0];
   return (
     <PageShell>
-      <section className={`ff-section ff-contact-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+      <section className={`ff-section ff-contact-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-contact-hero-inner">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
@@ -2067,12 +2056,86 @@ function ContactPage() {
   );
 }
 
+// ---------- Media page ----------
+function MediaPage() {
+  const c = useContent().mediaPage;
+  return (
+    <PageShell>
+      <section className={`ff-section ff-media-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
+        <div className="ff-wrap ff-media-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+          <h1 className="ff-h2 ff-media-h1">{c.heading}</h1>
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+      {c.primaryEmail && (
+        <section className="ff-section ff-media-contact">
+          <div className="ff-wrap ff-media-contact-inner">
+            <div>
+              <span className="ff-card-kicker">{c.primaryEmail.label}</span>
+              <a href={`mailto:${c.primaryEmail.email}`} className="ff-media-email">{c.primaryEmail.email}</a>
+              <p>{c.primaryEmail.blurb}</p>
+            </div>
+            <a href={`mailto:${c.primaryEmail.email}`} className="ff-btn ff-btn--red ff-btn--lg">Email the media team →</a>
+          </div>
+        </section>
+      )}
+      {c.spokespeople && c.spokespeople.length > 0 && (
+        <section className="ff-section ff-media-spokes">
+          <div className="ff-wrap">
+            <h2 className="ff-h2" style={{ fontSize: "clamp(28px, 3.4vw, 42px)", marginBottom: 28 }}>Spokespeople.</h2>
+            <ul className="ff-media-spokes-grid">
+              {c.spokespeople.map((s, i) => (
+                <li key={i} className="ff-media-spoke">
+                  <h3>{s.name}</h3>
+                  <span className="ff-card-kicker">{s.role}</span>
+                  <p>{s.blurb}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+      {c.outlets && c.outlets.length > 0 && (
+        <section className="ff-section ff-media-outlets">
+          <div className="ff-wrap">
+            <h2 className="ff-h2" style={{ fontSize: "clamp(28px, 3.4vw, 42px)" }}>{c.outletsHeading || "Recent coverage"}</h2>
+            {c.outletsLede && <p className="ff-lede" style={{ margin: "12px 0 24px" }}>{c.outletsLede}</p>}
+            <ul className="ff-media-outlets-list">
+              {c.outlets.map((o, i) => (
+                <li key={i} className="ff-media-outlet">
+                  <span className="ff-media-outlet-name">{o.outlet}</span>
+                  <a href={o.url || "#"} className="ff-media-outlet-headline">{o.headline}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+      {c.assets && c.assets.length > 0 && (
+        <section className="ff-section ff-media-assets">
+          <div className="ff-wrap">
+            <h2 className="ff-h2" style={{ fontSize: "clamp(24px, 3vw, 36px)", marginBottom: 20 }}>Press kit & assets.</h2>
+            <ul className="ff-media-assets-list">
+              {c.assets.map((a, i) => (
+                <li key={i}><a href={a.href} className="ff-link ff-link--red">{a.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+      {c.fineprint && <p className="ff-aboutus-authorised">{c.fineprint}</p>}
+    </PageShell>
+  );
+}
+
 // ---------- About Us page ----------
 function AboutUsPage() {
   const c = useContent().aboutUs;
   return (
     <PageShell>
-      <section className={`ff-section ff-aboutus-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+      <section className={`ff-section ff-aboutus-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-aboutus-hero-inner">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
@@ -2140,7 +2203,7 @@ function DonorPage() {
   const c = useContent().donorPage;
   return (
     <PageShell>
-      <section className={`ff-section ff-donor-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+      <section className={`ff-section ff-donor-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-donor-hero-inner">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
@@ -2178,16 +2241,6 @@ function DonorPage() {
                   </a>
                 ))}
               </div>
-            </div>
-          )}
-          {c.where && (
-            <div className="ff-donor-where">
-              <h2 className="ff-h3">Where your money goes.</h2>
-              <ul>
-                {c.where.map((w, i) => (
-                  <li key={i}><strong>{w.percent}</strong><span>{w.label}</span></li>
-                ))}
-              </ul>
             </div>
           )}
           <p className="ff-donor-fineprint">{c.fineprint}</p>
@@ -2228,7 +2281,7 @@ function VolunteerPage() {
   };
   return (
     <PageShell>
-      <section className={`ff-section ff-vol-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})` } : undefined}>
+      <section className={`ff-section ff-vol-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-vol-hero-inner">
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
@@ -2339,6 +2392,7 @@ function App() {
   else if (page === "the-fight") view = <TheFightPage />;
   else if (page === "contact") view = <ContactPage />;
   else if (page === "about-us") view = <AboutUsPage />;
+  else if (page === "media") view = <MediaPage />;
   else if (page === "donate") view = <DonorPage />;
   else if (page === "volunteer") view = <VolunteerPage />;
   else view = <HomePage />;

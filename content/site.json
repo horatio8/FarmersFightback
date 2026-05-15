@@ -23,9 +23,9 @@
         ]
       },
       { "label": "News", "href": "/news", "active": false },
-      { "label": "Donate", "href": "/donate", "active": false },
       { "label": "About", "href": "/about-us", "active": false },
-      { "label": "Contact", "href": "/contact", "active": false }
+      { "label": "Contact", "href": "/contact", "active": false },
+      { "label": "Media", "href": "/media", "active": false }
     ],
     "donateLabel": "Donate",
     "donateHref": "/donate"
@@ -543,12 +543,6 @@
       { "amount": 1500, "url": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "tag": "Fund a full TV campaign run" }
     ],
     "otherUrl": "https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608",
-    "where": [
-      { "percent": "42%", "label": "Ads, media buying, social distribution" },
-      { "percent": "28%", "label": "Legal fight to repeal forced-access powers" },
-      { "percent": "20%", "label": "Community organising, Hold the Gate network" },
-      { "percent": "10%", "label": "Video, photography, campaign materials" }
-    ],
     "monthlyHeading": "Or give monthly — they're not going anywhere, we're not either.",
     "monthlyAmounts": [
       { "amount": 25,  "url": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },
@@ -586,6 +580,37 @@
       { "label": "Sign the petition →", "href": "/take-action/hold-the-gate" },
       { "label": "Donate →", "href": "/donate" }
     ]
+  },
+  "mediaPage": {
+    "heroImage": "",
+    "eyebrow": "Media",
+    "heading": "Media & press enquiries.",
+    "lede": "Same-day reply during business hours. We can provide on-record statements, interview subjects, photography, b-roll, and access to families directly affected by VNI West and forced-access powers.",
+    "primaryEmail": {
+      "label": "Media outreach",
+      "email": "media@farmersfightback.com",
+      "blurb": "Press enquiries, interview requests, statements, asset packs."
+    },
+    "spokespeople": [
+      { "name": "Ben Duxson", "role": "Founder & national spokesperson", "blurb": "Sixth-generation farmer, Wallaloo VIC. Available for broadcast and print interviews." },
+      { "name": "Campaign team",  "role": "On-the-ground organisers", "blurb": "Local district leads available for regional press and live-cross from the gate." }
+    ],
+    "outletsHeading": "Recent coverage",
+    "outletsLede": "Selected press to date. Full press kit available on request — write to media@farmersfightback.com.",
+    "outlets": [
+      { "outlet": "Stock & Land", "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys", "url": "#" },
+      { "outlet": "Stock & Land", "headline": "Farmers challenge VNI West power project access in Victoria", "url": "#" },
+      { "outlet": "The Weekly Advertiser", "headline": "Farmers dig in: new bill 'acquisition by stealth'", "url": "#" },
+      { "outlet": "ARR News", "headline": "District farmers fight back", "url": "#" },
+      { "outlet": "Sky News", "headline": "National broadcast leads to 5,000 new supporters in a single night", "url": "#" },
+      { "outlet": "ABC Rural", "headline": "VNI West access denied by farmers", "url": "#" }
+    ],
+    "assets": [
+      { "label": "Brand assets · logo + colour palette", "href": "/assets/logo.png" },
+      { "label": "Hero photography pack",                "href": "/assets/uploads" },
+      { "label": "Campaign one-pager (PDF)",             "href": "mailto:media@farmersfightback.com?subject=One-pager%20request" }
+    ],
+    "fineprint": "Authorised by Ben Duxson, Farmers Fightback"
   },
   "aboutUs": {
     "heroImage": "assets/uploads/kelpie-mustering.jpg",
