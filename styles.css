@@ -1242,6 +1242,7 @@ img { max-width: 100%; display: block; }
   margin: 0 0 18px;
 }
 .ff-petition-context-inner p strong { color: var(--ff-navy); font-weight: 700; }
+.ff-petition-stack { display: contents; }
 
 /* Petition statement card + form grid */
 .ff-petition-form-section { background: var(--ff-paper); padding-top: clamp(36px, 5vw, 64px); padding-bottom: clamp(50px, 6vw, 90px); }
@@ -1341,7 +1342,11 @@ img { max-width: 100%; display: block; }
 .ff-trust-badge--lg em { font-style: normal; font-size: 13px; color: var(--ff-ink-2); display: block; margin-top: 2px; line-height: 1.45; }
 
 @media (max-width: 900px) {
-  .ff-petition-form-grid { grid-template-columns: 1fr; }
+  .ff-petition-form-grid { grid-template-columns: 1fr; gap: 18px; }
+  .ff-petition-stack { display: flex; flex-direction: column; }
+  .ff-petition-stack > .ff-petition-form-section { order: 1; padding-top: clamp(20px, 4vw, 36px); padding-bottom: clamp(22px, 4vw, 40px); }
+  .ff-petition-stack > .ff-petition-context { order: 2; padding-top: clamp(20px, 3vw, 32px); padding-bottom: clamp(20px, 3vw, 32px); }
+  .ff-petition-hero { padding-bottom: clamp(20px, 4vw, 36px); }
 }
 
 /* Why this matters */
@@ -1617,17 +1622,19 @@ img { max-width: 100%; display: block; }
 
 .ff-give-chips {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
 }
 .ff-give-chip {
-  appearance: none; text-align: left;
+  appearance: none; text-align: center;
   background: #fff;
   border: 1.5px solid var(--ff-rule-2);
   border-radius: var(--ff-radius);
-  padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 4px;
+  aspect-ratio: 1 / 1;
+  padding: 8px 6px;
+  display: flex; flex-direction: column; gap: 2px;
+  align-items: center; justify-content: center;
   cursor: pointer;
   text-decoration: none;
   color: var(--ff-ink);
@@ -1641,21 +1648,20 @@ img { max-width: 100%; display: block; }
 }
 .ff-give-chip-amt {
   font-family: var(--ff-serif);
-  font-size: 22px; font-weight: 700; line-height: 1;
+  font-size: clamp(20px, 2.4vw, 26px); font-weight: 700; line-height: 1;
 }
 .ff-give-chip-amt small {
+  display: block;
   font-family: var(--ff-cond);
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 700;
-  margin-left: 4px;
+  margin: 4px 0 0;
   opacity: .7;
 }
 .ff-give-chip-tag {
-  font-size: 12px;
-  color: var(--ff-ink-2);
-  line-height: 1.35;
+  display: none;
 }
 .ff-give-chip.is-on .ff-give-chip-tag { color: rgba(255,255,255,.78); }
 .ff-give-chip--other { background: var(--ff-paper-2); border-style: dashed; }

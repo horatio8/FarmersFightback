@@ -1751,6 +1751,7 @@ function PetitionPage({ slug }) {
           </div>
         </section>
 
+        <div className="ff-petition-stack">
         {/* Context paragraphs */}
         {p.context && p.context.length > 0 && (
           <section className="ff-section ff-petition-context">
@@ -1789,6 +1790,7 @@ function PetitionPage({ slug }) {
             <div>{formBlock}</div>
           </div>
         </section>
+        </div>
 
         {/* Why this matters */}
         {p.whyMatters && p.whyMatters.length > 0 && (
@@ -2205,7 +2207,8 @@ function DonorPage() {
   const ctaLabel = `Donate $${picked}${monthly ? " / month" : ""} →`;
   return (
     <PageShell>
-      <section className="ff-section ff-give-hero">
+      <section className={`ff-section ff-give-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-give-hero-inner">
           <div className="ff-give-hero-copy">
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
