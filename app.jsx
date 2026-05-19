@@ -2268,7 +2268,7 @@ function VolunteerPage() {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      setState("done");
+      window.location.assign("/donate");
     } catch { setState("error"); }
   };
   return (
@@ -2288,7 +2288,6 @@ function VolunteerPage() {
           <ul className="ff-vol-roles-grid">
             {(c.roles || []).map((r, i) => (
               <li key={i} className="ff-vol-role">
-                <span className="ff-card-kicker">{r.hours}</span>
                 <h3>{r.title}</h3>
                 <p>{r.body}</p>
               </li>
@@ -2318,16 +2317,17 @@ function VolunteerPage() {
                 <Field label="Mobile *" error={errors.phone}><input type="tel" value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} autoComplete="tel" required placeholder="0400 000 000" /></Field>
                 <Field label="Postcode"><input value={form.postcode} onChange={(e) => setForm(f => ({ ...f, postcode: e.target.value }))} inputMode="numeric" maxLength={4} autoComplete="postal-code" /></Field>
               </div>
-              <Field label={c.rolesFieldLabel || "Which roles interest you?"}>
+              <div className={`ff-field ff-field--group`}>
+                <span className="ff-field-label">{c.rolesFieldLabel || "Which roles interest you?"}</span>
                 <div className="ff-vol-role-checks">
                   {(c.roles || []).map((r, i) => (
                     <label key={i} className={`ff-vol-role-check ${form.roles.includes(r.title) ? "is-on" : ""}`}>
                       <input type="checkbox" checked={form.roles.includes(r.title)} onChange={() => toggleRole(r.title)} />
-                      <span>{r.title}</span>
+                      <span className="ff-vol-role-check-l">{r.title}</span>
                     </label>
                   ))}
                 </div>
-              </Field>
+              </div>
               <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
                 <input type="checkbox" checked={form.consent} onChange={(e) => setForm(f => ({ ...f, consent: e.target.checked }))} />
                 <span>I agree to receive campaign updates from Farmers Fightback. Unsubscribe any time.</span>

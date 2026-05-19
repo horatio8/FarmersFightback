@@ -23,9 +23,16 @@
         ]
       },
       { "label": "News", "href": "/news", "active": false },
-      { "label": "About", "href": "/about-us", "active": false },
-      { "label": "Contact", "href": "/contact", "active": false },
-      { "label": "Media", "href": "/media", "active": false }
+      {
+        "label": "Contact Us",
+        "href": "/contact",
+        "active": false,
+        "children": [
+          { "label": "Contact", "href": "/contact" },
+          { "label": "About", "href": "/about-us" },
+          { "label": "Media", "href": "/media" }
+        ]
+      }
     ],
     "donateLabel": "Donate",
     "donateHref": "/donate"
@@ -559,19 +566,19 @@
     "fineprint": "Stripe-secured · All amounts in AUD · Not tax-deductible."
   },
   "volunteer": {
-    "heroImage": "assets/uploads/combine-harvest.jpg",
+    "heroImage": "assets/uploads/volunteer-rally-drone.jpg",
     "eyebrow": "Volunteer",
     "heading": "Volunteer with us.",
     "lede": "Your time and skills can change the course of this fight. Whether you can give two hours a week or twenty, there's a place for you.",
     "rolesHeading": "Volunteer roles.",
     "rolesIntro": "Every role matters. Pick what fits your life right now.",
     "roles": [
-      { "title": "Hold the Gate volunteer", "hours": "On-call · 1–3 events / month", "body": "Be on the alert network. When contractors arrive at a farm gate, we ping volunteers nearby and you turn up to witness, film, and stand peacefully with the family." },
-      { "title": "Local organiser", "hours": "6–12 hours / week", "body": "Run your district — meetings, doorknocks, letterbox drops, signups at the markets. Help build the local chapter that holds your MPs to account." },
-      { "title": "Digital campaigning", "hours": "5–10 hours / week", "body": "Help us reach more Australians online — paid social, organic content, email lists, supporter onboarding. Tech-comfortable, no specific platform required." },
-      { "title": "Content & comms", "hours": "3–6 hours / week", "body": "Write, edit, design, film, cut. Turn the campaign's raw material into the next viral short, op-ed, or supporter dispatch." },
-      { "title": "Events", "hours": "Variable", "body": "Public meetings, tractor rallies, hall-hires, the Spring St handover. If you've organised a school fete or a wedding, you can organise this." },
-      { "title": "Legal & policy support", "hours": "2–6 hours / week", "body": "Submissions, FOIs, briefing notes, parliamentary inquiry tracking. Lawyers, academics, and ex-public-servants especially welcome." }
+      { "title": "Hold the Gate volunteer", "body": "Be on the alert network. When contractors arrive at a farm gate, we ping volunteers nearby and you turn up to witness, film, and stand peacefully with the family." },
+      { "title": "Local organiser", "body": "Run your district — meetings, doorknocks, letterbox drops, signups at the markets. Help build the local chapter that holds your MPs to account." },
+      { "title": "Digital campaigning", "body": "Help us reach more Australians online — paid social, organic content, email lists, supporter onboarding. Tech-comfortable, no specific platform required." },
+      { "title": "Content & comms", "body": "Write, edit, design, film, cut. Turn the campaign's raw material into the next viral short, op-ed, or supporter dispatch." },
+      { "title": "Events", "body": "Public meetings, tractor rallies, hall-hires, the Spring St handover. If you've organised a school fete or a wedding, you can organise this." },
+      { "title": "Legal & policy support", "body": "Submissions, FOIs, briefing notes, parliamentary inquiry tracking. Lawyers, academics, and ex-public-servants especially welcome." }
     ],
     "formHeading": "Get started",
     "formSubheading": "Register as a volunteer.",
