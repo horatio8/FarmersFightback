@@ -1298,24 +1298,34 @@ img { max-width: 100%; display: block; }
   color: var(--ff-ink); font-weight: 600;
 }
 .ff-petition-declaration {
-  margin-top: 6px;
-  padding: 22px 24px;
+  margin-top: 4px;
+  padding: clamp(26px, 3vw, 40px);
   background: var(--ff-navy);
   color: #fff;
   border-radius: var(--ff-radius);
-  display: flex; flex-direction: column; gap: 10px;
+  border-left: 6px solid var(--ff-red);
+  display: flex; flex-direction: column; gap: 14px;
+  text-align: center;
 }
 .ff-petition-declaration-kicker {
-  font-family: var(--ff-cond); text-transform: uppercase; letter-spacing: 0.12em;
-  font-size: 13px; font-weight: 700; color: rgba(255,255,255,.7);
+  font-family: var(--ff-mono); text-transform: uppercase; letter-spacing: 0.2em;
+  font-size: 11px; font-weight: 700; color: var(--ff-red);
+}
+.ff-petition-declaration-line1 {
+  margin: 0;
+  font-family: var(--ff-cond); text-transform: uppercase;
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-weight: 700; line-height: 1.3;
+  color: rgba(255,255,255,.78);
+  letter-spacing: 0.04em;
 }
 .ff-petition-declaration-body {
   margin: 0;
   font-family: var(--ff-cond); text-transform: uppercase;
-  font-size: clamp(18px, 2.2vw, 24px);
-  font-weight: 800; line-height: 1.2;
+  font-size: clamp(22px, 2.8vw, 32px);
+  font-weight: 800; line-height: 1.15;
   color: #fff;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
 }
 .ff-petition-declaration-auth {
   margin: 4px 0 0;
@@ -1345,11 +1355,22 @@ img { max-width: 100%; display: block; }
 }
 .ff-why-card {
   position: relative;
-  padding: 28px 28px 30px;
   background: var(--ff-paper-2);
   border: 1px solid var(--ff-rule);
   border-radius: var(--ff-radius-lg);
+  overflow: hidden;
+  display: flex; flex-direction: column;
 }
+.ff-why-media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--ff-paper);
+}
+.ff-why-media img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.ff-why-body { padding: 24px 28px 28px; }
 .ff-why-num {
   display: inline-block;
   font-family: var(--ff-mono);

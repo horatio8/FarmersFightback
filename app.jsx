@@ -1764,16 +1764,10 @@ function PetitionPage({ slug }) {
         <section className="ff-section ff-petition-form-section">
           <div className="ff-wrap ff-petition-form-grid">
             <div className="ff-petition-statement">
-              {p.petitionStatementHeading && <h2 className="ff-petition-statement-h">{p.petitionStatementHeading}</h2>}
-              <ol className="ff-petition-statement-list">
-                {(p.petitionStatement || []).map((s, i) => <li key={i} dangerouslySetInnerHTML={html(s)} />)}
-              </ol>
-              {p.petitionStatementClose && (
-                <p className="ff-petition-statement-close">{p.petitionStatementClose}</p>
-              )}
               {p.petitionDeclaration && (
                 <div className="ff-petition-declaration">
                   {p.petitionDeclarationKicker && <span className="ff-petition-declaration-kicker">{p.petitionDeclarationKicker}</span>}
+                  {p.petitionDeclarationLine1 && <p className="ff-petition-declaration-line1">{p.petitionDeclarationLine1}</p>}
                   <p className="ff-petition-declaration-body">{p.petitionDeclaration}</p>
                   {p.petitionAuthorised && <p className="ff-petition-declaration-auth">{p.petitionAuthorised}</p>}
                 </div>
@@ -1809,9 +1803,16 @@ function PetitionPage({ slug }) {
               <div className="ff-why-matters-grid">
                 {p.whyMatters.map((wm, i) => (
                   <article key={i} className="ff-why-card">
-                    <span className="ff-why-num">{String(i + 1).padStart(2, "0")}</span>
-                    <h3 className="ff-why-h">{wm.heading}</h3>
-                    <p>{wm.body}</p>
+                    {wm.image && (
+                      <div className="ff-why-media">
+                        <img src={wm.image} alt={wm.imageAlt || ""} loading="lazy" />
+                      </div>
+                    )}
+                    <div className="ff-why-body">
+                      <span className="ff-why-num">{String(i + 1).padStart(2, "0")}</span>
+                      <h3 className="ff-why-h">{wm.heading}</h3>
+                      <p>{wm.body}</p>
+                    </div>
                   </article>
                 ))}
               </div>
