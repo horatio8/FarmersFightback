@@ -1390,10 +1390,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <div className="fl-hero-form" style={{ marginTop: 48, maxWidth: 720 }}>
             {signFormBlock}
           </div>
-          <div className="fl-hero-ctas" style={{ display: "flex", gap: 14, marginTop: 28, flexWrap: "wrap" }}>
-            <Btn mono href={actions[1].href}>Email the Minister</Btn>
-            <Btn mono href="#story">Read the case</Btn>
-          </div>
         </div>
 
         <Rule />
@@ -1637,7 +1633,6 @@ function PetitionPage({ slug }) {
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
     if (form.country === "AU" && form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
-    if (!form.consent) e.consent = "Tick to continue";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -1724,10 +1719,10 @@ function PetitionPage({ slug }) {
         <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }} /></div>
       </div>
       <div className="ff-form-row">
-        <Field label="First name" error={errors.first}><input value={form.first} onChange={update("first")} autoComplete="given-name" /></Field>
-        <Field label="Last name" error={errors.last}><input value={form.last} onChange={update("last")} autoComplete="family-name" /></Field>
+        <Field label={<>First name <span className="ff-req">*</span></>} error={errors.first}><input value={form.first} onChange={update("first")} autoComplete="given-name" required aria-required="true" /></Field>
+        <Field label={<>Last name <span className="ff-req">*</span></>} error={errors.last}><input value={form.last} onChange={update("last")} autoComplete="family-name" required aria-required="true" /></Field>
       </div>
-      <Field label="Email" error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" /></Field>
+      <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true" /></Field>
       <div className="ff-form-row">
         <Field label="Country">
           <select value={form.country} onChange={update("country")} autoComplete="country">
@@ -1739,11 +1734,7 @@ function PetitionPage({ slug }) {
           <input value={form.postcode} onChange={update("postcode")} inputMode={form.country === "AU" ? "numeric" : "text"} maxLength={form.country === "AU" ? 4 : 10} autoComplete="postal-code" />
         </Field>
       </div>
-      <Field label="Phone (optional)"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" /></Field>
-      <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
-        <input type="checkbox" checked={form.consent} onChange={update("consent")} />
-        <span>I agree to receive campaign updates from Farmers Fightback. I can unsubscribe at any time.</span>
-      </label>
+      <Field label="Phone"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" /></Field>
       <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
         {state === "submitting" ? p.submittingLabel : p.submitLabel}
       </button>
@@ -1756,11 +1747,9 @@ function PetitionPage({ slug }) {
     return (
       <PageShell>
         {/* Hero — full-width navy */}
-        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"} ${p.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={p.heroImage ? { backgroundImage: `url(${p.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
+        <section className={`ff-petition-hero ff-petition-hero--${p.tone || "navy"} ${p.heroImage ? "ff-imghero ff-imghero--light" : ""}`} style={p.heroImage ? { backgroundImage: `url(${p.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
           {p.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
           <div className="ff-wrap">
-            <a href={p.ctaHrefBack || "/take-action"} className="ff-back-link ff-back-link--light">← All campaigns</a>
-            {p.heroEyebrow && <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {p.heroEyebrow}</span>}
             <h1 className="ff-petition-hero-title" dangerouslySetInnerHTML={html(p.headingHtml || p.heading || "")} />
             {p.subheading && <p className="ff-petition-hero-sub">{p.subheading}</p>}
           </div>
@@ -1770,7 +1759,7 @@ function PetitionPage({ slug }) {
         {p.context && p.context.length > 0 && (
           <section className="ff-section ff-petition-context">
             <div className="ff-wrap ff-petition-context-inner">
-              {p.context.map((para, i) => <p key={i}>{para}</p>)}
+              {p.context.map((para, i) => <p key={i} dangerouslySetInnerHTML={html(para)} />)}
             </div>
           </section>
         )}

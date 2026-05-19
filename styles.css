@@ -1211,9 +1211,9 @@ img { max-width: 100%; display: block; }
 .ff-petition-hero .ff-eyebrow--light { color: rgba(255,255,255,.86); margin-bottom: 14px; }
 .ff-petition-hero-title {
   font-family: var(--ff-serif);
-  font-size: clamp(40px, 6vw, 78px);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
+  font-size: clamp(30px, 4.2vw, 54px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
   font-weight: 700;
   color: #fff;
   margin: 12px 0 16px;
@@ -1241,7 +1241,7 @@ img { max-width: 100%; display: block; }
   color: var(--ff-ink);
   margin: 0 0 18px;
 }
-.ff-petition-context-inner p:last-child { font-style: italic; color: var(--ff-navy); border-left: 4px solid var(--ff-red); padding-left: 18px; }
+.ff-petition-context-inner p strong { color: var(--ff-navy); font-weight: 700; }
 
 /* Petition statement card + form grid */
 .ff-petition-form-section { background: var(--ff-paper); padding-top: clamp(36px, 5vw, 64px); padding-bottom: clamp(50px, 6vw, 90px); }
@@ -1421,6 +1421,9 @@ img { max-width: 100%; display: block; }
 }
 .ff-imghero--dark .ff-imghero-scrim {
   background: linear-gradient(180deg, rgba(8,24,38,0.6) 0%, rgba(8,24,38,0.86) 100%);
+}
+.ff-imghero--light .ff-imghero-scrim {
+  background: linear-gradient(180deg, rgba(8,24,38,0.18) 0%, rgba(8,24,38,0.42) 100%);
 }
 .ff-imghero .ff-eyebrow { color: rgba(255,255,255,.86); }
 .ff-imghero .ff-h2 { color: #fff; }
