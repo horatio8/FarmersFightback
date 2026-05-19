@@ -510,6 +510,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 20px 50px -20px rgba(18,53,75,.18);
 }
 .ff-map-overlay { position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 120px); pointer-events: none; }
+.ff-map-img { width: 100%; height: auto; display: block; border-radius: calc(var(--ff-radius) - 6px); }
 .ff-map-legend {
   margin-top: 12px;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;

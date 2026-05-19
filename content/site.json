@@ -70,7 +70,9 @@
   },
   "summary": {
     "eyebrow": "What's at stake",
-    "heading": "The $11.4 billion line they're bulldozing through our food bowl.",
+    "heading": "Stop them devastating Aussie farmers & our national food bowl.",
+    "mapImage": "assets/uploads/australia-heatmap.png",
+    "mapAlt": "Heatmap of Australia showing affected farming districts in red",
     "paragraphsHtml": [
       "<strong>VNI West</strong> is a 400-kilometre high-voltage transmission line proposed to cut through some of Victoria's most productive cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
       "Behind it sits AEMO, AusNet, and <strong>Iberdrola</strong> — an €80-billion Spanish multinational now sending contractors onto family farms, unannounced, with threats and clipboards.",

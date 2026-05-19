@@ -295,27 +295,9 @@ function Summary() {
         </div>
         <div className="ff-summary-map">
           <div className="ff-map-frame">
-            <Placeholder label="" ratio="4/5" tone="paddock" />
-            <svg className="ff-map-overlay" viewBox="0 0 400 500" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                  <rect width="8" height="8" fill="rgba(198,40,40,0.18)"/>
-                  <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(198,40,40,0.55)" strokeWidth="2"/>
-                </pattern>
-              </defs>
-              <path d="M40,80 Q120,60 180,120 T300,200 Q340,260 320,340 T240,440 Q160,460 100,400 T40,280 Z" fill="url(#hatch)" stroke="#C62828" strokeWidth="2"/>
-              <path d="M20,40 C120,140 220,240 380,460" stroke="#C62828" strokeWidth="3" strokeDasharray="6 6" fill="none"/>
-              <circle cx="90" cy="130" r="5" fill="#C62828"/>
-              <circle cx="180" cy="220" r="5" fill="#C62828"/>
-              <circle cx="260" cy="310" r="5" fill="#C62828"/>
-              <circle cx="330" cy="400" r="5" fill="#C62828"/>
-            </svg>
-            <div className="ff-map-legend">
-              <div><span className="ff-legend-sw ff-legend-sw--hatch"/> Affected farmland</div>
-              <div><span className="ff-legend-sw ff-legend-sw--line"/> VNI West corridor</div>
-              <div><span className="ff-legend-sw ff-legend-sw--dot"/> Documented incidents</div>
-            </div>
-            <div className="ff-map-compass">N</div>
+            {c.mapImage
+              ? <img src={c.mapImage} alt={c.mapAlt || ""} className="ff-map-img" loading="lazy" />
+              : <Placeholder label="" ratio="4/5" tone="paddock" />}
           </div>
         </div>
       </div>
