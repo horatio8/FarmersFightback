@@ -374,14 +374,11 @@
       "layout": "long-form",
       "campaign": "Hold the Gate",
       "tone": "navy",
-      "heroImage": "assets/uploads/tractor-ploughing.jpg",
+      "heroImage": "assets/uploads/transmission-burning.jpg",
       "heroEyebrow": "Sign the petition",
-      "headingHtml": "Help our farmers fightback, before it's too late.",
-      "subheading": "Join 54,000+ Australians standing up for our farmers.",
-      "context": [
-        "Australian agriculture is the envy of the world, contributing over $80 billion to our national economy and sustaining rural communities that have stewarded the land for generations. In Victoria alone, our farmers produce $20.1 billion in food and fibre exports every year — more than any other state. But this security is being dismantled.",
-        "We are currently facing the largest forced acquisition of agricultural land in our history. Projects like VNI West plan to tear through the heart of our food bowl with 400km of high-voltage lines supported by steel towers up to 80 metres high — the height of a 25-storey building. This is not just an eyesore; it is a disaster waiting to happen."
-      ],
+      "headingHtml": "Add your name. Draw the line.",
+      "subheading": "To our Australian and State leaders, we stand with Aussie farmers and will fight any threat to our food security and farming rights.",
+      "context": [],
       "petitionStatementHeading": "We stand with Aussie farmers, and will fight against any threat to our food security and farming rights.",
       "petitionStatement": [
         "Fire safety: Firefighting aircraft cannot operate safely near these transmission lines, and ground crews are often forced to maintain a 25-metre 'no-go' zone.",
