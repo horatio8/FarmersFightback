@@ -1,10 +1,10 @@
 {
   "topBanner": {
     "enabled": true,
-    "boldText": "23,418 Australians",
-    "text": "have signed the petition — add your name.",
+    "boldText": "54,418 Australians",
+    "text": "have signed. Add your name.",
     "linkText": "Sign now →",
-    "linkHref": "#petition"
+    "linkHref": "/take-action/hold-the-gate"
   },
   "nav": {
     "items": [
@@ -34,7 +34,7 @@
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
     "heroImage": "assets/uploads/combine-sunset.jpg",
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
-    "subtitle": "23,000+ Australians standing against the $11.4B VNI West transmission line — and the corporate thugs sent to bully farmers off their own land.",
+    "subtitle": "Farmers Fightback stands with the farming families being bulldozed by big government and foreign corporations — and we don't back down.",
     "primaryCtaLabel": "Sign the petition",
     "primaryCtaHref": "/take-action/baldwins#sign"
   },
@@ -85,21 +85,17 @@
   "petition": {
     "eyebrow": "Sign the petition",
     "heading": "Add your name. Draw the line.",
-    "lede": "Every signature is a letter to Spring Street and Canberra. It tells them Victorian farmers aren't a speed bump — and it tells the next farmer facing a contractor at the gate that they're not alone.",
-    "bullets": [
-      "Your details stay on-shore and are never sold",
-      "Weekly campaign updates — unsubscribe any time",
-      "Authorised by Ben Duxson, Farmers Fightback"
-    ],
+    "lede": "To our Australian and State leaders, we stand with Aussie farmers and will fight any threat to our food security and farming rights.",
+    "bullets": [],
     "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2",
-    "currentCount": 23418,
-    "nextMilestone": 25000,
-    "goal": 50000,
+    "currentCount": 54418,
+    "nextMilestone": 60000,
+    "goal": 100000,
     "submitLabel": "Sign the petition",
     "submittingLabel": "Signing...",
     "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
     "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
-    "shareText": "I just signed the Farmers Fightback petition. Join 23,000+ Australians: farmersfightback.com",
+    "shareText": "I just signed the Farmers Fightback petition. Join 54,000+ Australians: farmersfightback.com",
     "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Farmers Fightback."
   },
   "actions": {
@@ -136,19 +132,19 @@
     ]
   },
   "quote": {
-    "html": "They came back <em>two days later.</em> Mid-lambing. Reading from a script. Telling me I'd cop a five-hundred-thousand-dollar fine if I didn't let them through<span class=\"ff-quote-strong\"> my own front gate.</span>",
+    "html": "The Government representatives came back <em>two days later.</em> Mid-lambing season. Telling me I'd cop a fine if I didn't let them through<span class=\"ff-quote-strong\"> my own front gate.</span> As if I had no rights as the farm owner.",
     "name": "— Rob, fourth-generation farmer",
-    "place": "Western Victoria · filmed April 2026"
+    "place": "Western Victoria"
   },
   "donate": {
-    "eyebrow": "Chip in",
-    "heading": "Every dollar fights for a farm.",
-    "body": "Legal advice for farmers on the corridor. Camera gear for the next confrontation. Printing, fuel, hall hire, ads that won't air on commercial radio. We run lean. You keep us in the paddock.",
+    "eyebrow": "Where your money goes",
+    "heading": "Every dollar you chip in goes directly to the front line.",
+    "body": "",
     "where": [
-      { "percent": "42%", "label": "Legal & ombudsman costs" },
-      { "percent": "28%", "label": "Video production & distribution" },
-      { "percent": "20%", "label": "Community organising" },
-      { "percent": "10%", "label": "Campaign materials" }
+      { "percent": "Legal Expertise", "label": "Commissioning expert reviews of flawed legislation and transmission planning." },
+      { "percent": "Campaign Materials", "label": "Printing the signs, banners, and flyers that make our voice visible in every district." },
+      { "percent": "Digital Advocacy", "label": "Countering the Government's narrative online to reach voters in the cities." },
+      { "percent": "Community Engagement & Events", "label": "Hiring venues and equipment for town halls and rallies." }
     ],
     "tiers": [
       { "amount": 25,  "label": "Prints 100 flyers",        "oneOffUrl": "https://buy.stripe.com/9B64gybB4ghler10libV600", "monthlyUrl": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },
@@ -164,14 +160,14 @@
     "fineprint": "Secure processing via Stripe. All amounts in AUD. Receipts sent to your inbox. Not tax-deductible."
   },
   "newsletter": {
-    "heading": "Get the next video before the nightly news does.",
-    "lede": "Weekly dispatches from the corridor. No spam, no corporate chaff.",
+    "heading": "Get updates before the nightly news does.",
+    "lede": "Fortnightly dispatches from the fightback.",
     "placeholder": "you@farm.com.au",
     "ctaLabel": "Subscribe",
     "doneText": "✓ You're on the list. Keep an eye on your inbox."
   },
   "footer": {
-    "blurb": "Farmers Fightback — a farmer-led coalition fighting the VNI West transmission line and defending the food bowl of Victoria.",
+    "blurb": "Farmers Fightback stands with the farming families being bulldozed by big government and foreign corporations — and we don't back down.",
     "social": [
       { "label": "TikTok", "href": "#" },
       { "label": "Facebook", "href": "#" },
@@ -206,7 +202,7 @@
       }
     ],
     "legal": "Authorised by Ben Duxson · © 2026 Farmers Fightback",
-    "platform": "Built on Campaign Nucleus"
+    "platform": ""
   },
   "news": {
     "eyebrow": "News & media",
@@ -325,9 +321,9 @@
         { "label": "Community Verified", "icon": "shield", "sub": "Backed by Farmers Fightback Inc." },
         { "label": "Farmer Led",        "icon": "tick",   "sub": "Built by the people it affects." }
       ],
-      "currentCount": 0,
-      "nextMilestone": 5000,
-      "goal": 25000,
+      "currentCount": 54418,
+      "nextMilestone": 60000,
+      "goal": 100000,
       "submitLabel": "Add my name →",
       "submittingLabel": "Adding your signature…",
       "thanksHeadingHtml": "Thank you, <em>{{first}}</em>.",
@@ -378,7 +374,7 @@
       "heroImage": "assets/uploads/tractor-ploughing.jpg",
       "heroEyebrow": "Sign the petition",
       "headingHtml": "Help our farmers fightback, before it's too late.",
-      "subheading": "Join 20,000+ Australians standing up for our farmers.",
+      "subheading": "Join 54,000+ Australians standing up for our farmers.",
       "context": [
         "Australian agriculture is the envy of the world, contributing over $80 billion to our national economy and sustaining rural communities that have stewarded the land for generations. In Victoria alone, our farmers produce $20.1 billion in food and fibre exports every year — more than any other state. But this security is being dismantled.",
         "We are currently facing the largest forced acquisition of agricultural land in our history. Projects like VNI West plan to tear through the heart of our food bowl with 400km of high-voltage lines supported by steel towers up to 80 metres high — the height of a 25-storey building. This is not just an eyesore; it is a disaster waiting to happen."
@@ -396,7 +392,7 @@
         { "label": "Farmer-led",        "icon": "shield", "sub": "Built by the families it affects." },
         { "label": "Authorised",        "icon": "tick",   "sub": "Authorised by Ben Duxson, Wallaloo VIC." }
       ],
-      "currentCount": 20184,
+      "currentCount": 54418,
       "nextMilestone": 25000,
       "goal": 50000,
       "submitLabel": "Sign the petition today →",
@@ -435,7 +431,7 @@
         { "numeral": "III", "text": "Statutory protection of all soldier-settlement properties from compulsory access without proper notice and consent." },
         { "numeral": "IV",  "text": "Full disclosure of every contractor script, identification protocol, and access plan VicGrid is using on Victorian farms." }
       ],
-      "currentCount": 12480,
+      "currentCount": 54418,
       "nextMilestone": 15000,
       "goal": 25000,
       "submitLabel": "Sign the petition →",
@@ -459,7 +455,7 @@
         { "numeral": "III", "text": "Mandatory contract transparency between fertiliser distributors and Australian farmers — no more take-it-or-leave-it." },
         { "numeral": "IV",  "text": "A national strategic-reserve plan for fertiliser inputs to insulate Australian food production from offshore price shocks." }
       ],
-      "currentCount": 8642,
+      "currentCount": 54418,
       "nextMilestone": 10000,
       "goal": 20000,
       "submitLabel": "Sign the petition →",
@@ -617,7 +613,7 @@
     "eyebrow": "About us",
     "heading": "Left with no choice. Farmers Fightback.",
     "subheading": "Born for the soil. Built for the fight.",
-    "stat": { "value": "20,000+", "label": "Australians standing up for our farmers" },
+    "stat": { "value": "54,000+", "label": "Australians standing up for our farmers" },
     "sections": [
       {
         "kicker": "Our roots",
@@ -649,7 +645,7 @@
     },
     "cta": {
       "heading": "Stand with the farmers.",
-      "body": "We've gone from a kitchen-table conversation to a national movement of 20,000+ Australians. The next step is yours.",
+      "body": "We've gone from a kitchen-table conversation to a national movement of 54,000+ Australians. The next step is yours.",
       "buttons": [
         { "label": "Sign the petition", "href": "/take-action/hold-the-gate", "primary": true },
         { "label": "Volunteer",         "href": "/take-action/volunteer" },

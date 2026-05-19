@@ -571,6 +571,7 @@ img { max-width: 100%; display: block; }
 .ff-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .ff-field { display: block; margin-bottom: 14px; }
 .ff-field-label { display: block; font-family: var(--ff-cond); text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 600; color: var(--ff-navy); margin-bottom: 6px; }
+.ff-req { color: var(--ff-red); margin-left: 2px; }
 .ff-field-err { font-style: normal; color: var(--ff-red); font-weight: 600; }
 .ff-field input {
   width: 100%;
@@ -693,6 +694,26 @@ img { max-width: 100%; display: block; }
   color: rgba(255,255,255,.82);
 }
 .ff-donate-where li span { font-family: var(--ff-serif); font-size: 22px; font-weight: 700; color: var(--ff-red); }
+
+/* List-style variant — category name on its own line, then the body */
+.ff-donate-where--list { gap: 14px; }
+.ff-donate-where--list li {
+  display: block;
+  padding: 14px 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.ff-donate-where--list li strong {
+  display: block;
+  font-family: var(--ff-cond);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ff-red);
+  margin-bottom: 4px;
+}
+.ff-donate-where--list li span { font-family: var(--ff-sans); font-size: 15px; font-weight: 400; color: rgba(255,255,255,.86); }
 
 .ff-donate-form {
   background: #fff;

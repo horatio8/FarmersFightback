@@ -326,7 +326,7 @@ function Summary() {
 // ---------- Petition form ----------
 function Petition() {
   const c = useContent().petition;
-  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", affected: "" });
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });
   const [errors, setErrors] = useState({});
   const [state, setState] = useState("idle");
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
@@ -337,7 +337,6 @@ function Petition() {
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
     if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
-    if (!form.affected) e.affected = "Please choose";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -408,11 +407,6 @@ function Petition() {
           <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h2 className="ff-h2">{c.heading}</h2>
           <p className="ff-lede">{c.lede}</p>
-          <div className="ff-petition-bullets">
-            {c.bullets.map((b, i) => (
-              <div key={i}><span className="ff-check">✓</span> {b}</div>
-            ))}
-          </div>
         </div>
         <form className="ff-petition-form" onSubmit={submit} noValidate>
           <div className="ff-form-header">
@@ -423,34 +417,24 @@ function Petition() {
             <div className="ff-form-bar"><div style={{ width: milestonePct.toFixed(1) + "%" }}/></div>
           </div>
           <div className="ff-form-row">
-            <Field label="First name" error={errors.first}>
-              <input value={form.first} onChange={update("first")} autoComplete="given-name"/>
+            <Field label={<>First name <span className="ff-req">*</span></>} error={errors.first}>
+              <input value={form.first} onChange={update("first")} autoComplete="given-name" required aria-required="true"/>
             </Field>
-            <Field label="Last name" error={errors.last}>
-              <input value={form.last} onChange={update("last")} autoComplete="family-name"/>
+            <Field label={<>Last name <span className="ff-req">*</span></>} error={errors.last}>
+              <input value={form.last} onChange={update("last")} autoComplete="family-name" required aria-required="true"/>
             </Field>
           </div>
-          <Field label="Email" error={errors.email}>
-            <input type="email" value={form.email} onChange={update("email")} autoComplete="email"/>
+          <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}>
+            <input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true"/>
           </Field>
           <div className="ff-form-row">
-            <Field label="Phone (optional)">
+            <Field label="Phone">
               <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel"/>
             </Field>
             <Field label="Postcode" error={errors.postcode}>
               <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4}/>
             </Field>
           </div>
-          <Field label="Are you a directly affected landowner?" error={errors.affected}>
-            <div className="ff-radio-row">
-              {["Yes, on the corridor", "Yes, neighbouring", "No, standing with them"].map(opt => (
-                <label key={opt} className={`ff-radio ${form.affected === opt ? "is-on" : ""}`}>
-                  <input type="radio" name="affected" value={opt} checked={form.affected===opt} onChange={update("affected")}/>
-                  <span>{opt}</span>
-                </label>
-              ))}
-            </div>
-          </Field>
           <button className="ff-btn ff-btn--red ff-btn--block" disabled={state==="submitting"}>
             {state === "submitting" ? c.submittingLabel : c.submitLabel}
           </button>
@@ -563,10 +547,13 @@ function DonateBand() {
         <div className="ff-donate-copy">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
           <h2 className="ff-h2 ff-h2--light">{c.heading}</h2>
-          <p>{c.body}</p>
-          <ul className="ff-donate-where">
+          {c.body && <p>{c.body}</p>}
+          <ul className="ff-donate-where ff-donate-where--list">
             {c.where.map((w, i) => (
-              <li key={i}><span>{w.percent}</span> {w.label}</li>
+              <li key={i}>
+                <strong>{w.percent}</strong>
+                <span>{w.label}</span>
+              </li>
             ))}
           </ul>
         </div>
@@ -673,7 +660,7 @@ function Footer() {
       <div className="ff-footer-base">
         <div className="ff-wrap ff-footer-base-inner">
           <span>{c.legal}</span>
-          <span>{c.platform}</span>
+          {c.platform && <span>{c.platform}</span>}
         </div>
       </div>
     </footer>
@@ -736,9 +723,7 @@ function HomePage() {
       <Nav onDonate={() => document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" })} />
       <main>
         <Hero onWatch={() => setModal(true)} />
-        <ImpactBar />
         <IntroVideo />
-        <LatestVideo onOpen={() => setModal(true)} />
         <Summary />
         <Petition />
         <ActionCards />
