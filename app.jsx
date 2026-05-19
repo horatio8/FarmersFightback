@@ -340,7 +340,7 @@ function Petition() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body,
       });
-      setState("done");
+      window.location.assign("/donate");
     } catch (err) {
       setState("error");
     }
@@ -682,11 +682,7 @@ function VideoModal({ open, onClose }) {
 // ---------- Shared page shell (Nav + Footer + TopBanner) ----------
 function PageShell({ children, hideTopBanner }) {
   const onDonate = () => {
-    if (window.location.pathname === "/" || window.location.pathname === "/index.html") {
-      document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      window.location.href = "/#donate";
-    }
+    window.location.href = "/donate";
   };
   return (
     <>
@@ -704,7 +700,7 @@ function HomePage() {
   return (
     <>
       <TopBanner />
-      <Nav onDonate={() => document.getElementById("donate")?.scrollIntoView({ behavior: "smooth" })} />
+      <Nav onDonate={() => { window.location.href = "/donate"; }} />
       <main>
         <Hero onWatch={() => setModal(true)} />
         <IntroVideo />
@@ -1653,7 +1649,7 @@ function PetitionPage({ slug }) {
       if (receiverUrl) {
         await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       }
-      setState("done");
+      window.location.assign("/donate");
     } catch { setState("error"); }
   };
 
@@ -2192,51 +2188,69 @@ function AboutUsPage() {
 // ---------- Donor page ("They have billions. We have you.") ----------
 function DonorPage() {
   const c = useContent().donorPage;
+  const [monthly, setMonthly] = useState(false);
+  const tiers = monthly ? (c.monthlyAmounts || []) : (c.amounts || []);
+  const defaultPick = (tiers.find(t => t.isDefault) || tiers[Math.min(2, tiers.length - 1)] || {}).amount;
+  const [picked, setPicked] = useState(defaultPick);
+  useEffect(() => { setPicked(defaultPick); }, [monthly]);
+  useEffect(() => {
+    const el = document.getElementById("donate");
+    if (!el) return;
+    const t = setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    return () => clearTimeout(t);
+  }, []);
+  const selected = tiers.find(t => t.amount === picked);
+  const ctaUrl = selected ? selected.url : c.otherUrl;
+  const ctaLabel = `Donate $${picked}${monthly ? " / month" : ""} →`;
   return (
     <PageShell>
-      <section className={`ff-section ff-donor-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
-        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
-        <div className="ff-wrap ff-donor-hero-inner">
-          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
-          <h1 className="ff-h2 ff-h2--light ff-donor-h1">{c.heading}</h1>
-          <p className="ff-donor-lede">{c.lede}</p>
-        </div>
-      </section>
-      <section className="ff-section ff-donor-amounts">
-        <div className="ff-wrap">
-          <h2 className="ff-h3" style={{ marginBottom: 18 }}>Give once.</h2>
-          <div className="ff-donor-grid">
-            {(c.amounts || []).map(a => (
-              <a key={a.amount} href={a.url} target="_top" rel="noopener" className={`ff-donor-tile ${a.isDefault ? "is-default" : ""}`}>
-                <span className="ff-donor-kicker">Donate</span>
-                <span className="ff-donor-amount">${a.amount}</span>
-                {a.tag && <span className="ff-donor-tag">{a.tag}</span>}
-                <span className="ff-donor-cta">Give <span aria-hidden="true">→</span></span>
-              </a>
-            ))}
-            <a href={c.otherUrl} target="_top" rel="noopener" className="ff-donor-tile ff-donor-tile--other">
-              <span className="ff-donor-kicker">Choose your own</span>
-              <span className="ff-donor-amount">Other</span>
-              <span className="ff-donor-tag">Set the amount that feels right</span>
-              <span className="ff-donor-cta">Give <span aria-hidden="true">→</span></span>
-            </a>
+      <section className="ff-section ff-give-hero">
+        <div className="ff-wrap ff-give-hero-inner">
+          <div className="ff-give-hero-copy">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
+            <h1 className="ff-h2 ff-give-h1">{c.heading}</h1>
+            <p className="ff-give-lede">{c.lede}</p>
+            <ul className="ff-give-trust">
+              <li>SSL Secured</li><li>Stripe</li><li>All amounts in AUD</li>
+            </ul>
           </div>
-          {c.monthlyHeading && c.monthlyAmounts && (
-            <div className="ff-donor-monthly">
-              <h2 className="ff-h3">{c.monthlyHeading}</h2>
-              <div className="ff-donor-monthly-grid">
-                {c.monthlyAmounts.map(a => (
-                  <a key={a.amount} href={a.url} target="_top" rel="noopener" className="ff-donor-monthly-tile">
-                    <span className="ff-donor-monthly-amount">${a.amount}</span>
-                    <span className="ff-donor-monthly-period">/ month</span>
-                  </a>
-                ))}
-              </div>
+          <div id="donate" className="ff-give-widget">
+            <div className="ff-give-freq" role="tablist" aria-label="Donation frequency">
+              <button type="button" role="tab" aria-selected={!monthly} className={!monthly ? "is-on" : ""} onClick={() => setMonthly(false)}>One-off</button>
+              <button type="button" role="tab" aria-selected={monthly}  className={monthly  ? "is-on" : ""} onClick={() => setMonthly(true)}>Monthly</button>
             </div>
-          )}
-          <p className="ff-donor-fineprint">{c.fineprint}</p>
+            <div className="ff-give-chips">
+              {tiers.map(t => (
+                <button key={t.amount} type="button" className={`ff-give-chip ${picked === t.amount ? "is-on" : ""}`} onClick={() => setPicked(t.amount)}>
+                  <span className="ff-give-chip-amt">${t.amount}{monthly && <small>/mo</small>}</span>
+                  {t.tag && <span className="ff-give-chip-tag">{t.tag}</span>}
+                </button>
+              ))}
+              <a href={c.otherUrl} target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
+                <span className="ff-give-chip-amt">Other</span>
+                <span className="ff-give-chip-tag">Choose your own</span>
+              </a>
+            </div>
+            <a href={ctaUrl} target="_top" rel="noopener" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta">{ctaLabel}</a>
+            <p className="ff-give-fineprint">{c.fineprint}</p>
+          </div>
         </div>
       </section>
+      {c.amounts && c.amounts.some(a => a.tag) && (
+        <section className="ff-section ff-give-where">
+          <div className="ff-wrap">
+            <h2 className="ff-h2 ff-give-where-h">Where it goes.</h2>
+            <ul className="ff-give-where-list">
+              {c.amounts.filter(a => a.tag).map(a => (
+                <li key={a.amount} className="ff-give-where-row">
+                  <span className="ff-give-where-amt">${a.amount}</span>
+                  <span className="ff-give-where-tag">{a.tag}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
     </PageShell>
   );
 }
