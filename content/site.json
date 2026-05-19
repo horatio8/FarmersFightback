@@ -39,7 +39,7 @@
   },
   "hero": {
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
-    "heroImage": "assets/uploads/combine-sunset.jpg",
+    "heroImage": "/assets/uploads/combine-sunset.jpg",
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
     "subtitle": "Farmers Fightback stands with the farming families being bulldozed by big government and foreign corporations — and we don't back down.",
     "primaryCtaLabel": "Sign the petition",
@@ -78,7 +78,7 @@
   "summary": {
     "eyebrow": "What's at stake",
     "heading": "Stop them devastating Aussie farmers & our national food bowl.",
-    "mapImage": "assets/uploads/australia-heatmap.png",
+    "mapImage": "/assets/uploads/australia-heatmap.png",
     "mapAlt": "Heatmap of Australia showing affected farming districts in red",
     "paragraphsHtml": [
       "<strong>VNI West</strong> is a 400-kilometre high-voltage transmission line proposed to cut through some of Victoria's most productive cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
@@ -118,7 +118,7 @@
         "cta": "Sign the petition today",
         "href": "#petition",
         "tone": "paddock",
-        "image": "assets/uploads/gate-flag-workers.jpg",
+        "image": "/assets/uploads/gate-flag-workers.jpg",
         "imageAlt": "Surveyors and farmers meet at a farm gate at dawn, Australian flags flying"
       },
       {
@@ -128,7 +128,7 @@
         "cta": "Help the fight today",
         "href": "/donate",
         "tone": "dust",
-        "image": "assets/uploads/shed-meeting-seats.jpg",
+        "image": "/assets/uploads/shed-meeting-seats.jpg",
         "imageAlt": "Packed shearing shed meeting with farmers and Stop Labor's Towers banners"
       },
       {
@@ -138,7 +138,7 @@
         "cta": "Sign up to volunteer today",
         "href": "/take-action/volunteer",
         "tone": "red",
-        "image": "assets/uploads/parliament-house-group.jpg",
+        "image": "/assets/uploads/parliament-house-group.jpg",
         "imageAlt": "Group of farmers and supporters outside Parliament House in Canberra"
       }
     ]
@@ -383,7 +383,7 @@
       "layout": "long-form",
       "campaign": "Hold the Gate",
       "tone": "navy",
-      "heroImage": "assets/uploads/transmission-burning.jpg",
+      "heroImage": "/assets/uploads/transmission-burning.jpg",
       "heroEyebrow": "Sign the petition",
       "headingHtml": "Help our farmers fightback, before it's too late.",
       "subheading": "Join 54,000+ Australians standing up for our farmers.",
@@ -480,7 +480,7 @@
     }
   },
   "theFight": {
-    "heroImage": "assets/uploads/shearing-shed.jpg",
+    "heroImage": "/assets/uploads/shearing-shed.jpg",
     "eyebrow": "The fight",
     "heading": "What we're fighting",
     "lede": "Farmers Fightback is a national, farmer-led movement standing against the persecution of farmers on all fronts - and standing with the families fighting to keep their homes and their way of life.",
@@ -490,7 +490,7 @@
         "title": "Australian food security.",
         "body": "Australian agriculture contributes over $80 billion to our economy. Industrial energy infrastructure is tearing up this country and will permanently damage the most productive farmland in the southern hemisphere. We're fighting to keep food on Australian tables and stop the decimation of our farming industry.",
         "tone": "paddock",
-        "image": "assets/uploads/fight-combine-wheat.jpg",
+        "image": "/assets/uploads/fight-combine-wheat.jpg",
         "imageAlt": "Combine harvester working a wheat paddock at harvest time"
       },
       {
@@ -498,7 +498,7 @@
         "title": "Property rights.",
         "body": "Your gate is your gate. The right to refuse access to your own property is the most basic test of whether the law still applies to the Government. Greg Baldwin was slapped with empty charges when calling 000 on a trespasser. Farmers should end up in handcuffs for maintaining their fundamental property rights.",
         "tone": "navy",
-        "image": "assets/uploads/fight-drone-farmland.jpg",
+        "image": "/assets/uploads/fight-drone-farmland.jpg",
         "imageAlt": "Aerial drone view across cropping country and paddocks"
       },
       {
@@ -506,7 +506,7 @@
         "title": "The forced takeover of family farms.",
         "body": "Across Australia big-corporate projects like VNI West are burdening communities with thousands of kilometres of high-voltage line. Tearing through the heart of Australia's most productive agricultural food bowl. We must stop 80-metre steel towers, 70-metre easements, forced acquisition of farms. The same Government that promised consultation is now using forced-access powers to override every NO. We're fighting that, every farm, every gate.",
         "tone": "red",
-        "image": "assets/uploads/fight-vni-construction.jpg",
+        "image": "/assets/uploads/fight-vni-construction.jpg",
         "imageAlt": "Aerial view of a VNI West transmission tower construction site on farmland"
       },
       {
@@ -514,7 +514,7 @@
         "title": "The criminalisation of peaceful resistance.",
         "body": "Greg Baldwin is an example of just one farmer who was wrongly charged. When he found a Government contractor trespassing on his farm, he called triple 000. He was the one charged with a crime, not the trespasser. This is just one of hundreds of examples of wrongly persecution of farmers, and our leaders must heed the call or resign.",
         "tone": "dust",
-        "image": "assets/uploads/fight-police-farmers.jpg",
+        "image": "/assets/uploads/fight-police-farmers.jpg",
         "imageAlt": "A police officer speaking with a group of farmers gathered under a gum tree"
       }
     ],
@@ -546,7 +546,7 @@
     }
   },
   "donorPage": {
-    "heroImage": "assets/uploads/lambs-sunset.jpg",
+    "heroImage": "/assets/uploads/lambs-sunset.jpg",
     "eyebrow": "Donate",
     "heading": "They have billions. We have you.",
     "lede": "Farmers Fightback is funded by Australians, not corporations. Every dollar is spent on the things that move the needle — ads that put the story in front of more people, video production, organising on the ground, and the legal fight to repeal forced-access powers.",
@@ -569,7 +569,7 @@
     "fineprint": "Stripe-secured · All amounts in AUD · Not tax-deductible."
   },
   "volunteer": {
-    "heroImage": "assets/uploads/volunteer-rally-drone.jpg",
+    "heroImage": "/assets/uploads/volunteer-rally-drone.jpg",
     "eyebrow": "Volunteer",
     "heading": "Volunteer with us.",
     "lede": "Your time and skills can change the course of this fight. Whether you can give two hours a week or twenty, there's a place for you.",
@@ -629,7 +629,7 @@
     "fineprint": "Authorised by Ben Duxson, Farmers Fightback"
   },
   "aboutUs": {
-    "heroImage": "assets/uploads/kelpie-mustering.jpg",
+    "heroImage": "/assets/uploads/kelpie-mustering.jpg",
     "eyebrow": "About us",
     "heading": "Left with no choice. Farmers Fightback.",
     "subheading": "Born for the soil. Built for the fight.",
