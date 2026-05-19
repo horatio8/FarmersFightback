@@ -1134,7 +1134,13 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
       /* Hero — flex column so we can reorder on mobile.
          Order: H1 → form → body → demand → CTAs (sign block is now in reach). */
-      .fl-hero { display: flex; flex-direction: column; padding: 28px 20px 36px !important; gap: 0; }
+      .fl-hero {
+        display: flex; flex-direction: column;
+        padding: 28px 20px 36px !important; gap: 0;
+        background-image: linear-gradient(to bottom, rgba(14,41,64,0.78) 0%, rgba(14,41,64,0.9) 60%, ${C.navy} 100%), url(assets/uploads/fight-police-farmers.jpg) !important;
+        background-position: center top, center top !important;
+        background-size: cover, cover !important;
+      }
       .fl-hero-headline { order: 1; margin: 0 0 16px; }
       .fl-hero-body     { order: 2; margin: 0 0 8px !important; }
       .fl-hero-body p   { font-size: 17px !important; line-height: 1.35 !important; }
@@ -1354,8 +1360,18 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         </div>
 
         {/* HERO */}
-        <div className="fl-hero fl-pad" style={{ padding: "64px 56px 48px" }}>
-          <h1 className="fl-h1 fl-hero-headline">
+        <div
+          className="fl-hero fl-pad"
+          style={{
+            padding: "64px 56px 48px",
+            position: "relative",
+            backgroundImage: `linear-gradient(to right, ${C.navy} 0%, ${C.navy} 35%, rgba(14,41,64,0.85) 55%, rgba(14,41,64,0.55) 80%, rgba(14,41,64,0.35) 100%), url(assets/uploads/fight-police-farmers.jpg)`,
+            backgroundSize: "cover, cover",
+            backgroundRepeat: "no-repeat, no-repeat",
+            backgroundPosition: "center, center right",
+          }}
+        >
+          <h1 className="fl-h1 fl-hero-headline" style={{ position: "relative", zIndex: 1 }}>
             Charges<br/>
             <span style={{ color: C.yellow }}>dropped.</span><br/>
             The Minister<br/>
