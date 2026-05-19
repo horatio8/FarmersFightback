@@ -1939,9 +1939,16 @@ function TheFightPage() {
           <div className="ff-thefight-grid">
             {(c.panels || []).map((p, i) => (
               <article key={i} className={`ff-thefight-panel ff-thefight-panel--${p.tone || "navy"}`}>
-                <span className="ff-card-kicker">{p.kicker}</span>
-                <h3 className="ff-thefight-panel-title">{p.title}</h3>
-                <p>{p.body}</p>
+                {p.image && (
+                  <div className="ff-thefight-panel-media">
+                    <img src={p.image} alt={p.imageAlt || ""} loading="lazy" />
+                  </div>
+                )}
+                <div className="ff-thefight-panel-body">
+                  <span className="ff-card-kicker">{p.kicker}</span>
+                  <h3 className="ff-thefight-panel-title">{p.title}</h3>
+                  <p>{p.body}</p>
+                </div>
               </article>
             ))}
           </div>

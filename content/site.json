@@ -473,32 +473,40 @@
   "theFight": {
     "heroImage": "assets/uploads/shearing-shed.jpg",
     "eyebrow": "The fight",
-    "heading": "What we're fighting for. What we're fighting against.",
-    "lede": "Farmers Fightback is a national, farmer-led movement standing against the Government's forced takeover of Australian farmland — and standing with the families fighting to keep their land, their food bowl, and their way of life.",
+    "heading": "What we're fighting",
+    "lede": "Farmers Fightback is a national, farmer-led movement standing against the persecution of farmers on all fronts - and standing with the families fighting to keep their homes and their way of life.",
     "panels": [
       {
         "kicker": "Fighting FOR",
         "title": "Australian food security.",
-        "body": "Australian agriculture contributes over $80 billion to our economy. Victoria's farmers alone produce $20.1 billion in food and fibre every year — more than any other state. Industrial energy infrastructure punched through this country will permanently damage the most productive farmland in the southern hemisphere. We're fighting to keep food on Australian tables.",
-        "tone": "paddock"
+        "body": "Australian agriculture contributes over $80 billion to our economy. Industrial energy infrastructure is tearing up this country and will permanently damage the most productive farmland in the southern hemisphere. We're fighting to keep food on Australian tables and stop the decimation of our farming industry.",
+        "tone": "paddock",
+        "image": "assets/uploads/fight-combine-wheat.jpg",
+        "imageAlt": "Combine harvester working a wheat paddock at harvest time"
       },
       {
         "kicker": "Fighting FOR",
-        "title": "Property rights and the rule of law.",
-        "body": "Your gate is your gate. The right to refuse access to your own property is the most basic test of whether the law still applies to the Government. We're fighting for a country where a farmer who calls 000 on a trespasser isn't the one who ends up in handcuffs.",
-        "tone": "navy"
+        "title": "Property rights.",
+        "body": "Your gate is your gate. The right to refuse access to your own property is the most basic test of whether the law still applies to the Government. Greg Baldwin was slapped with empty charges when calling 000 on a trespasser. Farmers should end up in handcuffs for maintaining their fundamental property rights.",
+        "tone": "navy",
+        "image": "assets/uploads/fight-drone-farmland.jpg",
+        "imageAlt": "Aerial drone view across cropping country and paddocks"
       },
       {
         "kicker": "Fighting AGAINST",
         "title": "The forced takeover of family farms.",
-        "body": "VNI West would tear 400 kilometres of high-voltage line through the heart of Victoria's food bowl — 80-metre steel towers, 70-metre easements, no consent. The same Government that promised consultation is now using forced-access powers to override every NO. We're fighting that, every farm, every gate.",
-        "tone": "red"
+        "body": "Across Australia big-corporate projects like VNI West are burdening communities with thousands of kilometres of high-voltage line. Tearing through the heart of Australia's most productive agricultural food bowl. We must stop 80-metre steel towers, 70-metre easements, forced acquisition of farms. The same Government that promised consultation is now using forced-access powers to override every NO. We're fighting that, every farm, every gate.",
+        "tone": "red",
+        "image": "assets/uploads/fight-vni-construction.jpg",
+        "imageAlt": "Aerial view of a VNI West transmission tower construction site on farmland"
       },
       {
         "kicker": "Fighting AGAINST",
         "title": "The criminalisation of peaceful resistance.",
-        "body": "Greg Baldwin rang triple zero on his own farm. Vic Police charged him. The DPP withdrew every charge. There was no case. We will not accept a country where farmers are arrested for refusing trespassers. The Minister responsible must resign — and the forced-access laws must be repealed.",
-        "tone": "dust"
+        "body": "Greg Baldwin is an example of just one farmer who was wrongly charged. When he found a Government contractor trespassing on his farm, he called triple 000. He was the one charged with a crime, not the trespasser. This is just one of hundreds of examples of wrongly persecution of farmers, and our leaders must heed the call or resign.",
+        "tone": "dust",
+        "image": "assets/uploads/fight-police-farmers.jpg",
+        "imageAlt": "A police officer speaking with a group of farmers gathered under a gum tree"
       }
     ],
     "ctaHeading": "Pick a fight worth winning.",
