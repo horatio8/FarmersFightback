@@ -477,17 +477,19 @@ function ActionCards() {
   );
 }
 
-function ActionCard({ kicker, title, body, cta, href, tone, label }) {
+function ActionCard({ kicker, title, body, cta, href, tone, label, image, imageAlt }) {
   return (
     <a href={href} className="ff-card">
       <div className="ff-card-media">
-        <Placeholder label={label} ratio="4/3" tone={tone} />
+        {image
+          ? <img src={image} alt={imageAlt || ""} className="ff-card-img" loading="lazy" />
+          : <Placeholder label={label} ratio="4/3" tone={tone} />}
       </div>
       <div className="ff-card-body">
         <span className="ff-card-kicker">{kicker}</span>
         <h3 className="ff-card-title">{title}</h3>
         <p className="ff-card-copy">{body}</p>
-        <span className="ff-card-cta">{cta} <span>→</span></span>
+        <span className="ff-card-btn">{cta} <span aria-hidden="true">→</span></span>
       </div>
     </a>
   );

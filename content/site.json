@@ -103,31 +103,34 @@
     "heading": "Three ways to hold the line.",
     "cards": [
       {
-        "kicker": "01 / Evidence",
-        "title": "Watch what's happening on our farms",
-        "body": "Four videos. Four confrontations. Zero filter. Start with Video 4 — the lambing-season threat.",
-        "cta": "See all four videos",
-        "href": "#evidence",
+        "kicker": "01 / Sign the petition",
+        "title": "Sign the petition today",
+        "body": "Add your signature to 54,418 other aussies defending Aussie farmers. Tell our Australian leaders enough is enough.",
+        "cta": "Sign the petition today",
+        "href": "#petition",
         "tone": "paddock",
-        "label": "VIDEO THUMB · VIDEO 4"
+        "image": "assets/uploads/gate-flag-workers.jpg",
+        "imageAlt": "Surveyors and farmers meet at a farm gate at dawn, Australian flags flying"
       },
       {
-        "kicker": "02 / Rights",
-        "title": "Know your rights before they knock",
-        "body": "Section 93 notices, the Land Access Code, your right to record. Plain English. Free template letters.",
-        "cta": "Read the guide",
-        "href": "#rights",
+        "kicker": "02 / Donate",
+        "title": "Donate today: They have billions, we have you",
+        "body": "Add your signature to 54,418 other aussies defending Aussie farmers. Tell our Australian leaders enough is enough.",
+        "cta": "Help the fight today",
+        "href": "/donate",
         "tone": "dust",
-        "label": "PHOTO · GATE + PADLOCK"
+        "image": "assets/uploads/shed-meeting-seats.jpg",
+        "imageAlt": "Packed shearing shed meeting with farmers and Stop Labor's Towers banners"
       },
       {
-        "kicker": "03 / Gate",
-        "title": "Join Hold the Gate",
-        "body": "A statewide network of farmers, neighbours and witnesses. When the contractors come, we come too.",
-        "cta": "Find your local group",
-        "href": "#gate",
+        "kicker": "03 / Volunteer",
+        "title": "Volunteer & lend your hand",
+        "body": "Like you, we're everyday Aussies standing up for Aussie Farmers.",
+        "cta": "Sign up to volunteer today",
+        "href": "/take-action/volunteer",
         "tone": "red",
-        "label": "PHOTO · COMMUNITY HALL"
+        "image": "assets/uploads/parliament-house-group.jpg",
+        "imageAlt": "Group of farmers and supporters outside Parliament House in Canberra"
       }
     ]
   },
