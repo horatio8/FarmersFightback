@@ -1292,6 +1292,37 @@ img { max-width: 100%; display: block; }
   font-size: 16px;
   border-radius: 50%;
 }
+.ff-petition-statement-close {
+  margin: 0;
+  font-size: 16px; line-height: 1.55;
+  color: var(--ff-ink); font-weight: 600;
+}
+.ff-petition-declaration {
+  margin-top: 6px;
+  padding: 22px 24px;
+  background: var(--ff-navy);
+  color: #fff;
+  border-radius: var(--ff-radius);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ff-petition-declaration-kicker {
+  font-family: var(--ff-cond); text-transform: uppercase; letter-spacing: 0.12em;
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,.7);
+}
+.ff-petition-declaration-body {
+  margin: 0;
+  font-family: var(--ff-cond); text-transform: uppercase;
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 800; line-height: 1.2;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+.ff-petition-declaration-auth {
+  margin: 4px 0 0;
+  font-family: var(--ff-mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: rgba(255,255,255,.6);
+}
 .ff-trust-row--stacked { flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 10px; }
 .ff-trust-badge--lg { gap: 12px; align-items: flex-start; }
 .ff-trust-badge--lg .ff-trust-icon { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 2px; }

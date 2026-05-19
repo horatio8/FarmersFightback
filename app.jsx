@@ -1781,8 +1781,18 @@ function PetitionPage({ slug }) {
             <div className="ff-petition-statement">
               {p.petitionStatementHeading && <h2 className="ff-petition-statement-h">{p.petitionStatementHeading}</h2>}
               <ol className="ff-petition-statement-list">
-                {(p.petitionStatement || []).map((s, i) => <li key={i}>{s}</li>)}
+                {(p.petitionStatement || []).map((s, i) => <li key={i} dangerouslySetInnerHTML={html(s)} />)}
               </ol>
+              {p.petitionStatementClose && (
+                <p className="ff-petition-statement-close">{p.petitionStatementClose}</p>
+              )}
+              {p.petitionDeclaration && (
+                <div className="ff-petition-declaration">
+                  {p.petitionDeclarationKicker && <span className="ff-petition-declaration-kicker">{p.petitionDeclarationKicker}</span>}
+                  <p className="ff-petition-declaration-body">{p.petitionDeclaration}</p>
+                  {p.petitionAuthorised && <p className="ff-petition-declaration-auth">{p.petitionAuthorised}</p>}
+                </div>
+              )}
               {p.trustBadges && p.trustBadges.length > 0 && (
                 <ul className="ff-trust-row ff-trust-row--stacked">
                   {p.trustBadges.map((b, i) => (
