@@ -385,14 +385,17 @@
       "tone": "navy",
       "heroImage": "assets/uploads/transmission-burning.jpg",
       "heroEyebrow": "Sign the petition",
-      "headingHtml": "Add your name. Draw the line.",
-      "subheading": "To our Australian and State leaders, we stand with Aussie farmers and will fight any threat to our food security and farming rights.",
-      "context": [],
-      "petitionStatementHeading": "We stand with Aussie farmers, and will fight against any threat to our food security and farming rights.",
+      "headingHtml": "Help our farmers fightback, before it's too late.",
+      "subheading": "Join 54,000+ Australians standing up for our farmers.",
+      "context": [
+        "Australian agriculture is the envy of the world, contributing over $80 billion to our national economy and sustaining rural communities that have stewarded the land for generations. In Victoria alone, our farmers produce $20.1 billion in food and fibre exports every year — more than any other state. But this security is being dismantled.",
+        "We are currently facing the largest forced acquisition of agricultural land in our history. Projects like VNI West plan to tear through the heart of our food bowl with 400km of high-voltage lines supported by steel towers up to 80 metres high — the height of a 25-storey building. This is not just an eyesore; it is a disaster waiting to happen."
+      ],
+      "petitionStatementHeading": "To our Australian and State leaders, we stand with Aussie farmers and will fight against any threat to our food security and farming rights.",
       "petitionStatement": [
-        "Fire safety: Firefighting aircraft cannot operate safely near these transmission lines, and ground crews are often forced to maintain a 25-metre 'no-go' zone.",
-        "Biosecurity & production: The forced entry of heavy machinery risks spreading weeds and disease, while the fragmentation of paddocks destroys the efficiency of modern precision farming.",
-        "Cost blowouts: VNI West has nearly doubled to $7.6 billion — and is still climbing — without farmers consenting to any of it."
+        "Fire Safety: Firefighting aircraft cannot operate safely near these transmission lines, and ground crews are often forced to maintain a 25-metre 'no-go' zone, leaving properties indefensible during bushfires.",
+        "Biosecurity & Production: The forced entry of heavy machinery risks spreading weeds and disease, while the fragmentation of paddocks destroys the efficiency of modern precision farming.",
+        "Cost Blowouts: While families struggle with the cost of living, the estimated costs for transmission projects continue to skyrocket — with some estimates for VNI West nearly doubling to $7.6 billion. We are being asked to sacrifice our food security for energy infrastructure that is over-budget, outdated, and dangerous."
       ],
       "demandsIntro": "",
       "demands": [],
