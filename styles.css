@@ -519,8 +519,8 @@ img { max-width: 100%; display: block; }
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--ff-muted);
-  text-align: right;
+  color: #b8b8b8;
+  text-align: center;
 }
 .ff-map-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .ff-map-credit a:hover { color: var(--ff-red); }
