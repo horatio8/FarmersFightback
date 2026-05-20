@@ -1028,7 +1028,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     .fl-root a { color: inherit; text-decoration: none; }
     .fl-root *, .fl-root *::before, .fl-root *::after { box-sizing: border-box; }
     .fl-pad { padding-left: 56px; padding-right: 56px; }
-    .fl-h1 { font: 900 124px/0.92 ${fonts.display}; letter-spacing: -0.015em; text-transform: uppercase; margin: 24px 0 0; }
+    .fl-h1 { font: 900 84px/0.96 ${fonts.display}; letter-spacing: -0.012em; text-transform: uppercase; margin: 18px 0 0; }
     .fl-h2 { font: 900 80px/0.95 ${fonts.display}; letter-spacing: -0.01em; text-transform: uppercase; margin: 0; }
     .fl-h2--sm { font-size: 60px; line-height: 1; }
     .fl-act-title em { color: ${C.yellow}; font-style: normal; }
@@ -1080,7 +1080,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
     @media (max-width: 1199px) {
       .fl-grid-hero, .fl-grid-demand, .fl-grid-counter { grid-template-columns: 1fr; gap: 32px; }
-      .fl-h1 { font-size: 88px; }
+      .fl-h1 { font-size: 64px; }
     }
     @media (max-width: 899px) {
       .fl-grid-actions { grid-template-columns: repeat(2, 1fr); }
@@ -1094,7 +1094,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     /* ─── Mobile (< 720px): hamburger nav, no kicker, reordered hero ─── */
     @media (max-width: 719px) {
       .fl-pad { padding-left: 20px; padding-right: 20px; }
-      .fl-h1 { font-size: clamp(44px, 13vw, 60px); line-height: 0.94; margin-top: 0; }
+      .fl-h1 { font-size: clamp(34px, 9vw, 46px); line-height: 0.98; margin-top: 0; }
       .fl-h2 { font-size: clamp(36px, 10vw, 52px); }
       .fl-h2--sm { font-size: clamp(32px, 9vw, 44px); }
       .fl-grid-actions, .fl-grid-footer { grid-template-columns: 1fr; }
@@ -1349,8 +1349,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           }}
         >
           <h1 className="fl-h1 fl-hero-headline" style={{ position: "relative", zIndex: 1 }}>
-            Baseless<br/>
-            charges <span style={{ color: C.yellow }}>dropped.</span><br/>
+            <span style={{ color: C.yellow }}>Baseless<br/>charges dropped.</span><br/>
             Minister<br/>
             must resign.
           </h1>
