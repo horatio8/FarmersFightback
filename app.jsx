@@ -967,8 +967,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     if (!form.first.trim()) e.first = "Required";
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
-    if (!form.phone.trim()) e.phone = "Required";
-    else if (!/^[+\d][\d\s\-()]{6,}$/.test(form.phone.trim())) e.phone = "Enter a valid mobile";
+    if (form.phone.trim() && !/^[+\d][\d\s\-()]{6,}$/.test(form.phone.trim())) e.phone = "Enter a valid mobile";
     if (form.postcode && !/^\d{4}$/.test(form.postcode)) e.postcode = "4-digit postcode";
     setErrors(e);
     if (Object.keys(e).length) return;
@@ -1274,8 +1273,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 12, marginTop: 12 }}>
         <label>
-          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Mobile *{errors.phone && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.phone}</em>}</span>
-          <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" required aria-required="true" placeholder="0400 000 000" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.phone ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+          <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Mobile{errors.phone && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.phone}</em>}</span>
+          <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" placeholder="0400 000 000" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.phone ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
         </label>
         <label>
           <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Postcode{errors.postcode && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.postcode}</em>}</span>
@@ -1350,9 +1349,9 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           }}
         >
           <h1 className="fl-h1 fl-hero-headline" style={{ position: "relative", zIndex: 1 }}>
-            Charges<br/>
-            <span style={{ color: C.yellow }}>dropped.</span><br/>
-            The Minister<br/>
+            Baseless<br/>
+            charges <span style={{ color: C.yellow }}>dropped.</span><br/>
+            Minister<br/>
             must resign.
           </h1>
           <div className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720 }}>
@@ -1735,7 +1734,6 @@ function PetitionPage({ slug }) {
         {state === "submitting" ? p.submittingLabel : p.submitLabel}
       </button>
       {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
-      <p className="ff-form-fine">Authorised by Ben Duxson, Farmers Fightback.</p>
     </form>
   );
 
