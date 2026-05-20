@@ -295,9 +295,24 @@ function Summary() {
         </div>
         <div className="ff-summary-map">
           <div className="ff-map-frame">
-            {c.mapImage
-              ? <img src={c.mapImage} alt={c.mapAlt || ""} className="ff-map-img" loading="lazy" />
-              : <Placeholder label="" ratio="4/5" tone="paddock" />}
+            {c.mapImage ? (
+              c.mapLink ? (
+                <a href={c.mapLink} target="_blank" rel="noopener noreferrer" className="ff-map-link" aria-label={c.mapAlt || "Open the live map"}>
+                  <img src={c.mapImage} alt={c.mapAlt || ""} className="ff-map-img" loading="lazy" />
+                </a>
+              ) : (
+                <img src={c.mapImage} alt={c.mapAlt || ""} className="ff-map-img" loading="lazy" />
+              )
+            ) : (
+              <Placeholder label="" ratio="4/5" tone="paddock" />
+            )}
+            {c.mapCredit && (
+              <p className="ff-map-credit">
+                {c.mapLink ? (
+                  <a href={c.mapLink} target="_blank" rel="noopener noreferrer">{c.mapCredit}</a>
+                ) : c.mapCredit}
+              </p>
+            )}
           </div>
         </div>
       </div>
