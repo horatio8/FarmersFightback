@@ -41,7 +41,7 @@
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/herovid.mp4",
     "heroImage": "/assets/uploads/combine-sunset.jpg",
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
-    "subtitle": "Farmers Fightback stands with the farming families being bulldozed by big government and foreign corporations — and we don't back down.",
+    "subtitle": "Farmers Fightback began defending generational farmers against Government overreach. As a national campaign, we now defend all farming families being bulldozed by big Government and foreign corporations — and we don't back down.",
     "primaryCtaLabel": "Sign the petition",
     "primaryCtaHref": "/take-action/baldwins#sign"
   },
@@ -54,7 +54,7 @@
   "intro": {
     "eyebrow": "Who we are",
     "heading": "A farmer-led fight for every Aussie farmer.",
-    "lede": "What started in Central Victoria is now a national campaign with 35,000+ Australians standing with us. Here's the story in a minute:",
+    "lede": "What started in Wimmera, Victoria is now a national campaign with 35,000+ Australians standing with us. Here's the story in a minute:",
     "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
   },
   "latestVideo": {
@@ -88,8 +88,8 @@
       "We're Farmers Fightback — a farmer-led coalition from regional Australia. We're standing against industrial renewables being forced onto Australia's best farmland. We won't be walked over."
     ],
     "stats": [
-      { "number": "23,089.9", "unit": "km", "label": "Transmission corridors proposed" },
-      { "number": "$57.7", "unit": "B", "label": "Total project cost" }
+      { "number": "1,200", "unit": "km", "label": "Transmission corridors proposed" },
+      { "number": "$120", "unit": "B", "label": "Total project cost" }
     ]
   },
   "petition": {
