@@ -960,13 +960,30 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     mono: '"JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace',
   };
 
-  // Live-ish counter
-  const [count, setCount] = useState(p.currentCount || 51427);
+  // Daily-incrementing counter: deterministic per-day pseudo-random bump
+  // so the number rises each day but stays the same for everyone visiting
+  // on the same date.
+  const dailyCount = (() => {
+    const base = p.currentCount || 12019;
+    const baselineYmd = p.currentCountAsOf || "2026-05-20"; // date the base value was set
+    const toEpochDays = (s) => {
+      const [y, m, d] = s.split("-").map(Number);
+      return Math.floor(Date.UTC(y, m - 1, d) / 86400000);
+    };
+    const today = new Date();
+    const todayDays = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()) / 86400000);
+    const days = Math.max(0, todayDays - toEpochDays(baselineYmd));
+    // Seeded LCG so each day gets the same pseudo-random increment.
+    let total = base;
+    for (let i = 0; i < days; i++) {
+      const seed = (todayDays - days + i + 1) * 2654435761 >>> 0;
+      const bump = 18 + (seed % 47); // 18..64 new signatures per day
+      total += bump;
+    }
+    return total;
+  })();
+  const [count, setCount] = useState(dailyCount);
   const [navOpen, setNavOpen] = useState(false);
-  useEffect(() => {
-    const t = setInterval(() => setCount(x => x + Math.floor(Math.random() * 3)), 2500);
-    return () => clearInterval(t);
-  }, []);
 
   // Form state — wires the SIGN action below the action grid
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });

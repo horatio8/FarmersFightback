@@ -83,7 +83,7 @@
     "mapLink": "https://australianrenewables.app",
     "mapCredit": "Source: Australian Biodiversity Alliance",
     "paragraphsHtml": [
-      "<strong>23,089.9 kilometres</strong> of new high-voltage transmission corridor — 106 separate projects — are now being driven through Australia's best cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
+      "<strong>1,200 kilometres</strong> of new high-voltage transmission corridor are now being driven through Australia's best cropping and grazing country. Farmers were never meaningfully consulted. Alternative routes were never seriously considered.",
       "Behind them sit AEMO, the state-owned transmission utilities, and a cast of foreign multinationals — Spain's <strong>Iberdrola</strong>, <strong>Acciona</strong> and <strong>ACS Group</strong>; Germany's <strong>RWE</strong> and <strong>Hochtief</strong>; Denmark's <strong>Ørsted</strong> and <strong>Copenhagen Infrastructure Partners</strong> — now sending contractors onto family farms, unannounced, with threats and clipboards.",
       "We're Farmers Fightback — a farmer-led coalition from regional Australia. We're standing against industrial renewables being forced onto Australia's best farmland. We won't be walked over."
     ],
@@ -444,7 +444,8 @@
         { "numeral": "III", "text": "Statutory protection of all soldier-settlement properties from compulsory access without proper notice and consent." },
         { "numeral": "IV",  "text": "Full disclosure of every contractor script, identification protocol, and access plan VicGrid is using on Victorian farms." }
       ],
-      "currentCount": 54418,
+      "currentCount": 12019,
+      "currentCountAsOf": "2026-05-20",
       "nextMilestone": 15000,
       "goal": 25000,
       "submitLabel": "Sign the petition →",

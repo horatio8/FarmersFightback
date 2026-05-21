@@ -490,13 +490,14 @@ img { max-width: 100%; display: block; }
 .ff-summary-inner { display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(30px, 5vw, 80px); align-items: start; }
 .ff-summary-copy p { color: var(--ff-ink-2); font-size: 17px; line-height: 1.65; margin: 0 0 16px; max-width: 54ch; }
 .ff-summary-stats {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 5vw, 60px);
   margin-top: 32px;
   border-top: 2px solid var(--ff-navy);
-  padding-top: 20px;
+  padding-top: 24px;
 }
 .ff-summary-stats > div { padding-right: 20px; border-right: 1px solid var(--ff-rule-2); }
-.ff-summary-stats > div:last-child { border-right: 0; }
+.ff-summary-stats > div:last-child { border-right: 0; padding-right: 0; }
 .ff-stat-n { font-family: var(--ff-serif); font-weight: 700; font-size: clamp(28px, 3vw, 40px); color: var(--ff-navy); line-height: 1; letter-spacing: -0.02em; }
 .ff-stat-n span { font-size: 0.55em; color: var(--ff-red); margin-left: 2px; }
 .ff-stat-l { margin-top: 6px; font-family: var(--ff-cond); text-transform: uppercase; letter-spacing: 0.09em; font-size: 12px; color: var(--ff-muted); }
