@@ -1012,6 +1012,9 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       setState("done");
+      requestAnimationFrame(() => {
+        document.getElementById("donate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } catch { setState("error"); }
   };
 
