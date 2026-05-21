@@ -35,6 +35,40 @@ function Placeholder({ label, ratio = "16/9", tone = "navy", className = "", chi
 
 const html = (s) => ({ __html: s });
 
+// ---------- Ad attribution capture ----------
+// Captures click ids and UTM params from the landing URL (META, Google,
+// TikTok, etc.) and keeps them in sessionStorage so they ride along with
+// every form submission to the Nucleus receiver.
+const FF_ATTR_KEY = "ff_attribution";
+const FF_ATTR_PARAMS = [
+  "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
+  "fbclid", "gclid", "ttclid", "li_fat_id", "msclkid", "twclid", "sccid",
+  "ad_id", "adset_id", "campaign_id", "placement", "ref"
+];
+function captureAttribution() {
+  if (typeof window === "undefined") return {};
+  let stored = {};
+  try { stored = JSON.parse(sessionStorage.getItem(FF_ATTR_KEY) || "{}"); } catch {}
+  const url = new URL(window.location.href);
+  const fresh = {};
+  FF_ATTR_PARAMS.forEach(k => {
+    const v = url.searchParams.get(k);
+    if (v) fresh[k] = v;
+  });
+  if (Object.keys(fresh).length > 0) {
+    fresh.landing_url = window.location.href;
+    fresh.landing_referrer = document.referrer || "";
+    fresh.landing_at = new Date().toISOString();
+    try { sessionStorage.setItem(FF_ATTR_KEY, JSON.stringify(fresh)); } catch {}
+    return fresh;
+  }
+  return stored;
+}
+function getAttribution() {
+  if (typeof window === "undefined") return {};
+  try { return JSON.parse(sessionStorage.getItem(FF_ATTR_KEY) || "{}"); } catch { return {}; }
+}
+
 // ---------- Top banner ----------
 function TopBanner() {
   const c = useContent().topBanner;
@@ -347,6 +381,7 @@ function Petition() {
       email: form.email.trim(),
       phone: form.phone.trim(),
       postcode: form.postcode.trim(),
+      ...getAttribution(),
     });
     try {
       await fetch(c.receiverUrl, {
@@ -985,6 +1020,33 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   const [count, setCount] = useState(dailyCount);
   const [navOpen, setNavOpen] = useState(false);
 
+  // After a Baldwin donation Stripe click, when the user returns to this
+  // page (tab regains focus or component re-mounts after redirect) scroll
+  // them to the next-step action grid.
+  useEffect(() => {
+    const KEY = "ff_baldwin_donate_pending";
+    const tryScroll = () => {
+      let stamp = 0;
+      try { stamp = Number(sessionStorage.getItem(KEY)) || 0; } catch {}
+      if (!stamp || Date.now() - stamp > 30 * 60 * 1000) return;
+      try { sessionStorage.removeItem(KEY); } catch {}
+      requestAnimationFrame(() => {
+        document.getElementById("actions")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    };
+    tryScroll();
+    const onVis = () => { if (document.visibilityState === "visible") tryScroll(); };
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("focus", tryScroll);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", tryScroll);
+    };
+  }, []);
+  const markDonatePending = () => {
+    try { sessionStorage.setItem("ff_baldwin_donate_pending", String(Date.now())); } catch {}
+  };
+
   // Form state — wires the SIGN action below the action grid
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });
   const [errors, setErrors] = useState({});
@@ -1008,6 +1070,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       first_name: form.first.trim(), last_name: form.last.trim(),
       email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
       campaign: "Baldwin Defence — Resign Minister",
+      ...getAttribution(),
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
@@ -1051,8 +1114,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   const actions = [
     { n: "01", t: "Sign the petition",   d: "Add your name to the call for the Minister to resign. Farmers Fightback-endorsed. Delivered to Spring St.", cta: "SIGN",   primary: true,  href: "#sign" },
     { n: "02", t: "Email the Minister",  d: "Pre-written letter, your name on it. Sent to the Minister's office and your local MP in two clicks.",       cta: "EMAIL",  href: "mailto:lily.dambrosio@parliament.vic.gov.au?subject=Resign%2C%20Minister&body=Dear%20Minister%20Dambrosio%2C%0A%0AThe%20DPP%20has%20withdrawn%20every%20charge%20against%20Greg%20Baldwin.%20There%20was%20no%20case.%20I%20am%20writing%20to%20demand%20your%20resignation%2C%20a%20review%20of%20Vic%20Police%20and%20OPP%20conduct%2C%20and%20suspension%20of%20forced-access%20powers%20under%20the%20amended%20energy%20legislation.%0A%0AYours%2C%0A" },
-    { n: "03", t: "Share Greg's address", d: "One-tap share to X, Facebook, Instagram. Use #ResignMinister and #ChargesDropped.",                          cta: "SHARE",  href: "#share" },
-    { n: "04", t: "Donate to defence",   d: "Recovery of legal costs and prep for civil action. Every dollar receipted by the Baldwin family solicitor.", cta: "DONATE", href: "/#donate" },
+    { n: "03", t: "Donate to defence",   d: "Recovery of legal costs and prep for civil action. Every dollar receipted by the Baldwin family solicitor.", cta: "DONATE", href: "#donate" },
   ];
 
   // Inline keyframes + responsive collapse, scoped via class names
@@ -1072,7 +1134,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     .fl-grid-counter { display: grid; grid-template-columns: 1fr 0.8fr; gap: 64px; align-items: end; }
     .fl-grid-timeline { display: grid; grid-template-columns: 180px 1fr; column-gap: 48px; position: relative; }
     .fl-grid-pillars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid ${C.rule}; }
-    .fl-grid-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid ${C.rule}; }
+    .fl-grid-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid ${C.rule}; }
     .fl-grid-footer { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 32px; }
 
     /* Donate tiles — base + default ($135) + hover swap.
@@ -1507,7 +1569,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               { amount: 550,  url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U" },
               { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V" },
             ].map((d, i, arr) => (
-              <a key={d.amount} href={d.url} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
+              <a key={d.amount} href={d.url} onClick={markDonatePending} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
                 padding: "28px 24px", minHeight: 160,
                 borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",
@@ -1520,7 +1582,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               </a>
             ))}
             {/* Other amount cell — uses custom-amount payment link */}
-            <a href="https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
+            <a href="https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608" onClick={markDonatePending} target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
               display: "flex", flexDirection: "column", justifyContent: "space-between",
               padding: "28px 24px", minHeight: 160,
               gridColumn: "span 2",
@@ -1537,16 +1599,16 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* ACTION GRID */}
-        <div className="fl-pad fl-section-aft" style={{ padding: "88px 56px 56px" }}>
+        <div id="actions" className="fl-pad fl-section-aft" style={{ padding: "88px 56px 56px", scrollMarginTop: 60 }}>
           <Eyebrow>What you do today</Eyebrow>
-          <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Four moves. <span style={{ color: C.yellow }}>You choose.</span></h2>
+          <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Three moves. <span style={{ color: C.yellow }}>You choose.</span></h2>
           <div className="fl-grid-actions">
             {actions.map((a, i) => (
               <a key={a.n} href={a.href} className="fl-action-cell" style={{
                 padding: "36px 32px",
                 background: a.primary ? C.yellow : "transparent",
                 color: a.primary ? C.navyDeep : C.bone,
-                borderRight: i < 3 ? `1px solid ${a.primary ? "rgba(14,41,64,.18)" : C.rule}` : "none",
+                borderRight: i < actions.length - 1 ? `1px solid ${a.primary ? "rgba(14,41,64,.18)" : C.rule}` : "none",
                 display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 320,
               }}>
                 <div>
@@ -1677,6 +1739,7 @@ function PetitionPage({ slug }) {
       postcode: form.postcode.trim(),
       country: form.country,
       campaign: p.campaign || p.slug,
+      ...getAttribution(),
     });
     try {
       if (receiverUrl) {
@@ -2021,6 +2084,7 @@ function ContactPage() {
       campaign: `Contact — ${form.subject}`,
       subject: form.subject,
       message: form.message,
+      ...getAttribution(),
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
@@ -2314,6 +2378,7 @@ function VolunteerPage() {
       first_name: form.first.trim(), last_name: form.last.trim(),
       email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
       roles: form.roles.join(", "), campaign: "Volunteer",
+      ...getAttribution(),
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
@@ -2406,6 +2471,7 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    captureAttribution();
     fetch(CONTENT_URL, { cache: "no-cache" })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(setContent)

@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/baldwin",  "destination": "/take-action/baldwins", "permanent": false },
+    { "source": "/baldwins", "destination": "/take-action/baldwins", "permanent": false }
+  ],
   "headers": [
     {
       "source": "/content/site.json",
