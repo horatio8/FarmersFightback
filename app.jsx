@@ -551,12 +551,16 @@ function Quote() {
 // ---------- Donate band ----------
 function DonateBand() {
   const c = useContent().donate;
+  const d = useContent().donorPage;
   const currency = c.currency || "AUD";
   const sym = c.currencySymbol || "$";
-  const [pick, setPick] = useState(c.defaultPick);
+  const amounts = (d && d.amounts) || [];
+  const otherUrl = (d && d.otherUrl) || c.customOneOffUrl;
+  const defaultAmount = (amounts.find(a => a.isDefault) || amounts[Math.min(2, amounts.length - 1)] || {}).amount;
+  const [pick, setPick] = useState(defaultAmount);
 
-  const matchedTier = c.tiers.find(t => Number(t.amount) === Number(pick));
-  const stripeUrl = matchedTier ? matchedTier.oneOffUrl : c.customOneOffUrl;
+  const matched = amounts.find(a => Number(a.amount) === Number(pick));
+  const stripeUrl = matched ? matched.url : otherUrl;
   const ready = !!stripeUrl;
   const onDonate = () => { if (ready) window.location.href = stripeUrl; };
 
@@ -578,18 +582,20 @@ function DonateBand() {
         </div>
         <div className="ff-donate-form">
           <div className="ff-give-chips">
-            {c.tiers.map(t => (
+            {amounts.map(a => (
               <button
-                key={t.amount}
+                key={a.amount}
                 type="button"
-                className={`ff-give-chip ${Number(pick) === Number(t.amount) ? "is-on" : ""}`}
-                onClick={() => setPick(t.amount)}
+                className={`ff-give-chip ${Number(pick) === Number(a.amount) ? "is-on" : ""}`}
+                onClick={() => setPick(a.amount)}
               >
-                <span className="ff-give-chip-amt">{sym}{t.amount}</span>
+                <span className="ff-give-chip-amt">{sym}{a.amount}</span>
+                {a.tag && <span className="ff-give-chip-tag">{a.tag}</span>}
               </button>
             ))}
-            <a href={c.customOneOffUrl} target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
+            <a href={otherUrl} target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
               <span className="ff-give-chip-amt">Other</span>
+              <span className="ff-give-chip-tag">Choose your own</span>
             </a>
           </div>
           <button
