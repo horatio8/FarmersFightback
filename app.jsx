@@ -2075,7 +2075,7 @@ function TheFightPage() {
 // ---------- Contact page ----------
 function ContactPage() {
   const c = useContent().contact;
-  const receiverUrl = useContent().petition?.receiverUrl;
+  const receiverUrl = c.receiverUrl || useContent().petition?.receiverUrl;
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", message: "" });
   const [state, setState] = useState("idle");
   const [errors, setErrors] = useState({});
@@ -2095,8 +2095,7 @@ function ContactPage() {
       last_name: form.last.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
-      campaign: "Contact",
-      message: form.message,
+      message: form.message.trim(),
       ...getAttribution(),
     });
     try {
@@ -2118,7 +2117,7 @@ function ContactPage() {
         <div className="ff-wrap ff-contact-body-inner ff-contact-body-inner--single">
           <form className="ff-action-form ff-contact-form" onSubmit={submit} noValidate>
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.form?.heading || "Send us a message"}</span>
-            <p className="ff-lede" style={{ margin: "12px 0 22px", fontSize: 15 }}>{c.form?.lede}</p>
+            {c.form?.lede && <p className="ff-lede" style={{ margin: "12px 0 22px", fontSize: 15 }}>{c.form.lede}</p>}
             {state === "done" ? (
               <div style={{ background: "var(--ff-paper-2)", padding: 28, borderRadius: 6, textAlign: "center" }}>
                 <strong style={{ fontSize: 20, color: "var(--ff-navy)" }}>{c.form?.doneHeading}</strong>
@@ -2139,7 +2138,6 @@ function ContactPage() {
                   {state === "submitting" ? (c.form?.submittingLabel || "Sending…") : (c.form?.submitLabel || "Send message →")}
                 </button>
                 {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
-                <p className="ff-form-fine">We come back to every message within 48 hours.</p>
               </>
             )}
           </form>

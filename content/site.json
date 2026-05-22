@@ -528,6 +528,7 @@
     "eyebrow": "Contact",
     "heading": "Get in touch.",
     "lede": "Send us a message and we'll come back to you. Whether you're a farmer at the gate, a journalist on deadline, a volunteer ready to turn up, or someone who just wants to help — write to us using the form below.",
+    "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/4b9cac7f-1cff-4aa5-aefe-9f4391c47e5c",
     "subjects": [
       { "label": "General enquiry", "blurb": "Anything else — questions, ideas, stories from your district." },
       { "label": "Media", "blurb": "Press enquiries, interview requests, asset packs, on-record statements. Same-day reply." },
@@ -536,7 +537,7 @@
     ],
     "form": {
       "heading": "Send us a message",
-      "lede": "We come back to every message within 48 hours.",
+      "lede": "",
       "submitLabel": "Send message →",
       "submittingLabel": "Sending…",
       "doneHeading": "Got it. Talk soon.",
