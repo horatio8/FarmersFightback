@@ -1436,7 +1436,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <div className="fl-nav-links" style={{ font: `600 12px/1 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".14em", flexWrap: "wrap" }}>
             <a href="#story">The Story</a>
             <a href="#demand">The Demand</a>
-            <a href="/media">Press</a>
             <a href="#donate">Donate</a>
             <span style={{ color: C.yellow }}>● BALDWIN DEFENCE</span>
           </div>
@@ -1456,7 +1455,6 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           <a href="#sign" className="is-primary" onClick={() => setNavOpen(false)}>● Sign the petition</a>
           <a href="#story" onClick={() => setNavOpen(false)}>The Story</a>
           <a href="#demand" onClick={() => setNavOpen(false)}>The Demand</a>
-          <a href="/media" onClick={() => setNavOpen(false)}>Press</a>
           <a href="#donate" onClick={() => setNavOpen(false)}>Donate</a>
         </div>
 
@@ -1486,7 +1484,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </h1>
           <div className="fl-hero-body" style={{ margin: "36px 0 0", maxWidth: 720 }}>
             <p style={{ margin: 0, font: `400 19px/1.4 ${fonts.sans}`, color: C.bone }}>
-              For years, the Baldwins refused unauthorised Government access to their farm. A hard-working farming family living there since 1880, the Baldwins just want to keep their home. <strong style={{ color: C.yellow, fontWeight: 700 }}>So when Greg found a Government contractor trespassing on his farm he rang the Police. What happened next should shock every Australian — Greg was the one charged, not the trespasser.</strong> The Government has criminalised peaceful resistance. But the Baldwins and farmers refuse to be intimidated. The charges were thrown out of court and now the Government must resign.
+              A hard-working family, farming the land since 1880, the Baldwins just want to keep their home.
             </p>
             <p className="fl-hero-body-cta" style={{ margin: "18px 0 0", font: `700 clamp(20px, 2.2vw, 24px)/1.25 ${fonts.sans}`, color: C.yellow, letterSpacing: "-0.005em" }}>
               FIRST THE BALDWIN'S HOME, YOURS NEXT: Sign the petition today!
@@ -1685,34 +1683,11 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </div>
         </div>
 
-        {/* PHOTO BAND */}
-        <div className="fl-pad fl-photo-band" style={{ paddingTop: 0, paddingBottom: 88 }}>
-          <PhotoSlot label="GREG ON HIS LAND · WIDE · LOOKING AT CAMERA · WORKING CLOTHES" h={420} />
-        </div>
-
         <Rule />
 
         {/* FOOTER */}
-        <div className="fl-pad fl-footer" style={{ paddingTop: 56, paddingBottom: 64, background: C.navyDeep }}>
-          <div className="fl-grid-footer">
-            <div>
-              <div style={{ font: `900 16px/1 ${fonts.display}`, letterSpacing: ".2em", textTransform: "uppercase" }}>Farmers<br/>Fightback</div>
-              <p style={{ font: `400 13px/1.6 ${fonts.sans}`, color: C.mute, marginTop: 18, maxWidth: 280 }}>Fighting for farmers, food &amp; our future. 35,000+ strong across regional Australia.</p>
-            </div>
-            {[
-              ["The Campaign", [["Baldwin Defence", "/take-action/baldwins"], ["VNI West", "/#evidence"], ["Resign Minister", "#sign"], ["Forced Access", "/take-action/remove-us-from-the-rez"]]],
-              ["Take Action",  [["Sign petition", "#sign"], ["Email Minister", actions[1].href], ["Share Greg's video", "#share"], ["Donate", "/#donate"]]],
-              ["Press",        [["News", "/news"], ["Contact", "mailto:hello@farmersfightback.com"]]],
-            ].map(([h, items]) => (
-              <div key={h}>
-                <div style={{ font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase" }}>{h}</div>
-                <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
-                  {items.map(([label, href]) => <a key={label} href={href} style={{ font: `500 14px/1.4 ${fonts.sans}`, color: C.bone }}>{label}</a>)}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 56, paddingTop: 24, borderTop: `1px solid ${C.rule}`, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, font: `500 11px/1.5 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".12em" }}>
+        <div className="fl-pad fl-footer" style={{ paddingTop: 40, paddingBottom: 40, background: C.navyDeep }}>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, font: `500 11px/1.5 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".12em" }}>
             <span>© Farmers Fightback 2026 · Authorised by Ben Duxson, Farmers Fightback</span>
             <span>farmersfightback.com/take-action/baldwins</span>
           </div>
@@ -2101,26 +2076,26 @@ function TheFightPage() {
 function ContactPage() {
   const c = useContent().contact;
   const receiverUrl = c.receiverUrl || useContent().petition?.receiverUrl;
-  const subjects = c.subjects || c.lanes || [{ label: "General enquiry" }];
-  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: subjects[0]?.label || "General", message: "" });
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", message: "" });
   const [state, setState] = useState("idle");
   const [errors, setErrors] = useState({});
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const submit = async (ev) => {
     ev.preventDefault();
     const e = {};
-    if (!form.name.trim()) e.name = "Required";
+    if (!form.first.trim()) e.first = "Required";
+    if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
     if (!form.message.trim()) e.message = "Tell us what's going on";
     setErrors(e);
     if (Object.keys(e).length) return;
     setState("submitting");
     const body = new URLSearchParams({
-      first_name: form.name.trim(), email: form.email.trim(),
-      phone: form.phone.trim(), postcode: "",
-      campaign: `Contact — ${form.subject}`,
-      subject: form.subject,
-      message: form.message,
+      first_name: form.first.trim(),
+      last_name: form.last.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      message: form.message.trim(),
       ...getAttribution(),
     });
     try {
@@ -2128,7 +2103,6 @@ function ContactPage() {
       setState("done");
     } catch { setState("error"); }
   };
-  const activeSubject = subjects.find(s => s.label === form.subject) || subjects[0];
   return (
     <PageShell>
       <section className={`ff-section ff-contact-hero ${c.heroImage ? "ff-imghero" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
@@ -2143,7 +2117,7 @@ function ContactPage() {
         <div className="ff-wrap ff-contact-body-inner ff-contact-body-inner--single">
           <form className="ff-action-form ff-contact-form" onSubmit={submit} noValidate>
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.form?.heading || "Send us a message"}</span>
-            <p className="ff-lede" style={{ margin: "12px 0 22px", fontSize: 15 }}>{c.form?.lede}</p>
+            {c.form?.lede && <p className="ff-lede" style={{ margin: "12px 0 22px", fontSize: 15 }}>{c.form.lede}</p>}
             {state === "done" ? (
               <div style={{ background: "var(--ff-paper-2)", padding: 28, borderRadius: 6, textAlign: "center" }}>
                 <strong style={{ fontSize: 20, color: "var(--ff-navy)" }}>{c.form?.doneHeading}</strong>
@@ -2152,16 +2126,11 @@ function ContactPage() {
             ) : (
               <>
                 <div className="ff-form-row">
-                  <Field label="Your name *" error={errors.name}><input value={form.name} onChange={update("name")} autoComplete="name" required /></Field>
-                  <Field label="Email *" error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required /></Field>
+                  <Field label="First name *" error={errors.first}><input value={form.first} onChange={update("first")} autoComplete="given-name" required /></Field>
+                  <Field label="Last name *" error={errors.last}><input value={form.last} onChange={update("last")} autoComplete="family-name" required /></Field>
                 </div>
-                <Field label="Phone (optional)"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" placeholder="0400 000 000" /></Field>
-                <Field label="What's it about?">
-                  <select value={form.subject} onChange={update("subject")}>
-                    {subjects.map(s => <option key={s.label} value={s.label}>{s.label}</option>)}
-                  </select>
-                  {activeSubject?.blurb && <span style={{ display: "block", fontSize: 13, color: "var(--ff-muted)", marginTop: 6 }}>{activeSubject.blurb}</span>}
-                </Field>
+                <Field label="Email *" error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required /></Field>
+                <Field label="Phone"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" placeholder="0400 000 000" /></Field>
                 <Field label="Message *" error={errors.message}>
                   <textarea value={form.message} onChange={update("message")} rows={6} required style={{ width: "100%", padding: "12px 14px", fontFamily: "var(--ff-sans)", fontSize: 15, border: "1.5px solid var(--ff-rule-2)", background: "#fff", borderRadius: "var(--ff-radius)", resize: "vertical" }} />
                 </Field>
@@ -2169,7 +2138,6 @@ function ContactPage() {
                   {state === "submitting" ? (c.form?.submittingLabel || "Sending…") : (c.form?.submitLabel || "Send message →")}
                 </button>
                 {state === "error" && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>Something went wrong. Please try again.</p>}
-                <p className="ff-form-fine">We come back to every message within 48 hours.</p>
               </>
             )}
           </form>
