@@ -23,15 +23,7 @@
       },
       { "label": "Volunteer", "href": "/take-action/volunteer", "active": false },
       { "label": "News", "href": "/news", "active": false },
-      {
-        "label": "Contact Us",
-        "href": "/contact",
-        "active": false,
-        "children": [
-          { "label": "Contact", "href": "/contact" },
-          { "label": "Media", "href": "/media" }
-        ]
-      }
+      { "label": "Contact Us", "href": "/contact", "active": false }
     ],
     "donateLabel": "Donate",
     "donateHref": "/donate"
@@ -159,14 +151,16 @@
       { "percent": "Community Engagement & Events", "label": "Hiring venues and equipment for town halls and rallies." }
     ],
     "tiers": [
-      { "amount": 25,  "label": "Prints 100 flyers",        "oneOffUrl": "https://buy.stripe.com/9B64gybB4ghler10libV600", "monthlyUrl": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },
-      { "amount": 50,  "label": "An hour of legal advice",  "oneOffUrl": "https://buy.stripe.com/8x26oG20u4yDfv5d84bV601", "monthlyUrl": "https://buy.stripe.com/00wcN4bB4d592IjfgcbV605" },
-      { "amount": 100, "label": "Fills a ute for a week",   "oneOffUrl": "https://buy.stripe.com/3cI8wO20ud59er11pmbV602", "monthlyUrl": "https://buy.stripe.com/5kQ00i0Wqe9d3Mn7NKbV606" },
-      { "amount": 250, "label": "Camera kit for a farmer",  "oneOffUrl": "https://buy.stripe.com/6oU14m20u6GL4Qr5FCbV603", "monthlyUrl": "https://buy.stripe.com/00w9ASbB47KPaaL1pmbV607" }
+      { "amount": 35,   "label": "Prints 500 leaflets",          "oneOffUrl": "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q", "monthlyUrl": "" },
+      { "amount": 65,   "label": "An hour of legal counsel",      "oneOffUrl": "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R", "monthlyUrl": "" },
+      { "amount": 135,  "label": "A targeted ad set",             "oneOffUrl": "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", "monthlyUrl": "" },
+      { "amount": 265,  "label": "A camera kit for a farmer",     "oneOffUrl": "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T", "monthlyUrl": "" },
+      { "amount": 550,  "label": "A regional billboard for a week","oneOffUrl": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", "monthlyUrl": "" },
+      { "amount": 1500, "label": "Fund a full TV campaign run",   "oneOffUrl": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "monthlyUrl": "" }
     ],
     "customOneOffUrl": "https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608",
     "customMonthlyUrl": "",
-    "defaultPick": 50,
+    "defaultPick": 135,
     "currency": "AUD",
     "currencySymbol": "$",
     "fineprint": "Secure processing via Stripe. All amounts in AUD. Receipts sent to your inbox. Not tax-deductible."
@@ -181,9 +175,11 @@
   "footer": {
     "blurb": "Farmers Fightback stands with the farming families being bulldozed by big government and foreign corporations — and we don't back down.",
     "social": [
-      { "label": "TikTok", "href": "#" },
-      { "label": "Facebook", "href": "#" },
-      { "label": "Instagram", "href": "#" }
+      { "label": "X",         "platform": "x",         "href": "https://x.com/FarmersFightbac" },
+      { "label": "TikTok",    "platform": "tiktok",    "href": "https://www.tiktok.com/@wallaloo.gre.gre" },
+      { "label": "Instagram", "platform": "instagram", "href": "https://www.instagram.com/farmersfightback.au" },
+      { "label": "Facebook",  "platform": "facebook",  "href": "https://www.facebook.com/farmersfightback/" },
+      { "label": "YouTube",   "platform": "youtube",   "href": "https://www.youtube.com/@FarmersFightback" }
     ],
     "columns": [
       {
@@ -202,6 +198,23 @@
     "eyebrow": "News & media",
     "heading": "News from the corridor.",
     "lede": "Newsletters, social posts, and videos — straight from the paddock. Updated automatically as the campaign moves.",
+    "instagram": {
+      "heading": "On Instagram",
+      "lede": "Latest from @farmersfightback.au — tap any tile to open the post on Instagram.",
+      "profileUrl": "https://www.instagram.com/farmersfightback.au",
+      "handle": "@farmersfightback.au",
+      "lightWidgetId": "",
+      "posts": [
+        { "image": "/assets/uploads/gate-flag-workers.jpg",        "url": "https://www.instagram.com/farmersfightback.au", "caption": "Hold the Gate — Wimmera" },
+        { "image": "/assets/uploads/fight-police-farmers.jpg",     "url": "https://www.instagram.com/farmersfightback.au", "caption": "DPP withdraws every charge" },
+        { "image": "/assets/uploads/transmission-burning.jpg",     "url": "https://www.instagram.com/farmersfightback.au", "caption": "VNI West — at what cost?" },
+        { "image": "/assets/uploads/parliament-steps-protest.jpg", "url": "https://www.instagram.com/farmersfightback.au", "caption": "On the steps of Spring St" },
+        { "image": "/assets/uploads/volunteer-rally-drone.jpg",    "url": "https://www.instagram.com/farmersfightback.au", "caption": "Rally — Wallaloo" },
+        { "image": "/assets/uploads/fight-combine-wheat.jpg",      "url": "https://www.instagram.com/farmersfightback.au", "caption": "Harvest 2026" },
+        { "image": "/assets/uploads/biosecurity-warning.jpg",      "url": "https://www.instagram.com/farmersfightback.au", "caption": "Biosecurity — the line at the gate" },
+        { "image": "/assets/uploads/shed-meeting-seats.jpg",       "url": "https://www.instagram.com/farmersfightback.au", "caption": "Shearing-shed meeting" }
+      ]
+    },
     "youtube": {
       "channelId": "UCzyzVVV1N0FrtQklUhKvZCw",
       "handle": "@FarmersFightback",
@@ -223,13 +236,13 @@
       "heading": "On the socials",
       "lede": "Follow along across every platform — feeds embed live below.",
       "accounts": [
-        { "platform": "youtube",   "handle": "@FarmersFightback",  "url": "https://www.youtube.com/@FarmersFightback" },
-        { "platform": "tiktok",    "handle": "@farmersfightback",  "url": "https://www.tiktok.com/@farmersfightback" },
-        { "platform": "x",         "handle": "@FarmersFightbac",   "url": "https://x.com/FarmersFightbac" },
-        { "platform": "facebook",  "handle": "Farmers Fightback",  "url": "https://www.facebook.com/farmersfightback" },
-        { "platform": "instagram", "handle": "@farmersfightback",  "url": "https://www.instagram.com/farmersfightback" }
+        { "platform": "x",         "handle": "@FarmersFightbac",       "url": "https://x.com/FarmersFightbac" },
+        { "platform": "tiktok",    "handle": "@wallaloo.gre.gre",      "url": "https://www.tiktok.com/@wallaloo.gre.gre" },
+        { "platform": "instagram", "handle": "@farmersfightback.au",   "url": "https://www.instagram.com/farmersfightback.au" },
+        { "platform": "facebook",  "handle": "Farmers Fightback",      "url": "https://www.facebook.com/farmersfightback/" },
+        { "platform": "youtube",   "handle": "@FarmersFightback",      "url": "https://www.youtube.com/@FarmersFightback" }
       ],
-      "embed": { "kind": "tiktok", "username": "farmersfightback" }
+      "embed": { "kind": "tiktok", "username": "wallaloo.gre.gre" }
     },
     "press": {
       "heading": "In the press",
@@ -544,6 +557,20 @@
       { "amount": 1500, "url": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "tag": "Fund a full TV campaign run" }
     ],
     "otherUrl": "https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608",
+    "achievements": {
+      "heading": "What your dollars have already paid for.",
+      "image": "/assets/uploads/donate-rally-masks.jpg",
+      "imageAlt": "Farmers and supporters at a Farmers Fightback rally holding cardboard masks of state politicians",
+      "imageFallback": "/assets/uploads/parliament-house-group.jpg",
+      "bullets": [
+        "Mobilised 54,000+ Australians to stand with farming families against forced acquisition of farmland.",
+        "Held the Victorian Government at the gate — dozens of farming families refused unauthorised access and not one was forced through during Hold the Gate.",
+        "Exposed the embarrassment of a prosecution that never had a case — the DPP withdrew every charge against Greg Baldwin. The Government criminalised a farmer for calling triple zero on a trespasser, and lost.",
+        "Dragged forced-access powers into the light — provisions the Government buried in energy legislation are now public knowledge and under cross-party scrutiny.",
+        "Built a national campaign from scratch in five months — website, petitions, donations, email, volunteers. No lobbyists. No parties. Just farmers."
+      ],
+      "kicker": "They have billions. We have you."
+    },
     "monthlyHeading": "Or give monthly — they're not going anywhere, we're not either.",
     "monthlyAmounts": [
       { "amount": 25,  "url": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },

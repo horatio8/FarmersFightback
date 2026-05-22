@@ -554,30 +554,11 @@ function DonateBand() {
   const currency = c.currency || "AUD";
   const sym = c.currencySymbol || "$";
   const [pick, setPick] = useState(c.defaultPick);
-  const [monthly, setMonthly] = useState(false);
 
   const matchedTier = c.tiers.find(t => Number(t.amount) === Number(pick));
-  const isCustom = !matchedTier;
-  const stripeUrl = isCustom
-    ? (monthly ? c.customMonthlyUrl : c.customOneOffUrl)
-    : (monthly ? matchedTier.monthlyUrl : matchedTier.oneOffUrl);
+  const stripeUrl = matchedTier ? matchedTier.oneOffUrl : c.customOneOffUrl;
   const ready = !!stripeUrl;
-  const validAmount = Number(pick) > 0;
-  const canDonate = ready && validAmount;
-
-  const onDonate = () => {
-    if (!canDonate) return;
-    window.location.href = stripeUrl;
-  };
-
-  let helpMsg = c.fineprint;
-  if (!validAmount) {
-    helpMsg = "Choose an amount above to continue.";
-  } else if (!ready) {
-    helpMsg = isCustom
-      ? `Custom ${monthly ? "monthly" : "one-off"} donations aren't set up yet — pick a fixed amount or check back soon.`
-      : `${monthly ? "Monthly" : "One-off"} donations of ${sym}${pick} ${currency} aren't set up yet — try a different amount or frequency.`;
-  }
+  const onDonate = () => { if (ready) window.location.href = stripeUrl; };
 
   return (
     <section id="donate" className="ff-section ff-donate">
@@ -596,46 +577,31 @@ function DonateBand() {
           </ul>
         </div>
         <div className="ff-donate-form">
-          <div className="ff-donate-toggle">
-            <button type="button" className={!monthly ? "is-on" : ""} onClick={() => setMonthly(false)}>One-off</button>
-            <button type="button" className={monthly ? "is-on" : ""} onClick={() => setMonthly(true)}>Monthly</button>
-          </div>
-          <div className="ff-donate-tiers">
+          <div className="ff-give-chips">
             {c.tiers.map(t => (
               <button
                 key={t.amount}
                 type="button"
-                className={`ff-donate-tier ${Number(pick)===Number(t.amount) ? "is-on" : ""}`}
+                className={`ff-give-chip ${Number(pick) === Number(t.amount) ? "is-on" : ""}`}
                 onClick={() => setPick(t.amount)}
               >
-                <span className="ff-donate-tier-n">{sym}{t.amount}</span>
-                <span className="ff-donate-tier-l">{t.label}</span>
+                <span className="ff-give-chip-amt">{sym}{t.amount}</span>
               </button>
             ))}
+            <a href={c.customOneOffUrl} target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
+              <span className="ff-give-chip-amt">Other</span>
+            </a>
           </div>
-          <label className="ff-donate-other">
-            <span>Other amount ({currency})</span>
-            <div className="ff-donate-other-in">
-              <em>{sym}</em>
-              <input
-                type="number"
-                min="1"
-                placeholder="Custom"
-                value={pick}
-                onChange={e => setPick(Number(e.target.value)||0)}
-              />
-            </div>
-          </label>
           <button
             type="button"
             className="ff-btn ff-btn--red ff-btn--block ff-btn--lg"
-            disabled={!canDonate}
+            disabled={!ready}
             onClick={onDonate}
-            aria-disabled={!canDonate}
+            aria-disabled={!ready}
           >
-            Donate {sym}{pick} {currency} {monthly ? "/month" : "now"}
+            Donate {sym}{pick} {currency} now
           </button>
-          <p className="ff-donate-fine">{helpMsg}</p>
+          <p className="ff-donate-fine">{c.fineprint}</p>
         </div>
       </div>
     </section>
@@ -676,11 +642,20 @@ function Footer() {
     <footer className="ff-footer">
       <div className="ff-wrap ff-footer-inner">
         <div className="ff-footer-brand">
-          <img src="assets/logo.png" alt="Farmers Fightback" />
+          <img src="/assets/logo.png" alt="Farmers Fightback" />
           <p>{c.blurb}</p>
           <div className="ff-footer-social">
             {c.social.map((s, i) => (
-              <a key={i} href={s.href} aria-label={s.label}>{s.label}</a>
+              <a
+                key={i}
+                href={s.href}
+                aria-label={s.label}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`ff-footer-social-icon ff-footer-social-icon--${s.platform || s.label.toLowerCase()}`}
+              >
+                <span className="ff-vh">{s.label}</span>
+              </a>
             ))}
           </div>
         </div>
@@ -783,11 +758,59 @@ function NewsPage() {
           <p className="ff-lede">{c.lede}</p>
         </div>
       </section>
+      {c.instagram && <InstagramGrid cfg={c.instagram} />}
       {c.youtube && <YouTubeFeed cfg={c.youtube} />}
-      {c.newsletter && <NewsletterSection cfg={c.newsletter} />}
       {c.socials && <SocialFeeds cfg={c.socials} />}
-      {c.press && <PressList cfg={c.press} />}
     </PageShell>
+  );
+}
+
+function InstagramGrid({ cfg }) {
+  if (cfg.lightWidgetId) {
+    return (
+      <section className="ff-section ff-news-ig">
+        <div className="ff-wrap">
+          <div className="ff-news-band">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {cfg.heading}</span>
+            <p className="ff-news-band-lede">{cfg.lede}</p>
+            {cfg.profileUrl && <a href={cfg.profileUrl} target="_blank" rel="noopener noreferrer" className="ff-link ff-link--red">Follow {cfg.handle} →</a>}
+          </div>
+          <iframe
+            src={`https://cdn.lightwidget.com/widgets/${cfg.lightWidgetId}.html`}
+            scrolling="no"
+            allowtransparency="true"
+            className="ff-ig-widget"
+            style={{ width: "100%", border: 0, overflow: "hidden", minHeight: 480 }}
+            title="Latest Instagram posts"
+          />
+        </div>
+      </section>
+    );
+  }
+  const posts = (cfg.posts || []).slice(0, 8);
+  return (
+    <section className="ff-section ff-news-ig">
+      <div className="ff-wrap">
+        <div className="ff-news-band">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {cfg.heading}</span>
+          <p className="ff-news-band-lede">{cfg.lede}</p>
+          {cfg.profileUrl && <a href={cfg.profileUrl} target="_blank" rel="noopener noreferrer" className="ff-link ff-link--red">Follow {cfg.handle} →</a>}
+        </div>
+        <ul className="ff-ig-grid">
+          {posts.map((p, i) => (
+            <li key={i}>
+              <a href={p.url || cfg.profileUrl} target="_blank" rel="noopener noreferrer" className="ff-ig-tile" aria-label={p.caption || `Open Instagram post ${i + 1}`}>
+                <img src={p.image} alt={p.caption || ""} loading="lazy" />
+                <span className="ff-ig-tile-overlay" aria-hidden="true">
+                  <span className="ff-ig-tile-mark">Instagram</span>
+                  {p.caption && <span className="ff-ig-tile-caption">{p.caption}</span>}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -2291,14 +2314,38 @@ function DonorPage() {
           </div>
         </section>
       )}
+      {c.achievements && <DonorAchievements cfg={c.achievements} />}
     </PageShell>
+  );
+}
+
+function DonorAchievements({ cfg }) {
+  const [imgSrc, setImgSrc] = useState(cfg.image);
+  const onErr = () => { if (cfg.imageFallback && imgSrc !== cfg.imageFallback) setImgSrc(cfg.imageFallback); };
+  return (
+    <section className="ff-section ff-give-wins">
+      <div className="ff-wrap ff-give-wins-inner">
+        <div className="ff-give-wins-media">
+          <img src={imgSrc} alt={cfg.imageAlt || ""} onError={onErr} loading="lazy" />
+        </div>
+        <div className="ff-give-wins-copy">
+          {cfg.heading && <h2 className="ff-h2 ff-give-wins-h">{cfg.heading}</h2>}
+          <ul className="ff-give-wins-list">
+            {(cfg.bullets || []).map((b, i) => (
+              <li key={i}><span className="ff-give-wins-tick" aria-hidden="true">✓</span><span>{b}</span></li>
+            ))}
+          </ul>
+          {cfg.kicker && <p className="ff-give-wins-kicker">{cfg.kicker}</p>}
+        </div>
+      </div>
+    </section>
   );
 }
 
 // ---------- Volunteer page ----------
 function VolunteerPage() {
   const c = useContent().volunteer;
-  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", roles: [], consent: false });
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", roles: [] });
   const [state, setState] = useState("idle");
   const [errors, setErrors] = useState({});
   const receiverUrl = useContent().petition?.receiverUrl;
@@ -2310,7 +2357,6 @@ function VolunteerPage() {
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
     if (!form.phone.trim()) e.phone = "Required";
-    if (!form.consent) e.consent = "Tick to continue";
     setErrors(e);
     if (Object.keys(e).length) return;
     setState("submitting");
@@ -2382,10 +2428,6 @@ function VolunteerPage() {
                   ))}
                 </div>
               </div>
-              <label className={`ff-consent ${errors.consent ? "has-error" : ""}`}>
-                <input type="checkbox" checked={form.consent} onChange={(e) => setForm(f => ({ ...f, consent: e.target.checked }))} />
-                <span>I agree to receive campaign updates from Farmers Fightback. Unsubscribe any time.</span>
-              </label>
               <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
                 {state === "submitting" ? c.submittingLabel : c.submitLabel}
               </button>
