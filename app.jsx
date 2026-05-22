@@ -129,7 +129,9 @@ function Nav({ onDonate }) {
                   <ul className="ff-nav-dropdown" role="menu">
                     {i.children.map((c2) => (
                       <li key={c2.label} role="none">
-                        <a href={c2.href} role="menuitem">{c2.label}</a>
+                        {c2.disabled
+                          ? <span className="is-disabled" role="menuitem" aria-disabled="true" title="Paused">{c2.label}</span>
+                          : <a href={c2.href} role="menuitem">{c2.label}</a>}
                       </li>
                     ))}
                   </ul>
@@ -158,7 +160,9 @@ function Nav({ onDonate }) {
             ? [
                 <a key={i.label} href={i.href} className="is-parent" onClick={() => setOpen(false)}>{i.label}</a>,
                 ...i.children.map((c2) => (
-                  <a key={i.label + c2.label} href={c2.href} className="is-child" onClick={() => setOpen(false)}>↳ {c2.label}</a>
+                  c2.disabled
+                    ? <span key={i.label + c2.label} className="is-child is-disabled" aria-disabled="true">↳ {c2.label}</span>
+                    : <a key={i.label + c2.label} href={c2.href} className="is-child" onClick={() => setOpen(false)}>↳ {c2.label}</a>
                 ))
               ]
             : [<a key={i.label} href={i.href} onClick={() => setOpen(false)}>{i.label}</a>]
@@ -1069,7 +1073,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     const body = new URLSearchParams({
       first_name: form.first.trim(), last_name: form.last.trim(),
       email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
-      campaign: "Baldwin Defence — Resign Minister",
+      campaign: p.campaign || "Farmer Fightback: Baldwin Campaign",
+      form_slug: p.formSlug || "ff-baldwin",
       ...getAttribution(),
     });
     try {
@@ -1691,7 +1696,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 function PetitionPage({ slug }) {
   const all = useContent().petitions || {};
   const p = all[slug];
-  const receiverUrl = useContent().petition?.receiverUrl;
+  const defaultReceiverUrl = useContent().petition?.receiverUrl;
+  const receiverUrl = (p && p.receiverUrl) || defaultReceiverUrl;
 
   // Slug-specific themed templates
   if (slug === "baldwins" && p) {
@@ -2026,20 +2032,24 @@ function TheFightPage() {
       <section className="ff-section ff-thefight-grid-wrap">
         <div className="ff-wrap">
           <div className="ff-thefight-grid">
-            {(c.panels || []).map((p, i) => (
-              <article key={i} className={`ff-thefight-panel ff-thefight-panel--${p.tone || "navy"}`}>
-                {p.image && (
-                  <div className="ff-thefight-panel-media">
-                    <img src={p.image} alt={p.imageAlt || ""} loading="lazy" />
+            {(c.panels || []).map((p, i) => {
+              const href = p.href || (i === (c.panels.length - 1) ? "/take-action/baldwins#sign" : "/take-action/hold-the-gate#sign");
+              return (
+                <a key={i} href={href} className={`ff-thefight-panel ff-thefight-panel--${p.tone || "navy"}`}>
+                  {p.image && (
+                    <div className="ff-thefight-panel-media">
+                      <img src={p.image} alt={p.imageAlt || ""} loading="lazy" />
+                    </div>
+                  )}
+                  <div className="ff-thefight-panel-body">
+                    <span className="ff-card-kicker">{p.kicker}</span>
+                    <h3 className="ff-thefight-panel-title">{p.title}</h3>
+                    <p>{p.body}</p>
+                    <span className="ff-thefight-panel-cta">Sign the petition <span aria-hidden="true">→</span></span>
                   </div>
-                )}
-                <div className="ff-thefight-panel-body">
-                  <span className="ff-card-kicker">{p.kicker}</span>
-                  <h3 className="ff-thefight-panel-title">{p.title}</h3>
-                  <p>{p.body}</p>
-                </div>
-              </article>
-            ))}
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -2210,74 +2220,6 @@ function MediaPage() {
         </section>
       )}
       {c.fineprint && <p className="ff-aboutus-authorised">{c.fineprint}</p>}
-    </PageShell>
-  );
-}
-
-// ---------- About Us page ----------
-function AboutUsPage() {
-  const c = useContent().aboutUs;
-  return (
-    <PageShell>
-      <section className={`ff-section ff-aboutus-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
-        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
-        <div className="ff-wrap ff-aboutus-hero-inner">
-          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow}</span>
-          <h1 className="ff-h2 ff-h2--light ff-aboutus-h1">{c.heading}</h1>
-          {c.subheading && <p className="ff-aboutus-sub">{c.subheading}</p>}
-          {c.stat && (
-            <div className="ff-aboutus-stat">
-              <span className="ff-aboutus-stat-n">{c.stat.value}</span>
-              <span className="ff-aboutus-stat-l">{c.stat.label}</span>
-            </div>
-          )}
-        </div>
-      </section>
-      <section className="ff-section ff-aboutus-sections">
-        <div className="ff-wrap">
-          {(c.sections || []).map((s, i) => (
-            <article key={i} className="ff-aboutus-section">
-              <span className="ff-card-kicker">{s.kicker}</span>
-              <h2 className="ff-h2 ff-aboutus-section-h">{s.title}</h2>
-              <div className="ff-aboutus-paras">
-                {(s.paragraphs || []).map((p, j) => <p key={j}>{p}</p>)}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      {c.principles && (
-        <section className="ff-section ff-aboutus-principles">
-          <div className="ff-wrap">
-            <h2 className="ff-h2 ff-aboutus-principles-h">{c.principles.heading}</h2>
-            <ul className="ff-aboutus-principles-grid">
-              {(c.principles.items || []).map((p, i) => (
-                <li key={i} className="ff-aboutus-principle">
-                  <span className="ff-aboutus-principle-n">{String(i + 1).padStart(2, "0")}</span>
-                  <h3>{p.title}</h3>
-                  <p>{p.body}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-      {c.cta && (
-        <section className="ff-section ff-aboutus-cta">
-          <div className="ff-wrap ff-aboutus-cta-inner">
-            <h2 className="ff-h2 ff-h2--light">{c.cta.heading}</h2>
-            <p>{c.cta.body}</p>
-            <div className="ff-aboutus-cta-buttons">
-              {(c.cta.buttons || []).map((b, i) => (
-                <a key={i} href={b.href} className={`ff-btn ff-btn--lg ${b.primary ? "ff-btn--red" : "ff-btn--ghost"}`}>{b.label}</a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-      {c.authorised && (
-        <p className="ff-aboutus-authorised">{c.authorised}</p>
-      )}
     </PageShell>
   );
 }
@@ -2496,7 +2438,6 @@ function App() {
   else if (page === "petition") view = <PetitionPage slug={slug} />;
   else if (page === "the-fight") view = <TheFightPage />;
   else if (page === "contact") view = <ContactPage />;
-  else if (page === "about-us") view = <AboutUsPage />;
   else if (page === "media") view = <MediaPage />;
   else if (page === "donate") view = <DonorPage />;
   else if (page === "volunteer") view = <VolunteerPage />;

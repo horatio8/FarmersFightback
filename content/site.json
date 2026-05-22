@@ -17,11 +17,11 @@
         "children": [
           { "label": "Hold the Gate", "href": "/take-action/hold-the-gate" },
           { "label": "Back the Baldwins", "href": "/take-action/baldwins" },
-          { "label": "Stop the REZ", "href": "/take-action/remove-us-from-the-rez" },
-          { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser" },
-          { "label": "Volunteer", "href": "/take-action/volunteer" }
+          { "label": "Stop the REZ", "href": "/take-action/remove-us-from-the-rez", "disabled": true },
+          { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser", "disabled": true }
         ]
       },
+      { "label": "Volunteer", "href": "/take-action/volunteer", "active": false },
       { "label": "News", "href": "/news", "active": false },
       {
         "label": "Contact Us",
@@ -29,7 +29,6 @@
         "active": false,
         "children": [
           { "label": "Contact", "href": "/contact" },
-          { "label": "About", "href": "/about-us" },
           { "label": "Media", "href": "/media" }
         ]
       }
@@ -43,7 +42,7 @@
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
     "subtitle": "Farmers Fightback began defending generational farmers against Government overreach. As a national campaign, we now defend all farming families being bulldozed by big Government and foreign corporations — and we don't back down.",
     "primaryCtaLabel": "Sign the petition",
-    "primaryCtaHref": "/take-action/hold-the-gate#sign"
+    "primaryCtaHref": "#petition"
   },
   "impactStats": [
     { "value": 23418, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
@@ -188,29 +187,11 @@
     ],
     "columns": [
       {
-        "heading": "Campaign",
-        "links": [
-          { "label": "The Evidence", "href": "#evidence" },
-          { "label": "News & media", "href": "#news" },
-          { "label": "Know your rights", "href": "#rights" },
-          { "label": "Hold the Gate", "href": "#gate" }
-        ]
-      },
-      {
         "heading": "Take action",
         "links": [
-          { "label": "Sign the petition", "href": "#petition" },
-          { "label": "Donate", "href": "#donate" },
-          { "label": "Volunteer", "href": "#" },
-          { "label": "Submit evidence", "href": "#" }
-        ]
-      },
-      {
-        "heading": "Contact",
-        "links": [
-          { "label": "hello@farmersfightback.com", "href": "mailto:hello@farmersfightback.com" },
-          { "label": "Media enquiries", "href": "#" },
-          { "label": "Press kit", "href": "#" }
+          { "label": "Sign the petition", "href": "/take-action/hold-the-gate#sign" },
+          { "label": "Donate", "href": "/donate" },
+          { "label": "Volunteer", "href": "/take-action/volunteer" }
         ]
       }
     ],
@@ -242,11 +223,11 @@
       "heading": "On the socials",
       "lede": "Follow along across every platform — feeds embed live below.",
       "accounts": [
-        { "platform": "youtube",   "handle": "@FarmersFightback", "url": "https://www.youtube.com/@FarmersFightback" },
-        { "platform": "tiktok",    "handle": "@farmersfightback", "url": "https://www.tiktok.com/@farmersfightback" },
-        { "platform": "x",         "handle": "@farmersfightback", "url": "https://x.com/farmersfightback" },
-        { "platform": "facebook",  "handle": "Farmers Fightback", "url": "https://www.facebook.com/farmersfightback" },
-        { "platform": "instagram", "handle": "@farmersfightback", "url": "https://www.instagram.com/farmersfightback" }
+        { "platform": "youtube",   "handle": "@FarmersFightback",  "url": "https://www.youtube.com/@FarmersFightback" },
+        { "platform": "tiktok",    "handle": "@farmersfightback",  "url": "https://www.tiktok.com/@farmersfightback" },
+        { "platform": "x",         "handle": "@FarmersFightbac",   "url": "https://x.com/FarmersFightbac" },
+        { "platform": "facebook",  "handle": "Farmers Fightback",  "url": "https://www.facebook.com/farmersfightback" },
+        { "platform": "instagram", "handle": "@farmersfightback",  "url": "https://www.instagram.com/farmersfightback" }
       ],
       "embed": { "kind": "tiktok", "username": "farmersfightback" }
     },
@@ -433,7 +414,10 @@
     "baldwins": {
       "slug": "baldwins",
       "layout": "floodlight",
-      "campaign": "Baldwin Defence — Resign Minister",
+      "campaign": "Farmer Fightback: Baldwin Campaign",
+      "formSlug": "ff-baldwin",
+      "_receiverUrlNote": "Paste the Nucleus receiver URL for the ff-baldwin form into receiverUrl below — when empty the page falls back to the Hold the Gate receiver.",
+      "receiverUrl": "",
       "eyebrow": "Petition · Baldwin Defence",
       "heading": "Charges dropped. The Minister must resign.",
       "lede": "Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On 27 April 2026, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.",

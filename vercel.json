@@ -3,8 +3,10 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/baldwin",  "destination": "/take-action/baldwins", "permanent": false },
-    { "source": "/baldwins", "destination": "/take-action/baldwins", "permanent": false }
+    { "source": "/baldwin",     "destination": "/take-action/baldwins", "permanent": false },
+    { "source": "/baldwins",    "destination": "/take-action/baldwins", "permanent": false },
+    { "source": "/about-us",    "destination": "/the-fight",            "permanent": false },
+    { "source": "/about-us.html","destination": "/the-fight",           "permanent": false }
   ],
   "headers": [
     {
