@@ -2100,7 +2100,7 @@ function TheFightPage() {
 // ---------- Contact page ----------
 function ContactPage() {
   const c = useContent().contact;
-  const receiverUrl = useContent().petition?.receiverUrl;
+  const receiverUrl = c.receiverUrl || useContent().petition?.receiverUrl;
   const subjects = c.subjects || c.lanes || [{ label: "General enquiry" }];
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: subjects[0]?.label || "General", message: "" });
   const [state, setState] = useState("idle");
