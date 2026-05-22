@@ -128,23 +128,23 @@ img { max-width: 100%; display: block; }
 
 /* ============ Top banner ============ */
 .ff-topbanner {
-  background: var(--ff-navy-2);
+  background: var(--ff-red);
   color: #fff;
   font-size: 13px;
   padding: 9px 0;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(0,0,0,.12);
 }
 .ff-topbanner-inner {
   display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
 }
 .ff-topbanner-pulse {
-  width: 8px; height: 8px; background: var(--ff-red); border-radius: 50%;
-  box-shadow: 0 0 0 0 rgba(198,40,40,.6);
+  width: 9px; height: 9px; background: #F5C631; border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(245,198,49,.65);
   animation: ff-pulse 1.8s ease-out infinite;
 }
 @keyframes ff-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(198,40,40,.7); }
-  100% { box-shadow: 0 0 0 12px rgba(198,40,40,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(245,198,49,.75); }
+  100% { box-shadow: 0 0 0 12px rgba(245,198,49,0); }
 }
 .ff-topbanner-link { color: #fff; border-bottom: 1px solid rgba(255,255,255,.35); padding-bottom: 1px; font-weight: 600; }
 .ff-topbanner-link:hover { border-color: #fff; }
@@ -1225,13 +1225,12 @@ img { max-width: 100%; display: block; }
 .ff-petition-hero .ff-eyebrow--light { color: rgba(255,255,255,.86); margin-bottom: 14px; }
 .ff-petition-hero-title {
   font-family: var(--ff-serif);
-  font-size: clamp(30px, 4.2vw, 54px);
-  line-height: 1.08;
-  letter-spacing: -0.015em;
+  font-size: clamp(32px, 4.6vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   font-weight: 700;
   color: #fff;
   margin: 12px 0 16px;
-  text-transform: uppercase;
   text-wrap: balance;
 }
 .ff-petition-hero-sub {
@@ -1273,6 +1272,24 @@ img { max-width: 100%; display: block; }
   border-radius: var(--ff-radius-lg);
   padding: clamp(26px, 3.5vw, 40px);
   display: flex; flex-direction: column; gap: 18px;
+}
+.ff-petition-trust-row { margin-top: clamp(24px, 3vw, 40px); }
+.ff-trust-row--inline { flex-direction: row; flex-wrap: wrap; gap: 18px 28px; justify-content: flex-start; align-items: flex-start; margin: 0; }
+@media (max-width: 900px) {
+  .ff-petition-statement {
+    background: transparent;
+    border: 0;
+    border-left: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  .ff-petition-declaration {
+    border-left: 0 !important;
+    padding-left: clamp(20px, 5vw, 28px) !important;
+    padding-right: clamp(20px, 5vw, 28px) !important;
+  }
+  .ff-petition-trust-row { margin-top: 28px; }
+  .ff-trust-row--inline { flex-direction: column; gap: 14px; }
 }
 .ff-petition-statement-h {
   font-family: var(--ff-cond);
@@ -1724,9 +1741,14 @@ img { max-width: 100%; display: block; }
 @media (max-width: 860px) {
   .ff-give-hero-inner { grid-template-columns: 1fr; }
   .ff-give-where-row { grid-template-columns: 90px 1fr; gap: 16px; }
+  .ff-give-widget { padding: 18px; }
+  .ff-give-chips { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .ff-give-chip { aspect-ratio: auto; padding: 12px 6px; min-height: 64px; }
+  .ff-give-chip-amt { font-size: 18px; }
+  .ff-give-chip-amt small { font-size: 9px; }
 }
-@media (max-width: 480px) {
-  .ff-give-chips { grid-template-columns: 1fr; }
+@media (max-width: 380px) {
+  .ff-give-chips { grid-template-columns: repeat(2, 1fr); }
 }
 
 .ff-donor-hero { background: var(--ff-navy); color: #fff; padding-top: clamp(64px, 9vw, 110px); padding-bottom: clamp(48px, 7vw, 90px); }

@@ -43,7 +43,7 @@
     "titleHtml": "Fighting for <em>farmers</em>,<br/>food &amp; <em>our future</em>.",
     "subtitle": "Farmers Fightback began defending generational farmers against Government overreach. As a national campaign, we now defend all farming families being bulldozed by big Government and foreign corporations — and we don't back down.",
     "primaryCtaLabel": "Sign the petition",
-    "primaryCtaHref": "/take-action/baldwins#sign"
+    "primaryCtaHref": "/take-action/hold-the-gate#sign"
   },
   "impactStats": [
     { "value": 23418, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
@@ -387,7 +387,7 @@
       "tone": "navy",
       "heroImage": "/assets/uploads/transmission-burning.jpg",
       "heroEyebrow": "Join 20,000 Australians standing up for our farmers",
-      "headingHtml": "Help our farmers fightback, before it's too late",
+      "headingHtml": "Help our farmers, before it's too late.",
       "subheading": "",
       "context": [
         "Australian agriculture is the envy of the world, contributing over <strong>$80 billion</strong> to our national economy and sustaining rural communities that have stewarded the land for generations. In Victoria alone, our farmers produce <strong>$20.1 billion</strong> in food and fibre exports every year—more than any other state. But this security is being dismantled.",

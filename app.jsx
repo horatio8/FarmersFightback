@@ -1341,7 +1341,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     <div id="sign" style={{ background: C.yellow, color: C.navyDeep, padding: "40px 36px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", gap: 14 }}>
       <div style={{ font: `700 12px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Signed · Thank you</div>
       <h3 style={{ margin: 0, font: `900 56px/0.95 ${fonts.display}`, textTransform: "uppercase" }}>You're {(count + 1).toLocaleString("en-AU")}.</h3>
-      <p style={{ margin: 0, font: `400 16px/1.55 ${fonts.sans}` }}>Now share Greg's address. Every signature past 50k strengthens the handover at Spring St.</p>
+      <p style={{ margin: 0, font: `400 16px/1.55 ${fonts.sans}` }}>Now share the petition. Every signature strengthens the handover at Spring St.</p>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 6 }}>
         <a href="#share" style={{ background: C.navyDeep, color: C.yellow, padding: "16px 22px", font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>SHARE →</a>
         <a href="/#donate" style={{ background: "transparent", color: C.navyDeep, padding: "16px 22px", boxShadow: `inset 0 0 0 2px ${C.navyDeep}`, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>DONATE →</a>
@@ -1437,7 +1437,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <div
           className="fl-hero fl-pad"
           style={{
-            padding: "64px 56px 48px",
+            paddingTop: 64, paddingBottom: 48,
             position: "relative",
             backgroundImage: `linear-gradient(to right, ${C.navy} 0%, ${C.navy} 35%, rgba(14,41,64,0.85) 55%, rgba(14,41,64,0.55) 80%, rgba(14,41,64,0.35) 100%), url(/assets/uploads/fight-police-farmers.jpg)`,
             backgroundSize: "cover, cover",
@@ -1486,20 +1486,20 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* COUNTER STRIP */}
-        <div className="fl-pad" style={{ padding: "56px 56px 64px" }}>
+        <div className="fl-pad" style={{ paddingTop: 56, paddingBottom: 64 }}>
           <div className="fl-grid-counter">
             <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
               <div className="fl-counter-num" style={{ font: `900 96px/0.9 ${fonts.display}`, color: C.yellow, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{count.toLocaleString("en-AU")}</div>
               <div style={{ font: `600 14px/1.4 ${fonts.mono}`, color: C.mute, textTransform: "uppercase", letterSpacing: ".12em" }}>signatures<br/>demanding the Minister resign</div>
             </div>
             <div>
-              <Eyebrow>Goal · 50,000</Eyebrow>
-              <div style={{ position: "relative", height: 18, background: "rgba(245,241,232,0.08)", marginTop: 14 }}>
-                <div style={{ position: "absolute", inset: 0, width: "100%", background: C.yellow }} />
+              <Eyebrow>Goal · {(p.goal || 25000).toLocaleString("en-AU")}</Eyebrow>
+              <div style={{ position: "relative", height: 18, background: "rgba(245,241,232,0.08)", marginTop: 14, overflow: "hidden" }}>
+                <div style={{ position: "absolute", inset: 0, width: `${Math.min(100, (count / (p.goal || 25000)) * 100).toFixed(1)}%`, background: C.yellow, transition: "width .3s ease" }} />
                 <div style={{ position: "absolute", right: -2, top: -10, bottom: -10, width: 2, background: C.bone }} />
               </div>
               <div style={{ font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, marginTop: 12, textTransform: "uppercase", letterSpacing: ".12em" }}>
-                Threshold met. Spring St handover scheduled — date TBC, next 60 days.
+                {Math.max(0, (p.goal || 25000) - count).toLocaleString("en-AU")} signatures to go · handover at Spring St when we hit goal.
               </div>
             </div>
           </div>
@@ -1508,7 +1508,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* HEADLINE ANCHOR */}
-        <div className="fl-pad" style={{ padding: "96px 56px", background: C.navyDeep, textAlign: "center" }}>
+        <div className="fl-pad" style={{ paddingTop: 96, paddingBottom: 96, background: C.navyDeep, textAlign: "center" }}>
           <h2 className="fl-h2" style={{ fontSize: "clamp(56px, 8vw, 120px)", lineHeight: 0.95, margin: 0 }}>
             <span style={{ color: C.yellow }}>Refusal</span> criminalised.
           </h2>
@@ -1520,7 +1520,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* STORY TIMELINE */}
-        <div id="story" className="fl-pad" style={{ padding: "88px 56px 64px" }}>
+        <div id="story" className="fl-pad" style={{ paddingTop: 88, paddingBottom: 64 }}>
           <Eyebrow>The Story · One Page</Eyebrow>
           <h2 className="fl-h2" style={{ marginTop: 20, maxWidth: 980 }}>From Triple Zero to <span style={{ color: C.yellow }}>Charges Dropped</span>.</h2>
           <div className="fl-grid-timeline" style={{ marginTop: 64 }}>
@@ -1554,7 +1554,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* DONATE — Stripe payment links */}
-        <div id="donate" className="fl-donate fl-pad" style={{ padding: "88px 56px", background: C.navyDeep }}>
+        <div id="donate" className="fl-donate fl-pad" style={{ paddingTop: 88, paddingBottom: 88, background: C.navyDeep }}>
           <Eyebrow>Fund the fight</Eyebrow>
           <h2 className="fl-h2" style={{ margin: "18px 0 14px" }}>Defend Aussie Farmers. <span style={{ color: C.yellow }}>Pick an amount.</span></h2>
           <p style={{ margin: "0 0 36px", maxWidth: 720, font: `400 17px/1.55 ${fonts.sans}`, color: C.bone }}>
@@ -1582,7 +1582,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               </a>
             ))}
             {/* Other amount cell — uses custom-amount payment link */}
-            <a href="https://buy.stripe.com/8x2fZggVo6GL1Efec8bV608" onClick={markDonatePending} target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
+            <a href="/donate#donate" className="fl-donate-tile fl-donate-tile--other" style={{
               display: "flex", flexDirection: "column", justifyContent: "space-between",
               padding: "28px 24px", minHeight: 160,
               gridColumn: "span 2",
@@ -1590,7 +1590,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
             }}>
               <div className="fl-tile-kicker" style={{ font: `700 11px/1 ${fonts.mono}`, letterSpacing: ".18em", textTransform: "uppercase" }}>Choose your own</div>
               <div className="fl-tile-amount" style={{ font: `900 clamp(38px, 4vw, 56px)/0.9 ${fonts.display}`, letterSpacing: "-0.02em" }}>Other</div>
-              <div className="fl-tile-cta" style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>Set amount <span style={{ fontSize: 18 }}>→</span></div>
+              <div className="fl-tile-cta" style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>Enter any amount <span style={{ fontSize: 18 }}>→</span></div>
             </a>
           </div>
           <p style={{ margin: "20px 0 0", font: `500 12px/1.5 ${fonts.mono}`, color: C.mute, letterSpacing: ".12em", textTransform: "uppercase" }}>Stripe-secured · AUD</p>
@@ -1599,7 +1599,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         <Rule />
 
         {/* ACTION GRID */}
-        <div id="actions" className="fl-pad fl-section-aft" style={{ padding: "88px 56px 56px", scrollMarginTop: 60 }}>
+        <div id="actions" className="fl-pad fl-section-aft" style={{ paddingTop: 88, paddingBottom: 56, scrollMarginTop: 60 }}>
           <Eyebrow>What you do today</Eyebrow>
           <h2 className="fl-h2" style={{ margin: "18px 0 48px" }}>Three moves. <span style={{ color: C.yellow }}>You choose.</span></h2>
           <div className="fl-grid-actions">
@@ -1623,8 +1623,8 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         </div>
 
         {/* SHARE ROW */}
-        <div id="share" className="fl-pad fl-section-aft" style={{ padding: "56px 56px" }}>
-          <Eyebrow>Share · Greg's Address</Eyebrow>
+        <div id="share" className="fl-pad fl-section-aft" style={{ paddingTop: 56, paddingBottom: 56 }}>
+          <Eyebrow>Share the petition</Eyebrow>
           <div className="fl-share-row" style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>
             {[
               { p: "facebook", l: "Facebook", brand: "#1877F2",
@@ -1652,14 +1652,14 @@ function BaldwinFloodlight({ p, receiverUrl }) {
         </div>
 
         {/* PHOTO BAND */}
-        <div className="fl-pad fl-photo-band" style={{ padding: "0 56px 88px" }}>
+        <div className="fl-pad fl-photo-band" style={{ paddingTop: 0, paddingBottom: 88 }}>
           <PhotoSlot label="GREG ON HIS LAND · WIDE · LOOKING AT CAMERA · WORKING CLOTHES" h={420} />
         </div>
 
         <Rule />
 
         {/* FOOTER */}
-        <div className="fl-pad fl-footer" style={{ padding: "56px 56px 64px", background: C.navyDeep }}>
+        <div className="fl-pad fl-footer" style={{ paddingTop: 56, paddingBottom: 64, background: C.navyDeep }}>
           <div className="fl-grid-footer">
             <div>
               <div style={{ font: `900 16px/1 ${fonts.display}`, letterSpacing: ".2em", textTransform: "uppercase" }}>Farmers<br/>Fightback</div>
@@ -1816,17 +1816,13 @@ function PetitionPage({ slug }) {
       </div>
       <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true" /></Field>
       <div className="ff-form-row">
-        <Field label="Country">
-          <select value={form.country} onChange={update("country")} autoComplete="country">
-            <option value="AU">Australia</option><option value="NZ">New Zealand</option><option value="GB">United Kingdom</option>
-            <option value="US">United States</option><option value="CA">Canada</option><option value="OTHER">Other</option>
-          </select>
-        </Field>
         <Field label="Postcode" error={errors.postcode}>
-          <input value={form.postcode} onChange={update("postcode")} inputMode={form.country === "AU" ? "numeric" : "text"} maxLength={form.country === "AU" ? 4 : 10} autoComplete="postal-code" />
+          <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} autoComplete="postal-code" placeholder="3000" />
+        </Field>
+        <Field label="Phone">
+          <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" />
         </Field>
       </div>
-      <Field label="Phone"><input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" /></Field>
       <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
         {state === "submitting" ? p.submittingLabel : p.submitLabel}
       </button>
@@ -1868,22 +1864,24 @@ function PetitionPage({ slug }) {
                   {p.petitionAuthorised && <p className="ff-petition-declaration-auth">{p.petitionAuthorised}</p>}
                 </div>
               )}
-              {p.trustBadges && p.trustBadges.length > 0 && (
-                <ul className="ff-trust-row ff-trust-row--stacked">
-                  {p.trustBadges.map((b, i) => (
-                    <li key={i} className="ff-trust-badge ff-trust-badge--lg">
-                      <span className={`ff-trust-icon ff-trust-icon--${b.icon}`} aria-hidden="true" />
-                      <span>
-                        <strong>{b.label}</strong>
-                        {b.sub && <em>{b.sub}</em>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
             <div>{formBlock}</div>
           </div>
+          {p.trustBadges && p.trustBadges.length > 0 && (
+            <div className="ff-wrap ff-petition-trust-row">
+              <ul className="ff-trust-row ff-trust-row--inline">
+                {p.trustBadges.map((b, i) => (
+                  <li key={i} className="ff-trust-badge ff-trust-badge--lg">
+                    <span className={`ff-trust-icon ff-trust-icon--${b.icon}`} aria-hidden="true" />
+                    <span>
+                      <strong>{b.label}</strong>
+                      {b.sub && <em>{b.sub}</em>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
         </div>
 
