@@ -1614,7 +1614,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               </a>
             ))}
             {/* Other amount cell — uses custom-amount payment link */}
-            <a href="https://donate.stripe.com/bJebJ05cG5CH96HgkgbV60W" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
+            <a href="https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
               display: "flex", flexDirection: "column", justifyContent: "space-between",
               padding: "28px 24px", minHeight: 160,
               gridColumn: "span 2",

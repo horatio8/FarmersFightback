@@ -158,7 +158,7 @@
       { "amount": 550,  "label": "A regional billboard for a week","oneOffUrl": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", "monthlyUrl": "" },
       { "amount": 1500, "label": "Fund a full TV campaign run",   "oneOffUrl": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "monthlyUrl": "" }
     ],
-    "customOneOffUrl": "https://donate.stripe.com/bJebJ05cG5CH96HgkgbV60W",
+    "customOneOffUrl": "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
     "customMonthlyUrl": "",
     "defaultPick": 135,
     "currency": "AUD",
@@ -558,7 +558,7 @@
       { "amount": 550,  "url": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", "tag": "A regional billboard for a week" },
       { "amount": 1500, "url": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "tag": "Fund a full TV campaign run" }
     ],
-    "otherUrl": "https://donate.stripe.com/bJebJ05cG5CH96HgkgbV60W",
+    "otherUrl": "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
     "achievements": {
       "heading": "What your dollars have already paid for.",
       "image": "/assets/uploads/donate-rally-masks.jpg",
