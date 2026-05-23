@@ -69,6 +69,40 @@ function getAttribution() {
   try { return JSON.parse(sessionStorage.getItem(FF_ATTR_KEY) || "{}"); } catch { return {}; }
 }
 
+// ---------- Meta Conversions API (server-side) ----------
+// Sends events to /api/meta-capi which forwards to Meta with hashed PII.
+// Uses the same event_id for both browser pixel and CAPI to deduplicate.
+function getCookie(name) {
+  if (typeof document === "undefined") return "";
+  const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+  return m ? decodeURIComponent(m[1]) : "";
+}
+function sendCAPI(eventName, userData, customData) {
+  if (typeof window === "undefined") return;
+  const eventId = `${eventName}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  // Fire browser pixel with matching event_id for dedup
+  if (window.fbq) {
+    window.fbq("track", eventName, customData || {}, { eventID: eventId });
+  }
+  // Fire server-side CAPI
+  const body = {
+    event_name: eventName,
+    event_id: eventId,
+    event_source_url: window.location.href,
+    user_data: {
+      ...(userData || {}),
+      fbc: getCookie("_fbc"),
+      fbp: getCookie("_fbp"),
+    },
+  };
+  if (customData && Object.keys(customData).length > 0) body.custom_data = customData;
+  fetch("/api/meta-capi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch(() => {}); // fire-and-forget, don't block UX
+}
+
 // ---------- Top banner ----------
 function TopBanner() {
   const c = useContent().topBanner;
@@ -394,6 +428,7 @@ function Petition() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body,
       });
+      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Omnibus Petition" });
       window.location.assign("/donate");
     } catch (err) {
       setState("error");
@@ -562,7 +597,7 @@ function DonateBand() {
   const matched = amounts.find(a => Number(a.amount) === Number(pick));
   const stripeUrl = matched ? matched.url : otherUrl;
   const ready = !!stripeUrl;
-  const onDonate = () => { if (ready) window.location.href = stripeUrl; };
+  const onDonate = () => { if (ready) { sendCAPI("InitiateCheckout", {}, { value: pick || 0, currency, content_name: "Donation" }); window.location.href = stripeUrl; } };
 
   return (
     <section id="donate" className="ff-section ff-donate">
@@ -1076,8 +1111,9 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       window.removeEventListener("focus", tryScroll);
     };
   }, []);
-  const markDonatePending = () => {
+  const markDonatePending = (amount) => {
     try { sessionStorage.setItem("ff_baldwin_donate_pending", String(Date.now())); } catch {}
+    sendCAPI("InitiateCheckout", {}, { value: amount || 0, currency: "AUD", content_name: "Baldwin Donation" });
   };
 
   // Form state — wires the SIGN action below the action grid
@@ -1108,6 +1144,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Baldwin Petition" });
       setState("done");
       requestAnimationFrame(() => {
         document.getElementById("donate")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1601,7 +1638,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               { amount: 550,  url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U" },
               { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V" },
             ].map((d, i, arr) => (
-              <a key={d.amount} href={d.url} onClick={markDonatePending} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
+              <a key={d.amount} href={d.url} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
                 padding: "28px 24px", minHeight: 160,
                 borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",
@@ -1755,6 +1792,7 @@ function PetitionPage({ slug }) {
       if (receiverUrl) {
         await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       }
+      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: form.country?.toLowerCase() || "au" }, { content_name: p.campaign || p.slug || "Petition" });
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
@@ -2100,6 +2138,7 @@ function ContactPage() {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone }, { content_name: "Contact Form" });
       setState("done");
     } catch { setState("error"); }
   };
@@ -2268,7 +2307,7 @@ function DonorPage() {
                 <span className="ff-give-chip-tag">Choose your own</span>
               </a>
             </div>
-            <a href={ctaUrl} target="_top" rel="noopener" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta">{ctaLabel}</a>
+            <a href={ctaUrl} target="_top" rel="noopener" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta" onClick={() => sendCAPI("InitiateCheckout", {}, { value: picked || 0, currency: "AUD", content_name: monthly ? "Monthly Donation" : "One-off Donation" })}>{ctaLabel}</a>
             <p className="ff-give-fineprint">{c.fineprint}</p>
           </div>
         </div>
@@ -2342,6 +2381,7 @@ function VolunteerPage() {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Volunteer Registration" });
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
