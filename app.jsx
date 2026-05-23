@@ -100,6 +100,7 @@ function sendCAPI(eventName, userData, customData) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    keepalive: true, // survive page navigation (e.g. redirect to Stripe)
   }).catch(() => {}); // fire-and-forget, don't block UX
 }
 
