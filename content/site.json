@@ -8,7 +8,7 @@
   },
   "nav": {
     "items": [
-      { "label": "Home", "href": "/", "active": true },
+      { "label": "Home", "href": "/", "active" true },
       { "label": "The Fight", "href": "/the-fight", "active": false },
       {
         "label": "Take Action",
@@ -587,7 +587,8 @@
     "eyebrow": "Volunteer",
     "heading": "Volunteer with us.",
     "lede": "Your time and skills can change the course of this fight. Whether you can give two hours a week or twenty, there's a place for you.",
-    "rolesHeading": "Volunteer roles.",
+    "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/fb97da79-e214-424e-991f-092c4015affd",
+      "rolesHeading": "Volunteer roles.",
     "rolesIntro": "Every role matters. Pick what fits your life right now.",
     "roles": [
       { "title": "Hold the Gate volunteer", "body": "Be on the alert network. When contractors arrive at a farm gate, we ping volunteers nearby and you turn up to witness, film, and stand peacefully with the family." },
