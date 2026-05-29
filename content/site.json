@@ -8,7 +8,7 @@
   },
   "nav": {
     "items": [
-      { "label": "Home", "href": "/", "active" true },
+      { "label": "Home", "href": "/", "active": true },
       { "label": "The Fight", "href": "/the-fight", "active": false },
       {
         "label": "Take Action",
