@@ -2359,10 +2359,10 @@ function DonorAchievements({ cfg }) {
 // ---------- Volunteer page ----------
 function VolunteerPage() {
   const c = useContent().volunteer;
-  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", roles: [] });
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", vType: "", roles: [] });
   const [state, setState] = useState("idle");
   const [errors, setErrors] = useState({});
-  const receiverUrl = useContent().petition?.receiverUrl;
+  const receiverUrl = c.receiverUrl || useContent().petition?.receiverUrl;
   const toggleRole = (r) => setForm(f => ({ ...f, roles: f.roles.includes(r) ? f.roles.filter(x => x !== r) : [...f.roles, r] }));
   const submit = async (ev) => {
     ev.preventDefault();
@@ -2371,12 +2371,16 @@ function VolunteerPage() {
     if (!form.last.trim()) e.last = "Required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
     if (!form.phone.trim()) e.phone = "Required";
+    if (!form.postcode.trim()) e.postcode = "Required";
+    if (form.postcode.trim() && !/^\d{4}$/.test(form.postcode.trim())) e.postcode = "4-digit postcode";
+    if (!form.vType) e.vType = "Required";
     setErrors(e);
     if (Object.keys(e).length) return;
     setState("submitting");
     const body = new URLSearchParams({
       first_name: form.first.trim(), last_name: form.last.trim(),
       email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
+      volunteer_type: form.vType,
       roles: form.roles.join(", "), campaign: "Volunteer",
       ...getAttribution(),
     });
@@ -2430,8 +2434,19 @@ function VolunteerPage() {
               <Field label="Email *" error={errors.email}><input type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} autoComplete="email" required /></Field>
               <div className="ff-form-row">
                 <Field label="Mobile *" error={errors.phone}><input type="tel" value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} autoComplete="tel" required placeholder="0400 000 000" /></Field>
-                <Field label="Postcode"><input value={form.postcode} onChange={(e) => setForm(f => ({ ...f, postcode: e.target.value }))} inputMode="numeric" maxLength={4} autoComplete="postal-code" /></Field>
+                <Field label="Postcode *" error={errors.postcode}><input value={form.postcode} onChange={(e) => setForm(f => ({ ...f, postcode: e.target.value }))} inputMode="numeric" maxLength={4} autoComplete="postal-code" required /></Field>
               </div>
+              <Field label="How would you like to help? *" error={errors.vType}>
+                <select value={form.vType} onChange={(e) => setForm(f => ({ ...f, vType: e.target.value }))} required>
+                  <option value="">Select an option…</option>
+                  <option value="farmgate">Farm gate presence (Hold the Gate)</option>
+                  <option value="phone-banking">Phone banking</option>
+                  <option value="field-canvassing">Community engagement</option>
+                  <option value="digital-advocacy">Digital advocacy</option>
+                  <option value="logistics">Logistics</option>
+                  <option value="administration">Administration</option>
+                </select>
+              </Field>
               <div className={`ff-field ff-field--group`}>
                 <span className="ff-field-label">{c.rolesFieldLabel || "Which roles interest you?"}</span>
                 <div className="ff-vol-role-checks">
