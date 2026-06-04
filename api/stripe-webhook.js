@@ -1,5 +1,5 @@
 // Vercel serverless function: receives Stripe webhook events and fires
-// Meta CAPI "Donate" events for every successful charge — one-off or
+// Meta CAPI "Purchase" events for every successful charge — one-off or
 // subscription rebill.
 //
 // Wired in Stripe Dashboard → Developers → Webhooks → endpoint URL:
@@ -109,7 +109,7 @@ function splitName(name) {
   return { fn: parts[0], ln: parts.slice(-1)[0] };
 }
 
-async function fireCAPIDonate({ event_id, amount_minor, currency, details, contentName, sourceUrl, fbc, fbp, ip, userAgent }) {
+async function fireCAPIPurchase({ event_id, amount_minor, currency, details, contentName, sourceUrl, fbc, fbp, ip, userAgent }) {
   const { fn, ln } = splitName(details && details.name);
   const user_data = {
     em: details && details.email,
@@ -125,7 +125,7 @@ async function fireCAPIDonate({ event_id, amount_minor, currency, details, conte
   };
   const value = Math.round((amount_minor || 0)) / 100;
   return postEvent({
-    event_name: "Donate",
+    event_name: "Purchase",
     event_id,
     event_source_url: sourceUrl || "https://farmersfightback.com/donate",
     action_source: "website",
@@ -190,7 +190,7 @@ module.exports = async function handler(req, res) {
 
       const details = await resolveCustomerDetails(obj);
       const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
-      await fireCAPIDonate({
+      await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,                   // idempotent across retries
         amount_minor: obj.amount_total,
         currency: obj.currency,
@@ -202,7 +202,7 @@ module.exports = async function handler(req, res) {
         ip,
         userAgent: ua,
       });
-      return res.status(200).json({ received: true, fired: "Donate" });
+      return res.status(200).json({ received: true, fired: "Purchase" });
     }
 
     if (type === "invoice.paid") {
@@ -228,7 +228,7 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      await fireCAPIDonate({
+      await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,
         amount_minor: obj.amount_paid,
         currency: obj.currency,
@@ -240,7 +240,7 @@ module.exports = async function handler(req, res) {
         ip,
         userAgent: ua,
       });
-      return res.status(200).json({ received: true, fired: "Donate" });
+      return res.status(200).json({ received: true, fired: "Purchase" });
     }
 
     return res.status(200).json({ received: true, ignored: type });
