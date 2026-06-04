@@ -429,7 +429,7 @@ function Petition() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body,
       });
-      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Omnibus Petition" });
+      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Omnibus Petition" });
       window.location.assign("/donate");
     } catch (err) {
       setState("error");
@@ -1159,7 +1159,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Baldwin Petition" });
+      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Baldwin Petition" });
       setState("done");
       requestAnimationFrame(() => {
         document.getElementById("donate")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1807,7 +1807,7 @@ function PetitionPage({ slug }) {
       if (receiverUrl) {
         await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       }
-      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: form.country?.toLowerCase() || "au" }, { content_name: p.campaign || p.slug || "Petition" });
+      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: form.country?.toLowerCase() || "au" }, { content_name: p.campaign || p.slug || "Petition" });
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
@@ -2153,7 +2153,7 @@ function ContactPage() {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone }, { content_name: "Contact Form" });
+      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone }, { content_name: "Contact Form" });
       setState("done");
     } catch { setState("error"); }
   };
@@ -2400,7 +2400,7 @@ function VolunteerPage() {
     });
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      sendCAPI("Lead", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Volunteer Registration" });
+      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Volunteer Registration" });
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
