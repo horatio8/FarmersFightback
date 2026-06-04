@@ -1089,6 +1089,20 @@ function BaldwinFloodlight({ p, receiverUrl }) {
   const [count, setCount] = useState(dailyCount);
   const [navOpen, setNavOpen] = useState(false);
 
+  // When arriving with a URL hash (e.g. /defend → /take-action/baldwins#donate),
+  // wait for the target section to mount, then scroll to it.
+  useEffect(() => {
+    const id = (window.location.hash || "").replace(/^#/, "");
+    if (!id) return;
+    let tries = 0;
+    const tick = () => {
+      const el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      if (++tries < 40) setTimeout(tick, 75);
+    };
+    tick();
+  }, []);
+
   // After a Baldwin donation Stripe click, when the user returns to this
   // page (tab regains focus or component re-mounts after redirect) scroll
   // them to the next-step action grid.
