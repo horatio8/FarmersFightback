@@ -1,7 +1,7 @@
 {
   "topBanner": {
     "enabled": true,
-    "boldText": "60,021 Australians",
+    "boldText": "61,021 Australians",
     "text": "have signed. Add your name.",
     "linkText": "Sign now →",
     "linkHref": "/take-action/hold-the-gate"
@@ -37,7 +37,7 @@
     "primaryCtaHref": "#petition"
   },
   "impactStats": [
-    { "value": 60021, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
+    { "value": 61021, "label": "Signatures", "suffix": "", "grow": "+1,204 this week" },
     { "value": 4, "label": "Videos released", "suffix": "", "grow": "Evidence archive" },
     { "value": 3, "label": "Media statements", "suffix": "", "grow": "ABC · 7News · WTimes" },
     { "value": 187, "label": "Farms affected", "suffix": "", "grow": "Across 3 LGAs" }
@@ -89,14 +89,14 @@
     "lede": "To our Australian and State leaders, we stand with Aussie farmers and will fight any threat to our food security and farming rights.",
     "bullets": [],
     "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/de602723-dce3-4a83-ab0b-b8156faf01e2",
-    "currentCount": 60021,
+    "currentCount": 61021,
     "nextMilestone": 75000,
     "goal": 100000,
     "submitLabel": "Sign the petition",
     "submittingLabel": "Signing...",
     "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
     "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
-    "shareText": "I just signed the Farmers Fightback petition. Join 60,000+ Australians: farmersfightback.com",
+    "shareText": "I just signed the Farmers Fightback petition. Join 61,000+ Australians: farmersfightback.com",
     "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Farmers Fightback."
   },
   "actions": {
@@ -106,7 +106,7 @@
       {
         "kicker": "01 / Sign the petition",
         "title": "Sign the petition today",
-        "body": "Add your signature to 60,021 other aussies defending Aussie farmers. Tell our Australian leaders enough is enough.",
+        "body": "Add your signature to 61,021 other aussies defending Aussie farmers. Tell our Australian leaders enough is enough.",
         "cta": "Sign the petition today",
         "href": "#petition",
         "tone": "paddock",
@@ -116,7 +116,7 @@
       {
         "kicker": "02 / Donate",
         "title": "Donate today: They have billions, we have you",
-        "body": "Add your signature to 60,021 other aussies defending Aussie farmers. Tell our Australian leaders enough is enough.",
+        "body": "Add your signature to 61,021 other aussies defending Aussie farmers. Tell our Australian leaders enough is enough.",
         "cta": "Help the fight today",
         "href": "/donate",
         "tone": "dust",
@@ -329,7 +329,7 @@
         { "label": "Community Verified", "icon": "shield", "sub": "Backed by Farmers Fightback Inc." },
         { "label": "Farmer Led",        "icon": "tick",   "sub": "Built by the people it affects." }
       ],
-      "currentCount": 60021,
+      "currentCount": 61021,
       "nextMilestone": 75000,
       "goal": 100000,
       "submitLabel": "Add my name →",
@@ -399,7 +399,7 @@
         { "label": "Farmer-led",        "icon": "shield", "sub": "Built by the families it affects." },
         { "label": "Authorised",        "icon": "tick",   "sub": "Authorised by Ben Duxson, Wallaloo VIC." }
       ],
-      "currentCount": 60021,
+      "currentCount": 61021,
       "nextMilestone": 75000,
       "goal": 100000,
       "submitLabel": "Sign the petition today →",
