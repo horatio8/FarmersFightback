@@ -1,5 +1,54 @@
 /* global React, ReactDOM */
-const { useState, useEffect, createContext, useContext } = React;
+const { useState, useEffect, useCallback, createContext, useContext } = React;
+
+// ---------- Live petition counter ----------
+// Polls /api/petition-count (aggregates all 6 FF Campaign Nucleus forms).
+// Returns { count, loading }. While loading, callers fall back to the
+// static fallback value baked into content/site.json.
+const PETITION_POLL_INTERVAL = 5_000;
+function usePetitionCount() {
+  const [count, setCount] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCount = useCallback(async () => {
+    try {
+      const res = await fetch("/api/petition-count");
+      if (!res.ok) return;
+      const { count: c } = await res.json();
+      if (typeof c === "number") {
+        setCount(c);
+        setLoading(false);
+      }
+    } catch { /* retry on next poll */ }
+  }, []);
+
+  useEffect(() => {
+    fetchCount();
+    let iv = setInterval(fetchCount, PETITION_POLL_INTERVAL);
+
+    const onVis = () => {
+      clearInterval(iv);
+      if (document.visibilityState === "visible") {
+        fetchCount();
+        iv = setInterval(fetchCount, PETITION_POLL_INTERVAL);
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    // Optimistic +1 when a form on this page completes successfully.
+    const onBump = () => setCount(prev => (prev ?? 0) + 1);
+    window.addEventListener("petition-signed", onBump);
+
+    return () => {
+      clearInterval(iv);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("petition-signed", onBump);
+    };
+  }, [fetchCount]);
+
+  return { count, loading };
+}
+const fmtCount = (n) => Number(n).toLocaleString();
 
 const CONTENT_URL = (typeof window !== "undefined" && window.__FF_CONTENT_URL) || "content/site.json";
 const ContentContext = createContext(null);
@@ -107,12 +156,18 @@ function sendCAPI(eventName, userData, customData) {
 // ---------- Top banner ----------
 function TopBanner() {
   const c = useContent().topBanner;
+  const { count } = usePetitionCount();
   if (!c.enabled) return null;
+  // c.boldText reads like "70,981 Australians" — swap the leading number
+  // for the live count once we have it, keeping the rest of the string.
+  const bold = count != null
+    ? c.boldText.replace(/^[\d,]+/, fmtCount(count))
+    : c.boldText;
   return (
     <div className="ff-topbanner">
       <div className="ff-wrap ff-topbanner-inner">
         <span className="ff-topbanner-pulse" />
-        <span><strong>{c.boldText}</strong> {c.text}</span>
+        <span><strong>{bold}</strong> {c.text}</span>
         <a href={c.linkHref} className="ff-topbanner-link">{c.linkText}</a>
       </div>
     </div>
@@ -261,10 +316,16 @@ function useCountUp(target, duration = 1400) {
 
 function ImpactBar() {
   const stats = useContent().impactStats;
+  const { count } = usePetitionCount();
+  // Replace the first stat's value (the Signatures count) with the live
+  // aggregate once available. All other stats render unchanged.
+  const merged = stats.map((s, i) =>
+    i === 0 && count != null ? { ...s, value: count } : s
+  );
   return (
     <section className="ff-impact">
       <div className="ff-wrap ff-impact-inner">
-        {stats.map((s, i) => <ImpactStat key={i} {...s} />)}
+        {merged.map((s, i) => <ImpactStat key={i} {...s} />)}
       </div>
     </section>
   );
@@ -395,7 +456,11 @@ function Summary() {
 
 // ---------- Petition form ----------
 function Petition() {
-  const c = useContent().petition;
+  const raw = useContent().petition;
+  const { count: liveCount } = usePetitionCount();
+  // Use the live aggregate when available; otherwise the static fallback
+  // baked into content/site.json. Keep nextMilestone/goal untouched.
+  const c = liveCount != null ? { ...raw, currentCount: liveCount } : raw;
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });
   const [errors, setErrors] = useState({});
   const [state, setState] = useState("idle");
@@ -430,6 +495,7 @@ function Petition() {
         body,
       });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Omnibus Petition" });
+      window.dispatchEvent(new Event("petition-signed"));
       window.location.assign("/donate");
     } catch (err) {
       setState("error");
@@ -1051,6 +1117,7 @@ function shareUrlFor(platform, text, url) {
 // site styles. Renders only when petition slug === "baldwins".
 // Locked, lawyer-reviewed copy — see /design_handoff_baldwin_campaign/README.md.
 function BaldwinFloodlight({ p, receiverUrl }) {
+  const { count: liveBaldwinCount } = usePetitionCount();
   const C = {
     navy: "#0E2940", navyDeep: "#081826",
     bone: "#F5F1E8", boneDim: "#D9D3C5",
@@ -1086,7 +1153,12 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     }
     return total;
   })();
+  // Prefer the live aggregate when available; fall back to the
+  // deterministic daily-tick baseline otherwise.
   const [count, setCount] = useState(dailyCount);
+  useEffect(() => {
+    if (liveBaldwinCount != null) setCount(liveBaldwinCount);
+  }, [liveBaldwinCount]);
   const [navOpen, setNavOpen] = useState(false);
 
   // When arriving with a URL hash (e.g. /defend → /take-action/baldwins#donate),
@@ -1160,6 +1232,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Baldwin Petition" });
+      window.dispatchEvent(new Event("petition-signed"));
       setState("done");
       requestAnimationFrame(() => {
         document.getElementById("donate")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1751,9 +1824,14 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
 function PetitionPage({ slug }) {
   const all = useContent().petitions || {};
-  const p = all[slug];
+  const rawP = all[slug];
   const defaultReceiverUrl = useContent().petition?.receiverUrl;
-  const receiverUrl = (p && p.receiverUrl) || defaultReceiverUrl;
+  const receiverUrl = (rawP && rawP.receiverUrl) || defaultReceiverUrl;
+  const { count: liveCount } = usePetitionCount();
+  // Override the per-petition static count with the live aggregate so
+  // every page shows the same combined figure (per brief, all 6 FF forms
+  // contribute to one counter).
+  const p = (rawP && liveCount != null) ? { ...rawP, currentCount: liveCount } : rawP;
 
   // Slug-specific themed templates
   if (slug === "baldwins" && p) {
@@ -1808,6 +1886,7 @@ function PetitionPage({ slug }) {
         await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       }
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: form.country?.toLowerCase() || "au" }, { content_name: p.campaign || p.slug || "Petition" });
+      window.dispatchEvent(new Event("petition-signed"));
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
@@ -2154,6 +2233,7 @@ function ContactPage() {
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone }, { content_name: "Contact Form" });
+      window.dispatchEvent(new Event("petition-signed"));
       setState("done");
     } catch { setState("error"); }
   };
@@ -2401,6 +2481,7 @@ function VolunteerPage() {
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Volunteer Registration" });
+      window.dispatchEvent(new Event("petition-signed"));
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
