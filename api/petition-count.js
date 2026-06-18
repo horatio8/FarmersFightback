@@ -88,7 +88,12 @@ module.exports = async function handler(req, res) {
     res.setHeader("Cache-Control", "public, max-age=10, s-maxage=10, stale-while-revalidate=60");
     return res.status(200).json({ count });
   } catch (err) {
-    console.error("petition-count error:", err);
+    console.error("petition-count error:", err && err.stack || err);
+    console.error("petition-count env check:", {
+      CN_BASE_URL: process.env.CN_BASE_URL || "(unset)",
+      CN_CLIENT_ID_set: Boolean(process.env.CN_CLIENT_ID),
+      CN_CLIENT_SECRET_set: Boolean(process.env.CN_CLIENT_SECRET),
+    });
     if (cachedCount !== null) {
       res.setHeader("Cache-Control", "public, max-age=10, stale-while-revalidate=60");
       return res.status(200).json({ count: cachedCount, stale: true });
