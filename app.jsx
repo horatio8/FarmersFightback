@@ -798,7 +798,7 @@ function spRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function spMakePetition(name) {
   return {
     type: "petition",
-    text: `${name || spRandom(SP_NAMES)} just stood up for Aussie farmers. ${spRandom(SP_STATES)}.`,
+    text: `${name || spRandom(SP_NAMES)} from ${spRandom(SP_STATES)} just stood up for Aussie farmers.`,
     cta: "Join the fight today",
     href: "/take-action/hold-the-gate",
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -807,7 +807,7 @@ function spMakePetition(name) {
 function spMakeDonation(name, amount) {
   return {
     type: "donation",
-    text: `${name || spRandom(SP_NAMES)} just donated $${amount || spRandom(SP_DONATION_AMOUNTS)} to back Aussie farmers. ${spRandom(SP_STATES)}.`,
+    text: `${name || spRandom(SP_NAMES)} from ${spRandom(SP_STATES)} just donated $${amount || spRandom(SP_DONATION_AMOUNTS)} to back Aussie farmers.`,
     cta: "Support the fight today",
     href: "/donate",
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
