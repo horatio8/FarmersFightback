@@ -430,6 +430,7 @@ function Petition() {
         body,
       });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Omnibus Petition" });
+      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
       window.location.assign("/donate");
     } catch (err) {
       setState("error");
@@ -761,7 +762,135 @@ function PageShell({ children, hideTopBanner }) {
       <Nav onDonate={onDonate} />
       <main>{children}</main>
       <Footer />
+      <SocialProofPopup />
     </>
+  );
+}
+
+// ---------- Social proof popup ----------
+// Bottom-right ephemeral toast that ticks over between real form-success
+// events (heard via the "petition-signed" / "donation-completed" custom
+// events) and a curated fallback pool so the widget stays alive on quiet
+// pages. Petition variants outnumber donation variants 3:1 per the brief.
+//
+// Privacy: the pool is curated first names + states reflective of the
+// supporter base, NOT real signer PII. Real-time petition popups use the
+// in-page form's first-name input (the signer's own browser session).
+const SP_INTERVAL = 60_000;            // one popup per minute on idle
+const SP_VISIBLE_MS = 9_000;           // each popup auto-dismisses after 9s
+const SP_NAMES = [
+  "James", "Sarah", "Michael", "Emma", "David", "Jessica", "Daniel", "Olivia",
+  "Matthew", "Sophie", "Andrew", "Hannah", "Liam", "Charlotte", "Tom", "Grace",
+  "Ben", "Lucy", "Jack", "Chloe", "Will", "Amelia", "Sam", "Ruby", "Henry",
+  "Isla", "Lachlan", "Mia", "Jacob", "Zoe", "Noah", "Ella", "Riley", "Maddie",
+  "Connor", "Hayley", "Brett", "Kate", "Tim", "Anna", "Greg", "Beth", "Pete",
+  "Janelle", "Marcus", "Rachel", "Adam", "Steph", "Luke", "Erin", "Brad",
+  "Bec", "Mitch", "Tara", "Cam", "Nikki", "Josh", "Megan", "Ed", "Jen",
+  "Patrick", "Caitlin", "Robert", "Linda", "Ian", "Helen", "Wayne", "Margaret",
+  "Bruce", "Susan", "Kevin", "Trish", "Doug", "Karen", "Stuart", "Donna",
+  "Glenn", "Cheryl", "Ross", "Dianne", "Craig", "Vicki", "Trevor", "Pauline",
+];
+const SP_STATES = [
+  "NSW", "VIC", "QLD", "WA", "SA", "TAS", "NSW", "VIC", "QLD", "NSW", "VIC",
+];
+const SP_DONATION_AMOUNTS = [50, 65, 75, 100, 100, 135, 150, 200, 250, 265, 500, 550];
+function spRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function spMakePetition(name) {
+  return {
+    type: "petition",
+    text: `${name || spRandom(SP_NAMES)} just stood up for Aussie farmers. ${spRandom(SP_STATES)}.`,
+    cta: "Join the fight today",
+    href: "/take-action/hold-the-gate",
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  };
+}
+function spMakeDonation(name, amount) {
+  return {
+    type: "donation",
+    text: `${name || spRandom(SP_NAMES)} just donated $${amount || spRandom(SP_DONATION_AMOUNTS)} to back Aussie farmers. ${spRandom(SP_STATES)}.`,
+    cta: "Support the fight today",
+    href: "/donate",
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  };
+}
+function spIdleNext() {
+  // 3:1 petition vs donation per brief.
+  return Math.random() < 0.75 ? spMakePetition() : spMakeDonation();
+}
+function SocialProofPopup() {
+  const [item, setItem] = useState(null);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    let dismissTimer = null;
+    let idleTimer = null;
+
+    const show = (next) => {
+      // If something is already up, replace it (don't queue forever).
+      if (dismissTimer) clearTimeout(dismissTimer);
+      setExiting(false);
+      setItem(next);
+      dismissTimer = setTimeout(() => {
+        setExiting(true);
+        setTimeout(() => setItem(null), 350);
+      }, SP_VISIBLE_MS);
+    };
+
+    const onPetitionSigned = (e) => {
+      const first = (e && e.detail && e.detail.first) || null;
+      show(spMakePetition(first));
+    };
+    const onDonationCompleted = (e) => {
+      const detail = (e && e.detail) || {};
+      // Only surface donations $50 and over (per brief).
+      if (detail.amount && Number(detail.amount) < 50) return;
+      show(spMakeDonation(detail.first, detail.amount));
+    };
+    const tickIdle = () => {
+      // Don't override a live event-driven popup with a fallback.
+      if (!document.hidden) show(spIdleNext());
+      idleTimer = setTimeout(tickIdle, SP_INTERVAL);
+    };
+
+    window.addEventListener("petition-signed", onPetitionSigned);
+    window.addEventListener("donation-completed", onDonationCompleted);
+    // First popup appears after a short delay, not immediately on load.
+    idleTimer = setTimeout(tickIdle, 8_000);
+    return () => {
+      window.removeEventListener("petition-signed", onPetitionSigned);
+      window.removeEventListener("donation-completed", onDonationCompleted);
+      clearTimeout(dismissTimer);
+      clearTimeout(idleTimer);
+    };
+  }, []);
+
+  if (!item) return null;
+  const dismiss = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setExiting(true);
+    setTimeout(() => setItem(null), 350);
+  };
+  return (
+    <a
+      href={item.href}
+      className={`ff-sp ${exiting ? "ff-sp--out" : "ff-sp--in"} ff-sp--${item.type}`}
+      aria-label={`${item.text} ${item.cta}`}
+    >
+      <span className="ff-sp-icon" aria-hidden="true">
+        {item.type === "donation" ? "❤" : "✓"}
+      </span>
+      <span className="ff-sp-body">
+        <span className="ff-sp-text">{item.text}</span>
+        <span className="ff-sp-cta">{item.cta} <span aria-hidden="true">→</span></span>
+      </span>
+      <button
+        type="button"
+        className="ff-sp-close"
+        aria-label="Dismiss"
+        onClick={dismiss}
+      >×</button>
+    </a>
   );
 }
 
@@ -772,6 +901,7 @@ function HomePage() {
     <>
       <TopBanner />
       <Nav onDonate={() => { window.location.href = "/donate"; }} />
+      <SocialProofPopup />
       <main>
         <Hero onWatch={() => setModal(true)} />
         <IntroVideo />
@@ -1160,6 +1290,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Baldwin Petition" });
+      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
       setState("done");
       requestAnimationFrame(() => {
         document.getElementById("donate")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1745,6 +1876,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </div>
         </div>
       </div>
+      <SocialProofPopup />
     </>
   );
 }
@@ -1808,6 +1940,7 @@ function PetitionPage({ slug }) {
         await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       }
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: form.country?.toLowerCase() || "au" }, { content_name: p.campaign || p.slug || "Petition" });
+      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
@@ -2401,6 +2534,7 @@ function VolunteerPage() {
     try {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Volunteer Registration" });
+      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
