@@ -15,6 +15,14 @@ const CONTACTS = process.env.AIRTABLE_CONTACTS_TABLE || "Contacts";
 const EVENTS = process.env.AIRTABLE_EVENTS_TABLE || "Events";
 const API = "https://api.airtable.com/v0";
 
+// Event-type → typed projection table. Anything not in this map is logged to
+// Events with fanout_status = "No Typed Table" so it's easy to filter and
+// (later) wire up a new projection without losing past data.
+const PROJECTION_TABLES = {
+  "Petition Signed": process.env.AIRTABLE_PETITION_SIGNATURES_TABLE || "Petition Signatures",
+  Donation: process.env.AIRTABLE_DONATIONS_TABLE || "Donations",
+};
+
 function uuid() {
   return crypto.randomUUID();
 }
@@ -200,7 +208,119 @@ async function linkReferredBy(newContactRecordId, referrerRecordId) {
   return updateContact(newContactRecordId, { referred_by: [referrerRecordId] });
 }
 
-async function logEvent({ contactRecordId, event_type, payload, fbclid, referral_code_used, source_channel, meta_event_id, timestamp }) {
+function parsePayloadObject(payload) {
+  if (!payload) return {};
+  if (typeof payload === "object") return payload;
+  try {
+    return JSON.parse(String(payload));
+  } catch {
+    return { raw: String(payload) };
+  }
+}
+
+// Projection: Petition Signed → Petition Signatures table.
+function projectPetitionSigned(payloadObj, contactRecordId, eventRecordId, timestamp) {
+  const p = payloadObj || {};
+  return {
+    signature_id: uuid(),
+    contact: contactRecordId ? [contactRecordId] : undefined,
+    event: eventRecordId ? [eventRecordId] : undefined,
+    first_name: p.first_name || undefined,
+    last_name: p.last_name || undefined,
+    email: normEmail(p.email) || undefined,
+    mobile: normPhone(p.mobile) || undefined,
+    postcode: p.postcode || undefined,
+    country: p.country || undefined,
+    campaign: p.campaign || undefined,
+    consent: p.consent !== undefined ? String(p.consent) : undefined,
+    fbclid: p.fbclid || undefined,
+    fbp: p.fbp || undefined,
+    ref_used: p.ref ? String(p.ref).toUpperCase() : undefined,
+    utm_source: p.utm_source || undefined,
+    utm_medium: p.utm_medium || undefined,
+    utm_campaign: p.utm_campaign || undefined,
+    utm_term: p.utm_term || undefined,
+    utm_content: p.utm_content || undefined,
+    timestamp: timestamp || nowIso(),
+    payload: JSON.stringify(p),
+  };
+}
+
+// Projection: Donation → Donations table.
+function projectDonation(payloadObj, contactRecordId, eventRecordId, timestamp) {
+  const p = payloadObj || {};
+  const cust = p.customer || {};
+  const raw = p.raw || {};
+  const amount_cents = typeof p.amount === "number" ? p.amount : undefined;
+  return {
+    donation_id: uuid(),
+    contact: contactRecordId ? [contactRecordId] : undefined,
+    event: eventRecordId ? [eventRecordId] : undefined,
+    amount_cents,
+    amount: typeof amount_cents === "number" ? amount_cents / 100 : undefined,
+    currency: p.currency ? String(p.currency).toUpperCase() : undefined,
+    stripe_object_type: p.stripe_object_type || undefined,
+    stripe_object_id: p.stripe_object_id || undefined,
+    stripe_payment_intent: raw.payment_intent ? String(raw.payment_intent) : undefined,
+    email: normEmail(cust.email) || undefined,
+    name: cust.name || undefined,
+    phone: normPhone(cust.phone) || undefined,
+    postcode: cust.postcode || undefined,
+    country: cust.country || undefined,
+    content_name: p.content_name || undefined,
+    source_url: p.source_url || undefined,
+    fbclid: p.fbclid || undefined,
+    fbp: p.fbp || undefined,
+    timestamp: timestamp || nowIso(),
+    payload: JSON.stringify(p),
+  };
+}
+
+const PROJECTORS = {
+  "Petition Signed": projectPetitionSigned,
+  Donation: projectDonation,
+};
+
+async function patchEvent(recordId, fields) {
+  return atFetch(`${encodeURIComponent(EVENTS)}/${recordId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ fields, typecast: true }),
+  });
+}
+
+// Project the event payload into a structured row in the typed table.
+// On success: stamps fanout_status = "Fanned Out" on the Events row.
+// On unknown event_type: stamps "No Typed Table" (the user can later create
+//   the missing table + a projector, then re-fan the flagged rows).
+// On Airtable failure (table missing, schema mismatch, etc.): stamps
+//   "Failed" with the error message in fanout_error so it's easy to find.
+async function fanoutEvent(eventRecord, eventType, payloadObj, contactRecordId, timestamp) {
+  if (!eventRecord || !eventRecord.id) return null;
+  const tableName = PROJECTION_TABLES[eventType];
+  const project = PROJECTORS[eventType];
+  if (!tableName || !project) {
+    try { await patchEvent(eventRecord.id, { fanout_status: "No Typed Table" }); } catch (e) { console.error("fanout flag:", e.message); }
+    return null;
+  }
+  try {
+    const fields = project(payloadObj, contactRecordId, eventRecord.id, timestamp);
+    Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
+    const r = await atFetch(encodeURIComponent(tableName), {
+      method: "POST",
+      body: JSON.stringify({ records: [{ fields }], typecast: true }),
+    });
+    await patchEvent(eventRecord.id, { fanout_status: "Fanned Out", fanout_error: "" });
+    return r.records[0];
+  } catch (e) {
+    const msg = String(e.message || e).slice(0, 240);
+    try { await patchEvent(eventRecord.id, { fanout_status: "Failed", fanout_error: msg }); } catch {}
+    console.error(`fanout failed (${eventType}):`, msg);
+    return null;
+  }
+}
+
+async function logEvent({ contactRecordId, event_type, payload, fbclid, referral_code_used, source_channel, meta_event_id, timestamp, fanout }) {
+  const payloadObj = parsePayloadObject(payload);
   const fields = {
     event_id: uuid(),
     contact: contactRecordId ? [contactRecordId] : undefined,
@@ -217,7 +337,13 @@ async function logEvent({ contactRecordId, event_type, payload, fbclid, referral
     method: "POST",
     body: JSON.stringify({ records: [{ fields }], typecast: true }),
   });
-  return r.records[0];
+  const eventRecord = r.records[0];
+  // Fan-out is on by default; pass fanout: false to opt out (e.g. for synthetic
+  // bookkeeping events that don't represent a real user interaction).
+  if (fanout !== false) {
+    await fanoutEvent(eventRecord, event_type, payloadObj, contactRecordId, fields.timestamp);
+  }
+  return eventRecord;
 }
 
 // Skip insert if an event with the same meta_event_id already exists — used by
