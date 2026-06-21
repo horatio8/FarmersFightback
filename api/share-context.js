@@ -38,14 +38,13 @@ function corsOrigin(req) {
   return null;
 }
 
-async function emailForCheckoutSession(sessionId) {
+async function fetchCheckoutSession(sessionId) {
   if (!STRIPE_KEY || !sessionId) return null;
   const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
     headers: { Authorization: `Bearer ${STRIPE_KEY}` },
   });
   if (!r.ok) return null;
-  const s = await r.json();
-  return (s && s.customer_details && s.customer_details.email) || s.customer_email || null;
+  return r.json();
 }
 
 module.exports = async function handler(req, res) {
@@ -63,8 +62,15 @@ module.exports = async function handler(req, res) {
     const email = url.searchParams.get("email") || "";
 
     let lookupEmail = email;
-    if (!lookupEmail && sessionId) {
-      lookupEmail = await emailForCheckoutSession(sessionId);
+    let petitionSlug = "";
+    if (sessionId) {
+      const session = await fetchCheckoutSession(sessionId);
+      if (session) {
+        if (!lookupEmail) {
+          lookupEmail = (session.customer_details && session.customer_details.email) || session.customer_email || "";
+        }
+        petitionSlug = session.client_reference_id || "";
+      }
     }
     if (!lookupEmail) {
       return res.status(400).json({ error: "session_id or email required" });
@@ -84,6 +90,7 @@ module.exports = async function handler(req, res) {
       contact_id: contact.fields.contact_id,
       referral_code: referralCode,
       first_name: contact.fields.first_name || "",
+      petition_slug: petitionSlug || null,
     });
   } catch (err) {
     if (err.code === "MISCONFIGURED") {

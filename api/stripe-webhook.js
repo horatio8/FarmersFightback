@@ -118,7 +118,7 @@ function splitName(name) {
 // Airtable, update status. Idempotent via meta_event_id = stripe_<obj.id>.
 // Best-effort: errors are logged but not thrown, so a transient Airtable
 // outage doesn't block the Meta CAPI fire or trigger a Stripe retry.
-async function recordDonationInAirtable({ stripe_event_id, details, amount_minor, currency, contentName, fbclid, fbp, sourceUrl, stripeObjectId, stripeObjectType, rawStripeObject }) {
+async function recordDonationInAirtable({ stripe_event_id, details, amount_minor, currency, contentName, fbclid, fbp, sourceUrl, petitionSlug, stripeObjectId, stripeObjectType, rawStripeObject }) {
   try {
     const { fn, ln } = splitName(details && details.name);
     const { record } = await matchOrCreateContact({
@@ -143,6 +143,7 @@ async function recordDonationInAirtable({ stripe_event_id, details, amount_minor
         currency: (currency || "aud").toUpperCase(),
         content_name: contentName,
         source_url: sourceUrl,
+        petition_slug: petitionSlug || null,
         fbclid,
         fbp,
         customer: {
@@ -257,6 +258,7 @@ module.exports = async function handler(req, res) {
         fbclid: meta.fbclid,
         fbp: meta.fbp,
         sourceUrl: meta.source_url,
+        petitionSlug: obj.client_reference_id || null,
         stripeObjectId: obj.id,
         stripeObjectType: "checkout.session",
         rawStripeObject: obj,
@@ -308,6 +310,10 @@ module.exports = async function handler(req, res) {
         fbclid: meta.fbclid,
         fbp: meta.fbp,
         sourceUrl: meta.source_url,
+        // Subscription rebills don't carry client_reference_id on the
+        // invoice — we'd need to look up the original checkout session
+        // to recover the petition slug. For now leave null on rebills.
+        petitionSlug: meta.petition_slug || null,
         stripeObjectId: obj.id,
         stripeObjectType: "invoice",
         rawStripeObject: obj,

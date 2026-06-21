@@ -104,6 +104,44 @@ function sendCAPI(eventName, userData, customData) {
   }).catch(() => {}); // fire-and-forget, don't block UX
 }
 
+// Add ?client_reference_id=<slug> to a Stripe Payment Link URL so the
+// resulting checkout session carries the petition the donor was viewing
+// when they clicked. The Stripe webhook reads it back and writes it into
+// Airtable; /share uses it to decide which petition page to share — a
+// server-trustable signal that doesn't rely on localStorage surviving
+// the Stripe round-trip.
+function appendClientRef(url, slug) {
+  if (!url || !slug) return url;
+  try {
+    const u = new URL(url);
+    u.searchParams.set("client_reference_id", String(slug));
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
+// Map a /take-action/<slug>/ path → the Stripe-safe slug we pass as
+// client_reference_id. Returns "" for paths we don't recognise (so the
+// donor's share defaults to the homepage rather than a guess).
+function petitionSlugFromPath(path) {
+  if (!path) return "";
+  const m = String(path).match(/^\/take-action\/([^/]+)/);
+  return m ? m[1] : "";
+}
+
+// Best-effort lookup of the petition the donor was last engaged with,
+// based on what signPetition() persisted. Used by donate buttons that
+// aren't on a petition page themselves (e.g. /donate).
+function currentPetitionSlug() {
+  try {
+    const lastPath = localStorage.getItem("ff_last_petition_url") || "";
+    return petitionSlugFromPath(lastPath);
+  } catch {
+    return "";
+  }
+}
+
 // ---------- Petition signup (shared) ----------
 // One pipeline for every petition form on the site (home Petition,
 // PetitionPage, BaldwinFloodlight). In parallel:
@@ -674,7 +712,11 @@ function DonateBand() {
   const matched = amounts.find(a => Number(a.amount) === Number(pick));
   const stripeUrl = matched ? matched.url : otherUrl;
   const ready = !!stripeUrl;
-  const onDonate = () => { if (ready) { sendCAPI("InitiateCheckout", {}, { value: pick || 0, currency, content_name: "Donation" }); window.location.href = stripeUrl; } };
+  const onDonate = () => {
+    if (!ready) return;
+    sendCAPI("InitiateCheckout", {}, { value: pick || 0, currency, content_name: "Donation" });
+    window.location.href = appendClientRef(stripeUrl, currentPetitionSlug());
+  };
 
   return (
     <section id="donate" className="ff-section ff-donate">
@@ -1864,7 +1906,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               { amount: 550,  url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U" },
               { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V" },
             ].map((d, i, arr) => (
-              <a key={d.amount} href={d.url} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
+              <a key={d.amount} href={appendClientRef(d.url, "baldwins")} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
                 padding: "28px 24px", minHeight: 160,
                 borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",
@@ -1877,7 +1919,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               </a>
             ))}
             {/* Other amount cell — uses custom-amount payment link */}
-            <a href="https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
+            <a href={appendClientRef("https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X", "baldwins")} target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
               display: "flex", flexDirection: "column", justifyContent: "space-between",
               padding: "28px 24px", minHeight: 160,
               gridColumn: "span 2",
@@ -2758,6 +2800,10 @@ function ShareThanksPage() {
   const [identity, setIdentity] = useState({ first: "", last: "", email: "", mobile: "", postcode: "" });
   const [identityError, setIdentityError] = useState("");
   const updateIdentity = (k) => (e) => setIdentity((f) => ({ ...f, [k]: e.target.value }));
+  // Petition slug from the server (Stripe Checkout Session's
+  // client_reference_id). Authoritative when present; otherwise the page
+  // falls back to ff_last_petition_url in localStorage.
+  const [serverPetitionSlug, setServerPetitionSlug] = useState("");
   const [shared, setShared] = useState(stored.shared);
   const [copied, setCopied] = useState(false);
 
@@ -2802,6 +2848,7 @@ function ShareThanksPage() {
           const j = await r.json();
           if (j.referral_code) {
             persistCode(j.referral_code, j.first_name, j.contact_id);
+            if (j.petition_slug) setServerPetitionSlug(j.petition_slug);
             setStatus("ready");
             return;
           }
@@ -2863,17 +2910,26 @@ function ShareThanksPage() {
   const lastPetitionName = (() => {
     try { return localStorage.getItem("ff_last_petition_name") || ""; } catch { return ""; }
   })();
-  // Normalise: strip any origin or query/hash, fall back to home.
-  const sharePath = (lastPetitionPath || "/").replace(/^https?:\/\/[^/]+/, "").split(/[?#]/)[0] || "/";
+  // Path resolution order:
+  //   1. serverPetitionSlug (Stripe client_reference_id) — set when the
+  //      donor came through Checkout. Authoritative for cross-petition
+  //      cases (signed Hold the Gate but donated from the Baldwin page).
+  //   2. localStorage ff_last_petition_url — works when the donor signed
+  //      then donated in the same browser session.
+  //   3. Homepage as a final fallback.
+  const sharePath = serverPetitionSlug
+    ? `/take-action/${serverPetitionSlug}`
+    : ((lastPetitionPath || "/").replace(/^https?:\/\/[^/]+/, "").split(/[?#]/)[0] || "/");
   const shareUrl = referralCode
     ? `${PRODUCTION_ORIGIN}${sharePath}?ref=${referralCode}`
     : `${PRODUCTION_ORIGIN}${sharePath}`;
 
-  // Resolve the petition the donor signed (by URL path → content block) so
-  // we use that petition's shareText + currentCount, not the home defaults.
+  // Resolve the petition the donor engaged with (server slug first, then
+  // sharePath) so the page uses that petition's shareText + currentCount,
+  // not the home defaults.
   const petitionDef = (() => {
-    const m = sharePath.match(/^\/take-action\/([^/]+)/);
-    if (m && c.petitions && c.petitions[m[1]]) return c.petitions[m[1]];
+    const slug = serverPetitionSlug || (sharePath.match(/^\/take-action\/([^/]+)/) || [])[1];
+    if (slug && c.petitions && c.petitions[slug]) return c.petitions[slug];
     return (c.petition && c.petition.shareText) ? c.petition : null;
   })();
   const currentCount = (petitionDef && petitionDef.currentCount) || (c.petition && c.petition.currentCount) || 0;
