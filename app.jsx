@@ -827,14 +827,14 @@ function VideoModal({ open, onClose }) {
 }
 
 // ---------- Shared page shell (Nav + Footer + TopBanner) ----------
-function PageShell({ children, hideTopBanner }) {
+function PageShell({ children, hideTopBanner, hideNav }) {
   const onDonate = () => {
     window.location.href = "/donate";
   };
   return (
     <>
       {!hideTopBanner && <TopBanner />}
-      <Nav onDonate={onDonate} />
+      {!hideNav && <Nav onDonate={onDonate} />}
       <main>{children}</main>
       <Footer />
       <SocialProofPopup />
@@ -2908,7 +2908,7 @@ function ShareThanksPage() {
   const pct = (sharedCount / goal) * 100;
 
   return (
-    <PageShell>
+    <PageShell hideNav hideTopBanner>
       <section className="ff-section ff-share">
         <div className="ff-wrap ff-share-inner">
           {(status === "polling" || status === "looking_up") && (
