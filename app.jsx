@@ -122,6 +122,14 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
   const fbclid = attr.fbclid || "";
   const fbp = getCookie("_fbp") || "";
 
+  // Persist the URL of the page they signed on so /share can use it as the
+  // share target (so the right petition page + hero image is what people see).
+  try {
+    const path = window.location.pathname || "/";
+    localStorage.setItem("ff_last_petition_url", path);
+    if (content_name) localStorage.setItem("ff_last_petition_name", content_name);
+  } catch {}
+
   // Campaign Nucleus parallel push.
   if (receiverUrl) {
     const cnBody = new URLSearchParams({
@@ -2829,8 +2837,18 @@ function ShareThanksPage() {
     setEmailError("Couldn't find that email. Double-check it's the same one you used to donate.");
   };
 
-  const baseShareUrl = "https://www.farmersfightback.com/";
-  const shareUrl = referralCode ? `${baseShareUrl}?ref=${referralCode}` : baseShareUrl;
+  const PRODUCTION_ORIGIN = "https://www.farmersfightback.com";
+  const lastPetitionPath = (() => {
+    try { return localStorage.getItem("ff_last_petition_url") || ""; } catch { return ""; }
+  })();
+  const lastPetitionName = (() => {
+    try { return localStorage.getItem("ff_last_petition_name") || ""; } catch { return ""; }
+  })();
+  // Normalise: strip any origin or query/hash, fall back to home.
+  const sharePath = (lastPetitionPath || "/").replace(/^https?:\/\/[^/]+/, "").split(/[?#]/)[0] || "/";
+  const shareUrl = referralCode
+    ? `${PRODUCTION_ORIGIN}${sharePath}?ref=${referralCode}`
+    : `${PRODUCTION_ORIGIN}${sharePath}`;
   const shareText = (c.share && c.share.shareText)
     || (c.petition && c.petition.shareText)
     || "I just backed Farmers Fightback — Aussie farming families are being pushed off their land. Sign the petition with me.";
@@ -2923,25 +2941,28 @@ function ShareThanksPage() {
 
           {status === "ready" && (
             <div className="ff-share-ready">
-              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Thank you{firstName ? `, ${firstName}` : ""}</span>
-              <h1 className="ff-h2">Now multiply your impact.</h1>
-              <p className="ff-lede">
-                You've put real money into the fight. The next move is the highest-leverage thing you can do:
-                share this with <strong>five Aussies</strong> who'd join in. We'll attribute every signature
-                back to you, so you can see exactly who you brought in.
-              </p>
+              <div className="ff-share-thank">
+                <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Thank you{firstName ? `, ${firstName}` : ""}</span>
+                <h1 className="ff-h2">Thank you for standing with Aussie farmers.</h1>
+                <p className="ff-lede">Your generosity makes a real difference, helping us let everyday Australians know how the Government is targeting Aussie farmers.</p>
+              </div>
+
+              <div className="ff-share-multiplier">
+                <h2 className="ff-h3">1 minute is worth $100.</h2>
+                <p>Sharing this message with 5 friends or family members helps multiply our message 100 times. Take 1 minute to share this on socials or directly, and multiply your impact!</p>
+              </div>
 
               <div className="ff-share-progress">
                 <div className="ff-share-progress-bar"><div style={{ width: pct.toFixed(0) + "%" }} /></div>
                 <div className="ff-share-progress-label">{sharedCount} of {goal} shared</div>
               </div>
 
-              <div className="ff-share-grid">
+              <div className="ff-share-stack">
                 {platforms.map((p) => (
                   <button
                     key={p.id}
                     type="button"
-                    className={`ff-share-btn ff-share-btn--${p.id} ${shared.includes(p.id) ? "is-shared" : ""}`}
+                    className={`ff-share-btn ff-share-btn--brand ff-share-btn--${p.id} ${shared.includes(p.id) ? "is-shared" : ""}`}
                     onClick={() => onShare(p.id)}
                   >
                     {p.label}
@@ -2950,14 +2971,13 @@ function ShareThanksPage() {
               </div>
 
               <div className="ff-share-link">
-                <label className="ff-field-label">Your tracked share link</label>
+                <label className="ff-field-label">Your share link</label>
                 <div className="ff-share-link-row">
                   <input type="text" readOnly value={shareUrl} onFocus={(e) => e.target.select()} />
                   <button type="button" className="ff-btn ff-btn--outline" onClick={() => onShare("copy")}>
                     {copied ? "Copied" : "Copy"}
                   </button>
                 </div>
-                <p className="ff-form-fine">Anyone who signs after clicking this link is credited to you.</p>
               </div>
 
               <div className="ff-share-next">

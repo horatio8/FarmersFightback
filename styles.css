@@ -1193,14 +1193,28 @@ img { max-width: 100%; display: block; }
 .ff-share-loading, .ff-share-ask, .ff-share-ready { display: flex; flex-direction: column; gap: 18px; }
 .ff-share-ask-form { display: flex; gap: 10px; flex-wrap: wrap; }
 .ff-share-ask-form input { flex: 1; min-width: 240px; padding: 12px 14px; border: 1px solid var(--ff-rule); border-radius: 6px; font: inherit; }
+.ff-share-thank { display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--ff-rule); }
+.ff-share-multiplier { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; padding: 18px 20px; background: rgba(138, 27, 27, 0.06); border-left: 4px solid var(--ff-red); border-radius: 4px; }
+.ff-share-multiplier .ff-h3 { margin: 0; color: var(--ff-red); }
 .ff-share-progress { display: flex; flex-direction: column; gap: 8px; margin: 16px 0 8px; }
 .ff-share-progress-bar { height: 10px; background: var(--ff-rule); border-radius: 5px; overflow: hidden; }
 .ff-share-progress-bar > div { height: 100%; background: var(--ff-red); transition: width .35s ease; }
 .ff-share-progress-label { font-family: var(--ff-cond); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; color: var(--ff-muted); }
-.ff-share-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 8px; }
-.ff-share-grid .ff-share-btn { justify-content: center; }
-.ff-share-btn.is-shared { background: rgba(20,140,80,.08); border-color: rgba(20,140,80,.35); color: #136a3c; }
-.ff-share-btn.is-shared:hover { background: #136a3c; color: #fff; border-color: #136a3c; }
+
+/* Vertically stacked, brand-coloured share buttons */
+.ff-share-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.ff-share-stack .ff-share-btn { width: 100%; justify-content: center; height: 52px; font-size: 15px; font-weight: 600; border: 0; color: #fff; transition: filter .15s ease, transform .15s ease; }
+.ff-share-stack .ff-share-btn:hover { transform: translateY(-1px); filter: brightness(0.92); }
+.ff-share-stack .ff-share-btn::before { filter: brightness(0) invert(1); }
+.ff-share-stack .ff-share-btn--facebook { background: #1877F2; }
+.ff-share-stack .ff-share-btn--x        { background: #000000; }
+.ff-share-stack .ff-share-btn--linkedin { background: #0A66C2; }
+.ff-share-stack .ff-share-btn--whatsapp { background: #25D366; }
+.ff-share-stack .ff-share-btn--email    { background: #12354B; }
+.ff-share-stack .ff-share-btn--copy     { background: #5a6a7a; }
+.ff-share-stack .ff-share-btn.is-shared { background: #136a3c !important; }
+.ff-share-stack .ff-share-btn.is-shared::after { content: " ✓"; }
+
 .ff-share-link { margin-top: 22px; display: flex; flex-direction: column; gap: 8px; }
 .ff-share-link-row { display: flex; gap: 8px; }
 .ff-share-link-row input { flex: 1; padding: 12px 14px; border: 1px solid var(--ff-rule); border-radius: 6px; font: var(--ff-mono, 13px monospace); background: #fafafa; }
