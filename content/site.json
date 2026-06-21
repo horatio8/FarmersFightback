@@ -96,7 +96,7 @@
     "submittingLabel": "Signing...",
     "thanksHeadingHtml": "You just became number <em>{{count}}</em>.",
     "thanksLede": "Welcome to the fight, {{first}}. We'll email you when the next video drops and when farmers need backup at the gate.",
-    "shareText": "I just signed the Farmers Fightback petition. Join 70,000+ Australians: farmersfightback.com",
+    "shareText": "I just signed the Farmers Fightback petition. Join {{count}}+ Australians: farmersfightback.com",
     "fineprint": "By signing, you agree to receive campaign updates. Authorised by Ben Duxson, Farmers Fightback."
   },
   "actions": {

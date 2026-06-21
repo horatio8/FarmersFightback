@@ -2849,9 +2849,27 @@ function ShareThanksPage() {
   const shareUrl = referralCode
     ? `${PRODUCTION_ORIGIN}${sharePath}?ref=${referralCode}`
     : `${PRODUCTION_ORIGIN}${sharePath}`;
-  const shareText = (c.share && c.share.shareText)
+
+  // Resolve the petition the donor signed (by URL path → content block) so
+  // we use that petition's shareText + currentCount, not the home defaults.
+  const petitionDef = (() => {
+    const m = sharePath.match(/^\/take-action\/([^/]+)/);
+    if (m && c.petitions && c.petitions[m[1]]) return c.petitions[m[1]];
+    return (c.petition && c.petition.shareText) ? c.petition : null;
+  })();
+  const currentCount = (petitionDef && petitionDef.currentCount) || (c.petition && c.petition.currentCount) || 0;
+  // {{count}} placeholders are replaced with the live count from
+  // site.json — same number that the petition page itself displays, so
+  // share copy never goes stale relative to what the visitor sees.
+  const substituteCount = (text) => {
+    if (!text || !currentCount) return (text || "").replace(/\s*\{\{count\}\}\+?\s*/g, " ").replace(/\s+/g, " ").trim();
+    return String(text).replace(/\{\{count\}\}/g, Number(currentCount).toLocaleString());
+  };
+  const rawShareText = (c.share && c.share.shareText)
+    || (petitionDef && petitionDef.shareText)
     || (c.petition && c.petition.shareText)
     || "I just backed Farmers Fightback — Aussie farming families are being pushed off their land. Sign the petition with me.";
+  const shareText = substituteCount(rawShareText);
   const emailSubject = (c.share && c.share.emailSubject) || "Will you sign this petition with me?";
 
   const platforms = [
