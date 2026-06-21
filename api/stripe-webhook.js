@@ -118,7 +118,7 @@ function splitName(name) {
 // Airtable, update status. Idempotent via meta_event_id = stripe_<obj.id>.
 // Best-effort: errors are logged but not thrown, so a transient Airtable
 // outage doesn't block the Meta CAPI fire or trigger a Stripe retry.
-async function recordDonationInAirtable({ stripe_event_id, details, amount_minor, currency, contentName, fbclid, fbp, sourceUrl, stripeObjectId, stripeObjectType }) {
+async function recordDonationInAirtable({ stripe_event_id, details, amount_minor, currency, contentName, fbclid, fbp, sourceUrl, stripeObjectId, stripeObjectType, rawStripeObject }) {
   try {
     const { fn, ln } = splitName(details && details.name);
     const { record } = await matchOrCreateContact({
@@ -134,6 +134,8 @@ async function recordDonationInAirtable({ stripe_event_id, details, amount_minor
     await logEventIdempotent({
       contactRecordId: record.id,
       event_type: "Donation",
+      // Curated structured fields up top for quick scanning, full raw
+      // Stripe object underneath so nothing is ever lost.
       payload: {
         stripe_object_type: stripeObjectType,
         stripe_object_id: stripeObjectId,
@@ -150,6 +152,7 @@ async function recordDonationInAirtable({ stripe_event_id, details, amount_minor
           postcode: details && details.address && details.address.postal_code,
           country: details && details.address && details.address.country,
         },
+        raw: rawStripeObject,
       },
       fbclid,
       meta_event_id: stripe_event_id,
@@ -256,6 +259,7 @@ module.exports = async function handler(req, res) {
         sourceUrl: meta.source_url,
         stripeObjectId: obj.id,
         stripeObjectType: "checkout.session",
+        rawStripeObject: obj,
       });
       await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,                   // idempotent across retries
@@ -306,6 +310,7 @@ module.exports = async function handler(req, res) {
         sourceUrl: meta.source_url,
         stripeObjectId: obj.id,
         stripeObjectType: "invoice",
+        rawStripeObject: obj,
       });
       await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,

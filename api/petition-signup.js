@@ -121,16 +121,10 @@ module.exports = async function handler(req, res) {
     await logEvent({
       contactRecordId,
       event_type: "Petition Signed",
-      payload: {
-        first_name,
-        last_name,
-        email,
-        mobile,
-        postcode,
-        fbclid,
-        fbp,
-        ref: ref || null,
-      },
+      // Full raw request body — anything the frontend posts is captured,
+      // including fields we don't currently parse (consent, country,
+      // campaign, additional utm_* params, future form fields, etc.).
+      payload: body,
       fbclid,
       referral_code_used: ref || undefined,
       source_channel: channel,
