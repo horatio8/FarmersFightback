@@ -380,6 +380,7 @@ async function updateContactStatusFromEvent(contactRecordId, eventType, currentS
 
 module.exports = {
   matchOrCreateContact,
+  findContactByEmail,
   findContactByReferralCode,
   setReferralCodeIfMissing,
   linkReferredBy,
