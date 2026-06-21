@@ -1210,10 +1210,13 @@ img { max-width: 100%; display: block; }
 .ff-share-stack .ff-share-btn--x        { background: #000000; }
 .ff-share-stack .ff-share-btn--linkedin { background: #0A66C2; }
 .ff-share-stack .ff-share-btn--whatsapp { background: #25D366; }
-.ff-share-stack .ff-share-btn--email    { background: #12354B; }
+.ff-share-stack .ff-share-btn--email    { background: #F4C430; color: #12354B; }
+.ff-share-stack .ff-share-btn--email::before { filter: none; }
 .ff-share-stack .ff-share-btn--copy     { background: #5a6a7a; }
-.ff-share-stack .ff-share-btn.is-shared { background: #136a3c !important; }
-.ff-share-stack .ff-share-btn.is-shared::after { content: " ✓"; }
+/* Shared state keeps the platform brand colour — we only add a subtle
+ * ring + checkmark so it's clear which buttons have been used. */
+.ff-share-stack .ff-share-btn.is-shared { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.85); opacity: 0.92; }
+.ff-share-stack .ff-share-btn.is-shared::after { content: "  ✓"; font-weight: 700; }
 
 .ff-share-link { margin-top: 22px; display: flex; flex-direction: column; gap: 8px; }
 .ff-share-link-row { display: flex; gap: 8px; }
