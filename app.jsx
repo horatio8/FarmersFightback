@@ -1289,6 +1289,7 @@ function shareUrlFor(platform, text, url, subject) {
     case "linkedin": return `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;
     case "whatsapp": return `https://wa.me/?text=${t}%20${u}`;
     case "telegram": return `https://t.me/share/url?url=${u}&text=${t}`;
+    case "sms":      return `sms:?&body=${encodeURIComponent(text + " " + url)}`;
     case "email":    return `mailto:?subject=${encodeURIComponent(subject || "Sign the petition")}&body=${t}%0A%0A${u}`;
     default: return null;
   }
@@ -2952,6 +2953,7 @@ function ShareThanksPage() {
     { id: "x",        label: "X" },
     { id: "linkedin", label: "LinkedIn" },
     { id: "whatsapp", label: "WhatsApp" },
+    { id: "sms",      label: "Text message" },
     { id: "email",    label: "Email" },
     { id: "copy",     label: copied ? "Copied!" : "Copy link" },
   ];
