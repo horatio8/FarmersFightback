@@ -3043,7 +3043,29 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    captureAttribution();
+    const attr = captureAttribution();
+    // Share Click beacon: when a visitor lands with ?ref=CODE, log a load
+    // event on the referrer's contact. Once per ref code per session so
+    // back/forward nav and same-tab re-loads don't double-log.
+    if (attr && attr.ref) {
+      try {
+        const code = String(attr.ref).toUpperCase();
+        const key = `ff_ref_click_fired_${code}`;
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, "1");
+          fetch("/api/share-click", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ref: code,
+              source_url: attr.landing_url || window.location.href,
+              fbclid: attr.fbclid || undefined,
+            }),
+            keepalive: true,
+          }).catch(() => {});
+        }
+      } catch {}
+    }
     fetch(CONTENT_URL, { cache: "no-cache" })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(setContent)

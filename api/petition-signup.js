@@ -100,16 +100,20 @@ module.exports = async function handler(req, res) {
               console.error("linkReferredBy:", e.message)
             );
           }
+          // Share Conversion = a recipient who arrived via the referrer's
+          // link AND actually signed. Share Click (load-only) is logged
+          // separately by /api/share-click when the petition page loads
+          // with ?ref= present.
           await logEvent({
             contactRecordId: referrerRecordId,
-            event_type: "Share Click",
+            event_type: "Share Conversion",
             payload: {
               recruited_contact_id: contactUuid,
               ref_code: String(ref).toUpperCase(),
             },
             referral_code_used: ref,
             source_channel: "Referral",
-          }).catch((e) => console.error("Share Click log:", e.message));
+          }).catch((e) => console.error("Share Conversion log:", e.message));
         }
       } catch (e) {
         console.error("referral resolution failed:", e.message);
