@@ -104,6 +104,83 @@ function sendCAPI(eventName, userData, customData) {
   }).catch(() => {}); // fire-and-forget, don't block UX
 }
 
+// ---------- Petition signup (shared) ----------
+// One pipeline for every petition form on the site (home Petition,
+// PetitionPage, BaldwinFloodlight). In parallel:
+//   1. Posts to the Campaign Nucleus receiver if one is configured
+//      (no-cors, fire-and-forget — existing CN delivery is preserved).
+//   2. Posts to /api/petition-signup for native Vercel capture:
+//      Airtable match-or-create, referral code generation, Meta Lead.
+//   3. Fires the browser Pixel "Lead" reusing the server's event_id
+//      for deduplication in Meta Events Manager.
+// Returns when both the server capture and the browser pixel have been
+// kicked off; CN is fire-and-forget.
+async function signPetition({ first_name, last_name, email, mobile, postcode, content_name, receiverUrl, extraReceiverFields, country }) {
+  if (typeof window === "undefined") return null;
+  const attr = getAttribution();
+  const ref = (attr.ref || "").toString().toUpperCase();
+  const fbclid = attr.fbclid || "";
+  const fbp = getCookie("_fbp") || "";
+
+  // Campaign Nucleus parallel push.
+  if (receiverUrl) {
+    const cnBody = new URLSearchParams({
+      first_name, last_name, email,
+      phone: mobile || "",
+      postcode: postcode || "",
+      ...(extraReceiverFields || {}),
+      ...attr,
+    });
+    fetch(receiverUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: cnBody,
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  // Vercel native capture (Airtable + server-side Meta Lead).
+  let metaEventId = "";
+  let contactId = "";
+  let referralCode = "";
+  try {
+    const r = await fetch("/api/petition-signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        first_name, last_name, email,
+        mobile: mobile || "",
+        postcode: postcode || "",
+        fbclid, fbp, ref,
+        utm_source: attr.utm_source,
+        utm_medium: attr.utm_medium,
+        utm_campaign: attr.utm_campaign,
+      }),
+      keepalive: true,
+    });
+    if (r.ok) {
+      const j = await r.json();
+      metaEventId = j.meta_event_id || "";
+      contactId = j.contact_id || "";
+      referralCode = j.referral_code || "";
+      if (referralCode) try { localStorage.setItem("ff_referral_code", referralCode); } catch {}
+      if (contactId)   try { localStorage.setItem("ff_contact_id", contactId); } catch {}
+    }
+  } catch (err) {
+    console.error("petition-signup:", err);
+  }
+
+  // Browser Pixel Lead — dedup'd against server fire via shared event_id.
+  if (window.fbq) {
+    const eventId = metaEventId || `Lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    window.fbq("track", "Lead", { content_name: content_name || "Petition" }, { eventID: eventId });
+  }
+
+  window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: (first_name || "").trim() } }));
+  return { metaEventId, contactId, referralCode };
+}
+
 // ---------- Top banner ----------
 function TopBanner() {
   const c = useContent().topBanner;
@@ -414,74 +491,16 @@ function Petition() {
     ev.preventDefault();
     if (!validate()) return;
     setState("submitting");
-
-    const attr = getAttribution();
-    const ref = (attr.ref || "").toString().toUpperCase();
-    const fbclid = attr.fbclid || "";
-    const fbp = getCookie("_fbp") || "";
-
-    // Campaign Nucleus parallel push — fire-and-forget, no-cors. Preserves
-    // existing supporter delivery without blocking the native capture.
-    const nucleusBody = new URLSearchParams({
+    await signPetition({
       first_name: form.first.trim(),
       last_name: form.last.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim(),
+      mobile: form.phone.trim(),
       postcode: form.postcode.trim(),
-      ...attr,
+      content_name: "Omnibus Petition",
+      receiverUrl: c.receiverUrl,
+      country: "au",
     });
-    fetch(c.receiverUrl, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: nucleusBody,
-      keepalive: true,
-    }).catch(() => {});
-
-    // Native Vercel capture: writes Airtable + fires Meta Lead server-side.
-    // Returns the contact's referral code (persisted for the share UX).
-    let metaEventId = "";
-    try {
-      const r = await fetch("/api/petition-signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: form.first.trim(),
-          last_name: form.last.trim(),
-          email: form.email.trim(),
-          mobile: form.phone.trim(),
-          postcode: form.postcode.trim(),
-          fbclid,
-          fbp,
-          ref,
-          utm_source: attr.utm_source,
-          utm_medium: attr.utm_medium,
-          utm_campaign: attr.utm_campaign,
-        }),
-        keepalive: true,
-      });
-      if (r.ok) {
-        const j = await r.json();
-        metaEventId = j.meta_event_id || "";
-        if (j.referral_code) {
-          try { localStorage.setItem("ff_referral_code", j.referral_code); } catch {}
-        }
-        if (j.contact_id) {
-          try { localStorage.setItem("ff_contact_id", j.contact_id); } catch {}
-        }
-      }
-    } catch (err) {
-      // CN already received the signature; don't block the user on a native-capture blip.
-      console.error("petition-signup:", err);
-    }
-
-    // Browser pixel Lead, dedup'd against the server fire via shared event_id.
-    if (typeof window !== "undefined" && window.fbq) {
-      const eventId = metaEventId || `Lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      window.fbq("track", "Lead", { content_name: "Omnibus Petition" }, { eventID: eventId });
-    }
-
-    window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
     window.location.assign("/donate");
   };
 
@@ -1328,17 +1347,21 @@ function BaldwinFloodlight({ p, receiverUrl }) {
     setErrors(e);
     if (Object.keys(e).length) return;
     setState("submitting");
-    const body = new URLSearchParams({
-      first_name: form.first.trim(), last_name: form.last.trim(),
-      email: form.email.trim(), phone: form.phone.trim(), postcode: form.postcode.trim(),
-      campaign: p.campaign || "Farmer Fightback: Baldwin Campaign",
-      form_slug: p.formSlug || "ff-baldwin",
-      ...getAttribution(),
-    });
     try {
-      if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Baldwin Petition" });
-      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
+      await signPetition({
+        first_name: form.first.trim(),
+        last_name: form.last.trim(),
+        email: form.email.trim(),
+        mobile: form.phone.trim(),
+        postcode: form.postcode.trim(),
+        content_name: "Baldwin Petition",
+        receiverUrl,
+        country: "au",
+        extraReceiverFields: {
+          campaign: p.campaign || "Farmer Fightback: Baldwin Campaign",
+          form_slug: p.formSlug || "ff-baldwin",
+        },
+      });
       setState("done");
       requestAnimationFrame(() => {
         document.getElementById("donate")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1973,22 +1996,21 @@ function PetitionPage({ slug }) {
     ev.preventDefault();
     if (!validate()) return;
     setState("submitting");
-    const body = new URLSearchParams({
-      first_name: form.first.trim(),
-      last_name: form.last.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      postcode: form.postcode.trim(),
-      country: form.country,
-      campaign: p.campaign || p.slug,
-      ...getAttribution(),
-    });
     try {
-      if (receiverUrl) {
-        await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-      }
-      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: form.country?.toLowerCase() || "au" }, { content_name: p.campaign || p.slug || "Petition" });
-      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
+      await signPetition({
+        first_name: form.first.trim(),
+        last_name: form.last.trim(),
+        email: form.email.trim(),
+        mobile: form.phone.trim(),
+        postcode: form.postcode.trim(),
+        content_name: p.campaign || p.slug || "Petition",
+        receiverUrl,
+        country: form.country?.toLowerCase() || "au",
+        extraReceiverFields: {
+          country: form.country,
+          campaign: p.campaign || p.slug,
+        },
+      });
       window.location.assign("/donate");
     } catch { setState("error"); }
   };
