@@ -15,7 +15,7 @@
         "href": "/take-action",
         "active": false,
         "children": [
-          { "label": "Hold the Gate", "href": "/take-action/hold-the-gate" },
+          { "label": "Sign the petition ›", "href": "/take-action/hold-the-gate" },
           { "label": "Back the Baldwins", "href": "/take-action/baldwins" },
           { "label": "Stop the REZ", "href": "/take-action/remove-us-from-the-rez", "disabled": true },
           { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser", "disabled": true }

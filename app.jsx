@@ -242,7 +242,7 @@ function Nav({ onDonate }) {
                     {i.children.map((c2) => (
                       <li key={c2.label} role="none">
                         {c2.disabled
-                          ? <span className="is-disabled" role="menuitem" aria-disabled="true" title="Paused">{c2.label}</span>
+                          ? <span className="is-disabled" role="menuitem" aria-disabled="true" title="Coming soon">{c2.label}</span>
                           : <a href={c2.href} role="menuitem">{c2.label}</a>}
                       </li>
                     ))}
@@ -1230,15 +1230,16 @@ function TakeActionIndex() {
 }
 
 // ---------- Petition page (parameterized by slug) ----------
-function shareUrlFor(platform, text, url) {
+function shareUrlFor(platform, text, url, subject) {
   const t = encodeURIComponent(text);
   const u = encodeURIComponent(url);
   switch (platform) {
     case "facebook": return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
     case "x":        return `https://twitter.com/intent/tweet?text=${t}&url=${u}`;
+    case "linkedin": return `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;
     case "whatsapp": return `https://wa.me/?text=${t}%20${u}`;
     case "telegram": return `https://t.me/share/url?url=${u}&text=${t}`;
-    case "email":    return `mailto:?subject=${encodeURIComponent("Sign the petition")}&body=${t}%0A%0A${u}`;
+    case "email":    return `mailto:?subject=${encodeURIComponent(subject || "Sign the petition")}&body=${t}%0A%0A${u}`;
     default: return null;
   }
 }
@@ -1979,6 +1980,22 @@ function PetitionPage({ slug }) {
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "", country: "AU", consent: false });
   const [errors, setErrors] = useState({});
   const [state, setState] = useState("idle");
+
+  // Honour URL hash (e.g. /petition redirects to .../hold-the-gate#sign) once
+  // React has mounted the targeted node. Browsers can't scroll to a hash
+  // target that doesn't exist yet on a JS-rendered page, so we retry briefly.
+  useEffect(() => {
+    const id = (window.location.hash || "").replace(/^#/, "");
+    if (!id) return;
+    let tries = 0;
+    const tick = () => {
+      const el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      if (++tries < 40) setTimeout(tick, 75);
+    };
+    tick();
+  }, []);
+
   const update = (k) => (e) => {
     const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setForm(f => ({ ...f, [k]: v }));
@@ -2696,6 +2713,264 @@ function VolunteerPage() {
   );
 }
 
+// ---------- Share thank-you page ----------
+// Lives at /share. Two states it cares about:
+//   - identifying  → trying to figure out who the donor is. Polls
+//                    /api/share-context with session_id (from Stripe), or
+//                    asks for email if there's no session_id and
+//                    localStorage is empty.
+//   - ready        → renders the thanks + 5-platform share grid, tokenised
+//                    on the donor's referral_code so we can attribute every
+//                    downstream signature back to them.
+//
+// Browser pixel fires "Donate" once per visit when arriving with
+// ?session_id= (acts as the post-purchase thanks event from the user's
+// own browser, complementing the server-side Purchase fired by the
+// Stripe webhook).
+function ShareThanksPage() {
+  const c = useContent();
+  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const sessionId = params.get("session_id") || "";
+
+  const stored = (() => {
+    try {
+      return {
+        code: localStorage.getItem("ff_referral_code") || "",
+        contactId: localStorage.getItem("ff_contact_id") || "",
+        firstName: localStorage.getItem("ff_first_name") || "",
+        shared: JSON.parse(localStorage.getItem("ff_shared_platforms") || "[]"),
+      };
+    } catch {
+      return { code: "", contactId: "", firstName: "", shared: [] };
+    }
+  })();
+
+  const [referralCode, setReferralCode] = useState(stored.code);
+  const [firstName, setFirstName] = useState(stored.firstName);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [shared, setShared] = useState(stored.shared);
+  const [copied, setCopied] = useState(false);
+
+  // status: "ready" | "polling" | "ask_email" | "looking_up"
+  const initialStatus = stored.code ? "ready" : sessionId ? "polling" : "ask_email";
+  const [status, setStatus] = useState(initialStatus);
+
+  const persistCode = (code, fn, contactId) => {
+    setReferralCode(code);
+    if (fn) setFirstName(fn);
+    try {
+      localStorage.setItem("ff_referral_code", code);
+      if (fn) localStorage.setItem("ff_first_name", fn);
+      if (contactId) localStorage.setItem("ff_contact_id", contactId);
+    } catch {}
+  };
+
+  // One-shot post-donation pixel. We only fire when arriving with
+  // session_id (i.e. fresh from Stripe), not on every visit to /share.
+  useEffect(() => {
+    if (!sessionId) return;
+    if (typeof window === "undefined" || !window.fbq) return;
+    const key = `ff_donate_pixel_${sessionId}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {}
+    window.fbq("track", "ViewContent", { content_name: "Post-Donation Share" });
+  }, [sessionId]);
+
+  // Poll by session_id while waiting for the Stripe webhook to land.
+  useEffect(() => {
+    if (status !== "polling" || !sessionId) return;
+    let active = true;
+    let attempts = 0;
+    const tick = async () => {
+      if (!active) return;
+      attempts++;
+      try {
+        const r = await fetch(`/api/share-context?session_id=${encodeURIComponent(sessionId)}`);
+        if (r.ok) {
+          const j = await r.json();
+          if (j.referral_code) {
+            persistCode(j.referral_code, j.first_name, j.contact_id);
+            setStatus("ready");
+            return;
+          }
+        }
+      } catch {}
+      if (attempts >= 15) {
+        setStatus("ask_email");
+        setEmailError("Taking longer than expected — pop in the email you used to donate and we'll find you.");
+      } else {
+        setTimeout(tick, 2000);
+      }
+    };
+    tick();
+    return () => { active = false; };
+  }, [status, sessionId]);
+
+  const lookupByEmail = async (ev) => {
+    ev && ev.preventDefault && ev.preventDefault();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { setEmailError("Enter a valid email"); return; }
+    setEmailError("");
+    setStatus("looking_up");
+    try {
+      const r = await fetch(`/api/share-context?email=${encodeURIComponent(email)}`);
+      if (r.ok) {
+        const j = await r.json();
+        if (j.referral_code) {
+          persistCode(j.referral_code, j.first_name, j.contact_id);
+          setStatus("ready");
+          return;
+        }
+      }
+    } catch {}
+    setStatus("ask_email");
+    setEmailError("Couldn't find that email. Double-check it's the same one you used to donate.");
+  };
+
+  const baseShareUrl = "https://www.farmersfightback.com/";
+  const shareUrl = referralCode ? `${baseShareUrl}?ref=${referralCode}` : baseShareUrl;
+  const shareText = (c.share && c.share.shareText)
+    || (c.petition && c.petition.shareText)
+    || "I just backed Farmers Fightback — Aussie farming families are being pushed off their land. Sign the petition with me.";
+  const emailSubject = (c.share && c.share.emailSubject) || "Will you sign this petition with me?";
+
+  const platforms = [
+    { id: "facebook", label: "Facebook" },
+    { id: "x",        label: "X" },
+    { id: "linkedin", label: "LinkedIn" },
+    { id: "whatsapp", label: "WhatsApp" },
+    { id: "email",    label: "Email" },
+    { id: "copy",     label: copied ? "Copied!" : "Copy link" },
+  ];
+
+  const markShared = (platform) => {
+    if (shared.includes(platform)) return;
+    const updated = [...shared, platform];
+    setShared(updated);
+    try { localStorage.setItem("ff_shared_platforms", JSON.stringify(updated)); } catch {}
+  };
+
+  const onShare = (platform) => {
+    if (!referralCode) return;
+    // Log Share Issued — fire-and-forget so the share window opens immediately.
+    fetch("/api/share-issued", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ referral_code: referralCode, platform, share_url: shareUrl }),
+      keepalive: true,
+    }).catch(() => {});
+    markShared(platform);
+
+    if (platform === "copy") {
+      try {
+        navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      } catch {
+        // Fallback for browsers without clipboard API: select an off-screen
+        // textarea (synchronous + permission-free).
+        const ta = document.createElement("textarea");
+        ta.value = shareUrl;
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); setCopied(true); setTimeout(() => setCopied(false), 2500); } catch {}
+        document.body.removeChild(ta);
+      }
+      return;
+    }
+    const url = shareUrlFor(platform, shareText, shareUrl, emailSubject);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const sharedCount = Math.min(5, shared.length);
+  const goal = 5;
+  const pct = (sharedCount / goal) * 100;
+
+  return (
+    <PageShell>
+      <section className="ff-section ff-share">
+        <div className="ff-wrap ff-share-inner">
+          {(status === "polling" || status === "looking_up") && (
+            <div className="ff-share-loading">
+              <h1 className="ff-h2">Setting up your share link…</h1>
+              <p className="ff-lede">One sec — we're matching your donation to your account so every signup you bring in counts on your tally.</p>
+            </div>
+          )}
+
+          {status === "ask_email" && (
+            <div className="ff-share-ask">
+              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Thank you</span>
+              <h1 className="ff-h2">Thanks for backing the fight.</h1>
+              <p className="ff-lede">Drop in the email you used to donate so we can give you your share link.</p>
+              <form className="ff-share-ask-form" onSubmit={lookupByEmail} noValidate>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                  aria-required="true"
+                />
+                <button className="ff-btn ff-btn--red" type="submit">Get my share link</button>
+              </form>
+              {emailError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{emailError}</p>}
+            </div>
+          )}
+
+          {status === "ready" && (
+            <div className="ff-share-ready">
+              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Thank you{firstName ? `, ${firstName}` : ""}</span>
+              <h1 className="ff-h2">Now multiply your impact.</h1>
+              <p className="ff-lede">
+                You've put real money into the fight. The next move is the highest-leverage thing you can do:
+                share this with <strong>five Aussies</strong> who'd join in. We'll attribute every signature
+                back to you, so you can see exactly who you brought in.
+              </p>
+
+              <div className="ff-share-progress">
+                <div className="ff-share-progress-bar"><div style={{ width: pct.toFixed(0) + "%" }} /></div>
+                <div className="ff-share-progress-label">{sharedCount} of {goal} shared</div>
+              </div>
+
+              <div className="ff-share-grid">
+                {platforms.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={`ff-share-btn ff-share-btn--${p.id} ${shared.includes(p.id) ? "is-shared" : ""}`}
+                    onClick={() => onShare(p.id)}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="ff-share-link">
+                <label className="ff-field-label">Your tracked share link</label>
+                <div className="ff-share-link-row">
+                  <input type="text" readOnly value={shareUrl} onFocus={(e) => e.target.select()} />
+                  <button type="button" className="ff-btn ff-btn--outline" onClick={() => onShare("copy")}>
+                    {copied ? "Copied" : "Copy"}
+                  </button>
+                </div>
+                <p className="ff-form-fine">Anyone who signs after clicking this link is credited to you.</p>
+              </div>
+
+              <div className="ff-share-next">
+                <a href="/" className="ff-link">← Back to home</a>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
@@ -2731,6 +3006,7 @@ function App() {
   else if (page === "media") view = <MediaPage />;
   else if (page === "donate") view = <DonorPage />;
   else if (page === "volunteer") view = <VolunteerPage />;
+  else if (page === "share") view = <ShareThanksPage />;
   else view = <HomePage />;
 
   return <ContentContext.Provider value={content}>{view}</ContentContext.Provider>;
