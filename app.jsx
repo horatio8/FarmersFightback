@@ -2755,8 +2755,9 @@ function ShareThanksPage() {
 
   const [referralCode, setReferralCode] = useState(stored.code);
   const [firstName, setFirstName] = useState(stored.firstName);
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
+  const [identity, setIdentity] = useState({ first: "", last: "", email: "", mobile: "", postcode: "" });
+  const [identityError, setIdentityError] = useState("");
+  const updateIdentity = (k) => (e) => setIdentity((f) => ({ ...f, [k]: e.target.value }));
   const [shared, setShared] = useState(stored.shared);
   const [copied, setCopied] = useState(false);
 
@@ -2808,7 +2809,7 @@ function ShareThanksPage() {
       } catch {}
       if (attempts >= 15) {
         setStatus("ask_email");
-        setEmailError("Taking longer than expected — pop in the email you used to donate and we'll find you.");
+        setIdentityError("Taking longer than expected — fill in your details and we'll set up your share link.");
       } else {
         setTimeout(tick, 2000);
       }
@@ -2817,24 +2818,42 @@ function ShareThanksPage() {
     return () => { active = false; };
   }, [status, sessionId]);
 
-  const lookupByEmail = async (ev) => {
+  // Identity submission: matches an existing contact by email (preferred),
+  // mobile, or name+postcode; creates one if no match. Either way, the donor
+  // gets a referral_code back and lands on the ready state.
+  const submitIdentity = async (ev) => {
     ev && ev.preventDefault && ev.preventDefault();
-    if (!/^\S+@\S+\.\S+$/.test(email)) { setEmailError("Enter a valid email"); return; }
-    setEmailError("");
+    const first = identity.first.trim();
+    const last = identity.last.trim();
+    const email = identity.email.trim();
+    if (!first) { setIdentityError("First name required"); return; }
+    if (!last) { setIdentityError("Last name required"); return; }
+    if (!/^\S+@\S+\.\S+$/.test(email)) { setIdentityError("Enter a valid email"); return; }
+    setIdentityError("");
     setStatus("looking_up");
     try {
-      const r = await fetch(`/api/share-context?email=${encodeURIComponent(email)}`);
+      const r = await fetch("/api/share-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: first,
+          last_name: last,
+          email,
+          mobile: identity.mobile.trim() || undefined,
+          postcode: identity.postcode.trim() || undefined,
+        }),
+      });
       if (r.ok) {
         const j = await r.json();
         if (j.referral_code) {
-          persistCode(j.referral_code, j.first_name, j.contact_id);
+          persistCode(j.referral_code, j.first_name || first, j.contact_id);
           setStatus("ready");
           return;
         }
       }
     } catch {}
     setStatus("ask_email");
-    setEmailError("Couldn't find that email. Double-check it's the same one you used to donate.");
+    setIdentityError("Couldn't save those details — give it another go.");
   };
 
   const PRODUCTION_ORIGIN = "https://www.farmersfightback.com";
@@ -2940,20 +2959,30 @@ function ShareThanksPage() {
             <div className="ff-share-ask">
               <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Thank you</span>
               <h1 className="ff-h2">Thanks for backing the fight.</h1>
-              <p className="ff-lede">Drop in the email you used to donate so we can give you your share link.</p>
-              <form className="ff-share-ask-form" onSubmit={lookupByEmail} noValidate>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  required
-                  aria-required="true"
-                />
-                <button className="ff-btn ff-btn--red" type="submit">Get my share link</button>
+              <p className="ff-lede">Pop your details in below and we'll set up your share link — we'll match you to your existing record if we've heard from you before.</p>
+              <form className="ff-action-form ff-share-identity-form" onSubmit={submitIdentity} noValidate>
+                <div className="ff-form-row">
+                  <Field label={<>First name <span className="ff-req">*</span></>}>
+                    <input value={identity.first} onChange={updateIdentity("first")} autoComplete="given-name" required aria-required="true" />
+                  </Field>
+                  <Field label={<>Last name <span className="ff-req">*</span></>}>
+                    <input value={identity.last} onChange={updateIdentity("last")} autoComplete="family-name" required aria-required="true" />
+                  </Field>
+                </div>
+                <Field label={<>Email <span className="ff-req">*</span></>}>
+                  <input type="email" value={identity.email} onChange={updateIdentity("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
+                </Field>
+                <div className="ff-form-row">
+                  <Field label="Mobile">
+                    <input type="tel" value={identity.mobile} onChange={updateIdentity("mobile")} placeholder="0400 000 000" autoComplete="tel" />
+                  </Field>
+                  <Field label="Postcode">
+                    <input value={identity.postcode} onChange={updateIdentity("postcode")} placeholder="3000" inputMode="numeric" maxLength={4} autoComplete="postal-code" />
+                  </Field>
+                </div>
+                <button className="ff-btn ff-btn--red ff-btn--block" type="submit">Get my share link</button>
               </form>
-              {emailError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{emailError}</p>}
+              {identityError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{identityError}</p>}
             </div>
           )}
 
