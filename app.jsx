@@ -414,27 +414,75 @@ function Petition() {
     ev.preventDefault();
     if (!validate()) return;
     setState("submitting");
-    const body = new URLSearchParams({
+
+    const attr = getAttribution();
+    const ref = (attr.ref || "").toString().toUpperCase();
+    const fbclid = attr.fbclid || "";
+    const fbp = getCookie("_fbp") || "";
+
+    // Campaign Nucleus parallel push — fire-and-forget, no-cors. Preserves
+    // existing supporter delivery without blocking the native capture.
+    const nucleusBody = new URLSearchParams({
       first_name: form.first.trim(),
       last_name: form.last.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
       postcode: form.postcode.trim(),
-      ...getAttribution(),
+      ...attr,
     });
+    fetch(c.receiverUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: nucleusBody,
+      keepalive: true,
+    }).catch(() => {});
+
+    // Native Vercel capture: writes Airtable + fires Meta Lead server-side.
+    // Returns the contact's referral code (persisted for the share UX).
+    let metaEventId = "";
     try {
-      await fetch(c.receiverUrl, {
+      const r = await fetch("/api/petition-signup", {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: form.first.trim(),
+          last_name: form.last.trim(),
+          email: form.email.trim(),
+          mobile: form.phone.trim(),
+          postcode: form.postcode.trim(),
+          fbclid,
+          fbp,
+          ref,
+          utm_source: attr.utm_source,
+          utm_medium: attr.utm_medium,
+          utm_campaign: attr.utm_campaign,
+        }),
+        keepalive: true,
       });
-      sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Omnibus Petition" });
-      window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
-      window.location.assign("/donate");
+      if (r.ok) {
+        const j = await r.json();
+        metaEventId = j.meta_event_id || "";
+        if (j.referral_code) {
+          try { localStorage.setItem("ff_referral_code", j.referral_code); } catch {}
+        }
+        if (j.contact_id) {
+          try { localStorage.setItem("ff_contact_id", j.contact_id); } catch {}
+        }
+      }
     } catch (err) {
-      setState("error");
+      // CN already received the signature; don't block the user on a native-capture blip.
+      console.error("petition-signup:", err);
     }
+
+    // Browser pixel Lead, dedup'd against the server fire via shared event_id.
+    if (typeof window !== "undefined" && window.fbq) {
+      const eventId = metaEventId || `Lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      window.fbq("track", "Lead", { content_name: "Omnibus Petition" }, { eventID: eventId });
+    }
+
+    window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
+    window.location.assign("/donate");
   };
 
   if (state === "done") {

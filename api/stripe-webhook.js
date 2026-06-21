@@ -17,6 +17,11 @@
 
 const crypto = require("crypto");
 const { postEvent } = require("./_meta");
+const {
+  matchOrCreateContact,
+  logEventIdempotent,
+  updateContactStatusFromEvent,
+} = require("./_airtable");
 
 // Disable Vercel's automatic body parsing — Stripe signature verification
 // requires the raw request body bytes.
@@ -109,6 +114,56 @@ function splitName(name) {
   return { fn: parts[0], ln: parts.slice(-1)[0] };
 }
 
+// Identity-match the Stripe customer to a Contact, log a Donation event in
+// Airtable, update status. Idempotent via meta_event_id = stripe_<obj.id>.
+// Best-effort: errors are logged but not thrown, so a transient Airtable
+// outage doesn't block the Meta CAPI fire or trigger a Stripe retry.
+async function recordDonationInAirtable({ stripe_event_id, details, amount_minor, currency, contentName, fbclid, fbp, sourceUrl, stripeObjectId, stripeObjectType }) {
+  try {
+    const { fn, ln } = splitName(details && details.name);
+    const { record } = await matchOrCreateContact({
+      first_name: fn,
+      last_name: ln,
+      email: details && details.email,
+      mobile: details && details.phone,
+      postcode: details && details.address && details.address.postal_code,
+      fbclid,
+      fbp,
+      source_channel: fbclid ? "Facebook" : "Direct",
+    });
+    await logEventIdempotent({
+      contactRecordId: record.id,
+      event_type: "Donation",
+      payload: {
+        stripe_object_type: stripeObjectType,
+        stripe_object_id: stripeObjectId,
+        amount: amount_minor,
+        currency: (currency || "aud").toUpperCase(),
+        content_name: contentName,
+        source_url: sourceUrl,
+        fbclid,
+        fbp,
+        customer: {
+          email: details && details.email,
+          name: details && details.name,
+          phone: details && details.phone,
+          postcode: details && details.address && details.address.postal_code,
+          country: details && details.address && details.address.country,
+        },
+      },
+      fbclid,
+      meta_event_id: stripe_event_id,
+    });
+    try {
+      await updateContactStatusFromEvent(record.id, "Donation", record.fields.status);
+    } catch (e) {
+      console.error("airtable status update failed:", e.message);
+    }
+  } catch (e) {
+    console.error("airtable donation write failed:", e.message);
+  }
+}
+
 async function fireCAPIPurchase({ event_id, amount_minor, currency, details, contentName, sourceUrl, fbc, fbp, ip, userAgent }) {
   const { fn, ln } = splitName(details && details.name);
   const user_data = {
@@ -190,6 +245,18 @@ module.exports = async function handler(req, res) {
 
       const details = await resolveCustomerDetails(obj);
       const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
+      await recordDonationInAirtable({
+        stripe_event_id: `stripe_${obj.id}`,
+        details,
+        amount_minor: obj.amount_total,
+        currency: obj.currency,
+        contentName: meta.content_name || "One-off Donation",
+        fbclid: meta.fbclid,
+        fbp: meta.fbp,
+        sourceUrl: meta.source_url,
+        stripeObjectId: obj.id,
+        stripeObjectType: "checkout.session",
+      });
       await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,                   // idempotent across retries
         amount_minor: obj.amount_total,
@@ -228,6 +295,18 @@ module.exports = async function handler(req, res) {
         }
       }
 
+      await recordDonationInAirtable({
+        stripe_event_id: `stripe_${obj.id}`,
+        details,
+        amount_minor: obj.amount_paid,
+        currency: obj.currency,
+        contentName: meta.content_name || "Monthly Donation",
+        fbclid: meta.fbclid,
+        fbp: meta.fbp,
+        sourceUrl: meta.source_url,
+        stripeObjectId: obj.id,
+        stripeObjectType: "invoice",
+      });
       await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,
         amount_minor: obj.amount_paid,
