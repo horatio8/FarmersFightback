@@ -124,6 +124,13 @@ module.exports = async function handler(req, res) {
         .json({ error: "email, mobile, or first+last+postcode required" });
     }
 
+    // Distinguish Meta Lead Ads from any other Facebook-tagged interaction
+    // (e.g. a fbclid-bearing landing) so reports can isolate paid-form
+    // submissions from organic FB referrals. Overrides whatever the Zap
+    // (or other caller) sent for source_channel.
+    const isMetaLead = String(p.source || "").toLowerCase() === "meta_lead_ad";
+    const effectiveSourceChannel = isMetaLead ? "Meta Lead" : source_channel;
+
     const { record } = await matchOrCreateContact({
       first_name,
       last_name,
@@ -132,7 +139,7 @@ module.exports = async function handler(req, res) {
       postcode,
       fbclid,
       fbp,
-      source_channel,
+      source_channel: effectiveSourceChannel,
     });
 
     // Ensure every contact (web form, Meta lead via Zapier, survey, etc.)
@@ -150,7 +157,7 @@ module.exports = async function handler(req, res) {
       payload: payload || body,
       fbclid,
       referral_code_used: ref || undefined,
-      source_channel: source_channel || undefined,
+      source_channel: effectiveSourceChannel || undefined,
     });
 
     try {
