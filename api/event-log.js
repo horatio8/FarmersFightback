@@ -23,6 +23,7 @@
 
 const {
   matchOrCreateContact,
+  setReferralCodeIfMissing,
   logEvent,
   updateContactStatusFromEvent,
 } = require("./_airtable");
@@ -117,6 +118,15 @@ module.exports = async function handler(req, res) {
       fbp,
       source_channel,
     });
+
+    // Ensure every contact (web form, Meta lead via Zapier, survey, etc.)
+    // gets a referral_code so they can participate in the share-with-friends
+    // loop. Petition-signup did this already; bring event-log into line.
+    try {
+      await setReferralCodeIfMissing(record.id, record.fields);
+    } catch (e) {
+      console.error("referral_code set failed:", e.message);
+    }
 
     const eventRecord = await logEvent({
       contactRecordId: record.id,
