@@ -221,7 +221,12 @@ function parsePayloadObject(payload) {
 // Projection: Petition Signed → Petition Signatures table.
 function projectPetitionSigned(payloadObj, contactRecordId, eventRecordId, timestamp) {
   const p = payloadObj || {};
-  return {
+  // Meta lead ads get a richer projection — we surface the ad, adset,
+  // campaign, form, page, and platform context as first-class columns so
+  // they're filterable / groupable in Airtable without JSON-parsing
+  // payload. Web form signatures simply leave these blank.
+  const isMetaLead = String(p.source || "").toLowerCase() === "meta_lead_ad";
+  const fields = {
     signature_id: uuid(),
     contact: contactRecordId ? [contactRecordId] : undefined,
     event: eventRecordId ? [eventRecordId] : undefined,
@@ -241,9 +246,24 @@ function projectPetitionSigned(payloadObj, contactRecordId, eventRecordId, times
     utm_campaign: p.utm_campaign || undefined,
     utm_term: p.utm_term || undefined,
     utm_content: p.utm_content || undefined,
+    lead_source: isMetaLead ? "Meta lead ad" : (p.source ? "Other" : "Web form"),
+    meta_leadgen_id: p.leadgen_id ? String(p.leadgen_id) : undefined,
+    meta_form_id: p.form_id ? String(p.form_id) : undefined,
+    meta_form_name: p.form_name || undefined,
+    meta_ad_id: p.ad_id ? String(p.ad_id) : undefined,
+    meta_ad_name: p.ad_name || undefined,
+    meta_adset_id: p.adset_id ? String(p.adset_id) : (p.adgroup_id ? String(p.adgroup_id) : undefined),
+    meta_adset_name: p.adset_name || undefined,
+    meta_campaign_id: p.campaign_id ? String(p.campaign_id) : undefined,
+    meta_campaign_name: p.campaign_name || undefined,
+    meta_page_id: p.page_id ? String(p.page_id) : undefined,
+    meta_platform: p.platform || undefined,
+    meta_partner_name: p.partner_name || undefined,
+    meta_created_time: p.created_time || undefined,
     timestamp: timestamp || nowIso(),
     payload: JSON.stringify(p),
   };
+  return fields;
 }
 
 // Projection: Donation → Donations table.
