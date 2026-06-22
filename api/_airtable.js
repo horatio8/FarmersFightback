@@ -221,45 +221,52 @@ function parsePayloadObject(payload) {
 // Projection: Petition Signed → Petition Signatures table.
 function projectPetitionSigned(payloadObj, contactRecordId, eventRecordId, timestamp) {
   const p = payloadObj || {};
-  // Meta lead ads get a richer projection — we surface the ad, adset,
-  // campaign, form, page, and platform context as first-class columns so
-  // they're filterable / groupable in Airtable without JSON-parsing
-  // payload. Web form signatures simply leave these blank.
+  // Some Zapier Lead Ads connectors nest the lead's submitted fields under
+  // payload.lead_data; others put them at the top level of the payload.
+  // Read both, prefer the deeper value when both exist.
+  const ld = (p.lead_data && typeof p.lead_data === "object") ? p.lead_data : {};
+  const pick = (...keys) => {
+    for (const k of keys) {
+      if (ld[k] !== undefined && ld[k] !== null && ld[k] !== "") return ld[k];
+      if (p[k] !== undefined && p[k] !== null && p[k] !== "") return p[k];
+    }
+    return undefined;
+  };
   const isMetaLead = String(p.source || "").toLowerCase() === "meta_lead_ad";
   const fields = {
     signature_id: uuid(),
     contact: contactRecordId ? [contactRecordId] : undefined,
     event: eventRecordId ? [eventRecordId] : undefined,
-    first_name: p.first_name || undefined,
-    last_name: p.last_name || undefined,
-    email: normEmail(p.email) || undefined,
-    mobile: normPhone(p.mobile) || undefined,
-    postcode: p.postcode || undefined,
-    country: p.country || undefined,
-    campaign: p.campaign || undefined,
+    first_name: pick("first_name"),
+    last_name: pick("last_name"),
+    email: normEmail(pick("email")) || undefined,
+    mobile: normPhone(pick("mobile", "phone", "phone_number")) || undefined,
+    postcode: pick("postcode", "post_code", "zip", "zip_code", "postal_code"),
+    country: pick("country"),
+    campaign: pick("campaign"),
     consent: p.consent !== undefined ? String(p.consent) : undefined,
-    fbclid: p.fbclid || undefined,
-    fbp: p.fbp || undefined,
+    fbclid: pick("fbclid"),
+    fbp: pick("fbp"),
     ref_used: p.ref ? String(p.ref).toUpperCase() : undefined,
-    utm_source: p.utm_source || undefined,
-    utm_medium: p.utm_medium || undefined,
-    utm_campaign: p.utm_campaign || undefined,
-    utm_term: p.utm_term || undefined,
-    utm_content: p.utm_content || undefined,
+    utm_source: pick("utm_source"),
+    utm_medium: pick("utm_medium"),
+    utm_campaign: pick("utm_campaign"),
+    utm_term: pick("utm_term"),
+    utm_content: pick("utm_content"),
     lead_source: isMetaLead ? "Meta lead ad" : (p.source ? "Other" : "Web form"),
-    meta_leadgen_id: p.leadgen_id ? String(p.leadgen_id) : undefined,
-    meta_form_id: p.form_id ? String(p.form_id) : undefined,
-    meta_form_name: p.form_name || undefined,
-    meta_ad_id: p.ad_id ? String(p.ad_id) : undefined,
-    meta_ad_name: p.ad_name || undefined,
-    meta_adset_id: p.adset_id ? String(p.adset_id) : (p.adgroup_id ? String(p.adgroup_id) : undefined),
-    meta_adset_name: p.adset_name || undefined,
-    meta_campaign_id: p.campaign_id ? String(p.campaign_id) : undefined,
-    meta_campaign_name: p.campaign_name || undefined,
-    meta_page_id: p.page_id ? String(p.page_id) : undefined,
-    meta_platform: p.platform || undefined,
-    meta_partner_name: p.partner_name || undefined,
-    meta_created_time: p.created_time || undefined,
+    meta_leadgen_id: (pick("leadgen_id") || pick("id")) ? String(pick("leadgen_id") || pick("id")) : undefined,
+    meta_form_id: pick("form_id") ? String(pick("form_id")) : undefined,
+    meta_form_name: pick("form_name"),
+    meta_ad_id: pick("ad_id") ? String(pick("ad_id")) : undefined,
+    meta_ad_name: pick("ad_name"),
+    meta_adset_id: pick("adset_id", "adgroup_id") ? String(pick("adset_id", "adgroup_id")) : undefined,
+    meta_adset_name: pick("adset_name"),
+    meta_campaign_id: pick("campaign_id") ? String(pick("campaign_id")) : undefined,
+    meta_campaign_name: pick("campaign_name"),
+    meta_page_id: pick("page_id") ? String(pick("page_id")) : undefined,
+    meta_platform: pick("platform"),
+    meta_partner_name: pick("partner_name"),
+    meta_created_time: pick("created_time"),
     timestamp: timestamp || nowIso(),
     payload: JSON.stringify(p),
   };

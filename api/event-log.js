@@ -90,18 +90,34 @@ module.exports = async function handler(req, res) {
     const body = req.body || {};
     const {
       event_type,
-      email,
-      mobile,
-      first_name,
-      last_name,
-      postcode,
-      fbclid,
-      fbp,
       payload,
       source_channel,
       ref,
     } = body;
     if (!event_type) return res.status(400).json({ error: "event_type required" });
+
+    // Some upstream relays (notably the two Zapier Lead Ads connectors) put
+    // the lead's identity fields at the top level of the body, others nest
+    // them under payload.lead_data, others put them in payload.* directly.
+    // Read all three so contact creation works no matter the shape.
+    const p = (payload && typeof payload === "object") ? payload : {};
+    const ld = (p.lead_data && typeof p.lead_data === "object") ? p.lead_data : {};
+    const firstNonEmpty = (...keys) => {
+      for (const k of keys) {
+        if (body[k] !== undefined && body[k] !== null && body[k] !== "") return body[k];
+        if (ld[k]   !== undefined && ld[k]   !== null && ld[k]   !== "") return ld[k];
+        if (p[k]    !== undefined && p[k]    !== null && p[k]    !== "") return p[k];
+      }
+      return undefined;
+    };
+    const first_name = firstNonEmpty("first_name");
+    const last_name = firstNonEmpty("last_name");
+    const email = firstNonEmpty("email");
+    const mobile = firstNonEmpty("mobile", "phone", "phone_number");
+    const postcode = firstNonEmpty("postcode", "post_code", "zip", "zip_code", "postal_code");
+    const fbclid = firstNonEmpty("fbclid");
+    const fbp = firstNonEmpty("fbp");
+
     if (!email && !mobile && !(first_name && last_name && postcode)) {
       return res
         .status(400)
@@ -159,11 +175,11 @@ module.exports = async function handler(req, res) {
         cn_result = await pushToCampaignNucleus(cnUrl, {
           first_name, last_name, email, mobile, postcode,
         }, {
-          source: (payload && payload.source) || "event-log",
+          source: p.source || "event-log",
           petition_slug: petitionSlug,
-          meta_lead_id: payload && payload.leadgen_id,
-          meta_form_id: payload && payload.form_id,
-          meta_ad_id: payload && payload.ad_id,
+          meta_lead_id: p.leadgen_id || ld.id || p.id || "",
+          meta_form_id: p.form_id || ld.form_id || "",
+          meta_ad_id: p.ad_id || ld.ad_id || "",
         });
       }
     }
