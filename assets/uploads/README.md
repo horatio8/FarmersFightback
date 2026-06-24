@@ -19,6 +19,3 @@ them up automatically (no code change needed).
   for legibility — composition matters more than exact aspect ratio.
 - To swap a photo per page, just edit the `heroImage` field on the
   matching block in `content/site.json` (or use the CMS).
-- If you prefer to host the images on the Supabase Public Assets
-  bucket (same place as `herovid.mp4`), point `heroImage` at the
-  full https URL instead of the local path.

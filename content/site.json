@@ -46,7 +46,7 @@
     "eyebrow": "Who we are",
     "heading": "A farmer-led fight for every Aussie farmer.",
     "lede": "What started in Wimmera, Victoria is now a national campaign with 35,000+ Australians standing with us. Here's the story in a minute:",
-    "videoUrl": "https://loyyrnblwqdxflobrbms.supabase.co/storage/v1/object/public/Public%20Assets/Farmers%20Fightback%20Video.mp4"
+    "videoUrl": "/assets/intro-video.mp4"
   },
   "latestVideo": {
     "eyebrow": "Latest evidence · Video 4",
