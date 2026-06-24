@@ -27,6 +27,7 @@ const {
   logEvent,
   updateContactStatusFromEvent,
 } = require("./_airtable");
+const { normalizeLeadFields } = require("./_lead-fields");
 
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",
@@ -110,11 +111,23 @@ module.exports = async function handler(req, res) {
       }
       return undefined;
     };
-    const first_name = firstNonEmpty("first_name");
-    const last_name = firstNonEmpty("last_name");
-    const email = firstNonEmpty("email");
-    const mobile = firstNonEmpty("mobile", "phone", "phone_number");
-    const postcode = firstNonEmpty("postcode", "post_code", "zip", "zip_code", "postal_code");
+    // Meta's standard Lead Ads webhook ships question responses as an array
+    // of {name, values} under field_data. The Zapier connectors often forward
+    // it verbatim; normalize it here so a Zap that maps field_data correctly
+    // works without also having to set flat top-level keys.
+    const fdSource =
+      (Array.isArray(body.field_data) && body.field_data) ||
+      (Array.isArray(p.field_data) && p.field_data) ||
+      (Array.isArray(ld.field_data) && ld.field_data) ||
+      null;
+    const fd = fdSource ? normalizeLeadFields(fdSource) : null;
+    const fromFd = (k) => (fd && fd[k]) || undefined;
+
+    const first_name = firstNonEmpty("first_name") || fromFd("first_name");
+    const last_name = firstNonEmpty("last_name") || fromFd("last_name");
+    const email = firstNonEmpty("email") || fromFd("email");
+    const mobile = firstNonEmpty("mobile", "phone", "phone_number") || fromFd("mobile");
+    const postcode = firstNonEmpty("postcode", "post_code", "zip", "zip_code", "postal_code") || fromFd("postcode");
     const fbclid = firstNonEmpty("fbclid");
     const fbp = firstNonEmpty("fbp");
 

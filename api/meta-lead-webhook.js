@@ -40,6 +40,7 @@ const {
   logEventIdempotent,
 } = require("./_airtable");
 const { postEvent: postMetaEvent } = require("./_meta");
+const { normalizeLeadFields } = require("./_lead-fields");
 
 const APP_SECRET = process.env.META_APP_SECRET;
 const PAGE_TOKEN = process.env.META_PAGE_ACCESS_TOKEN;
@@ -80,42 +81,6 @@ async function fetchLead(leadgenId) {
     throw new Error(`Meta lead fetch ${r.status}: ${text.slice(0, 300)}`);
   }
   return r.json();
-}
-
-// Meta's standard Lead form question names — many forms use these as-is.
-// We also accept common custom aliases so non-standard forms work without
-// code changes. Edit this list as you add new form variants.
-const FIELD_ALIASES = {
-  email: ["email", "email_address"],
-  phone: ["phone_number", "phone", "mobile", "mobile_number"],
-  postcode: ["post_code", "postcode", "zip", "zip_code", "postal_code"],
-  first_name: ["first_name", "firstname"],
-  last_name: ["last_name", "lastname", "surname"],
-  full_name: ["full_name", "name"],
-};
-
-function normalizeLeadFields(field_data) {
-  const get = (aliases) => {
-    for (const n of aliases) {
-      const f = (field_data || []).find((x) => String(x.name).toLowerCase() === n);
-      if (f && Array.isArray(f.values) && f.values[0]) return String(f.values[0]).trim();
-    }
-    return "";
-  };
-  const email = get(FIELD_ALIASES.email);
-  const phone = get(FIELD_ALIASES.phone);
-  const postcode = get(FIELD_ALIASES.postcode);
-  let first_name = get(FIELD_ALIASES.first_name);
-  let last_name = get(FIELD_ALIASES.last_name);
-  if (!first_name && !last_name) {
-    const full = get(FIELD_ALIASES.full_name);
-    if (full) {
-      const parts = full.split(/\s+/);
-      first_name = parts[0] || "";
-      last_name = parts.slice(1).join(" ") || "";
-    }
-  }
-  return { first_name, last_name, email, mobile: phone, postcode };
 }
 
 async function pushToCampaignNucleus(receiverUrl, fields, attribution) {
