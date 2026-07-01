@@ -539,9 +539,9 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
       <div className="ffx-inbox">
         <span className="ffx-inbox-ic"><I.check width="30" height="30" /></span>
         <div className="ffx-inbox-tx">
-          <div className="ffx-inbox-h">Your tickets are in your inbox</div>
+          <div className="ffx-inbox-h">You&rsquo;re on the list</div>
           <div className="ffx-inbox-code">Confirmation code <b>{orderRef}</b></div>
-          <p>We&rsquo;ve sent {totalTix} {totalTix === 1 ? "ticket" : "tickets"} to <b>{form.email || "your inbox"}</b>. Show the QR code at the gate &mdash; no printing needed.</p>
+          <p>Your receipt is on its way to <b>{form.email || "your inbox"}</b>. Bring your name to the gate &mdash; we&rsquo;ll check you off the list. See you there.</p>
         </div>
       </div>
 
@@ -556,7 +556,6 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
         </div>
         <div className="ffx-stub-tear">
           <div className="ffx-stub-ref"><span>Order</span><b>{orderRef}</b></div>
-          <div className="ffx-qr" aria-hidden="true" />
         </div>
       </div>
 
