@@ -452,26 +452,47 @@ function ShareBlock({ myToken }) {
 }
 
 /* ============================================================
-   DONATION block — routes to existing donation flow (/donate?amount=)
-   for the real charge. Kept lightweight here to avoid duplicating
-   the main donation infra.
+   DONATION block — one click straight to the Stripe donation page.
+   The per-amount Stripe payment links are read from the SAME source
+   as the main /donate page (content/site.json -> donate.amounts[].
+   oneOffUrl + donate.customOneOffUrl) so the two never drift. Clicking
+   an amount navigates immediately; no select-then-confirm step.
    ============================================================ */
 function DonationBlock({ form }) {
   const AMTS = [35, 65, 265, 550, 1500];
-  const [sel, setSel] = useState(null);
-  const [other, setOther] = useState("");
-  const amount = sel === "other" ? Number(other) || 0 : sel || 0;
+  const [urls, setUrls] = useState(null); // { 35: "https://buy.stripe...", ..., other: "..." }
 
-  const goDonate = () => {
-    if (amount <= 0) return;
-    const q = new URLSearchParams({
-      amount: String(amount),
-      source: "rally_confirmation",
-      email: form.email || "",
-      first_name: form.first || "",
-      last_name: form.last || "",
-    });
-    window.location.href = `/donate?${q.toString()}`;
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/content/site.json", { cache: "no-store" });
+        const data = await r.json();
+        const d = (data && data.donate) || {};
+        const map = {};
+        (d.amounts || []).forEach((a) => {
+          if (a && a.amount && a.oneOffUrl) map[a.amount] = a.oneOffUrl;
+        });
+        map.other = d.customOneOffUrl || "";
+        if (!cancelled) setUrls(map);
+      } catch (e) {
+        if (!cancelled) setUrls({}); // fall back to /donate on click
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Straight to the matching Stripe page. Prefill the donor's email on the
+  // Stripe payment link when we have it (Stripe honours ?prefilled_email=).
+  // If the URL map didn't load, fall back to the /donate page so the button
+  // is never a dead click.
+  const go = (key) => {
+    const base = urls && (key === "other" ? urls.other : urls[key]);
+    let target = base || "/donate";
+    if (base && form && form.email) {
+      target += (base.includes("?") ? "&" : "?") + "prefilled_email=" + encodeURIComponent(form.email);
+    }
+    window.location.href = target;
   };
 
   return (
@@ -483,21 +504,11 @@ function DonationBlock({ form }) {
       </div>
       <div className="ffx-don-grid">
         {AMTS.map((a) => (
-          <button key={a} className={"ffx-don-opt" + (sel === a ? " on" : "")} onClick={() => setSel(a)}>{money(a)}</button>
+          <button key={a} className="ffx-don-opt" onClick={() => go(a)}>{money(a)}</button>
         ))}
-        <button className={"ffx-don-opt ffx-don-other" + (sel === "other" ? " on" : "")} onClick={() => setSel("other")}>Other</button>
+        <button className="ffx-don-opt ffx-don-other" onClick={() => go("other")}>Other</button>
       </div>
-      {sel === "other" && (
-        <div className="ffx-otherwrap"><span className="ffx-otherpre">$</span>
-          <input className="ffx-input" type="number" min="1" placeholder="Amount" value={other} onChange={(e) => setOther(e.target.value)} autoFocus />
-        </div>
-      )}
-      <div className="ffx-don-cta">
-        <button className="ffx-btn ffx-btn-gold ffx-btn-lg" disabled={amount <= 0} onClick={goDonate}>
-          {amount > 0 ? `Donate ${money(amount)}` : "Choose an amount"}
-        </button>
-        <span className="ffx-fine light">One-off &middot; secured by Stripe</span>
-      </div>
+      <span className="ffx-fine light" style={{ display: "block", marginTop: 14 }}>One-off &middot; secured by Stripe &middot; opens the donation page</span>
     </div>
   );
 }
@@ -541,7 +552,7 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
         <div className="ffx-inbox-tx">
           <div className="ffx-inbox-h">You&rsquo;re on the list</div>
           <div className="ffx-inbox-code">Confirmation code <b>{orderRef}</b></div>
-          <p>Your receipt is on its way to <b>{form.email || "your inbox"}</b>. Bring your name to the gate &mdash; we&rsquo;ll check you off the list. See you there.</p>
+          <p>Your receipt is in your inbox. Tickets will be issued closer to the function.</p>
         </div>
       </div>
 
