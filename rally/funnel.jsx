@@ -130,9 +130,9 @@ function Field({ label, opt, err, ...rest }) {
 /* ---------- lineup ---------- */
 function LineupSection() {
   const guests = [
-    { lead: true, name: "Pauline Hanson", role: "Headline speaker · from 7pm", ph: "Photo of Pauline Hanson" },
-    { name: "Ben Duxson", role: "Farmers Fightback", ph: "Photo of Ben Duxson" },
-    { name: "Special guests", role: "More to be announced", ph: "Add photo" },
+    { lead: true, name: "Pauline Hanson", role: "Headline speaker · from 7pm", img: "/assets/rally-hanson.jpg", ph: "Photo of Pauline Hanson" },
+    { name: "Ben Duxson", role: "Farmers Fightback", img: "/assets/rally-duxson.jpg", ph: "Photo of Ben Duxson" },
+    { name: "Special guests", role: "More to be announced", img: "/assets/rally-guests.jpg", ph: "Add photo" },
   ];
   return (
     <section className="ffx-lineup">
@@ -144,7 +144,11 @@ function LineupSection() {
       <div className="ffx-speakers">
         {guests.map((g) => (
           <div key={g.name} className={"ffx-spk" + (g.lead ? " ffx-spk-lead" : "")}>
-            <div className="ffx-spk-photo"><I.portrait width="32" height="32" /><span className="ph-txt">{g.ph}</span></div>
+            <div className={"ffx-spk-photo" + (g.img ? " has-img" : "")}>
+              {g.img
+                ? <img className="ffx-spk-img" src={g.img} alt={g.name} loading="lazy" />
+                : <React.Fragment><I.portrait width="32" height="32" /><span className="ph-txt">{g.ph}</span></React.Fragment>}
+            </div>
             <div className="ffx-spk-name">{g.name}</div>
             <div className="ffx-spk-role">{g.role}</div>
           </div>
