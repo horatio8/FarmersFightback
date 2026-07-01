@@ -89,9 +89,16 @@ async function findTokenRecord(token) {
     const r = await atFetch(`${encodeURIComponent(TOKENS_TABLE)}?${params}`);
     return r.records && r.records[0] ? r.records[0] : null;
   } catch (e) {
-    // If the table doesn't exist yet (422 UNKNOWN_TABLE_NAME) surface that
-    // as a clear error the caller can decide to fall back on.
-    if (e.status === 422 || e.status === 404) {
+    // If the table doesn't exist yet, surface that as a clear error the
+    // caller can decide to fall back on. Airtable's error codes vary:
+    //   - 422 UNKNOWN_TABLE_NAME (older API)
+    //   - 404 NOT_FOUND
+    //   - 403 INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND (current API — includes
+    //     both "table doesn't exist" and "token lacks access to it")
+    const isNoTable = e.status === 422
+      || e.status === 404
+      || (e.status === 403 && /INVALID_PERMISSIONS_OR_MODEL_NOT_FOUND/i.test(e.body || e.message || ""));
+    if (isNoTable) {
       const err = new Error("Token table not configured");
       err.code = "NO_TABLE";
       throw err;
