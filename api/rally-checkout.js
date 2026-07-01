@@ -1,13 +1,16 @@
-// Vercel serverless function: creates a hosted Stripe Checkout Session for
-// the Farmers Fightback Rally and returns its URL. Also supports GET
-// ?session_id=X to read a session's basic details back on the return trip
-// (so the /rally confirmation page can render name/qty from Stripe rather
-// than trusting the client to preserve them).
+// Vercel serverless function: creates a Stripe Embedded Checkout Session
+// for the Farmers Fightback Rally and returns its client_secret so the
+// front-end can mount Stripe's payment form inline on /rally. Also
+// supports GET ?session_id=X to read a session's basic details back on
+// the return trip (so the /rally confirmation page can render name/qty
+// from Stripe rather than trusting the client to preserve them).
 //
 // POST /api/rally-checkout
 // Body: { adult_qty, kid_qty, first_name, last_name, email, phone,
 //         postcode, ref }
-// Response: { url }  (Stripe Checkout URL to redirect to)
+// Response: { client_secret, publishable_key }
+//   - client_secret is passed to stripe.initEmbeddedCheckout on the client
+//   - publishable_key lets us keep pk_live_... out of the git repo
 //
 // GET /api/rally-checkout?session_id=cs_...
 // Response: { session: { first_name, last_name, email, phone, postcode,
@@ -16,6 +19,10 @@
 // Env:
 //   STRIPE_SECRET_KEY               Restricted key with Checkout Sessions
 //                                   read+write
+//   STRIPE_PUBLISHABLE_KEY          Publishable key (pk_live_... or
+//                                   pk_test_...) — safe to be public but
+//                                   we serve it via the API so it isn't
+//                                   committed to the repo
 //   STRIPE_RALLY_ADULT_PRICE_ID     Stripe Price ID for the adult ticket
 //   STRIPE_RALLY_KID_PRICE_ID       Stripe Price ID for the kids ticket
 //                                   (optional — omit if adult-only)
@@ -29,6 +36,7 @@
 const { matchOrCreateContact, setReferralCodeIfMissing, logEvent } = require("./_airtable");
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+const STRIPE_PK = process.env.STRIPE_PUBLISHABLE_KEY;
 const ADULT_PRICE_ID = process.env.STRIPE_RALLY_ADULT_PRICE_ID;
 const KID_PRICE_ID = process.env.STRIPE_RALLY_KID_PRICE_ID;
 
@@ -218,19 +226,28 @@ module.exports = async function handler(req, res) {
       method: "POST",
       body: toFormBody({
         mode: "payment",
+        ui_mode: "embedded",
         payment_method_types: ["card"],
         line_items,
         customer_email: email,
         client_reference_id: ref || "rally",
         allow_promotion_codes: false,
-        success_url: `${base}?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${base}`,
+        // Embedded checkout uses a single return_url instead of the
+        // success_url + cancel_url pair. Stripe will redirect here when
+        // payment completes; if the buyer bails out mid-flow we just
+        // leave the session unpaid (Stripe expires it) and they can
+        // start over from /rally.
+        return_url: `${base}?session_id={CHECKOUT_SESSION_ID}`,
         metadata,
         payment_intent_data: { metadata },
       }),
     });
 
-    return res.status(200).json({ url: session.url, id: session.id });
+    return res.status(200).json({
+      client_secret: session.client_secret,
+      publishable_key: STRIPE_PK || "",
+      id: session.id,
+    });
   } catch (err) {
     if (err.code === "MISCONFIGURED") {
       console.error(err.message);

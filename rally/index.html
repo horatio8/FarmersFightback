@@ -19,6 +19,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Caveat:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet"/>
 
+  <!-- Stripe.js — loaded eagerly so the embedded checkout mounts without a
+       flash of missing script when the buyer reaches the payment step. -->
+  <script src="https://js.stripe.com/v3/"></script>
+
   <style>
     :root{
       --field-green:#1F6B3B; --field-deep:#175530; --sky-blue:#2C6E8F; --sun-gold:#F4B400;
@@ -34,9 +38,15 @@
     /* ---- masthead: cream + sunburst ---- */
     .ffx-app{background:var(--cream);color:var(--ink);min-height:100%;font-size:16px;line-height:1.5}
     .ffx-mast{position:relative;overflow:hidden;text-align:center;padding:44px 24px 30px}
-    .ffx-rays{position:absolute;top:-220px;left:50%;transform:translateX(-50%);width:900px;height:560px;pointer-events:none;
+    /* Sunburst rays + sun disc scale with viewport so they always extend
+       past the edges of even ultra-wide monitors. Anchored at 50% 100% of
+       the .ffx-rays box so the point-of-origin stays at the bottom-centre
+       under the FARMERS FIGHTBACK title. */
+    .ffx-rays{position:absolute;top:min(-220px,-30vw);left:50%;transform:translateX(-50%);
+      width:min(2600px,200vw);height:min(1400px,120vw);pointer-events:none;
       background:repeating-conic-gradient(from 0deg at 50% 100%,rgba(244,180,0,0.15) 0deg 4deg,transparent 4deg 12deg)}
-    .ffx-sun{position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:520px;height:520px;border-radius:50%;
+    .ffx-sun{position:absolute;top:min(-160px,-18vw);left:50%;transform:translateX(-50%);
+      width:min(720px,68vw);height:min(720px,68vw);border-radius:50%;
       background:radial-gradient(circle,rgba(244,180,0,0.42) 0 28%,rgba(244,180,0,0.16) 29% 50%,transparent 64%);pointer-events:none}
     .ffx-mast-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
     .ffx-logo{height:56px;width:auto;display:block}
@@ -148,6 +158,11 @@
 
     /* ---- checkout ---- */
     .ffx-checkout-head{text-align:left}
+    /* Container that Stripe's embedded checkout iframe mounts into. Give
+       it a floor height so the buyer doesn't see the card empty out to
+       zero-height while Stripe boots. */
+    .ffx-stripe-mount{min-height:520px;margin:16px 0 8px}
+    .ffx-stripe-mount.loading{display:flex;align-items:center;justify-content:center;background:var(--cream);border:1.5px solid var(--cream-dim);border-radius:14px}
     .ffx-lockpill{display:inline-flex;align-items:center;gap:7px;background:rgba(31,107,59,0.1);color:var(--field-green);
       font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-size:12px;padding:6px 13px;border-radius:999px}
     .ffx-summary{background:var(--cream);border:1.5px solid var(--cream-dim);border-radius:14px;padding:14px 16px;margin:16px 0 18px}
@@ -298,6 +313,34 @@
       .ffx-card{padding:26px 24px}
       .ffx-success-script{font-size:44px}
       .ffx-success-h{font-size:26px}
+    }
+
+    /* Wide-desktop scaling — masthead grows into the extra space, content
+       stays at a comfortable reading width */
+    @media (min-width:960px){
+      .ffx-mast{padding:60px 24px 46px}
+      .ffx-logo{height:68px}
+      .ffx-kicker{font-size:44px;margin-top:24px}
+      .ffx-title{font-size:82px}
+      .ffx-rally{font-size:96px}
+      .ffx-sub{font-size:21px;max-width:560px}
+      .ffx-band{max-width:640px;padding:22px 28px}
+      .ffx-band-date{font-size:52px}
+      .ffx-band-time{font-size:19px}
+      .ffx-band-place{font-size:30px}
+      .ffx-wrap{max-width:720px;padding:6px 32px 60px}
+      .ffx-lineup{padding:36px 32px}
+      .ffx-lineup-head h2{font-size:32px}
+      .ffx-lineup-eb{font-size:32px}
+    }
+    @media (min-width:1440px){
+      .ffx-mast{padding:76px 32px 56px}
+      .ffx-title{font-size:104px}
+      .ffx-rally{font-size:118px}
+      .ffx-sub{font-size:23px;max-width:640px}
+      .ffx-band{max-width:760px}
+      .ffx-band-date{font-size:60px}
+      .ffx-wrap{max-width:800px}
     }
   </style>
 

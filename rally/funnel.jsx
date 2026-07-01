@@ -296,10 +296,13 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
 }
 
 /* ============================================================
-   STEP 2 — CHECKOUT (paid only) — Stripe hosted redirect
+   STEP 2 — CHECKOUT (paid only) — Stripe Embedded Checkout
+   Mounts Stripe's card-payment iframe inline. No redirect out until
+   Stripe redirects to return_url on success.
    ============================================================ */
 function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
-  const [phase, setPhase] = useState("review"); // review | processing | error
+  const mountRef = useRef(null);
+  const [state, setState] = useState("mounting"); // mounting | mounted | error
   const [errorMsg, setErrorMsg] = useState("");
   const total = qty.adults * ADULT_PRICE + qty.kids * KID_PRICE;
   const lines = [
@@ -307,33 +310,67 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
     qty.kids > 0 && { n: "Kids (12 & under)", q: qty.kids, u: KID_PRICE },
   ].filter(Boolean);
 
-  const pay = async () => {
-    setPhase("processing"); setErrorMsg("");
-    try {
-      const r = await fetch("/api/rally-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          adult_qty: qty.adults,
-          kid_qty: qty.kids,
-          first_name: form.first,
-          last_name: form.last,
-          email: form.email,
-          phone: form.phone,
-          postcode: form.postcode,
-          ref: ref_code,
-        }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data.url) {
-        throw new Error(data.error || "Couldn't start checkout. Please try again.");
+  useEffect(() => {
+    let cancelled = false;
+    let checkoutInstance = null;
+
+    (async () => {
+      try {
+        // 1. Mint a fresh Embedded Checkout Session (server-side).
+        const r = await fetch("/api/rally-checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            adult_qty: qty.adults,
+            kid_qty: qty.kids,
+            first_name: form.first,
+            last_name: form.last,
+            email: form.email,
+            phone: form.phone,
+            postcode: form.postcode,
+            ref: ref_code,
+          }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok || !data.client_secret) {
+          throw new Error(data.error || "Couldn't start checkout. Please try again.");
+        }
+        if (!window.Stripe) {
+          throw new Error("Stripe.js failed to load. Refresh the page.");
+        }
+        if (!data.publishable_key) {
+          throw new Error("Payments aren't fully configured yet. Please try again shortly.");
+        }
+        if (cancelled) return;
+
+        // 2. Mount Stripe's embedded UI. It handles card entry, error
+        //    states, and redirects to return_url on success — we get
+        //    session_id back in the URL and render the confirmation.
+        const stripe = window.Stripe(data.publishable_key);
+        checkoutInstance = await stripe.initEmbeddedCheckout({
+          clientSecret: data.client_secret,
+        });
+        if (cancelled) { checkoutInstance.destroy(); return; }
+        checkoutInstance.mount(mountRef.current);
+        setState("mounted");
+      } catch (e) {
+        if (cancelled) return;
+        setState("error");
+        setErrorMsg(String(e.message || e));
       }
-      window.location.href = data.url;
-    } catch (e) {
-      setPhase("error");
-      setErrorMsg(String(e.message || e));
-    }
-  };
+    })();
+
+    return () => {
+      cancelled = true;
+      if (checkoutInstance) {
+        try { checkoutInstance.destroy(); } catch (e) {}
+      }
+    };
+    // Empty deps — one session per mount. If the user hits Back and then
+    // Continue again, CheckoutStep unmounts + remounts, and we mint a new
+    // session with the latest details.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="ffx-card">
@@ -341,7 +378,7 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
       <div className="ffx-checkout-head">
         <span className="ffx-lockpill"><I.lock width="15" height="15" /> Secure checkout</span>
         <div className="ffx-sec-h" style={{ margin: "14px 0 0" }}>Confirm &amp; pay</div>
-        <p className="ffx-fine" style={{ marginTop: 4 }}>Pay securely with card via Stripe. You&rsquo;ll be redirected to Stripe to complete payment, then back here to your tickets.</p>
+        <p className="ffx-fine" style={{ marginTop: 4 }}>Pay securely with card. Your details go straight to Stripe &mdash; we never see or store them. GST included where applicable.</p>
       </div>
 
       <div className="ffx-summary">
@@ -351,35 +388,24 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
         <div className="ffx-sum-row ffx-sum-total"><span>Total</span><span>{money(total)}</span></div>
       </div>
 
-      {phase === "review" && (
-        <React.Fragment>
-          <div className="ffx-paymount">
-            <span className="ffx-paymount-ic"><I.lock width="20" height="20" /></span>
-            <div className="ffx-paymount-tx">
-              <div className="ffx-paymount-h">Secure card payment</div>
-              <p>Card details go straight to Stripe &mdash; we never see or store them. GST included where applicable.</p>
+      {state !== "error" && (
+        <div ref={mountRef} className={"ffx-stripe-mount" + (state === "mounting" ? " loading" : "")}>
+          {state === "mounting" && (
+            <div className="ffx-processing" style={{padding: 0}}>
+              <div className="ffx-spinner" />
+              <div className="ffx-proc-h">Loading secure payment&hellip;</div>
             </div>
-            <span className="ffx-paymount-amt">{money(total)}</span>
-          </div>
-          <button className="ffx-btn ffx-btn-lg" onClick={pay}>Pay {money(total)}</button>
-          <p className="ffx-agree">By purchasing tickets you agree to the <a href="#terms" onClick={(e) => { e.preventDefault(); onTerms && onTerms(); }}>Terms and Conditions</a>.</p>
-          <button className="ffx-link" onClick={onBack}>&larr; Back to details</button>
-        </React.Fragment>
-      )}
-      {phase === "processing" && (
-        <div className="ffx-processing">
-          <div className="ffx-spinner" />
-          <div className="ffx-proc-h">Redirecting to Stripe&hellip;</div>
-          <p className="ffx-fine">Don&rsquo;t close this window.</p>
+          )}
         </div>
       )}
-      {phase === "error" && (
-        <React.Fragment>
+      {state === "error" && (
+        <div style={{margin: "16px 0"}}>
           <div className="ffx-err-line">{errorMsg}</div>
-          <button className="ffx-btn ffx-btn-lg" onClick={pay} style={{ marginTop: 12 }}>Try again</button>
-          <button className="ffx-link" onClick={onBack}>&larr; Back to details</button>
-        </React.Fragment>
+          <button className="ffx-btn ffx-btn-lg" onClick={() => window.location.reload()} style={{ marginTop: 12 }}>Try again</button>
+        </div>
       )}
+      <p className="ffx-agree">By purchasing tickets you agree to the <a href="#terms" onClick={(e) => { e.preventDefault(); onTerms && onTerms(); }}>Terms and Conditions</a>.</p>
+      <button className="ffx-link" onClick={onBack}>&larr; Back to details</button>
     </div>
   );
 }
