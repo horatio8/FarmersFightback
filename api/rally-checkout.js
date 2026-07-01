@@ -16,27 +16,31 @@
 // Response: { session: { first_name, last_name, email, phone, postcode,
 //                        adult_qty, kid_qty, referral_code } }
 //
+// The rally sits on its own Stripe account (Wallaloo & Gre Gre District
+// Alliance), separate from the site's donation account. Env vars for that
+// account are prefixed STRIPE_RALLY_* so the two accounts never share
+// credentials.
+//
 // Env:
-//   STRIPE_SECRET_KEY               Restricted key with Checkout Sessions
-//                                   read+write
-//   STRIPE_PUBLISHABLE_KEY          Publishable key (pk_live_... or
-//                                   pk_test_...) — safe to be public but
-//                                   we serve it via the API so it isn't
-//                                   committed to the repo
-//   STRIPE_RALLY_ADULT_PRICE_ID     Stripe Price ID for the adult ticket
-//   STRIPE_RALLY_KID_PRICE_ID       Stripe Price ID for the kids ticket
+//   STRIPE_RALLY_SECRET_KEY         Restricted secret key (sk_live_...)
+//                                   with Checkout Sessions read+write
+//   STRIPE_RALLY_PUBLISHABLE_KEY    Publishable key (pk_live_...) —
+//                                   safe to be public, served via this
+//                                   API so it stays out of the repo
+//   STRIPE_RALLY_ADULT_PRICE_ID     Price ID for the adult ticket
+//   STRIPE_RALLY_KID_PRICE_ID       Price ID for the kids ticket
 //                                   (optional — omit if adult-only)
 //   RALLY_SUCCESS_URL_BASE          Optional; defaults to
 //                                   https://<host>/rally
 //
-// The actual Airtable write happens in api/stripe-webhook.js when Stripe
-// fires checkout.session.completed — that's where the payment is confirmed.
-// This endpoint's job is just to mint the session.
+// The Airtable write happens in api/rally-webhook.js when Stripe fires
+// checkout.session.completed on the rally account — that's where the
+// payment is confirmed. This endpoint's job is just to mint the session.
 
 const { matchOrCreateContact, setReferralCodeIfMissing, logEvent } = require("./_airtable");
 
-const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
-const STRIPE_PK = process.env.STRIPE_PUBLISHABLE_KEY;
+const STRIPE_KEY = process.env.STRIPE_RALLY_SECRET_KEY;
+const STRIPE_PK = process.env.STRIPE_RALLY_PUBLISHABLE_KEY;
 const ADULT_PRICE_ID = process.env.STRIPE_RALLY_ADULT_PRICE_ID;
 const KID_PRICE_ID = process.env.STRIPE_RALLY_KID_PRICE_ID;
 
@@ -107,7 +111,7 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(204).end();
 
   if (!STRIPE_KEY) {
-    console.error("STRIPE_SECRET_KEY not set");
+    console.error("STRIPE_RALLY_SECRET_KEY not set");
     return res.status(500).json({ error: "Ticketing isn't fully configured yet. Please try again shortly." });
   }
 

@@ -1,13 +1,17 @@
-// Vercel serverless function: receives Stripe webhook events and fires
-// Meta CAPI "Purchase" events for every successful charge — one-off or
-// subscription rebill. Also handles Rally ticket purchases (branches on
-// checkout session metadata: ff_content_type === "rally_ticket").
+// Vercel serverless function: receives Stripe webhook events from the
+// donation Stripe account and fires Meta CAPI "Purchase" events for every
+// successful charge — one-off or subscription rebill.
 //
-// Wired in Stripe Dashboard → Developers → Webhooks → endpoint URL:
+// Wired in the donation account's Stripe Dashboard → Developers →
+// Webhooks → endpoint URL:
 //   https://farmersfightback.com/api/stripe-webhook
 // Events to subscribe to:
 //   - checkout.session.completed   (one-off payments)
 //   - invoice.paid                  (subscription first charge + every rebill)
+//
+// Rally ticket sales live on a separate Stripe account and have their
+// own webhook handler at /api/rally-webhook — this endpoint does NOT
+// process rally traffic.
 //
 // Environment variables required:
 //   STRIPE_WEBHOOK_SECRET  — Stripe signing secret (whsec_...)
@@ -20,7 +24,6 @@ const crypto = require("crypto");
 const { postEvent } = require("./_meta");
 const {
   matchOrCreateContact,
-  setReferralCodeIfMissing,
   logEventIdempotent,
   updateContactStatusFromEvent,
 } = require("./_airtable");
@@ -170,59 +173,6 @@ async function recordDonationInAirtable({ stripe_event_id, details, amount_minor
   }
 }
 
-// Identity-match the Stripe customer to a Contact, log a "Rally Ticket
-// Purchased" event with qty + attendee + Stripe context. Reuses the
-// existing referral_code so the ticket-holder shows up as a normal
-// contact who can refer others. Idempotent via meta_event_id.
-async function recordRallyTicketInAirtable({ stripe_event_id, details, amount_minor, currency, fbclid, fbp, sourceUrl, stripeObjectId, stripeObjectType, rawStripeObject, meta }) {
-  try {
-    // The Stripe checkout customer_details may not have all fields we
-    // captured pre-payment; fall back to what rally-checkout.js stuffed
-    // into metadata so nothing is lost even if Stripe strips a field.
-    const first_name = meta.first_name || (details && details.name && details.name.split(" ")[0]);
-    const last_name = meta.last_name || (details && details.name && details.name.split(" ").slice(-1)[0]);
-    const email = (details && details.email) || meta.email;
-    const phone = (details && details.phone) || meta.phone;
-    const postcode = (details && details.address && details.address.postal_code) || meta.postcode;
-    const { record } = await matchOrCreateContact({
-      first_name, last_name, email, mobile: phone, postcode,
-      fbclid, fbp,
-      source_channel: "Rally Ticket Funnel",
-    });
-    try { await setReferralCodeIfMissing(record.id, record.fields); } catch (e) {}
-    const adult_qty = Number(meta.adult_qty) || 0;
-    const kid_qty = Number(meta.kid_qty) || 0;
-    await logEventIdempotent({
-      contactRecordId: record.id,
-      event_type: "Rally Ticket Purchased",
-      payload: {
-        stripe_object_type: stripeObjectType,
-        stripe_object_id: stripeObjectId,
-        amount: amount_minor,
-        currency: (currency || "aud").toUpperCase(),
-        content_name: "Rally Ticket",
-        adult_qty,
-        kid_qty,
-        total_qty: adult_qty + kid_qty,
-        source_url: sourceUrl,
-        fbclid, fbp,
-        ref: meta.ref || null,
-        customer: {
-          email, name: details && details.name, phone, postcode,
-          country: details && details.address && details.address.country,
-        },
-        raw: rawStripeObject,
-      },
-      fbclid,
-      referral_code_used: meta.ref || undefined,
-      source_channel: "Rally Ticket Funnel",
-      meta_event_id: stripe_event_id,
-    });
-  } catch (e) {
-    console.error("airtable rally ticket write failed:", e.message);
-  }
-}
-
 async function fireCAPIPurchase({ event_id, amount_minor, currency, details, contentName, sourceUrl, fbc, fbp, ip, userAgent }) {
   const { fn, ln } = splitName(details && details.name);
   const user_data = {
@@ -304,40 +254,6 @@ module.exports = async function handler(req, res) {
 
       const details = await resolveCustomerDetails(obj);
       const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
-
-      // Branch: rally ticket purchases have their own event_type + payload
-      // shape so they don't get mixed into the Donations projection. The
-      // Meta CAPI fire still happens (Purchase optimisation) but with a
-      // rally-specific content_name so ad reporting can slice by product.
-      if (meta.ff_content_type === "rally_ticket") {
-        await recordRallyTicketInAirtable({
-          stripe_event_id: `stripe_${obj.id}`,
-          details,
-          amount_minor: obj.amount_total,
-          currency: obj.currency,
-          fbclid: meta.fbclid,
-          fbp: meta.fbp,
-          sourceUrl: meta.source_url,
-          stripeObjectId: obj.id,
-          stripeObjectType: "checkout.session",
-          rawStripeObject: obj,
-          meta,
-        });
-        await fireCAPIPurchase({
-          event_id: `stripe_${obj.id}`,
-          amount_minor: obj.amount_total,
-          currency: obj.currency,
-          details,
-          contentName: "Rally Ticket",
-          sourceUrl: meta.source_url,
-          fbc: meta.fbc,
-          fbp: meta.fbp,
-          ip,
-          userAgent: ua,
-        });
-        return res.status(200).json({ received: true, fired: "Purchase", type: "rally_ticket" });
-      }
-
       await recordDonationInAirtable({
         stripe_event_id: `stripe_${obj.id}`,
         details,
