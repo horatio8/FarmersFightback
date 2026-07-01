@@ -38,6 +38,7 @@
 // payment is confirmed. This endpoint's job is just to mint the session.
 
 const { matchOrCreateContact, setReferralCodeIfMissing, logEvent } = require("./_airtable");
+const { recordRallyTicketPurchase } = require("./_rally");
 
 const STRIPE_KEY = process.env.STRIPE_RALLY_SECRET_KEY;
 const STRIPE_PK = process.env.STRIPE_RALLY_PUBLISHABLE_KEY;
@@ -126,6 +127,17 @@ module.exports = async function handler(req, res) {
       const s = await stripeFetch(`checkout/sessions/${sessionId}`);
       const meta = s.metadata || {};
       const details = s.customer_details || {};
+
+      // Confirm-on-return: if this session is paid, record the ticket now.
+      // This is the primary recording path on SSO-protected preview deploys
+      // (where Stripe's webhook can't reach us) and a belt-and-braces backup
+      // on production. Idempotent on the session id, so it never double-writes
+      // alongside the webhook. Best-effort — never block the page render.
+      if (s.payment_status === "paid") {
+        try { await recordRallyTicketPurchase({ session: s }); }
+        catch (e) { console.error("confirm-on-return record failed:", e.message); }
+      }
+
       return res.status(200).json({
         session: {
           first_name: meta.first_name || "",

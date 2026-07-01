@@ -18,9 +18,14 @@ const API = "https://api.airtable.com/v0";
 // Event-type → typed projection table. Anything not in this map is logged to
 // Events with fanout_status = "No Typed Table" so it's easy to filter and
 // (later) wire up a new projection without losing past data.
+const RALLY_TICKETS_TABLE = process.env.AIRTABLE_RALLY_TICKETS_TABLE || "Rally Tickets";
 const PROJECTION_TABLES = {
   "Petition Signed": process.env.AIRTABLE_PETITION_SIGNATURES_TABLE || "Petition Signatures",
   Donation: process.env.AIRTABLE_DONATIONS_TABLE || "Donations",
+  // Both paid and comped rally tickets project into one Rally Tickets table,
+  // distinguished by the payment_status column.
+  "Rally Ticket Purchased": RALLY_TICKETS_TABLE,
+  "Rally Ticket Comped": RALLY_TICKETS_TABLE,
 };
 
 function uuid() {
@@ -303,9 +308,59 @@ function projectDonation(payloadObj, contactRecordId, eventRecordId, timestamp) 
   };
 }
 
+// Projection: Rally Ticket Purchased / Comped → Rally Tickets table.
+// One row per ticket order. payment_status is derived from the event type
+// (Purchased → Paid, Comped → Comped). Handles both payload shapes:
+//   - Purchased (from the Stripe checkout session): customer.* + amount +
+//     adult_qty/kid_qty + stripe ids
+//   - Comped (from /api/rally-claim): contact.* + qty + token + order_ref
+function projectRallyTicket(payloadObj, contactRecordId, eventRecordId, timestamp, eventType) {
+  const p = payloadObj || {};
+  const isComp = eventType === "Rally Ticket Comped";
+  // Identity lives under customer (paid) or contact (comp).
+  const who = p.customer || p.contact || {};
+  let first_name = who.first_name;
+  let last_name = who.last_name;
+  if (!first_name && !last_name && who.name) {
+    const parts = String(who.name).trim().split(/\s+/);
+    first_name = parts[0];
+    last_name = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
+  }
+  const adult_qty = Number(p.adult_qty) || 0;
+  const kid_qty = Number(p.kid_qty) || 0;
+  const total_qty = Number(p.total_qty) || Number(p.qty) || (adult_qty + kid_qty) || undefined;
+  const amount_cents = typeof p.amount === "number" ? p.amount : (isComp ? 0 : undefined);
+  const raw = p.raw || {};
+  return {
+    ticket_id: uuid(),
+    contact: contactRecordId ? [contactRecordId] : undefined,
+    event: eventRecordId ? [eventRecordId] : undefined,
+    first_name: first_name || undefined,
+    last_name: last_name || undefined,
+    email: normEmail(who.email) || undefined,
+    phone: normPhone(who.phone) || undefined,
+    postcode: who.postcode || undefined,
+    adult_qty: isComp ? undefined : adult_qty,
+    kid_qty: isComp ? undefined : kid_qty,
+    total_qty,
+    amount: typeof amount_cents === "number" ? amount_cents / 100 : undefined,
+    payment_status: isComp ? "Comped" : "Paid",
+    order_ref: p.order_ref || undefined,
+    stripe_payment_intent: p.stripe_payment_intent || raw.payment_intent || undefined,
+    stripe_session_id: p.stripe_object_type === "checkout.session" ? p.stripe_object_id : undefined,
+    comp_token: p.token || undefined,
+    referral_used: p.ref ? String(p.ref).toUpperCase() : undefined,
+    source: p.source || (isComp ? "rally_comp_claim" : "rally_ticket_paid"),
+    timestamp: timestamp || nowIso(),
+    payload: JSON.stringify(p),
+  };
+}
+
 const PROJECTORS = {
   "Petition Signed": projectPetitionSigned,
   Donation: projectDonation,
+  "Rally Ticket Purchased": projectRallyTicket,
+  "Rally Ticket Comped": projectRallyTicket,
 };
 
 async function patchEvent(recordId, fields) {
@@ -330,7 +385,7 @@ async function fanoutEvent(eventRecord, eventType, payloadObj, contactRecordId, 
     return null;
   }
   try {
-    const fields = project(payloadObj, contactRecordId, eventRecord.id, timestamp);
+    const fields = project(payloadObj, contactRecordId, eventRecord.id, timestamp, eventType);
     Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
     const r = await atFetch(encodeURIComponent(tableName), {
       method: "POST",

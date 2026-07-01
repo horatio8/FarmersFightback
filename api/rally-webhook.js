@@ -26,11 +26,7 @@
 
 const crypto = require("crypto");
 const { postEvent } = require("./_meta");
-const {
-  matchOrCreateContact,
-  setReferralCodeIfMissing,
-  logEventIdempotent,
-} = require("./_airtable");
+const { recordRallyTicketPurchase } = require("./_rally");
 
 module.exports.config = { api: { bodyParser: false } };
 
@@ -103,57 +99,6 @@ function splitName(name) {
   return { fn: parts[0], ln: parts.slice(-1)[0] };
 }
 
-async function recordRallyTicketInAirtable({ stripe_event_id, details, amount_minor, currency, fbclid, fbp, sourceUrl, stripeObjectId, stripeObjectType, rawStripeObject, meta }) {
-  try {
-    // The rally-checkout.js metadata is the canonical source for identity
-    // fields we captured pre-payment; Stripe's customer_details only
-    // holds what the buyer typed into the card form. Prefer metadata,
-    // fall back to Stripe's parsed name so we always have SOMETHING.
-    const first_name = meta.first_name || (details && details.name && details.name.split(" ")[0]);
-    const last_name = meta.last_name || (details && details.name && details.name.split(" ").slice(-1)[0]);
-    const email = (details && details.email) || meta.email;
-    const phone = (details && details.phone) || meta.phone;
-    const postcode = (details && details.address && details.address.postal_code) || meta.postcode;
-    const { record } = await matchOrCreateContact({
-      first_name, last_name, email, mobile: phone, postcode,
-      fbclid, fbp,
-      source_channel: "Rally Ticket Funnel",
-    });
-    try { await setReferralCodeIfMissing(record.id, record.fields); } catch (e) {}
-    const adult_qty = Number(meta.adult_qty) || 0;
-    const kid_qty = Number(meta.kid_qty) || 0;
-    await logEventIdempotent({
-      contactRecordId: record.id,
-      event_type: "Rally Ticket Purchased",
-      payload: {
-        stripe_object_type: stripeObjectType,
-        stripe_object_id: stripeObjectId,
-        stripe_account: "rally",
-        amount: amount_minor,
-        currency: (currency || "aud").toUpperCase(),
-        content_name: "Rally Ticket",
-        adult_qty,
-        kid_qty,
-        total_qty: adult_qty + kid_qty,
-        source_url: sourceUrl,
-        fbclid, fbp,
-        ref: meta.ref || null,
-        customer: {
-          email, name: details && details.name, phone, postcode,
-          country: details && details.address && details.address.country,
-        },
-        raw: rawStripeObject,
-      },
-      fbclid,
-      referral_code_used: meta.ref || undefined,
-      source_channel: "Rally Ticket Funnel",
-      meta_event_id: stripe_event_id,
-    });
-  } catch (e) {
-    console.error("airtable rally ticket write failed:", e.message);
-  }
-}
-
 async function fireCAPIPurchase({ event_id, amount_minor, currency, details, sourceUrl, fbc, fbp, ip, userAgent }) {
   const { fn, ln } = splitName(details && details.name);
   const user_data = {
@@ -224,19 +169,10 @@ module.exports = async function handler(req, res) {
       console.warn(`rally-webhook: unexpected ff_content_type "${meta.ff_content_type}" on rally account, processing anyway`);
     }
 
-    await recordRallyTicketInAirtable({
-      stripe_event_id: `stripe_rally_${obj.id}`,
-      details,
-      amount_minor: obj.amount_total,
-      currency: obj.currency,
-      fbclid: meta.fbclid,
-      fbp: meta.fbp,
-      sourceUrl: meta.source_url,
-      stripeObjectId: obj.id,
-      stripeObjectType: "checkout.session",
-      rawStripeObject: obj,
-      meta,
-    });
+    // Airtable write via the shared recorder — idempotent on the session id,
+    // so this is safe alongside the confirmation-page recorder in
+    // rally-checkout.js (whichever runs first wins; the other no-ops).
+    await recordRallyTicketPurchase({ session: obj });
 
     await fireCAPIPurchase({
       event_id: `stripe_rally_${obj.id}`,
