@@ -456,48 +456,51 @@ function ShareBlock({ myToken }) {
 }
 
 /* ============================================================
-   DONATION block — one click straight to the Stripe donation page.
-   The per-amount Stripe payment links are read from the SAME source
-   as the main /donate page (content/site.json -> donate.amounts[].
-   oneOffUrl + donate.customOneOffUrl) so the two never drift. Clicking
-   an amount navigates immediately; no select-then-confirm step.
-   ============================================================ */
-function DonationBlock({ form }) {
-  const AMTS = [35, 65, 265, 550, 1500];
-  const [urls, setUrls] = useState(null); // { 35: "https://buy.stripe...", ..., other: "..." }
+   DONATION block — each amount is a REAL anchor pointing straight at
+   the exact same Stripe payment page the /donate page uses. The /donate
+   page reads content/site.json -> donorPage.amounts[].url (+ otherUrl),
+   so those are the authoritative links, mirrored below.
 
+   The URLs are hardcoded as a fallback so the buttons ALWAYS go direct
+   to Stripe (never to /donate), and also re-synced from site.json on
+   mount so they can't drift if the /donate links are ever changed.
+   ============================================================ */
+
+// Authoritative Stripe links, copied from content/site.json donorPage.
+// Keep in step with /donate; the mount-time fetch below re-syncs anyway.
+const RALLY_DONATE_URLS = {
+  35: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q",
+  65: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R",
+  265: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T",
+  550: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U",
+  1500: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V",
+  other: "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
+};
+
+function DonationBlock() {
+  const AMTS = [35, 65, 265, 550, 1500];
+  const [urls, setUrls] = useState(RALLY_DONATE_URLS);
+
+  // Re-sync from the same key /donate reads, so if those links change the
+  // rally page follows. Purely an override of the hardcoded defaults —
+  // never clears them, so the anchors are always live Stripe links.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const r = await fetch("/content/site.json", { cache: "no-store" });
         const data = await r.json();
-        const d = (data && data.donate) || {};
-        const map = {};
-        (d.amounts || []).forEach((a) => {
-          if (a && a.amount && a.oneOffUrl) map[a.amount] = a.oneOffUrl;
+        const dp = (data && data.donorPage) || {};
+        const next = { ...RALLY_DONATE_URLS };
+        (dp.amounts || []).forEach((a) => {
+          if (a && a.amount && a.url) next[a.amount] = a.url;
         });
-        map.other = d.customOneOffUrl || "";
-        if (!cancelled) setUrls(map);
-      } catch (e) {
-        if (!cancelled) setUrls({}); // fall back to /donate on click
-      }
+        if (dp.otherUrl) next.other = dp.otherUrl;
+        if (!cancelled) setUrls(next);
+      } catch (e) { /* keep hardcoded defaults */ }
     })();
     return () => { cancelled = true; };
   }, []);
-
-  // Straight to the matching Stripe page. Prefill the donor's email on the
-  // Stripe payment link when we have it (Stripe honours ?prefilled_email=).
-  // If the URL map didn't load, fall back to the /donate page so the button
-  // is never a dead click.
-  const go = (key) => {
-    const base = urls && (key === "other" ? urls.other : urls[key]);
-    let target = base || "/donate";
-    if (base && form && form.email) {
-      target += (base.includes("?") ? "&" : "?") + "prefilled_email=" + encodeURIComponent(form.email);
-    }
-    window.location.href = target;
-  };
 
   return (
     <div className="ffx-block ffx-block-green">
@@ -508,11 +511,11 @@ function DonationBlock({ form }) {
       </div>
       <div className="ffx-don-grid">
         {AMTS.map((a) => (
-          <button key={a} className="ffx-don-opt" onClick={() => go(a)}>{money(a)}</button>
+          <a key={a} className="ffx-don-opt" href={urls[a]} target="_top" rel="noopener">{money(a)}</a>
         ))}
-        <button className="ffx-don-opt ffx-don-other" onClick={() => go("other")}>Other</button>
+        <a className="ffx-don-opt ffx-don-other" href={urls.other} target="_top" rel="noopener">Other</a>
       </div>
-      <span className="ffx-fine light" style={{ display: "block", marginTop: 14 }}>One-off &middot; secured by Stripe &middot; opens the donation page</span>
+      <span className="ffx-fine light" style={{ display: "block", marginTop: 14 }}>One-off &middot; secured by Stripe</span>
     </div>
   );
 }
@@ -575,7 +578,7 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
       </div>
 
       <ShareBlock myToken={myToken} />
-      <DonationBlock form={form} />
+      <DonationBlock />
     </div>
   );
 }
