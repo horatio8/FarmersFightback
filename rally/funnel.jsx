@@ -388,15 +388,17 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
         <div className="ffx-sum-row ffx-sum-total"><span>Total</span><span>{money(total)}</span></div>
       </div>
 
-      {state !== "error" && (
-        <div ref={mountRef} className={"ffx-stripe-mount" + (state === "mounting" ? " loading" : "")}>
-          {state === "mounting" && (
-            <div className="ffx-processing" style={{padding: 0}}>
-              <div className="ffx-spinner" />
-              <div className="ffx-proc-h">Loading secure payment&hellip;</div>
-            </div>
-          )}
+      {/* Stripe's Embedded Checkout requires its mount target to contain no
+          child nodes when mount() is called. Keep the ref'd div strictly
+          empty and show the loader as a sibling so mount() never rejects. */}
+      {state === "mounting" && (
+        <div className="ffx-stripe-loader">
+          <div className="ffx-spinner" />
+          <div className="ffx-proc-h">Loading secure payment&hellip;</div>
         </div>
+      )}
+      {state !== "error" && (
+        <div ref={mountRef} className="ffx-stripe-mount" />
       )}
       {state === "error" && (
         <div style={{margin: "16px 0"}}>
