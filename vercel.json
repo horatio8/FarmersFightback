@@ -11,7 +11,8 @@
     { "source": "/defend",      "destination": "/take-action/baldwins#donate", "permanent": false },
     { "source": "/about-us",    "destination": "/the-fight",            "permanent": false },
     { "source": "/about-us.html","destination": "/the-fight",           "permanent": false },
-    { "source": "/petition",    "destination": "/take-action/hold-the-gate#sign", "permanent": false }
+    { "source": "/petition",    "destination": "/take-action/hold-the-gate#sign", "permanent": false },
+    { "source": "/holdthegate", "destination": "/petition",                       "permanent": false }
   ],
   "headers": [
     {
