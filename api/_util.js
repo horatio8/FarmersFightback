@@ -8,6 +8,19 @@ function phoneHash(e164) {
   return crypto.createHash("sha256").update(String(e164)).digest("hex");
 }
 
+// Cellcast returns inbound "from" numbers as AU mobiles with the country
+// code and leading zero stripped (e.g. "412027211"). Normalise to the
+// same +61E.164 form Contacts.mobile is stored in, so STOP suppression
+// can match the sender to a contact.
+function cellcastToE164(raw) {
+  let d = String(raw || "").replace(/[^\d]/g, "");
+  if (!d) return "";
+  if (d.startsWith("61")) return "+" + d;
+  if (d.startsWith("0")) d = d.slice(1);
+  if (d.length === 9) return "+61" + d; // 4xxxxxxxx mobile (or 9-digit local)
+  return "+61" + d;
+}
+
 // --- auth guards -----------------------------------------------------
 
 // Vercel cron invocations send Authorization: Bearer <CRON_SECRET> when the
@@ -142,6 +155,7 @@ function hostBase(req) {
 
 module.exports = {
   phoneHash,
+  cellcastToE164,
   requireCron,
   requireBasicAuth,
   melbourneParts,

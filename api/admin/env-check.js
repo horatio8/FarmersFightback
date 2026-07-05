@@ -50,16 +50,16 @@ module.exports = async function handler(req, res) {
       } catch (e) { live.stripe_donations = `error: ${e.message.slice(0, 80)}`; }
     } else live.stripe_donations = "no key";
 
-    // Cellcast: account probe (read-only). Their v3 exposes an account
-    // endpoint; any 2xx proves the APPKEY is valid. 404 with a valid key
-    // still proves auth (unknown route ≠ bad key), so report the status.
+    // Cellcast: read the inbound get-responses endpoint (the one the STOP
+    // poller uses). meta.status SUCCESS = APPKEY valid.
     if (process.env.CELLCAST_API_KEY) {
       try {
-        const r = await fetch("https://cellcast.com.au/api/v3/account", {
+        const r = await fetch("https://cellcast.com.au/api/v3/get-responses?page=1", {
           headers: { APPKEY: process.env.CELLCAST_API_KEY, Accept: "application/json" },
         });
-        const body = await r.text().catch(() => "");
-        live.cellcast = `http ${r.status}${/AUTH|invalid|unauth/i.test(body) ? " (auth failed)" : ""}`;
+        const j = await r.json().catch(() => ({}));
+        const good = j.meta?.status === "SUCCESS" || r.ok;
+        live.cellcast = good ? `ok (${j.data?.total ?? "?"} responses)` : `http ${r.status}`;
       } catch (e) { live.cellcast = `error: ${e.message.slice(0, 80)}`; }
     } else live.cellcast = "no key";
 

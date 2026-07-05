@@ -10,12 +10,14 @@
   ],
   "crons": [
     { "path": "/api/cron/sms-queue", "schedule": "* * * * *" },
+    { "path": "/api/cron/sms-inbound-poll", "schedule": "*/5 * * * *" },
     { "path": "/api/cron/lapse-sweep", "schedule": "*/5 * * * *" },
     { "path": "/api/cron/refresh-signature-count", "schedule": "*/5 * * * *" },
     { "path": "/api/cron/nightly-rollup", "schedule": "15 18 * * *" }
   ],
   "functions": {
     "api/cron/sms-queue.js": { "maxDuration": 120 },
+    "api/cron/sms-inbound-poll.js": { "maxDuration": 120 },
     "api/cron/lapse-sweep.js": { "maxDuration": 120 },
     "api/cron/refresh-signature-count.js": { "maxDuration": 120 },
     "api/cron/nightly-rollup.js": { "maxDuration": 300 },
