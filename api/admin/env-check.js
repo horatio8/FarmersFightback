@@ -66,8 +66,14 @@ module.exports = async function handler(req, res) {
           headers: { APPKEY: process.env.CELLCAST_API_KEY, Accept: "application/json" },
         });
         const j = await r.json().catch(() => ({}));
-        const good = j.meta?.status === "SUCCESS" || r.ok;
-        live.cellcast = good ? `ok (${j.data?.total ?? "?"} responses)` : `http ${r.status}`;
+        live.cellcast = {
+          http: r.status,
+          meta_status: j.meta?.status ?? null,
+          message: j.message ?? null,
+          data_total: j.data?.total ?? null,
+          items_len: Array.isArray(j.data?.items) ? j.data.items.length : null,
+          keys: Object.keys(j || {}).slice(0, 8),
+        };
       } catch (e) { live.cellcast = `error: ${e.message.slice(0, 80)}`; }
     } else live.cellcast = "no key";
 
