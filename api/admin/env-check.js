@@ -62,18 +62,16 @@ module.exports = async function handler(req, res) {
     // poller uses). meta.status SUCCESS = APPKEY valid.
     if (process.env.CELLCAST_API_KEY) {
       try {
+        // Cellcast returns HTTP 200 even on a bad APPKEY (meta.status
+        // AUTH_FAILED), so key off meta.status, not r.ok.
         const r = await fetch("https://cellcast.com.au/api/v3/get-responses?page=1", {
           headers: { APPKEY: process.env.CELLCAST_API_KEY, Accept: "application/json" },
         });
         const j = await r.json().catch(() => ({}));
-        live.cellcast = {
-          http: r.status,
-          meta_status: j.meta?.status ?? null,
-          message: j.message ?? null,
-          data_total: j.data?.total ?? null,
-          items_len: Array.isArray(j.data?.items) ? j.data.items.length : null,
-          keys: Object.keys(j || {}).slice(0, 8),
-        };
+        const status = j.meta?.status ?? `http ${r.status}`;
+        live.cellcast = status === "SUCCESS"
+          ? `ok (${j.data?.total ?? "?"} responses)`
+          : `AUTH FAIL: ${status} — ${j.msg || j.message || "invalid APPKEY"}`;
       } catch (e) { live.cellcast = `error: ${e.message.slice(0, 80)}`; }
     } else live.cellcast = "no key";
 
