@@ -460,9 +460,51 @@ async function updateContactStatusFromEvent(contactRecordId, eventType, currentS
   return next;
 }
 
+// Generic table helpers for the auxiliary tables (SMS Sends, Lapse Queue,
+// Site Stats, Referral Rollup, AB Daily). Thin wrappers over atFetch so
+// other api/ modules don't each reimplement Airtable plumbing.
+async function listRows(tableName, { formula, fields, maxRecords, sort } = {}) {
+  const out = [];
+  let offset;
+  do {
+    const params = new URLSearchParams();
+    if (formula) params.set("filterByFormula", formula);
+    if (maxRecords) params.set("maxRecords", String(maxRecords));
+    params.set("pageSize", "100");
+    (fields || []).forEach((f) => params.append("fields[]", f));
+    (sort || []).forEach((s, i) => {
+      params.set(`sort[${i}][field]`, s.field);
+      params.set(`sort[${i}][direction]`, s.direction || "asc");
+    });
+    if (offset) params.set("offset", offset);
+    // eslint-disable-next-line no-await-in-loop
+    const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`);
+    out.push(...(r.records || []));
+    offset = r.offset;
+    if (maxRecords && out.length >= maxRecords) break;
+  } while (offset);
+  return out;
+}
+
+async function createRow(tableName, fields) {
+  const r = await atFetch(encodeURIComponent(tableName), {
+    method: "POST",
+    body: JSON.stringify({ records: [{ fields }], typecast: true }),
+  });
+  return r.records[0];
+}
+
+async function updateRow(tableName, recordId, fields) {
+  return atFetch(`${encodeURIComponent(tableName)}/${recordId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ fields, typecast: true }),
+  });
+}
+
 module.exports = {
   matchOrCreateContact,
   findContactByEmail,
+  findContactByMobile,
   findContactByReferralCode,
   setReferralCodeIfMissing,
   linkReferredBy,
@@ -473,4 +515,8 @@ module.exports = {
   normPhone,
   uuid,
   nowIso,
+  findOne,
+  listRows,
+  createRow,
+  updateRow,
 };

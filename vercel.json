@@ -3,8 +3,24 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/rally", "destination": "/rally/index.html" }
+    { "source": "/rally", "destination": "/rally/index.html" },
+    { "source": "/fund",  "destination": "/api/track-redirect?l=fund" },
+    { "source": "/fight", "destination": "/api/track-redirect?l=fight" },
+    { "source": "/leaderboard", "destination": "/api/leaderboard" }
   ],
+  "crons": [
+    { "path": "/api/cron/sms-queue", "schedule": "* * * * *" },
+    { "path": "/api/cron/lapse-sweep", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/refresh-signature-count", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/nightly-rollup", "schedule": "15 18 * * *" }
+  ],
+  "functions": {
+    "api/cron/sms-queue.js": { "maxDuration": 120 },
+    "api/cron/lapse-sweep.js": { "maxDuration": 120 },
+    "api/cron/refresh-signature-count.js": { "maxDuration": 120 },
+    "api/cron/nightly-rollup.js": { "maxDuration": 300 },
+    "api/admin/stripe-backfill.js": { "maxDuration": 300 }
+  },
   "redirects": [
     { "source": "/baldwin",     "destination": "/take-action/baldwins", "permanent": false },
     { "source": "/baldwins",    "destination": "/take-action/baldwins", "permanent": false },

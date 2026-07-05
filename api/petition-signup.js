@@ -22,6 +22,7 @@ const {
   updateContactStatusFromEvent,
 } = require("./_airtable");
 const { postEvent } = require("./_meta");
+const { enqueueSignupSMS } = require("./_cellcast");
 
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",
@@ -174,12 +175,25 @@ module.exports = async function handler(req, res) {
       console.error("Meta Lead fire failed:", e.message, e.detail || "");
     }
 
+    // Workstream 1: queue the post-signup SMS (15-55s delay, quiet hours,
+    // A/B assigned, one-per-signer-ever, donors + opt-outs skipped).
+    // Never blocks or fails the signup.
+    let sms = null;
+    if (mobile) {
+      sms = await enqueueSignupSMS({
+        contactFields: { ...record.fields, referral_code: referralCode },
+        mobile,
+        first_name,
+      }).catch((e) => ({ error: e.message }));
+    }
+
     return res.status(200).json({
       success: true,
       contact_id: contactUuid,
       referral_code: referralCode,
       meta_event_id: metaEventId,
       is_new_contact: isNew,
+      sms,
     });
   } catch (err) {
     if (err.code === "MISCONFIGURED") {
