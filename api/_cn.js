@@ -7,10 +7,15 @@
 // the caller gets { skipped: true } and carries on. Ship-dark friendly.
 //
 // Env:
-//   CN_API_KEY   Bearer token for the CN API
-//   CN_API_BASE  default https://teller.campaignnucleus.com/api/v1
+//   CN_API_KEY   Bearer token for the CN API (tenant-scoped — carries the
+//                teller account, no slug needed in the URL)
+//   CN_API_BASE  default https://api.campaignnucleus.com/v1
+//                (probed against production: the tenant subdomain's
+//                /api/v1 is CN's internal web API — rejects POST and
+//                throws Laravel CSRF errors; the central api.* host is
+//                the real public API)
 
-const CN_BASE = (process.env.CN_API_BASE || "https://teller.campaignnucleus.com/api/v1").replace(/\/$/, "");
+const CN_BASE = (process.env.CN_API_BASE || "https://api.campaignnucleus.com/v1").replace(/\/$/, "");
 const CN_KEY = process.env.CN_API_KEY;
 
 async function cnFetch(path, body, method = "POST") {
@@ -41,12 +46,11 @@ async function cnFetch(path, body, method = "POST") {
 
 // Match-or-create a CN profile. `profile` uses CN's field names:
 // first_name, last_name, email, mobile/phone, zip, tags[], custom1..10.
-// The live CN API rejects POST on this route ("supported: GET, HEAD, PUT,
-// PATCH, DELETE" — verified against production), so PUT with a PATCH
-// fallback for older tenants.
+// POST per the documented contract; PUT fallback in case a tenant router
+// answers 405 (the internal web API does).
 async function cnProfileMatch(profile) {
-  const out = await cnFetch("/profiles/match", profile, "PUT");
-  if (out.status === 405) return cnFetch("/profiles/match", profile, "PATCH");
+  const out = await cnFetch("/profiles/match", profile, "POST");
+  if (out.status === 405) return cnFetch("/profiles/match", profile, "PUT");
   return out;
 }
 
