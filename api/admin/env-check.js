@@ -5,6 +5,14 @@
 
 const { requireBasicAuth } = require("../_util");
 
+// Allow either admin basic-auth OR the cron bearer, so ops tooling can read
+// diagnostics without the admin password.
+function authed(req, res) {
+  const secret = process.env.CRON_SECRET;
+  if (secret && (req.headers.authorization || "") === `Bearer ${secret}`) return true;
+  return requireBasicAuth(req, res);
+}
+
 const VARS = [
   // core (pre-existing)
   "STRIPE_SECRET_KEY", "AIRTABLE_API_KEY", "AIRTABLE_BASE_ID",
@@ -24,7 +32,7 @@ const VARS = [
 ];
 
 module.exports = async function handler(req, res) {
-  if (!requireBasicAuth(req, res)) return;
+  if (!authed(req, res)) return;
   const present = {};
   for (const v of VARS) present[v] = !!process.env[v];
 
@@ -63,15 +71,27 @@ module.exports = async function handler(req, res) {
       } catch (e) { live.cellcast = `error: ${e.message.slice(0, 80)}`; }
     } else live.cellcast = "no key";
 
-    // Campaign Nucleus: read-only profiles probe.
+    // Campaign Nucleus: probe the exact base + auth header the _cn.js client
+    // uses in production, so this diagnostic matches the real code path.
+    // Try a couple of common auth shapes and report which (if any) is accepted.
     if (process.env.CN_API_KEY) {
-      const base = (process.env.CN_API_BASE || "https://teller.campaignnucleus.com/api/v1").replace(/\/$/, "");
-      try {
-        const r = await fetch(`${base}/profiles?per_page=1`, {
-          headers: { Authorization: `Bearer ${process.env.CN_API_KEY}`, Accept: "application/json" },
-        });
-        live.campaign_nucleus = r.ok ? "ok" : `http ${r.status}`;
-      } catch (e) { live.campaign_nucleus = `error: ${e.message.slice(0, 80)}`; }
+      const base = (process.env.CN_API_BASE || "https://api.campaignnucleus.com/v1").replace(/\/$/, "");
+      const shapes = [
+        { label: "bearer", headers: { Authorization: `Bearer ${process.env.CN_API_KEY}` } },
+        { label: "x-api-key", headers: { "X-Api-Key": process.env.CN_API_KEY } },
+        { label: "api-token", headers: { "Api-Token": process.env.CN_API_KEY } },
+      ];
+      const results = [];
+      for (const s of shapes) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const r = await fetch(`${base}/profiles?per_page=1`, {
+            headers: { ...s.headers, Accept: "application/json" },
+          });
+          results.push(`${s.label}:${r.status}`);
+        } catch (e) { results.push(`${s.label}:err`); }
+      }
+      live.campaign_nucleus = `base=${base} ${results.join(" ")}`;
     } else live.campaign_nucleus = "no key";
   }
 
