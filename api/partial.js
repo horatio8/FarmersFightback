@@ -60,7 +60,11 @@ module.exports = async function handler(req, res) {
 
     if (body.completed) {
       // Completion always wins: swap CN tag, close pending lapse rows.
-      cnProfileMatch({
+      // Kick the CN write off first so it runs concurrently with the
+      // Airtable work, but AWAIT it before responding — on Vercel the
+      // lambda can freeze the instant we return, killing an un-awaited
+      // fetch mid-flight.
+      const cnp = cnProfileMatch({
         email: email || undefined, mobile: mobile || undefined,
         first_name, last_name, zip: postcode,
         tags: [`${form}_completed`],
@@ -74,11 +78,13 @@ module.exports = async function handler(req, res) {
         // eslint-disable-next-line no-await-in-loop
         await updateRow(LAPSE_TABLE, row.id, { status: "completed", note: "completion beacon" }).catch(() => {});
       }
+      await cnp;
       return res.status(200).json({ ok: true, closed: open.length });
     }
 
     // CN gets the partial immediately (tagged); custom1 carries the ts.
-    cnProfileMatch({
+    // Concurrent with the Airtable write below, awaited before we respond.
+    const cnp = cnProfileMatch({
       email: email || undefined, mobile: mobile || undefined,
       first_name, last_name, zip: postcode,
       tags: [`${form}_partial`],
@@ -100,6 +106,7 @@ module.exports = async function handler(req, res) {
         created_at: nowIso(),
       });
     }
+    await cnp;
     return res.status(200).json({ ok: true });
   } catch (e) {
     console.error("partial:", e.message);

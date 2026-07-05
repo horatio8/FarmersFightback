@@ -66,8 +66,9 @@ module.exports = async function handler(req, res) {
       }
     } catch (e) { console.error("opt-out queue suppress:", e.message); }
 
-    // 3. Flag in CN + log.
-    cnProfileMatch({ mobile: phone, tags: ["sms_opt_out"] }).catch(() => {});
+    // 3. Flag in CN + log. Await the CN write — an un-awaited fetch can be
+    // killed when the serverless lambda freezes on response.
+    await cnProfileMatch({ mobile: phone, tags: ["sms_opt_out"] }).catch(() => {});
     await logEvent({
       contactRecordId,
       event_type: "SMS Opt Out",

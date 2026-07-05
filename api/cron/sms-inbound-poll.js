@@ -65,7 +65,7 @@ async function suppress(fromE164, body) {
     }
   } catch (e) { console.error("suppress queue:", e.message); }
 
-  cnProfileMatch({ mobile: fromE164, tags: ["sms_opt_out"] }).catch(() => {});
+  await cnProfileMatch({ mobile: fromE164, tags: ["sms_opt_out"] }).catch(() => {});
   await logEvent({
     contactRecordId,
     event_type: "SMS Opt Out",

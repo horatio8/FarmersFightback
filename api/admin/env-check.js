@@ -84,8 +84,10 @@ module.exports = async function handler(req, res) {
       const results = [];
       for (const s of shapes) {
         try {
+          // /tenant is a fast, read-only "is this token accepted" check —
+          // /profiles enumerates the whole book and 504s on big accounts.
           // eslint-disable-next-line no-await-in-loop
-          const r = await fetch(`${base}/profiles?per_page=1`, {
+          const r = await fetch(`${base}/tenant`, {
             headers: { ...s.headers, Accept: "application/json" },
           });
           results.push(`${s.label}:${r.status}`);
