@@ -28,9 +28,9 @@ const GSM_LIMIT = 160;
 const TEMPLATES = {
   signup_ab: {
     A: { link: "farmersfightback.com/fund",
-      text: "{first}, Ben Duxson here from Farmers Fightback. Thank you for standing with us. Can you chip in to keep our fight alive? {link} Reply STOP to opt out" },
+      text: "{first}, Ben Duxson from Farmers Fightback. Thanks for signing. Chip in to keep the fight alive: {link} Reply STOP to opt out" },
     B: { link: "farmersfightback.com/fight",
-      text: "{first}, VNI West will carve up the family farms that feed Australia. The Govt won't listen. Help make them: {link} Reply STOP to opt out" },
+      text: "{first}, VNI West is carving up Australia's food bowl. Help Farmers Fightback make the Govt listen: {link} Reply STOP to opt out" },
   },
   donation_lapse_24h: {
     A: { link: "farmersfightback.com/fund",
