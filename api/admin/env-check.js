@@ -98,6 +98,27 @@ module.exports = async function handler(req, res) {
         } catch (e) { results.push(`${s.label}:err`); }
       }
       live.campaign_nucleus = `base=${base} ${results.join(" ")}`;
+
+      // With ?cn=automations, list the account's automations (id + name) so
+      // the right IDs can be dropped straight into the CN_AUTOMATION_* vars.
+      if (url.searchParams.get("cn") === "automations") {
+        for (const path of ["/automations?per_page=100", "/automations"]) {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            const r = await fetch(`${base}${path}`, {
+              headers: { Authorization: `Bearer ${process.env.CN_API_KEY}`, Accept: "application/json" },
+            });
+            // eslint-disable-next-line no-await-in-loop
+            const j = await r.json().catch(() => ({}));
+            const arr = Array.isArray(j) ? j : (j.data || j.automations || []);
+            if (r.ok && Array.isArray(arr)) {
+              live.cn_automations = arr.map((a) => ({ id: a.id ?? a.automation_id, name: a.name ?? a.title }));
+              break;
+            }
+            live.cn_automations = `http ${r.status} on ${path}`;
+          } catch (e) { live.cn_automations = `error: ${e.message.slice(0, 80)}`; }
+        }
+      }
     } else live.campaign_nucleus = "no key";
   }
 
