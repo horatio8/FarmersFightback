@@ -104,6 +104,153 @@ function sendCAPI(eventName, userData, customData) {
   }).catch(() => {}); // fire-and-forget, don't block UX
 }
 
+// ---------- Partial capture (WS4.1) ----------
+// Beacon typed-but-not-submitted identities to /api/partial on field blur.
+// Once per form per session; completion beacon (from signPetition) wins.
+function sendPartial(form, fields, completed) {
+  try {
+    const email = (fields.email || "").trim();
+    const mobile = (fields.mobile || fields.phone || "").trim();
+    if (!email && !mobile) return;
+    if (!completed) {
+      const key = `ff_partial_${form}`;
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    }
+    const blob = JSON.stringify({
+      form,
+      email, mobile,
+      first_name: (fields.first_name || fields.first || "").trim(),
+      last_name: (fields.last_name || fields.last || "").trim(),
+      postcode: (fields.postcode || "").trim(),
+      ...(completed ? { completed: true } : {}),
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/partial", new Blob([blob], { type: "application/json" }));
+    } else {
+      fetch("/api/partial", { method: "POST", headers: { "Content-Type": "application/json" }, body: blob, keepalive: true }).catch(() => {});
+    }
+  } catch {}
+}
+
+// ---------- Donation checkout (WS2, Stripe-hosted Pattern A) ----------
+// $X one-off → mapped monthly ask for the recurring intercept.
+const DONATE_MONTHLY_MAP = { 35: 10, 65: 20, 135: 35, 265: 65, 550: 100, 1500: 250 };
+function monthlyFor(amount) {
+  if (DONATE_MONTHLY_MAP[amount]) return DONATE_MONTHLY_MAP[amount];
+  const approx = Math.round((Number(amount) || 0) * 0.3);
+  return Math.max(5, Math.round(approx / 5) * 5);
+}
+
+// Create a Stripe-hosted Checkout Session via /api/checkout and return its
+// URL. All attribution (utm_*, ref, contact_id, sms_variant) rides along.
+async function createDonationCheckout({ amount, frequency, email }) {
+  const attr = getAttribution();
+  const urlNow = new URL(window.location.href);
+  let contactId = urlNow.searchParams.get("c") || "";
+  try { contactId = contactId || localStorage.getItem("ff_contact_id") || ""; } catch {}
+  const body = {
+    amount: Number(amount),
+    frequency,
+    email: email || undefined,
+    slug: currentPetitionSlug() || undefined,
+    ref: (attr.ref || "").toUpperCase() || undefined,
+    contact_id: contactId || undefined,
+    sms_variant: attr.utm_source === "sms" ? (attr.utm_content === "issue" ? "B" : "A") : undefined,
+    utm_source: attr.utm_source, utm_medium: attr.utm_medium,
+    utm_campaign: attr.utm_campaign, utm_content: attr.utm_content, utm_term: attr.utm_term,
+  };
+  const r = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.url) throw new Error(j.error || "checkout failed");
+  return j.url;
+}
+
+// Recurring intercept (WS2.2): one screen between amount selection and
+// Stripe. Primary = make it monthly; secondary keeps the one-off. Either
+// way the next stop is Stripe's hosted page — never risk the gift: if the
+// checkout API fails and a legacy Payment Link is available, fall back.
+function RecurringIntercept({ amount, fallbackUrl, onClose }) {
+  const [busy, setBusy] = useState("");
+  const mo = monthlyFor(amount);
+  const go = async (frequency) => {
+    if (busy) return;
+    setBusy(frequency);
+    const amt = frequency === "monthly" ? mo : amount;
+    sendCAPI("InitiateCheckout", {}, { value: amt, currency: "AUD", content_name: frequency === "monthly" ? "Monthly Donation" : "One-off Donation" });
+    try {
+      window.location.href = await createDonationCheckout({ amount: amt, frequency });
+    } catch (e) {
+      if (frequency === "oneoff" && fallbackUrl) {
+        window.location.href = appendClientRef(fallbackUrl, currentPetitionSlug());
+      } else {
+        setBusy("");
+        alert("Sorry — that didn't go through. Please try again.");
+      }
+    }
+  };
+  const S = {
+    overlay: { position: "fixed", inset: 0, zIndex: 1200, background: "rgba(18,53,75,0.62)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 },
+    card: { background: "#fff", color: "#12354B", borderRadius: 14, maxWidth: 480, width: "100%", padding: "30px 26px", boxShadow: "0 30px 80px rgba(0,0,0,0.35)", textAlign: "center", position: "relative", fontFamily: "inherit" },
+    x: { position: "absolute", top: 10, right: 14, background: "none", border: 0, fontSize: 26, lineHeight: 1, cursor: "pointer", color: "#8a97a1" },
+    h: { fontSize: 24, lineHeight: 1.15, margin: "4px 0 12px", fontWeight: 800 },
+    p: { fontSize: 15, lineHeight: 1.5, color: "#41505c", margin: "0 0 20px" },
+    primary: { display: "block", width: "100%", border: 0, borderRadius: 10, padding: "15px 18px", fontSize: 17, fontWeight: 800, cursor: "pointer", background: "var(--ff-red, #990000)", color: "#fff" },
+    secondary: { display: "block", width: "100%", border: 0, background: "none", marginTop: 14, fontSize: 14.5, fontWeight: 600, color: "#41505c", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 },
+  };
+  return (
+    <div style={S.overlay} onClick={onClose}>
+      <div style={S.card} onClick={(e) => e.stopPropagation()}>
+        <button type="button" style={S.x} onClick={onClose} aria-label="Close">×</button>
+        <h3 style={S.h}>${amount} helps today. <span style={{ color: "var(--ff-red, #990000)" }}>${mo} a month wins this fight.</span></h3>
+        <p style={S.p}>We can only book the ads, lawyers and polling that beat this Government if we know the money is coming. Make it monthly?</p>
+        <button type="button" style={S.primary} disabled={!!busy} onClick={() => go("monthly")}>
+          {busy === "monthly" ? "One moment…" : `Yes — make it $${mo}/month`}
+        </button>
+        <button type="button" style={S.secondary} disabled={!!busy} onClick={() => go("oneoff")}>
+          {busy === "oneoff" ? "One moment…" : `No thanks — donate $${amount} once`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Live signature counter (WS3) ----------
+// Patch every count derived from the master petition number with the live
+// value from /api/signature-count. Baldwins/Fuel keep their own counts
+// (they don't equal the master).
+function applyLiveSignatureCount(content, live) {
+  if (!content || !live || live.stale || !Number.isFinite(live.count) || live.count <= 0) return content;
+  // Never patch DOWN below the static number — protects against an
+  // unseeded/partial backend count making the public counter shrink.
+  const staticMaster = Number(content.petition && content.petition.currentCount) || 0;
+  if (live.count < staticMaster) return content;
+  const master = Number(content.petition && content.petition.currentCount) || 0;
+  const clone = JSON.parse(JSON.stringify(content));
+  const display = live.display || live.count.toLocaleString("en-AU");
+  if (clone.topBanner && clone.topBanner.boldText) {
+    clone.topBanner.boldText = clone.topBanner.boldText.replace(/^[\d,]+\+?/, display);
+  }
+  (clone.impactStats || []).forEach((s) => { if (/signature/i.test(s.label || "")) s.value = live.count; });
+  if (master) {
+    const walk = (node) => {
+      if (Array.isArray(node)) { node.forEach(walk); return; }
+      if (node && typeof node === "object") {
+        if (Number(node.currentCount) === master) node.currentCount = live.count;
+        Object.keys(node).forEach((k) => walk(node[k]));
+      }
+    };
+    walk(clone);
+  } else if (clone.petition) {
+    clone.petition.currentCount = live.count;
+  }
+  return clone;
+}
+
 // Add ?client_reference_id=<slug> to a Stripe Payment Link URL so the
 // resulting checkout session carries the petition the donor was viewing
 // when they clicked. The Stripe webhook reads it back and writes it into
@@ -222,6 +369,10 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
     const eventId = metaEventId || `Lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     window.fbq("track", "Lead", { content_name: content_name || "Petition" }, { eventID: eventId });
   }
+
+  // Completion beacon (WS4): swaps any *_partial CN tag to *_completed and
+  // closes pending lapse rows for this identity. Completion always wins.
+  sendPartial("petition", { email, mobile, first_name, last_name, postcode }, true);
 
   window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: (first_name || "").trim() } }));
   return { metaEventId, contactId, referralCode };
@@ -611,11 +762,11 @@ function Petition() {
             </Field>
           </div>
           <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}>
-            <input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true"/>
+            <input type="email" value={form.email} onChange={update("email")} onBlur={() => sendPartial("petition", form)} autoComplete="email" required aria-required="true"/>
           </Field>
           <div className="ff-form-row">
             <Field label="Phone">
-              <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel"/>
+              <input type="tel" value={form.phone} onChange={update("phone")} onBlur={() => sendPartial("petition", form)} autoComplete="tel"/>
             </Field>
             <Field label="Postcode" error={errors.postcode}>
               <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4}/>
@@ -706,16 +857,24 @@ function DonateBand() {
   const sym = c.currencySymbol || "$";
   const amounts = (d && d.amounts) || [];
   const otherUrl = (d && d.otherUrl) || c.customOneOffUrl;
-  const defaultAmount = (amounts.find(a => a.isDefault) || amounts[Math.min(2, amounts.length - 1)] || {}).amount;
+  // WS2: $65 is the anchor unless ?ask= overrides it.
+  const askParam = Number(new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("ask")) || 0;
+  const defaultAmount = (
+    amounts.find(a => Number(a.amount) === askParam) ||
+    amounts.find(a => Number(a.amount) === 65) ||
+    amounts.find(a => a.isDefault) ||
+    amounts[Math.min(2, amounts.length - 1)] || {}
+  ).amount;
   const [pick, setPick] = useState(defaultAmount);
+  const [intercept, setIntercept] = useState(0);
 
   const matched = amounts.find(a => Number(a.amount) === Number(pick));
-  const stripeUrl = matched ? matched.url : otherUrl;
-  const ready = !!stripeUrl;
+  const fallbackUrl = matched ? matched.url : otherUrl;
+  const ready = Number(pick) > 0;
+  // WS2.2: amount chosen → recurring intercept → Stripe-hosted page.
   const onDonate = () => {
     if (!ready) return;
-    sendCAPI("InitiateCheckout", {}, { value: pick || 0, currency, content_name: "Donation" });
-    window.location.href = appendClientRef(stripeUrl, currentPetitionSlug());
+    setIntercept(Number(pick));
   };
 
   return (
@@ -764,6 +923,9 @@ function DonateBand() {
           <p className="ff-donate-fine">{c.fineprint}</p>
         </div>
       </div>
+      {intercept > 0 && (
+        <RecurringIntercept amount={intercept} fallbackUrl={fallbackUrl} onClose={() => setIntercept(0)} />
+      )}
     </section>
   );
 }
@@ -1705,13 +1867,13 @@ function BaldwinFloodlight({ p, receiverUrl }) {
       <div style={{ marginTop: 12 }}>
         <label style={{ display: "block" }}>
           <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Email *{errors.email && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.email}</em>}</span>
-          <input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+          <input type="email" value={form.email} onChange={update("email")} onBlur={() => sendPartial("petition", form)} autoComplete="email" required aria-required="true" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.email ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
         </label>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 12, marginTop: 12 }}>
         <label>
           <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Mobile{errors.phone && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.phone}</em>}</span>
-          <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" inputMode="tel" placeholder="0400 000 000" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.phone ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
+          <input type="tel" value={form.phone} onChange={update("phone")} onBlur={() => sendPartial("petition", form)} autoComplete="tel" inputMode="tel" placeholder="0400 000 000" style={{ width: "100%", padding: "12px 14px", background: C.navy, border: `1.5px solid ${errors.phone ? C.yellow : C.rule}`, color: C.bone, font: `400 15px/1 ${fonts.sans}` }} />
         </label>
         <label>
           <span style={{ display: "block", font: `700 11px/1 ${fonts.mono}`, color: C.yellow, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 8 }}>Postcode{errors.postcode && <em style={{ fontStyle: "normal", color: C.yellow, marginLeft: 6 }}>— {errors.postcode}</em>}</span>
@@ -2148,13 +2310,13 @@ function PetitionPage({ slug }) {
         <Field label={<>First name <span className="ff-req">*</span></>} error={errors.first}><input value={form.first} onChange={update("first")} autoComplete="given-name" required aria-required="true" /></Field>
         <Field label={<>Last name <span className="ff-req">*</span></>} error={errors.last}><input value={form.last} onChange={update("last")} autoComplete="family-name" required aria-required="true" /></Field>
       </div>
-      <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}><input type="email" value={form.email} onChange={update("email")} autoComplete="email" required aria-required="true" /></Field>
+      <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}><input type="email" value={form.email} onChange={update("email")} onBlur={() => sendPartial("petition", form)} autoComplete="email" required aria-required="true" /></Field>
       <div className="ff-form-row">
         <Field label="Postcode" error={errors.postcode}>
           <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} autoComplete="postal-code" placeholder="3000" />
         </Field>
         <Field label="Phone">
-          <input type="tel" value={form.phone} onChange={update("phone")} autoComplete="tel" placeholder="0400 000 000" />
+          <input type="tel" value={form.phone} onChange={update("phone")} onBlur={() => sendPartial("petition", form)} autoComplete="tel" placeholder="0400 000 000" />
         </Field>
       </div>
       <button className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={state === "submitting"}>
@@ -2547,22 +2709,127 @@ function MediaPage() {
 }
 
 // ---------- Donor page ("They have billions. We have you.") ----------
+// Thank-you state for /donate?cs=<session_id> (WS2.3): one-off donors get
+// the make-it-monthly upsell (email prefilled); monthly donors get sent to
+// their share link. Falls back to the normal widget if the session isn't
+// paid or can't be read.
+function DonateThanksPanel({ session }) {
+  const [busy, setBusy] = useState(false);
+  const paidDollars = Math.round((session.amount_total || 0) / 100);
+  const monthly = session.frequency === "monthly";
+  const mo = monthlyFor(paidDollars);
+  const upsell = async () => {
+    if (busy) return;
+    setBusy(true);
+    sendCAPI("InitiateCheckout", {}, { value: mo, currency: "AUD", content_name: "Monthly Donation" });
+    try {
+      window.location.href = await createDonationCheckout({ amount: mo, frequency: "monthly", email: session.email });
+    } catch { setBusy(false); }
+  };
+  return (
+    <div id="donate" className="ff-give-widget">
+      <div style={{ textAlign: "center", padding: "10px 4px" }}>
+        <div style={{ fontSize: 44, lineHeight: 1 }}>🙏</div>
+        <h2 className="ff-h3" style={{ margin: "12px 0 6px" }}>
+          Thank you — ${paidDollars.toLocaleString()}{monthly ? " a month" : ""} received.
+        </h2>
+        <p style={{ fontSize: 15, lineHeight: 1.5, color: "#41505c", margin: "0 0 18px" }}>
+          {monthly
+            ? "You're now part of the fighting fund that lets us plan ahead. Your receipt is on its way."
+            : "That's real fuel for the fight. Your receipt is on its way to your inbox."}
+        </p>
+        {monthly ? (
+          <a href="/share" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg">Get your share link →</a>
+        ) : (
+          <React.Fragment>
+            <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" disabled={busy} onClick={upsell}>
+              {busy ? "One moment…" : `Make it $${mo}/month`}
+            </button>
+            <p style={{ fontSize: 13.5, color: "#41505c", margin: "12px 0 0" }}>
+              Monthly backing is what lets us book ads and lawyers ahead of time.
+              {" "}<a href="/share" style={{ fontWeight: 700 }}>Or share the fight with your mates →</a>
+            </p>
+          </React.Fragment>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function DonorPage() {
   const c = useContent().donorPage;
+  const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
   const [monthly, setMonthly] = useState(false);
-  const tiers = monthly ? (c.monthlyAmounts || []) : (c.amounts || []);
-  const defaultPick = (tiers.find(t => t.isDefault) || tiers[Math.min(2, tiers.length - 1)] || {}).amount;
+  const [intercept, setIntercept] = useState(0);
+  const [custom, setCustom] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [thanks, setThanks] = useState(null); // paid session summary
+
+  const oneOffTiers = c.amounts || [];
+  // Monthly ladder is the brief's mapping of the one-off ladder — served by
+  // /api/checkout price_data, so no pre-created Payment Links needed.
+  const monthlyTiers = oneOffTiers.map(t => ({ amount: monthlyFor(t.amount) }));
+  const tiers = monthly ? monthlyTiers : oneOffTiers;
+
+  // WS5: ?ask=<tier> preselects the upgrade ask; default anchor is $65.
+  const askParam = Number(params.get("ask")) || 0;
+  const defaultPick = (
+    oneOffTiers.find(t => Number(t.amount) === askParam) ||
+    oneOffTiers.find(t => Number(t.amount) === 65) ||
+    oneOffTiers.find(t => t.isDefault) ||
+    oneOffTiers[Math.min(2, oneOffTiers.length - 1)] || {}
+  ).amount;
   const [picked, setPicked] = useState(defaultPick);
-  useEffect(() => { setPicked(defaultPick); }, [monthly]);
+  useEffect(() => {
+    setPicked(monthly ? monthlyFor(defaultPick) : defaultPick);
+    setCustom("");
+  }, [monthly]);
+
+  // Thank-you state: back from Stripe with ?cs=<session_id>.
+  useEffect(() => {
+    const cs = params.get("cs");
+    if (!cs) return;
+    fetch(`/api/checkout?session_id=${encodeURIComponent(cs)}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => {
+        if (j && j.session && j.session.paid) {
+          setThanks(j.session);
+          sendCAPI("Purchase", { em: j.session.email }, {
+            value: (j.session.amount_total || 0) / 100, currency: "AUD",
+            content_name: j.session.frequency === "monthly" ? "Monthly Donation" : "One-off Donation",
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     const el = document.getElementById("donate");
     if (!el) return;
     const t = setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
     return () => clearTimeout(t);
   }, []);
-  const selected = tiers.find(t => t.amount === picked);
-  const ctaUrl = selected ? selected.url : c.otherUrl;
-  const ctaLabel = `Donate $${picked}${monthly ? " / month" : ""} →`;
+
+  const isOther = picked === "other";
+  const amount = isOther ? (Number(custom) || 0) : Number(picked) || 0;
+  const selected = oneOffTiers.find(t => Number(t.amount) === amount);
+  const fallbackUrl = (!monthly && selected && selected.url) || c.otherUrl;
+  const ready = amount >= 2 && !busy;
+  const ctaLabel = busy ? "One moment…" : `Donate $${amount || "—"}${monthly ? " / month" : ""} →`;
+
+  // One-off → recurring intercept first (WS2.2). Monthly → straight to
+  // Stripe's hosted page. Never risk the gift: API failure on a one-off
+  // falls back to the legacy Payment Link.
+  const onCta = async () => {
+    if (!ready) return;
+    if (!monthly) { setIntercept(amount); return; }
+    setBusy(true);
+    sendCAPI("InitiateCheckout", {}, { value: amount, currency: "AUD", content_name: "Monthly Donation" });
+    try {
+      window.location.href = await createDonationCheckout({ amount, frequency: "monthly" });
+    } catch { setBusy(false); alert("Sorry — that didn't go through. Please try again."); }
+  };
+
   return (
     <PageShell>
       <section className={`ff-section ff-give-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
@@ -2576,6 +2843,9 @@ function DonorPage() {
               <li>SSL Secured</li><li>Stripe</li><li>All amounts in AUD</li>
             </ul>
           </div>
+          {thanks ? (
+            <DonateThanksPanel session={thanks} />
+          ) : (
           <div id="donate" className="ff-give-widget">
             <div className="ff-give-freq" role="tablist" aria-label="Donation frequency">
               <button type="button" role="tab" aria-selected={!monthly} className={!monthly ? "is-on" : ""} onClick={() => setMonthly(false)}>One-off</button>
@@ -2583,20 +2853,34 @@ function DonorPage() {
             </div>
             <div className="ff-give-chips">
               {tiers.map(t => (
-                <button key={t.amount} type="button" className={`ff-give-chip ${picked === t.amount ? "is-on" : ""}`} onClick={() => setPicked(t.amount)}>
+                <button key={t.amount} type="button" className={`ff-give-chip ${Number(picked) === Number(t.amount) ? "is-on" : ""}`} onClick={() => { setPicked(t.amount); setCustom(""); }}>
                   <span className="ff-give-chip-amt">${t.amount}{monthly && <small>/mo</small>}</span>
                   {t.tag && <span className="ff-give-chip-tag">{t.tag}</span>}
                 </button>
               ))}
-              <a href={c.otherUrl} target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
+              <button type="button" className={`ff-give-chip ff-give-chip--other ${isOther ? "is-on" : ""}`} onClick={() => setPicked("other")}>
                 <span className="ff-give-chip-amt">Other</span>
                 <span className="ff-give-chip-tag">Choose your own</span>
-              </a>
+              </button>
             </div>
-            <a href={ctaUrl} target="_top" rel="noopener" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta" onClick={() => sendCAPI("InitiateCheckout", {}, { value: picked || 0, currency: "AUD", content_name: monthly ? "Monthly Donation" : "One-off Donation" })}>{ctaLabel}</a>
+            {isOther && (
+              <div style={{ position: "relative", margin: "12px 0 4px" }}>
+                <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontWeight: 700 }}>$</span>
+                <input
+                  type="number" min="2" placeholder="Amount" value={custom} autoFocus
+                  onChange={(e) => setCustom(e.target.value)}
+                  style={{ width: "100%", padding: "12px 12px 12px 28px", fontSize: 16, border: "1.5px solid #d5dbe0", borderRadius: 10 }}
+                />
+              </div>
+            )}
+            <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta" disabled={!ready} onClick={onCta}>{ctaLabel}</button>
             <p className="ff-give-fineprint">{c.fineprint}</p>
           </div>
+          )}
         </div>
+        {intercept > 0 && (
+          <RecurringIntercept amount={intercept} fallbackUrl={fallbackUrl} onClose={() => setIntercept(0)} />
+        )}
       </section>
       {c.amounts && c.amounts.some(a => a.tag) && (
         <section className="ff-section ff-give-where">
@@ -3126,7 +3410,15 @@ function App() {
     }
     fetch(CONTENT_URL, { cache: "no-cache" })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(setContent)
+      .then((c) => {
+        setContent(c);
+        // Live signature counter (WS3): render static content immediately,
+        // then patch every master-derived count once the live number lands.
+        fetch("/api/signature-count")
+          .then(r => (r.ok ? r.json() : null))
+          .then(live => { if (live) setContent(cur => applyLiveSignatureCount(cur || c, live)); })
+          .catch(() => {});
+      })
       .catch(e => setError(e.message || "Failed to load content"));
   }, []);
 
