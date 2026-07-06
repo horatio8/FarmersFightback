@@ -35,15 +35,15 @@ const CELLCAST_BASE = (process.env.CELLCAST_API_BASE || "https://api.cellcast.co
 const TEMPLATES = {
   signup_ab: {
     A: { link: "farmersfightback.com/fund",
-      text: "{first}, Ben Duxson from Farmers Fightback. Thanks for signing. Chip in to keep the fight alive: {link} Reply STOP to opt out" },
+      text: "{first}, Ben Duxson from Farmers Fightback. Thanks for signing. Chip in to keep the fight alive: {link}" },
     B: { link: "farmersfightback.com/fight",
-      text: "{first}, VNI West is carving up Australia's food bowl. Help Farmers Fightback make the Govt listen: {link} Reply STOP to opt out" },
+      text: "{first}, VNI West is carving up Australia's food bowl. Help Farmers Fightback make the Govt listen: {link}" },
   },
   donation_lapse_24h: {
     A: { link: "farmersfightback.com/fund",
-      text: "{first}, you were one click from backing Aussie farmers yesterday. Finish what you started: {link} Reply STOP to opt out" },
+      text: "{first}, you were one click from backing Aussie farmers yesterday. Finish what you started: {link}" },
     B: { link: "farmersfightback.com/fund",
-      text: "{first}, you were one click from backing Aussie farmers yesterday. Finish what you started: {link} Reply STOP to opt out" },
+      text: "{first}, you were one click from backing Aussie farmers yesterday. Finish what you started: {link}" },
   },
 };
 
