@@ -11,9 +11,9 @@
 // historical (the automated-SMS programme is new — nobody has STOPped it
 // yet). A one-time historical sweep can be run separately if wanted.
 //
-// Uses the v3 Cellcast API with the same CELLCAST_API_KEY (APPKEY) as
-// sending — verified shape: { data: { items:[{from, body, received_at}],
-// nextPage } }.
+// Uses the Cellcast v1 API (Authorization: Bearer CELLCAST_API_KEY) — same
+// key as sending. Shape: { meta:{status}, data:{ items:[{from, body,
+// received_at}], totalPages, nextPage } }.
 
 const {
   findContactByMobile, listRows, updateRow, findOne, createRow,
@@ -28,13 +28,16 @@ const STATS_TABLE = process.env.AIRTABLE_STATS_TABLE || "Site Stats";
 const AT = "https://api.airtable.com/v0";
 const WATERMARK_KEY = "sms_inbound_watermark";
 const STOP_RE = /^\s*(stop|unsub|unsubscribe|opt\s*out|remove\s*me)\b/i;
+const CELLCAST_BASE = (process.env.CELLCAST_API_BASE || "https://api.cellcast.com/api/v1").replace(/\/$/, "");
 
 async function getResponses(page) {
-  const r = await fetch(`https://cellcast.com.au/api/v3/get-responses?page=${page}`, {
-    headers: { APPKEY: process.env.CELLCAST_API_KEY, Accept: "application/json" },
+  const r = await fetch(`${CELLCAST_BASE}/apiClient/getResponses?page=${page}`, {
+    headers: { Authorization: `Bearer ${process.env.CELLCAST_API_KEY}`, Accept: "application/json" },
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(`Cellcast get-responses ${r.status}`);
+  if (!r.ok || j.meta?.status !== "SUCCESS") {
+    throw new Error(`Cellcast getResponses ${r.status} ${j.meta?.status || ""}`.trim());
+  }
   return j.data || {};
 }
 

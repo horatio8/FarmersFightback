@@ -25,14 +25,28 @@ const AT_BASE = "https://api.airtable.com/v0";
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST" && req.method !== "GET") return res.status(405).json({ error: "POST only" });
+  // Optional shared secret: if CELLCAST_WEBHOOK_BASIC ("user:pass") is set,
+  // require it as HTTP Basic auth. Unset => open, since a misconfigured secret
+  // silently dropping STOPs is worse than an open endpoint that only ever
+  // flips opt-out flags.
+  const wantBasic = process.env.CELLCAST_WEBHOOK_BASIC;
+  if (wantBasic) {
+    const expected = `Basic ${Buffer.from(wantBasic).toString("base64")}`;
+    if ((req.headers.authorization || "") !== expected) {
+      return res.status(401).json({ error: "unauthorized" });
+    }
+  }
   try {
     let body = req.body;
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
     body = body || {};
-    // Cellcast payload shapes vary; accept the common field names.
-    const from = body.from || body.mobile || body.number || body.sender ||
+    // Cellcast v1 inbound webhook: { sender:<customer #>, reply:<their text>,
+    // message:<original outbound>, receiver:<our #> }. Read the INBOUND text
+    // from `reply` first — `message` is the outbound copy. Other field names
+    // kept as defensive fallbacks for delivery-receipt / legacy shapes.
+    const from = body.sender || body.from || body.mobile || body.number ||
       (req.method === "GET" ? new URL(req.url, "https://x").searchParams.get("from") : "");
-    const text = String(body.message || body.body || body.text || body.sms_text ||
+    const text = String(body.reply || body.message || body.body || body.text || body.sms_text ||
       (req.method === "GET" ? new URL(req.url, "https://x").searchParams.get("message") : "") || "");
 
     const phone = normPhone(from);

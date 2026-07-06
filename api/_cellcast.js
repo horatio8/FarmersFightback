@@ -3,9 +3,14 @@
 // dispatched by /api/cron/sms-queue; nothing here blocks a signup.
 //
 // Env:
-//   CELLCAST_API_KEY   Cellcast v3 APPKEY. Absent => enqueue still works,
-//                      dispatch no-ops with a logged warning (ship dark).
-//   CELLCAST_FROM      optional alpha sender id (e.g. "FarmersFB")
+//   CELLCAST_API_KEY   Cellcast v1 API key (sent as Authorization: Bearer).
+//                      Absent => enqueue still works, dispatch no-ops with a
+//                      logged warning (ship dark).
+//   CELLCAST_API_BASE  optional override, default https://api.cellcast.com/api/v1
+//   CELLCAST_FROM      optional sender id (alpha <=11 chars, or numeric).
+//                      NOTE: an alpha sender is one-way — replies (incl. STOP)
+//                      don't come back, so leave unset to use the shared number
+//                      if you rely on the get-responses STOP poll.
 //   AB_FORCE_VARIANT   off | A | B — force new sends to the winning variant
 //   SMS_INCLUDE_CONTACT_REF  "0" to never append ?c=<code> to links
 
@@ -21,6 +26,8 @@ const { phoneHash, scheduleSignupSMS, clampToQuietHours } = require("./_util");
 
 const SMS_SENDS_TABLE = process.env.AIRTABLE_SMS_SENDS_TABLE || "SMS Sends";
 const GSM_LIMIT = 160;
+// Cellcast v1 REST API. Bearer-authenticated; base overridable for staging.
+const CELLCAST_BASE = (process.env.CELLCAST_API_BASE || "https://api.cellcast.com/api/v1").replace(/\/$/, "");
 
 // Final copy from the brief (v2). {first} merged at enqueue time; {link}
 // gets ?c=<referral_code> appended only when the merged message still fits
@@ -65,19 +72,31 @@ function assignVariant(hash) {
 async function sendViaCellcast({ phone, message }) {
   const key = process.env.CELLCAST_API_KEY;
   if (!key) return { skipped: true, reason: "CELLCAST_API_KEY not set" };
-  const body = { sms_text: message, numbers: [phone] };
-  if (process.env.CELLCAST_FROM) body.from = process.env.CELLCAST_FROM;
-  const r = await fetch("https://cellcast.com.au/api/v3/send-sms", {
+  const body = { message, contacts: [phone] };
+  if (process.env.CELLCAST_FROM) body.sender = process.env.CELLCAST_FROM;
+  const r = await fetch(`${CELLCAST_BASE}/gateway`, {
     method: "POST",
-    headers: { APPKEY: key, "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
     body: JSON.stringify(body),
   });
   const json = await r.json().catch(() => ({}));
-  if (!r.ok || json.meta?.status === "FAILED" || json.error) {
+  // v1 gateway: { status:true, data:{ queueResponse:[{MessageId,...}],
+  // invalidContacts, unsubscribeContacts } }. Low balance => 422 status:false;
+  // bad token => 401 {code:401,message:"Token expired"}. A queued send always
+  // returns a MessageId — its absence (invalid/unsubscribed/low balance) is a
+  // non-send, so surface it as an error rather than record a phantom send.
+  if (!r.ok || json.status !== true) {
     return { ok: false, status: r.status, error: JSON.stringify(json).slice(0, 300) };
   }
-  const msg = json.data?.messages?.[0] || {};
-  return { ok: true, cellcast_id: msg.message_id || json.data?.queueResponse?.[0]?.MessageId || "" };
+  const q = json.data?.queueResponse?.[0] || {};
+  if (!q.MessageId) {
+    return { ok: false, status: r.status, error: JSON.stringify(json.data || json).slice(0, 300) };
+  }
+  return { ok: true, cellcast_id: q.MessageId };
 }
 
 // One automation text per signer, ever: dedupe on phone hash + template
