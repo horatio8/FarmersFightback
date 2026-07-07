@@ -149,6 +149,10 @@ async function createDonationCheckout({ amount, frequency, email }) {
   const urlNow = new URL(window.location.href);
   let contactId = urlNow.searchParams.get("c") || "";
   try { contactId = contactId || localStorage.getItem("ff_contact_id") || ""; } catch {}
+  // Carry the petition signer's email into checkout: prefills Stripe and
+  // identifies the Lapse Queue row, so signed -> clicked donate -> abandoned
+  // Stripe enrols them in the donation-lapse automation.
+  try { email = email || sessionStorage.getItem("ff_email") || undefined; } catch {}
   const body = {
     amount: Number(amount),
     frequency,
@@ -311,6 +315,12 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
       referralCode = j.referral_code || "";
       if (referralCode) try { localStorage.setItem("ff_referral_code", referralCode); } catch {}
       if (contactId)   try { localStorage.setItem("ff_contact_id", contactId); } catch {}
+      // Session-scoped (clears when the tab closes, so shared computers
+      // don't leak it): lets the donate flow prefill Stripe's email AND
+      // makes a subsequent checkout abandon identifiable, so the signer
+      // lands in the donation-lapse automation instead of being skipped
+      // as anonymous.
+      if (email) try { sessionStorage.setItem("ff_email", email); } catch {}
     }
   } catch (err) {
     console.error("petition-signup:", err);
