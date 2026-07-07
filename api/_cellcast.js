@@ -103,6 +103,14 @@ async function sendViaCellcast({ phone, message, scheduleAt }) {
   // returns a MessageId — its absence (invalid/unsubscribed/low balance) is a
   // non-send, so surface it as an error rather than record a phantom send.
   if (!r.ok || json.status !== true) {
+    // Live-observed rejection shape for a recipient on Cellcast's opt-out
+    // list: status:false + message "Contact is Unsubscribed and can not
+    // receive [messages]" (differs from the documented unsubscribeContacts
+    // array, which is also handled below). A deliberate opt-out, not a
+    // delivery failure.
+    if (/unsubscribed/i.test(json.message || json.msg || "")) {
+      return { suppressed: true, reason: "on Cellcast unsubscribe list" };
+    }
     return { ok: false, status: r.status, error: JSON.stringify(json).slice(0, 300) };
   }
   const q = json.data?.queueResponse?.[0] || {};
@@ -214,8 +222,11 @@ async function dispatchDueSMS({ maxRows = 25, deadlineMs = 60000 } = {}) {
   const started = Date.now();
   const results = { due: 0, sent: 0, failed: 0, suppressed: 0, skipped: 0 };
   if (!process.env.CELLCAST_API_KEY) { results.skipped = -1; return results; }
+  // 65s lookahead compensates Airtable's NOW() lag (it can trail real time
+  // by a minute+); worst case a row goes ~1 min early, which is fine for
+  // nudges and already-late schedule fallbacks.
   const due = await listRows(SMS_SENDS_TABLE, {
-    formula: `AND({status}='queued', IS_BEFORE({not_before}, NOW()))`,
+    formula: `AND({status}='queued', IS_BEFORE({not_before}, DATEADD(NOW(), 65, 'seconds')))`,
     sort: [{ field: "not_before", direction: "asc" }],
     maxRecords: maxRows,
   });
