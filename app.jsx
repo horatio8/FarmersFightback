@@ -142,6 +142,17 @@ function monthlyFor(amount) {
   return Math.max(5, Math.round(approx / 5) * 5);
 }
 
+// Reset a checkout busy flag when the page is restored from the browser's
+// back-forward cache: tap an amount -> land on Stripe -> hit Back, and the
+// page returns with busy=true frozen in, leaving every button disabled.
+function useBfcacheReset(reset) {
+  useEffect(() => {
+    const onShow = (e) => { if (e.persisted) reset(); };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+}
+
 // Create a Stripe-hosted Checkout Session via /api/checkout and return its
 // URL. All attribution (utm_*, ref, contact_id, sms_variant) rides along.
 async function createDonationCheckout({ amount, frequency, email }) {
@@ -830,6 +841,7 @@ function DonateBand() {
   ).amount;
   const [pick, setPick] = useState(defaultAmount);
   const [busy, setBusy] = useState(false);
+  useBfcacheReset(() => setBusy(false));
 
   const matched = amounts.find(a => Number(a.amount) === Number(pick));
   const fallbackUrl = matched ? matched.url : otherUrl;
@@ -2699,6 +2711,7 @@ function MediaPage() {
 // hidden by the caller; on mobile this owns the whole viewport.
 function MonthlyUpsellHero({ session }) {
   const [busy, setBusy] = useState(false);
+  useBfcacheReset(() => setBusy(false));
   const paid = Math.round((session.amount_total || 0) / 100);
   const mo = monthlyFor(paid);
   const go = async () => {
@@ -2734,6 +2747,7 @@ function MonthlyUpsellHero({ session }) {
 
 function DonateThanksPanel({ session }) {
   const [busy, setBusy] = useState(false);
+  useBfcacheReset(() => setBusy(false));
   const paidDollars = Math.round((session.amount_total || 0) / 100);
   const monthly = session.frequency === "monthly";
   const mo = monthlyFor(paidDollars);
@@ -2834,6 +2848,8 @@ function DonorPage() {
   const fallbackUrl = (!monthly && selected && selected.url) || c.otherUrl;
   const ready = amount >= 2 && !busy;
   const ctaLabel = busy ? "One moment…" : `Donate $${amount || "—"}${monthly ? " / month" : ""} →`;
+
+  useBfcacheReset(() => setBusy(false));
 
   // Hide the nav whenever the visitor has COMPLETED the petition this
   // session (ff_email is set only at petition success) — however they got
