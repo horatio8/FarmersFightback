@@ -14,7 +14,7 @@
 // Rows stay pending (with a note) until the env vars exist — nothing lost.
 
 const { listRows, updateRow, findOne, nowIso } = require("../_airtable");
-const { requireCron, stripeClient, phoneHash } = require("../_util");
+const { requireCron, stripeClient, phoneHash, splitName } = require("../_util");
 const { cnAutomationAdd } = require("../_cn");
 const { enqueueDonationLapseSMS } = require("../_cellcast");
 
@@ -91,11 +91,10 @@ module.exports = async function handler(req, res) {
           const cd = session.customer_details || {};
           email = cd.email || session.customer_email || email;
           mobile = cd.phone || mobile;
-          const nm = String(cd.name || "").trim();
-          if (nm && !first_name) {
-            const parts = nm.split(/\s+/);
-            first_name = parts[0];
-            last_name = last_name || parts.slice(1).join(" ") || undefined;
+          if (!first_name) {
+            const { fn, ln } = splitName(cd.name);
+            first_name = fn;
+            last_name = last_name || ln;
           }
         }
 
@@ -139,6 +138,10 @@ module.exports = async function handler(req, res) {
           variant,
           triggered_at: nowIso(),
           note: out.ok ? "" : String(out.body || out.error || "").slice(0, 200),
+          // Persist identity recovered from the Stripe session — otherwise the
+          // row stays contactless in Airtable and reporting/follow-up can't
+          // attribute the enrolment. undefined keys drop out of the JSON body.
+          email, mobile, first_name, last_name,
         });
         if (out.ok) results.triggered++; else results.errors++;
 

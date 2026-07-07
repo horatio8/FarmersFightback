@@ -72,7 +72,9 @@ function assignVariant(hash) {
 async function sendViaCellcast({ phone, message }) {
   const key = process.env.CELLCAST_API_KEY;
   if (!key) return { skipped: true, reason: "CELLCAST_API_KEY not set" };
-  const body = { message, contacts: [phone] };
+  // replyStopToOptOut: Cellcast manages the STOP opt-out facility natively —
+  // required for Spam Act compliance now the templates carry no opt-out copy.
+  const body = { message, contacts: [phone], replyStopToOptOut: true };
   if (process.env.CELLCAST_FROM) body.sender = process.env.CELLCAST_FROM;
   const r = await fetch(`${CELLCAST_BASE}/gateway`, {
     method: "POST",
@@ -94,6 +96,12 @@ async function sendViaCellcast({ phone, message }) {
   }
   const q = json.data?.queueResponse?.[0] || {};
   if (!q.MessageId) {
+    // status:true but no MessageId. If the number sits on Cellcast's own
+    // unsubscribe list it lands in unsubscribeContacts — that's a deliberate
+    // opt-out, not a delivery failure, so let the caller suppress + sync it.
+    if ((json.data?.unsubscribeContacts || []).length > 0) {
+      return { suppressed: true, reason: "on Cellcast unsubscribe list" };
+    }
     return { ok: false, status: r.status, error: JSON.stringify(json.data || json).slice(0, 300) };
   }
   return { ok: true, cellcast_id: q.MessageId };

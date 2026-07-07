@@ -12,6 +12,7 @@ const { listRows, updateRow, findContactByMobile, nowIso } = require("../_airtab
 const { requireCron } = require("../_util");
 const { SMS_SENDS_TABLE, sendViaCellcast, renderSMS } = require("../_cellcast");
 
+const CONTACTS_TABLE = process.env.AIRTABLE_CONTACTS_TABLE || "Contacts";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 module.exports = async function handler(req, res) {
@@ -63,6 +64,21 @@ module.exports = async function handler(req, res) {
         console.warn("sms-queue: Cellcast not configured, leaving row queued");
         results.skipped++;
         break; // no key — nothing else will send either
+      }
+      if (out.suppressed) {
+        // Cellcast refused the number off its own unsubscribe list (they
+        // STOP'd a past campaign we never saw). Mirror the opt-out locally
+        // so future templates stop re-attempting this contact.
+        // eslint-disable-next-line no-await-in-loop
+        await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: out.reason });
+        if (contact && !contact.fields?.sms_opt_out) {
+          // eslint-disable-next-line no-await-in-loop
+          await updateRow(CONTACTS_TABLE, contact.id, { sms_opt_out: true }).catch((e) =>
+            console.error("sms-queue: opt-out sync failed:", e.message)
+          );
+        }
+        results.suppressed++;
+        continue;
       }
       // eslint-disable-next-line no-await-in-loop
       await updateRow(SMS_SENDS_TABLE, row.id, out.ok

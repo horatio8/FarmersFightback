@@ -15,6 +15,7 @@ const {
   setReferralCodeIfMissing,
   logEventIdempotent,
 } = require("./_airtable");
+const { splitName } = require("./_util");
 
 async function recordRallyTicketPurchase({ session }) {
   if (!session || !session.id) return { ok: false, error: "no session" };
@@ -25,8 +26,9 @@ async function recordRallyTicketPurchase({ session }) {
 
     // Prefer the identity we captured pre-payment (metadata) for names;
     // Stripe's customer_details for what the buyer typed into the card form.
-    const first_name = meta.first_name || (details.name ? details.name.split(" ")[0] : undefined);
-    const last_name = meta.last_name || (details.name ? details.name.split(" ").slice(-1)[0] : undefined);
+    const { fn: nameFn, ln: nameLn } = splitName(details.name);
+    const first_name = meta.first_name || nameFn;
+    const last_name = meta.last_name || nameLn;
     const email = details.email || meta.email;
     const phone = details.phone || meta.phone;
     const postcode = addr.postal_code || meta.postcode;

@@ -22,6 +22,7 @@
 
 const crypto = require("crypto");
 const { postEvent } = require("./_meta");
+const { splitName } = require("./_util");
 const {
   matchOrCreateContact,
   logEventIdempotent,
@@ -110,13 +111,6 @@ async function resolveCustomerDetails(obj) {
     }
   }
   return direct;
-}
-
-function splitName(name) {
-  if (!name || typeof name !== "string") return { fn: undefined, ln: undefined };
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return { fn: parts[0], ln: undefined };
-  return { fn: parts[0], ln: parts.slice(-1)[0] };
 }
 
 // Identity-match the Stripe customer to a Contact, log a Donation event in

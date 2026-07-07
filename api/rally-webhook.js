@@ -26,6 +26,7 @@
 
 const crypto = require("crypto");
 const { postEvent } = require("./_meta");
+const { splitName } = require("./_util");
 const { recordRallyTicketPurchase } = require("./_rally");
 
 module.exports.config = { api: { bodyParser: false } };
@@ -90,13 +91,6 @@ async function resolveCustomerDetails(obj) {
     }
   }
   return direct;
-}
-
-function splitName(name) {
-  if (!name || typeof name !== "string") return { fn: undefined, ln: undefined };
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return { fn: parts[0], ln: undefined };
-  return { fn: parts[0], ln: parts.slice(-1)[0] };
 }
 
 async function fireCAPIPurchase({ event_id, amount_minor, currency, details, sourceUrl, fbc, fbp, ip, userAgent }) {

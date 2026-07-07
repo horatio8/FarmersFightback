@@ -153,9 +153,21 @@ function hostBase(req) {
   return `${proto}://${host}`;
 }
 
+// Canonical full-name splitter: first token = first name, remainder = last
+// name ("John Van Dyke" → { fn: "John", ln: "Van Dyke" }). Matches the
+// identity ladder's convention in _airtable.matchOrCreateContact so the same
+// person parses identically on every path (webhook, lapse sweep, rally).
+function splitName(name) {
+  if (!name || typeof name !== "string") return { fn: undefined, ln: undefined };
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return { fn: undefined, ln: undefined };
+  return { fn: parts[0], ln: parts.length > 1 ? parts.slice(1).join(" ") : undefined };
+}
+
 module.exports = {
   phoneHash,
   cellcastToE164,
+  splitName,
   requireCron,
   requireBasicAuth,
   melbourneParts,
