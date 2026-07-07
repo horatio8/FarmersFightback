@@ -134,7 +134,7 @@ function sendPartial(form, fields, completed) {
 }
 
 // ---------- Donation checkout (WS2, Stripe-hosted Pattern A) ----------
-// $X one-off → mapped monthly ask for the recurring intercept.
+// $X one-off → mapped monthly ask (post-donation upsell on the thank-you panel).
 const DONATE_MONTHLY_MAP = { 35: 10, 65: 20, 135: 35, 265: 65, 550: 100, 1500: 250 };
 function monthlyFor(amount) {
   if (DONATE_MONTHLY_MAP[amount]) return DONATE_MONTHLY_MAP[amount];
@@ -170,54 +170,6 @@ async function createDonationCheckout({ amount, frequency, email }) {
   return j.url;
 }
 
-// Recurring intercept (WS2.2): one screen between amount selection and
-// Stripe. Primary = make it monthly; secondary keeps the one-off. Either
-// way the next stop is Stripe's hosted page — never risk the gift: if the
-// checkout API fails and a legacy Payment Link is available, fall back.
-function RecurringIntercept({ amount, fallbackUrl, onClose }) {
-  const [busy, setBusy] = useState("");
-  const mo = monthlyFor(amount);
-  const go = async (frequency) => {
-    if (busy) return;
-    setBusy(frequency);
-    const amt = frequency === "monthly" ? mo : amount;
-    sendCAPI("InitiateCheckout", {}, { value: amt, currency: "AUD", content_name: frequency === "monthly" ? "Monthly Donation" : "One-off Donation" });
-    try {
-      window.location.href = await createDonationCheckout({ amount: amt, frequency });
-    } catch (e) {
-      if (frequency === "oneoff" && fallbackUrl) {
-        window.location.href = appendClientRef(fallbackUrl, currentPetitionSlug());
-      } else {
-        setBusy("");
-        alert("Sorry — that didn't go through. Please try again.");
-      }
-    }
-  };
-  const S = {
-    overlay: { position: "fixed", inset: 0, zIndex: 1200, background: "rgba(18,53,75,0.62)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 },
-    card: { background: "#fff", color: "#12354B", borderRadius: 14, maxWidth: 480, width: "100%", padding: "30px 26px", boxShadow: "0 30px 80px rgba(0,0,0,0.35)", textAlign: "center", position: "relative", fontFamily: "inherit" },
-    x: { position: "absolute", top: 10, right: 14, background: "none", border: 0, fontSize: 26, lineHeight: 1, cursor: "pointer", color: "#8a97a1" },
-    h: { fontSize: 24, lineHeight: 1.15, margin: "4px 0 12px", fontWeight: 800 },
-    p: { fontSize: 15, lineHeight: 1.5, color: "#41505c", margin: "0 0 20px" },
-    primary: { display: "block", width: "100%", border: 0, borderRadius: 10, padding: "15px 18px", fontSize: 17, fontWeight: 800, cursor: "pointer", background: "var(--ff-red, #990000)", color: "#fff" },
-    secondary: { display: "block", width: "100%", border: 0, background: "none", marginTop: 14, fontSize: 14.5, fontWeight: 600, color: "#41505c", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 },
-  };
-  return (
-    <div style={S.overlay} onClick={onClose}>
-      <div style={S.card} onClick={(e) => e.stopPropagation()}>
-        <button type="button" style={S.x} onClick={onClose} aria-label="Close">×</button>
-        <h3 style={S.h}>${amount} helps today. <span style={{ color: "var(--ff-red, #990000)" }}>${mo} a month wins this fight.</span></h3>
-        <p style={S.p}>We can only book the ads, lawyers and polling that beat this Government if we know the money is coming. Make it monthly?</p>
-        <button type="button" style={S.primary} disabled={!!busy} onClick={() => go("monthly")}>
-          {busy === "monthly" ? "One moment…" : `Yes — make it $${mo}/month`}
-        </button>
-        <button type="button" style={S.secondary} disabled={!!busy} onClick={() => go("oneoff")}>
-          {busy === "oneoff" ? "One moment…" : `No thanks — donate $${amount} once`}
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ---------- Live signature counter (WS3) ----------
 // Patch every count derived from the master petition number with the live
@@ -867,15 +819,28 @@ function DonateBand() {
     amounts[Math.min(2, amounts.length - 1)] || {}
   ).amount;
   const [pick, setPick] = useState(defaultAmount);
-  const [intercept, setIntercept] = useState(0);
+  const [busy, setBusy] = useState(false);
 
   const matched = amounts.find(a => Number(a.amount) === Number(pick));
   const fallbackUrl = matched ? matched.url : otherUrl;
   const ready = Number(pick) > 0;
-  // WS2.2: amount chosen → recurring intercept → Stripe-hosted page.
-  const onDonate = () => {
-    if (!ready) return;
-    setIntercept(Number(pick));
+  // One-off goes STRAIGHT to Stripe — no pre-payment intercept. The
+  // make-it-monthly ask happens after a successful donation, on the
+  // thank-you panel (DonateThanksPanel).
+  const onDonate = async () => {
+    if (!ready || busy) return;
+    setBusy(true);
+    sendCAPI("InitiateCheckout", {}, { value: Number(pick), currency: "AUD", content_name: "One-off Donation" });
+    try {
+      window.location.href = await createDonationCheckout({ amount: Number(pick), frequency: "oneoff" });
+    } catch (e) {
+      if (fallbackUrl) {
+        window.location.href = appendClientRef(fallbackUrl, currentPetitionSlug());
+      } else {
+        setBusy(false);
+        alert("Sorry — that didn't go through. Please try again.");
+      }
+    }
   };
 
   return (
@@ -915,18 +880,15 @@ function DonateBand() {
           <button
             type="button"
             className="ff-btn ff-btn--red ff-btn--block ff-btn--lg"
-            disabled={!ready}
+            disabled={!ready || busy}
             onClick={onDonate}
-            aria-disabled={!ready}
+            aria-disabled={!ready || busy}
           >
-            Donate {sym}{pick} {currency} now
+            {busy ? "One moment…" : `Donate ${sym}${pick} ${currency} now`}
           </button>
           <p className="ff-donate-fine">{c.fineprint}</p>
         </div>
       </div>
-      {intercept > 0 && (
-        <RecurringIntercept amount={intercept} fallbackUrl={fallbackUrl} onClose={() => setIntercept(0)} />
-      )}
     </section>
   );
 }
@@ -2761,7 +2723,6 @@ function DonorPage() {
   const c = useContent().donorPage;
   const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
   const [monthly, setMonthly] = useState(false);
-  const [intercept, setIntercept] = useState(0);
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState(false);
   const [thanks, setThanks] = useState(null); // paid session summary
@@ -2818,17 +2779,25 @@ function DonorPage() {
   const ready = amount >= 2 && !busy;
   const ctaLabel = busy ? "One moment…" : `Donate $${amount || "—"}${monthly ? " / month" : ""} →`;
 
-  // One-off → recurring intercept first (WS2.2). Monthly → straight to
-  // Stripe's hosted page. Never risk the gift: API failure on a one-off
-  // falls back to the legacy Payment Link.
+  // Both frequencies go STRAIGHT to Stripe — no pre-payment intercept; the
+  // make-it-monthly ask happens post-payment on the thank-you panel. Never
+  // risk the gift: API failure on a one-off falls back to the legacy
+  // Payment Link.
   const onCta = async () => {
     if (!ready) return;
-    if (!monthly) { setIntercept(amount); return; }
     setBusy(true);
-    sendCAPI("InitiateCheckout", {}, { value: amount, currency: "AUD", content_name: "Monthly Donation" });
+    const frequency = monthly ? "monthly" : "oneoff";
+    sendCAPI("InitiateCheckout", {}, { value: amount, currency: "AUD", content_name: monthly ? "Monthly Donation" : "One-off Donation" });
     try {
-      window.location.href = await createDonationCheckout({ amount, frequency: "monthly" });
-    } catch { setBusy(false); alert("Sorry — that didn't go through. Please try again."); }
+      window.location.href = await createDonationCheckout({ amount, frequency });
+    } catch (e) {
+      if (!monthly && fallbackUrl) {
+        window.location.href = appendClientRef(fallbackUrl, currentPetitionSlug());
+        return;
+      }
+      setBusy(false);
+      alert("Sorry — that didn't go through. Please try again.");
+    }
   };
 
   return (
@@ -2879,9 +2848,6 @@ function DonorPage() {
           </div>
           )}
         </div>
-        {intercept > 0 && (
-          <RecurringIntercept amount={intercept} fallbackUrl={fallbackUrl} onClose={() => setIntercept(0)} />
-        )}
       </section>
       {c.amounts && c.amounts.some(a => a.tag) && (
         <section className="ff-section ff-give-where">
