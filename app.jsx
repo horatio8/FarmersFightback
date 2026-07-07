@@ -1008,10 +1008,15 @@ function PageShell({ children, hideTopBanner, hideNav }) {
   const onDonate = () => {
     window.location.href = "/donate";
   };
+  // No-distraction pages still need one escape route: a logo-only header
+  // that clicks back to the homepage.
+  const logoSrc = window.location.pathname.split("/").length > 2 ? "../assets/logo.png" : "assets/logo.png";
   return (
     <>
       {!hideTopBanner && <TopBanner />}
-      {!hideNav && <Nav onDonate={onDonate} />}
+      {hideNav
+        ? <a href="/" className="ff-minihead" aria-label="Farmers Fightback — back to homepage"><img src={logoSrc} alt="Farmers Fightback" /></a>
+        : <Nav onDonate={onDonate} />}
       <main>{children}</main>
       <Footer />
       <SocialProofPopup />

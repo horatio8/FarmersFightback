@@ -218,8 +218,16 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============ Post-donation monthly upsell (full-screen) ============ */
+.ff-minihead {
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 16px; background: #fff;
+  border-bottom: 1px solid var(--ff-rule);
+  position: sticky; top: 0; z-index: 60;
+}
+.ff-minihead img { height: 34px; width: auto; display: block; }
+
 .ff-upsell-hero {
-  min-height: 100svh;
+  min-height: calc(100svh - 55px);
   display: flex; align-items: center; justify-content: center;
   background: var(--ff-navy, #12354B);
   color: #fff;
