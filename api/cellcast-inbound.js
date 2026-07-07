@@ -15,11 +15,14 @@ const {
   updateRow,
   logEvent,
   normPhone,
+  createRow,
+  findOne,
 } = require("./_airtable");
 const { cnProfileMatch } = require("./_cn");
 const { phoneHash } = require("./_util");
 
 const SMS_SENDS_TABLE = process.env.AIRTABLE_SMS_SENDS_TABLE || "SMS Sends";
+const REPLIES_TABLE = process.env.AIRTABLE_SMS_REPLIES_TABLE || "SMS Replies";
 const CONTACTS = process.env.AIRTABLE_CONTACTS_TABLE || "Contacts";
 const AT_BASE = "https://api.airtable.com/v0";
 
@@ -52,7 +55,33 @@ module.exports = async function handler(req, res) {
     const phone = normPhone(from);
     if (!phone) return res.status(200).json({ ok: true, ignored: "no phone" });
     const isStop = /^\s*(stop|unsub|unsubscribe)\b/i.test(text);
-    if (!isStop) return res.status(200).json({ ok: true, ignored: "not a STOP" });
+
+    // Record EVERY reply in the SMS Replies table, not just STOPs. Dedupe on
+    // Cellcast's message _id when present (webhook retries); fall back to a
+    // timestamp key. Note: if the 5-min poll also picks this reply up it
+    // creates a second row under its own phone|received_at key — acceptable
+    // while the webhook is optional/unconfigured.
+    if (text) {
+      try {
+        const receivedAt = new Date().toISOString();
+        const replyId = `${phone}|${body._id || receivedAt}`;
+        const dup = body._id ? await findOne(REPLIES_TABLE, `{reply_id}='${replyId}'`) : null;
+        if (!dup) {
+          const c = await findContactByMobile(phone).catch(() => null);
+          await createRow(REPLIES_TABLE, {
+            reply_id: replyId,
+            phone,
+            body: text.slice(0, 2000),
+            received_at: receivedAt,
+            is_stop: isStop,
+            via: "webhook",
+            ...(c ? { contact: [c.id] } : {}),
+          });
+        }
+      } catch (e) { console.error("reply capture:", e.message); }
+    }
+
+    if (!isStop) return res.status(200).json({ ok: true, recorded: !!text, ignored: "not a STOP" });
 
     // 1. Flag the contact.
     let contactRecordId;

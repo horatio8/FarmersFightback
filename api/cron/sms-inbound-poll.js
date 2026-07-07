@@ -29,6 +29,31 @@ const AT = "https://api.airtable.com/v0";
 const WATERMARK_KEY = "sms_inbound_watermark";
 const STOP_RE = /^\s*(stop|unsub|unsubscribe|opt\s*out|remove\s*me)\b/i;
 const CELLCAST_BASE = (process.env.CELLCAST_API_BASE || "https://api.cellcast.com/api/v1").replace(/\/$/, "");
+const REPLIES_TABLE = process.env.AIRTABLE_SMS_REPLIES_TABLE || "SMS Replies";
+
+// Store every inbound reply as an SMS Replies row (not just STOPs).
+// Idempotent on reply_id so a re-walk after a mid-pagination failure —
+// where the watermark hasn't advanced — doesn't duplicate rows. Never throws.
+async function recordReply({ e164, raw, body, received_at, isStop }) {
+  try {
+    const replyId = `${e164 || raw}|${received_at}`;
+    if (await findOne(REPLIES_TABLE, `{reply_id}='${replyId}'`)) return false;
+    const contact = e164 ? await findContactByMobile(e164).catch(() => null) : null;
+    await createRow(REPLIES_TABLE, {
+      reply_id: replyId,
+      phone: e164 || String(raw || ""),
+      body: String(body || "").slice(0, 2000),
+      received_at,
+      is_stop: !!isStop,
+      via: "poll",
+      ...(contact ? { contact: [contact.id] } : {}),
+    });
+    return true;
+  } catch (e) {
+    console.error("recordReply:", e.message);
+    return false;
+  }
+}
 
 async function getResponses(page) {
   const r = await fetch(`${CELLCAST_BASE}/apiClient/getResponses?page=${page}`, {
@@ -98,7 +123,7 @@ module.exports = async function handler(req, res) {
 
     // Walk pages newest→older until we pass the watermark (cap pages).
     let newestSeen = watermark;
-    let stops = 0, scanned = 0, page = 1;
+    let stops = 0, scanned = 0, replies = 0, page = 1;
     const totalPages = first.totalPages || 1;
     let items = firstItems;
     while (page <= Math.min(totalPages, 40)) {
@@ -109,10 +134,11 @@ module.exports = async function handler(req, res) {
         if (t <= watermark) { reachedOld = true; break; }
         scanned++;
         if (t > newestSeen) newestSeen = t;
-        if (STOP_RE.test(it.body || "")) {
-          const e164 = cellcastToE164(it.from);
-          if (e164) { stops++; /* eslint-disable-next-line no-await-in-loop */ await suppress(e164, it.body); }
-        }
+        const e164 = cellcastToE164(it.from);
+        const isStop = STOP_RE.test(it.body || "");
+        // eslint-disable-next-line no-await-in-loop
+        if (await recordReply({ e164, raw: it.from, body: it.body, received_at: it.received_at, isStop })) replies++;
+        if (isStop && e164) { stops++; /* eslint-disable-next-line no-await-in-loop */ await suppress(e164, it.body); }
       }
       if (reachedOld || page >= totalPages) break;
       page++;
@@ -125,7 +151,7 @@ module.exports = async function handler(req, res) {
         text_value: new Date(newestSeen).toISOString(), updated_at: nowIso(),
       });
     }
-    return res.status(200).json({ ok: true, scanned, stops, pages: page });
+    return res.status(200).json({ ok: true, scanned, replies, stops, pages: page });
   } catch (e) {
     console.error("sms-inbound-poll:", e.message);
     return res.status(500).json({ error: e.message });
