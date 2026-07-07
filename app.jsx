@@ -2830,9 +2830,13 @@ function DonorPage() {
   const ready = amount >= 2 && !busy;
   const ctaLabel = busy ? "One moment…" : `Donate $${amount || "—"}${monthly ? " / month" : ""} →`;
 
-  // Post-petition handoff (?focus=1): hide the nav so the donation ask has
-  // the donor's full attention.
-  const focusMode = params.get("focus") === "1";
+  // Hide the nav whenever the visitor has COMPLETED the petition this
+  // session (ff_email is set only at petition success) — however they got
+  // here — plus the explicit ?focus=1 handoff. Full-screen ask, no
+  // distractions. Everyone else keeps the menu.
+  let signedThisSession = false;
+  try { signedThisSession = !!sessionStorage.getItem("ff_email"); } catch {}
+  const focusMode = params.get("focus") === "1" || signedThisSession;
 
   // Both frequencies go STRAIGHT to Stripe — no pre-payment intercept; the
   // make-it-monthly ask happens post-payment on the thank-you panel. Never
