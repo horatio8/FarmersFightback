@@ -2864,6 +2864,28 @@ function DonorPage() {
     }
   };
 
+  // One-click chips: tapping an amount goes straight to Stripe (no second
+  // CTA press). The red button remains only for the custom "Other" amount,
+  // which has to be typed before it can be sent.
+  const goAmount = async (amt, tierUrl) => {
+    if (busy) return;
+    setPicked(amt);
+    setCustom("");
+    setBusy(true);
+    const frequency = monthly ? "monthly" : "oneoff";
+    sendCAPI("InitiateCheckout", {}, { value: amt, currency: "AUD", content_name: monthly ? "Monthly Donation" : "One-off Donation" });
+    try {
+      window.location.href = await createDonationCheckout({ amount: amt, frequency });
+    } catch (e) {
+      if (!monthly && tierUrl) {
+        window.location.href = appendClientRef(tierUrl, currentPetitionSlug());
+        return;
+      }
+      setBusy(false);
+      alert("Sorry — that didn't go through. Please try again.");
+    }
+  };
+
   // A completed ONE-OFF gets the dedicated full-screen monthly upsell (no
   // nav, no competing content — the whole viewport on mobile).
   if (thanks && thanks.frequency !== "monthly") {
@@ -2902,9 +2924,9 @@ function DonorPage() {
             </div>
             <div className="ff-give-chips">
               {tiers.map(t => (
-                <button key={t.amount} type="button" className={`ff-give-chip ${Number(picked) === Number(t.amount) ? "is-on" : ""}`} onClick={() => { setPicked(t.amount); setCustom(""); }}>
-                  <span className="ff-give-chip-amt">${t.amount}{monthly && <small>/mo</small>}</span>
-                  {t.tag && <span className="ff-give-chip-tag">{t.tag}</span>}
+                <button key={t.amount} type="button" disabled={busy} className={`ff-give-chip ${Number(picked) === Number(t.amount) ? "is-on" : ""}`} onClick={() => goAmount(Number(t.amount), t.url)}>
+                  <span className="ff-give-chip-amt">{busy && Number(picked) === Number(t.amount) ? "…" : <React.Fragment>${t.amount}{monthly && <small>/mo</small>}</React.Fragment>}</span>
+                  {t.tag && <span className="ff-give-chip-tag">{busy && Number(picked) === Number(t.amount) ? "One moment" : t.tag}</span>}
                 </button>
               ))}
               <button type="button" className={`ff-give-chip ff-give-chip--other ${isOther ? "is-on" : ""}`} onClick={() => setPicked("other")}>
@@ -2922,7 +2944,9 @@ function DonorPage() {
                 />
               </div>
             )}
-            <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta" disabled={!ready} onClick={onCta}>{ctaLabel}</button>
+            {isOther && (
+              <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg ff-give-cta" disabled={!ready} onClick={onCta}>{ctaLabel}</button>
+            )}
             <p className="ff-give-fineprint">{c.fineprint}</p>
           </div>
           )}
