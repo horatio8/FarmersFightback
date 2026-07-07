@@ -1106,6 +1106,10 @@ function SocialProofPopup() {
     };
   }, []);
 
+  // Never distract on conversion pages: donate (incl. the post-payment
+  // monthly upsell, which renders on /donate) and share.
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  if (/^\/(donate|share)(\/|$|\.)/.test(path)) return null;
   if (!item) return null;
   const dismiss = (e) => {
     e.stopPropagation();
