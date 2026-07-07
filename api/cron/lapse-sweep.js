@@ -47,7 +47,7 @@ async function petitionCompleted(f) {
 
 module.exports = async function handler(req, res) {
   if (!requireCron(req, res)) return;
-  const results = { completed: 0, triggered: 0, waiting_env: 0, errors: 0 };
+  const results = { completed: 0, triggered: 0, skipped: 0, waiting_env: 0, errors: 0 };
   try {
     const rows = await listRows(LAPSE_TABLE, {
       formula: `AND({status}='pending', IS_BEFORE({created_at}, DATEADD(NOW(), -30, 'minutes')))`,
@@ -60,12 +60,14 @@ module.exports = async function handler(req, res) {
     for (const row of rows) {
       const f = row.fields || {};
       try {
-        // --- completion check ---
+        // --- completion check --- (keep the Stripe session; we reuse it
+        // below to recover contact details for the CN enrolment)
         let done = false;
+        let session = null;
         if (f.form === "donation" && f.session_id && stripe) {
           // eslint-disable-next-line no-await-in-loop
-          const s = await stripe(`checkout/sessions/${f.session_id}`).catch(() => null);
-          done = s?.payment_status === "paid";
+          session = await stripe(`checkout/sessions/${f.session_id}`).catch(() => null);
+          done = session?.payment_status === "paid";
         } else if (f.form === "petition") {
           // eslint-disable-next-line no-await-in-loop
           done = await petitionCompleted(f);
@@ -77,8 +79,41 @@ module.exports = async function handler(req, res) {
           continue;
         }
 
+        // Resolve who to enrol. The primary donate flow mints the checkout
+        // with no identity (the donor types their email on Stripe's hosted
+        // page), so donation abandons land here with empty fields — recover
+        // email/name/phone from the Stripe session we already fetched.
+        let email = f.email || undefined;
+        let mobile = f.mobile || undefined;
+        let first_name = f.first_name || undefined;
+        let last_name = f.last_name || undefined;
+        if (session && !email && !mobile) {
+          const cd = session.customer_details || {};
+          email = cd.email || session.customer_email || email;
+          mobile = cd.phone || mobile;
+          const nm = String(cd.name || "").trim();
+          if (nm && !first_name) {
+            const parts = nm.split(/\s+/);
+            first_name = parts[0];
+            last_name = last_name || parts.slice(1).join(" ") || undefined;
+          }
+        }
+
+        // No identity at all (donor bailed before entering an email) — CN
+        // can't enrol an anonymous abandon. Skip cleanly instead of hammering
+        // CN and re-marking it error every sweep.
+        if (!email && !mobile && !(first_name && last_name)) {
+          // eslint-disable-next-line no-await-in-loop
+          await updateRow(LAPSE_TABLE, row.id, {
+            status: "skipped",
+            note: "no contact info (anonymous abandon)",
+          });
+          results.skipped++;
+          continue;
+        }
+
         // --- trigger the CN lapse automation ---
-        const identity = f.email || f.mobile || f.session_id || row.id;
+        const identity = email || mobile || f.session_id || row.id;
         const variant = f.variant?.name || f.variant || lapseVariant(identity);
         const automationId = automationFor(f.form, variant);
         if (!automationId) {
@@ -91,10 +126,10 @@ module.exports = async function handler(req, res) {
         }
         // eslint-disable-next-line no-await-in-loop
         const out = await cnAutomationAdd(automationId, {
-          email: f.email || undefined,
-          mobile: f.mobile || undefined,
-          first_name: f.first_name || undefined,
-          last_name: f.last_name || undefined,
+          email: email || undefined,
+          mobile: mobile || undefined,
+          first_name: first_name || undefined,
+          last_name: last_name || undefined,
           tags: [`${f.form}_lapse_${variant.toLowerCase()}`],
         });
         if (out.skipped) { results.waiting_env++; continue; }
@@ -107,12 +142,13 @@ module.exports = async function handler(req, res) {
         });
         if (out.ok) results.triggered++; else results.errors++;
 
-        // +24h SMS nudge for donation lapsers with a mobile (WS4.4).
-        if (out.ok && f.form === "donation" && f.mobile) {
+        // +24h SMS nudge for donation lapsers with a mobile — including one
+        // recovered from the Stripe session above (WS4.4).
+        if (out.ok && f.form === "donation" && mobile) {
           // eslint-disable-next-line no-await-in-loop
           await enqueueDonationLapseSMS({
-            mobile: f.mobile,
-            first_name: f.first_name,
+            mobile,
+            first_name,
             baseTime: f.created_at,
           });
         }
