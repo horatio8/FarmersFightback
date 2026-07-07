@@ -49,8 +49,11 @@ module.exports = async function handler(req, res) {
   if (!requireCron(req, res)) return;
   const results = { completed: 0, triggered: 0, skipped: 0, waiting_env: 0, errors: 0 };
   try {
+    // Literal cutoff on OUR clock — Airtable's NOW() lags real time by a
+    // variable few minutes, which made just-due rows invisible to the sweep.
+    const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
     const rows = await listRows(LAPSE_TABLE, {
-      formula: `AND({status}='pending', IS_BEFORE({created_at}, DATEADD(NOW(), -30, 'minutes')))`,
+      formula: `AND({status}='pending', IS_BEFORE({created_at}, '${cutoff}'))`,
       sort: [{ field: "created_at", direction: "asc" }],
       maxRecords: 50,
     });

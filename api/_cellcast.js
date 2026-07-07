@@ -242,11 +242,12 @@ async function dispatchDueSMS({ maxRows = 25, deadlineMs = 60000 } = {}) {
   const started = Date.now();
   const results = { due: 0, sent: 0, failed: 0, suppressed: 0, skipped: 0 };
   if (!process.env.CELLCAST_API_KEY) { results.skipped = -1; return results; }
-  // 65s lookahead compensates Airtable's NOW() lag (it can trail real time
-  // by a minute+); worst case a row goes ~1 min early, which is fine for
-  // nudges and already-late schedule fallbacks.
+  // Literal lookahead on OUR clock — Airtable's NOW() lags real time by a
+  // variable few minutes; worst case a row goes ~1 min early, which is fine
+  // for nudges and already-late schedule fallbacks.
+  const horizon = new Date(Date.now() + 65 * 1000).toISOString();
   const due = await listRows(SMS_SENDS_TABLE, {
-    formula: `AND({status}='queued', IS_BEFORE({not_before}, DATEADD(NOW(), 65, 'seconds')))`,
+    formula: `AND({status}='queued', IS_BEFORE({not_before}, '${horizon}'))`,
     sort: [{ field: "not_before", direction: "asc" }],
     maxRecords: maxRows,
   });
