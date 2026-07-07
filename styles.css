@@ -218,6 +218,21 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============ Post-donation monthly upsell (full-screen) ============ */
+/* Headline above the donation matrix — shown where the hero h1 isn't
+   adjacent (stacked/mobile layout). */
+.ff-give-widget-h {
+  display: none;
+  font-family: var(--ff-serif, Georgia, serif);
+  font-size: clamp(24px, 6.5vw, 30px);
+  line-height: 1.1; font-weight: 800;
+  color: var(--ff-navy);
+  text-align: center;
+  margin: 2px 0 16px;
+}
+@media (max-width: 900px) {
+  .ff-give-widget-h { display: block; }
+}
+
 .ff-minihead {
   display: flex; align-items: center; justify-content: center;
   padding: 10px 16px; background: #fff;

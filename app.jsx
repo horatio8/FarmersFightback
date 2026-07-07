@@ -2891,6 +2891,11 @@ function DonorPage() {
             <DonateThanksPanel session={thanks} />
           ) : (
           <div id="donate" className="ff-give-widget">
+            {/* The page auto-scrolls to this widget, which on mobile skips the
+                hero headline — so the core message rides directly above the
+                amount matrix (hidden on desktop, where the hero h1 sits
+                alongside). */}
+            <h2 className="ff-give-widget-h">{c.heading}</h2>
             <div className="ff-give-freq" role="tablist" aria-label="Donation frequency">
               <button type="button" role="tab" aria-selected={!monthly} className={!monthly ? "is-on" : ""} onClick={() => setMonthly(false)}>One-off</button>
               <button type="button" role="tab" aria-selected={monthly}  className={monthly  ? "is-on" : ""} onClick={() => setMonthly(true)}>Monthly</button>
