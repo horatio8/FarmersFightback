@@ -37,7 +37,7 @@ const CELLCAST_BASE = (process.env.CELLCAST_API_BASE || "https://api.cellcast.co
 const TEMPLATES = {
   signup_ab: {
     A: { link: "farmersfightback.com/fund",
-      text: "{first}, Ben Duxson from Farmers Fightback. Thanks for signing. Chip in to keep the fight alive: {link}" },
+      text: "{first}, Ben from Farmers Fightback. Thanks for signing. Chip in to keep the fight alive: {link}" },
     B: { link: "farmersfightback.com/fight",
       text: "{first}, VNI West is carving up Australia's food bowl. Help Farmers Fightback make the Govt listen: {link}" },
   },
