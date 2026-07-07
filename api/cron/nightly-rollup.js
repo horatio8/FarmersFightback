@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
 
     // sms_signup: sends by variant
     const sends = await listRows(SMS_SENDS, {
-      formula: `AND({template}='signup_ab', {status}='sent', IS_AFTER({sent_at}, '${start.toISOString()}'), IS_BEFORE({sent_at}, '${end.toISOString()}'))`,
+      formula: `AND({template}='signup_ab', OR({status}='sent', {status}='scheduled'), IS_AFTER({sent_at}, '${start.toISOString()}'), IS_BEFORE({sent_at}, '${end.toISOString()}'))`,
       fields: ["variant"],
     });
     // clicks + opt-outs + donations from Events in the window

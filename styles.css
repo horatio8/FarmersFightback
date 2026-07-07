@@ -188,7 +188,8 @@ img { max-width: 100%; display: block; }
   content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px;
   height: 2px; background: var(--ff-red);
 }
-.ff-nav-actions { display: flex; align-items: center; gap: 12px; }
+.ff-nav-list a, .ff-nav-list .ff-nav-trigger { white-space: nowrap; }
+.ff-nav-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .ff-nav-actions .ff-btn { padding: 11px 20px; font-size: 14px; }
 .ff-hamburger {
   display: none; width: 40px; height: 40px; flex-direction: column; justify-content: center; gap: 5px; align-items: center;
@@ -205,15 +206,64 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.08em; font-weight: 600; border-bottom: 1px solid var(--ff-rule);
 }
 
-@media (max-width: 1040px) {
+@media (max-width: 1180px) {
   .ff-nav-list { display: none; }
   .ff-hamburger { display: flex; }
   .ff-mobile-menu { display: flex; }
 }
-/* Keep the header tidy on small phones: Donate stays, petition button folds
-   into the hamburger menu (which already links to the petition). */
-@media (max-width: 560px) {
+/* Keep the header tidy on smaller screens: Donate stays, petition button
+   folds into the hamburger menu (which already links to the petition). */
+@media (max-width: 760px) {
   .ff-nav-petition { display: none; }
+}
+
+/* ============ Post-donation monthly upsell (full-screen) ============ */
+.ff-upsell-hero {
+  min-height: 100svh;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ff-navy, #12354B);
+  color: #fff;
+  padding: 48px 22px;
+}
+.ff-upsell-inner { max-width: 680px; width: 100%; text-align: center; }
+.ff-upsell-thanks {
+  font: 500 15px/1.5 var(--ff-mono, monospace);
+  letter-spacing: .04em; color: #cfdbe4; margin: 0 0 22px;
+}
+.ff-upsell-h1 {
+  font-family: var(--ff-serif, Georgia, serif);
+  font-size: clamp(34px, 6vw, 56px); line-height: 1.05;
+  margin: 0 0 20px; font-weight: 800;
+}
+.ff-upsell-h1 span { color: #ff8f8f; }
+.ff-upsell-lede { font-size: 18px; line-height: 1.55; color: #dbe5ec; margin: 0 0 18px; }
+.ff-upsell-points {
+  list-style: none; padding: 0; margin: 0 auto 30px; max-width: 560px; text-align: left;
+}
+.ff-upsell-points li {
+  font-size: 16px; line-height: 1.55; color: #eef4f8;
+  padding: 12px 0 12px 34px; position: relative;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.ff-upsell-points li::before {
+  content: "✓"; position: absolute; left: 4px; top: 12px;
+  color: #7fd49b; font-weight: 800; font-size: 18px;
+}
+.ff-upsell-points li strong { color: #fff; }
+.ff-upsell-cta.ff-btn {
+  width: 100%; max-width: 560px;
+  padding: 22px 28px; font-size: 20px;
+}
+.ff-upsell-fine { font-size: 13.5px; color: #b9c8d3; margin: 14px 0 26px; }
+.ff-upsell-skip {
+  color: #dbe5ec; font-size: 15px; font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.ff-upsell-skip:hover { color: #fff; }
+@media (max-width: 560px) {
+  .ff-upsell-hero { padding: 34px 18px; align-items: flex-start; }
+  .ff-upsell-points li { font-size: 15px; }
+  .ff-upsell-cta.ff-btn { position: sticky; bottom: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
 }
 
 /* ============ Placeholder ============ */

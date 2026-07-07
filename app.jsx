@@ -667,7 +667,7 @@ function Petition() {
             <h2 className="ff-h2" dangerouslySetInnerHTML={html(headingHtml)} />
             <p className="ff-lede">{lede}</p>
             <div className="ff-petition-next">
-              <a href="#donate" className="ff-btn ff-btn--red">Chip in to the fight</a>
+              <a href="/donate?focus=1" className="ff-btn ff-btn--red">Chip in to the fight</a>
               <button className="ff-btn ff-btn--outline" onClick={() => {
                 navigator.clipboard?.writeText(c.shareText);
                 alert("Share link copied — paste it anywhere.");
@@ -2248,7 +2248,7 @@ function PetitionPage({ slug }) {
               })}
             </div>
             <div className="ff-petition-page-next">
-              <a href="/#donate" className="ff-btn ff-btn--red">Chip in to the fight</a>
+              <a href="/donate?focus=1" className="ff-btn ff-btn--red">Chip in to the fight</a>
               <a href={p.ctaHrefBack || "/take-action"} className="ff-btn ff-btn--outline">See other campaigns</a>
             </div>
           </div>
@@ -2676,6 +2676,43 @@ function MediaPage() {
 // the make-it-monthly upsell (email prefilled); monthly donors get sent to
 // their share link. Falls back to the normal widget if the session isn't
 // paid or can't be read.
+// Full-screen post-donation monthly upsell (one-off donors only). Nav is
+// hidden by the caller; on mobile this owns the whole viewport.
+function MonthlyUpsellHero({ session }) {
+  const [busy, setBusy] = useState(false);
+  const paid = Math.round((session.amount_total || 0) / 100);
+  const mo = monthlyFor(paid);
+  const go = async () => {
+    if (busy) return;
+    setBusy(true);
+    sendCAPI("InitiateCheckout", {}, { value: mo, currency: "AUD", content_name: "Monthly Donation" });
+    try {
+      window.location.href = await createDonationCheckout({ amount: mo, frequency: "monthly", email: session.email });
+    } catch { setBusy(false); }
+  };
+  return (
+    <section className="ff-upsell-hero">
+      <div className="ff-upsell-inner">
+        <p className="ff-upsell-thanks">🙏 Thank you — ${paid.toLocaleString()} received. Your receipt is on its way.</p>
+        <h1 className="ff-upsell-h1">${paid} helps today.<br /><span>${mo} a month wins this fight.</span></h1>
+        <p className="ff-upsell-lede">
+          One-off gifts keep the lights on. Monthly backing changes what we can do:
+        </p>
+        <ul className="ff-upsell-points">
+          <li><strong>We can book ahead.</strong> Ads, lawyers and polling are committed months in advance — steady funding means we reserve them before the Government moves.</li>
+          <li><strong>They can't wait us out.</strong> A predictable war chest is the one thing a delay-and-outlast strategy can't beat.</li>
+          <li><strong>Small monthly beats big once.</strong> A year of ${mo}/month puts more fight on the ground than most one-off gifts — without you feeling it.</li>
+        </ul>
+        <button type="button" className="ff-btn ff-btn--red ff-upsell-cta" disabled={busy} onClick={go}>
+          {busy ? "One moment…" : `Make it $${mo}/month`}
+        </button>
+        <p className="ff-upsell-fine">Cancel anytime with one email. Receipted monthly.</p>
+        <a className="ff-upsell-skip" href="/share">No thanks — I'll share the fight with my mates instead →</a>
+      </div>
+    </section>
+  );
+}
+
 function DonateThanksPanel({ session }) {
   const [busy, setBusy] = useState(false);
   const paidDollars = Math.round((session.amount_total || 0) / 100);
@@ -2779,6 +2816,10 @@ function DonorPage() {
   const ready = amount >= 2 && !busy;
   const ctaLabel = busy ? "One moment…" : `Donate $${amount || "—"}${monthly ? " / month" : ""} →`;
 
+  // Post-petition handoff (?focus=1): hide the nav so the donation ask has
+  // the donor's full attention.
+  const focusMode = params.get("focus") === "1";
+
   // Both frequencies go STRAIGHT to Stripe — no pre-payment intercept; the
   // make-it-monthly ask happens post-payment on the thank-you panel. Never
   // risk the gift: API failure on a one-off falls back to the legacy
@@ -2800,8 +2841,18 @@ function DonorPage() {
     }
   };
 
+  // A completed ONE-OFF gets the dedicated full-screen monthly upsell (no
+  // nav, no competing content — the whole viewport on mobile).
+  if (thanks && thanks.frequency !== "monthly") {
+    return (
+      <PageShell hideNav hideTopBanner>
+        <MonthlyUpsellHero session={thanks} />
+      </PageShell>
+    );
+  }
+
   return (
-    <PageShell>
+    <PageShell hideNav={focusMode}>
       <section className={`ff-section ff-give-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-give-hero-inner">
