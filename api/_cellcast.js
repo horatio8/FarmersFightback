@@ -156,11 +156,31 @@ async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
     });
     const notBefore = scheduleSignupSMS();
 
-    // Hand the 15-55s timer to Cellcast (scheduleAt) so no cron is needed to
-    // dispatch signup texts. The row is the audit record: "scheduled" when
-    // Cellcast accepted it, "queued" as the fallback the traffic-triggered
-    // dispatcher picks up if the schedule call fails.
-    const out = await sendViaCellcast({ phone, message, scheduleAt: notBefore });
+    // Hand the 15-55s timer to Cellcast (scheduleAt) ONLY for sub-minute
+    // delays inside the send window — live-observed 2026-07-07: Cellcast
+    // misread a UTC scheduleAt as account-local time and fired quiet-hours
+    // texts at 11:41pm. For any longer delay (quiet-hours clamp), queue the
+    // row and let OUR dispatcher (lapse-sweep tail / traffic kick, our
+    // clock) send it in the morning. Worst case for a sub-minute schedule
+    // misread is an immediate send, which is still inside the window.
+    const delayMs = notBefore.getTime() - Date.now();
+    const out = delayMs <= 90000
+      ? await sendViaCellcast({ phone, message, scheduleAt: notBefore })
+      : null;
+    if (out === null) {
+      await createRow(SMS_SENDS_TABLE, {
+        send_id: uuid(),
+        phone,
+        phone_hash: hash,
+        template: "signup_ab",
+        variant,
+        message,
+        status: "queued",
+        not_before: notBefore.toISOString(),
+        queued_at: nowIso(),
+      });
+      return { queued: true, status: "queued", variant, not_before: notBefore.toISOString() };
+    }
     const rowStatus = out.ok ? "scheduled" : out.suppressed ? "suppressed" : "queued";
     await createRow(SMS_SENDS_TABLE, {
       send_id: uuid(),
