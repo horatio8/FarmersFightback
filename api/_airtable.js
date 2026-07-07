@@ -199,7 +199,53 @@ async function matchOrCreateContact(input) {
   };
   Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
   const created = await createContact(fields);
+  // Event-driven signature counter: bump the cached count at creation time
+  // (replaces the 5-min recount cron). Awaited — a floating promise dies
+  // when the lambda freezes — but never allowed to fail the signup.
+  await bumpSignatureCount().catch((e) => console.error("bumpSignatureCount:", e.message));
   return { record: created, isNew: true };
+}
+
+// Milestone hooks shared by the incremental bump and the full recount.
+// Thresholds are public numbers (raw + offset). Fires a Milestone Crossed
+// event and optionally POSTs MILESTONE_WEBHOOK_URL.
+async function checkMilestones(prevTotal, total, extra = {}) {
+  const fired = [];
+  const milestones = String(process.env.SIGNATURE_MILESTONES || "90000,95000,100000")
+    .split(",").map((s) => Number(s.trim())).filter(Boolean);
+  for (const m of milestones) {
+    if (prevTotal < m && total >= m) {
+      fired.push(m);
+      await logEvent({
+        event_type: "Milestone Crossed",
+        payload: { milestone: m, total, ...extra },
+        source_channel: "Direct",
+        fanout: false,
+      }).catch((e) => console.error("milestone log:", e.message));
+      if (process.env.MILESTONE_WEBHOOK_URL) {
+        await fetch(process.env.MILESTONE_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: `🎉 Signature count crossed ${m.toLocaleString()} — now ${total.toLocaleString()}` }),
+        }).catch((e) => console.error("milestone webhook:", e.message));
+      }
+    }
+  }
+  return fired;
+}
+
+// Increment the cached Site Stats signature count by one. Airtable has no
+// atomic increment, so two exactly-simultaneous signups can lose a count —
+// the nightly full recount reconciles. Missing row = not seeded yet; the
+// full recount creates it.
+async function bumpSignatureCount() {
+  const stats = process.env.AIRTABLE_STATS_TABLE || "Site Stats";
+  const row = await findOne(stats, `{key}='signature_count'`);
+  if (!row) return;
+  const raw = (Number(row.fields?.num_value) || 0) + 1;
+  await updateRow(stats, row.id, { num_value: raw, updated_at: nowIso() });
+  const offset = Number(process.env.SIGNATURE_BASE_OFFSET ?? 69500);
+  await checkMilestones(raw - 1 + offset, raw + offset, { raw, offset });
 }
 
 async function setReferralCodeIfMissing(recordId, currentFields) {
@@ -502,6 +548,7 @@ async function updateRow(tableName, recordId, fields) {
 }
 
 module.exports = {
+  checkMilestones,
   matchOrCreateContact,
   findContactByEmail,
   findContactByMobile,

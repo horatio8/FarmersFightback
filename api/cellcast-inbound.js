@@ -43,6 +43,25 @@ module.exports = async function handler(req, res) {
     let body = req.body;
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
     body = body || {};
+
+    // Forward a verbatim copy to the previous consumer (the cellcast-mcp app)
+    // so repointing Cellcast's single webhook slot here doesn't cut off its
+    // feed. Kicked off now to run concurrently with our own processing;
+    // every response path below goes through respond(), which awaits it
+    // first (a frozen lambda kills in-flight fetches). Best-effort: a dead
+    // forward target never blocks STOP handling.
+    const forwardP = process.env.CELLCAST_FORWARD_URL
+      ? fetch(process.env.CELLCAST_FORWARD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(4000),
+        }).catch((e) => console.error("cellcast forward:", e.message))
+      : null;
+    const respond = async (payload) => {
+      if (forwardP) await forwardP;
+      return res.status(200).json(payload);
+    };
     // Cellcast v1 inbound webhook: { sender:<customer #>, reply:<their text>,
     // message:<original outbound>, receiver:<our #> }. Read the INBOUND text
     // from `reply` first — `message` is the outbound copy. Other field names
@@ -53,7 +72,7 @@ module.exports = async function handler(req, res) {
       (req.method === "GET" ? new URL(req.url, "https://x").searchParams.get("message") : "") || "");
 
     const phone = normPhone(from);
-    if (!phone) return res.status(200).json({ ok: true, ignored: "no phone" });
+    if (!phone) return respond({ ok: true, ignored: "no phone" });
     const isStop = /^\s*(stop|unsub|unsubscribe)\b/i.test(text);
 
     // Record EVERY reply in the SMS Replies table, not just STOPs. Dedupe on
@@ -81,7 +100,7 @@ module.exports = async function handler(req, res) {
       } catch (e) { console.error("reply capture:", e.message); }
     }
 
-    if (!isStop) return res.status(200).json({ ok: true, recorded: !!text, ignored: "not a STOP" });
+    if (!isStop) return respond({ ok: true, recorded: !!text, ignored: "not a STOP" });
 
     // 1. Flag the contact.
     let contactRecordId;
@@ -120,7 +139,7 @@ module.exports = async function handler(req, res) {
       fanout: false,
     }).catch(() => {});
 
-    return res.status(200).json({ ok: true });
+    return respond({ ok: true });
   } catch (e) {
     console.error("cellcast-inbound:", e.message);
     return res.status(200).json({ ok: false });

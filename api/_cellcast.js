@@ -19,6 +19,8 @@ const {
   findContactByMobile,
   findOne,
   createRow,
+  listRows,
+  updateRow,
   nowIso,
   uuid,
 } = require("./_airtable");
@@ -69,13 +71,22 @@ function assignVariant(hash) {
   return parseInt(hash.slice(-1), 16) % 2 === 0 ? "A" : "B";
 }
 
-async function sendViaCellcast({ phone, message }) {
+async function sendViaCellcast({ phone, message, scheduleAt }) {
   const key = process.env.CELLCAST_API_KEY;
   if (!key) return { skipped: true, reason: "CELLCAST_API_KEY not set" };
   // replyStopToOptOut: Cellcast manages the STOP opt-out facility natively —
   // required for Spam Act compliance now the templates carry no opt-out copy.
   const body = { message, contacts: [phone], replyStopToOptOut: true };
   if (process.env.CELLCAST_FROM) body.sender = process.env.CELLCAST_FROM;
+  // Hand the delivery timer to Cellcast: scheduleAt (Date or ISO string) is
+  // sent as their documented "Y-m-d H:i:s" UTC format. Only forward-dated
+  // times — a past/invalid value falls through to an immediate send.
+  if (scheduleAt) {
+    const t = new Date(scheduleAt);
+    if (Number.isFinite(t.getTime()) && t.getTime() > Date.now() + 5000) {
+      body.scheduleAt = t.toISOString().slice(0, 19).replace("T", " ");
+    }
+  }
   const r = await fetch(`${CELLCAST_BASE}/gateway`, {
     method: "POST",
     headers: {
@@ -136,6 +147,13 @@ async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
       cref: contactFields?.referral_code || "",
     });
     const notBefore = scheduleSignupSMS();
+
+    // Hand the 15-55s timer to Cellcast (scheduleAt) so no cron is needed to
+    // dispatch signup texts. The row is the audit record: "scheduled" when
+    // Cellcast accepted it, "queued" as the fallback the traffic-triggered
+    // dispatcher picks up if the schedule call fails.
+    const out = await sendViaCellcast({ phone, message, scheduleAt: notBefore });
+    const rowStatus = out.ok ? "scheduled" : out.suppressed ? "suppressed" : "queued";
     await createRow(SMS_SENDS_TABLE, {
       send_id: uuid(),
       phone,
@@ -143,11 +161,13 @@ async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
       template: "signup_ab",
       variant,
       message,
-      status: "queued",
+      status: rowStatus,
       not_before: notBefore.toISOString(),
       queued_at: nowIso(),
+      ...(out.ok ? { cellcast_id: out.cellcast_id, sent_at: nowIso() } : {}),
+      ...(out.suppressed ? { error: out.reason } : {}),
     });
-    return { queued: true, variant, not_before: notBefore.toISOString() };
+    return { queued: true, status: rowStatus, variant, not_before: notBefore.toISOString() };
   } catch (e) {
     console.error("enqueueSignupSMS failed:", e.message);
     return { error: e.message };
@@ -182,11 +202,81 @@ async function enqueueDonationLapseSMS({ mobile, first_name, referral_code, base
   }
 }
 
+// Dispatch every queued row whose not_before has passed. No cron required:
+// callable from any trigger — the /api/cron/sms-queue endpoint (manual/API),
+// the tail of lapse-sweep, and the throttled kick on high-traffic routes.
+// Signup texts are normally pre-scheduled with Cellcast (status "scheduled")
+// and never appear here; this drains the +24h nudges and any rows whose
+// schedule call failed. No per-row sleeps — rows are sent when due.
+const CONTACTS_TABLE = process.env.AIRTABLE_CONTACTS_TABLE || "Contacts";
+
+async function dispatchDueSMS({ maxRows = 25, deadlineMs = 60000 } = {}) {
+  const started = Date.now();
+  const results = { due: 0, sent: 0, failed: 0, suppressed: 0, skipped: 0 };
+  if (!process.env.CELLCAST_API_KEY) { results.skipped = -1; return results; }
+  const due = await listRows(SMS_SENDS_TABLE, {
+    formula: `AND({status}='queued', IS_BEFORE({not_before}, NOW()))`,
+    sort: [{ field: "not_before", direction: "asc" }],
+    maxRecords: maxRows,
+  });
+  results.due = due.length;
+
+  for (const row of due) {
+    if (Date.now() - started > deadlineMs) break;
+    const f = row.fields || {};
+
+    // Send-time suppression re-check.
+    // eslint-disable-next-line no-await-in-loop
+    const contact = await findContactByMobile(f.phone).catch(() => null);
+    if (contact?.fields?.sms_opt_out) {
+      // eslint-disable-next-line no-await-in-loop
+      await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: "opted out before send" });
+      results.suppressed++;
+      continue;
+    }
+
+    // AB_FORCE_VARIANT flip for not-yet-sent signup rows.
+    let message = f.message;
+    let variant = f.variant?.name || f.variant;
+    const forced = String(process.env.AB_FORCE_VARIANT || "off").toUpperCase();
+    if ((forced === "A" || forced === "B") && f.template === "signup_ab" && variant !== forced) {
+      variant = forced;
+      message = renderSMS("signup_ab", forced, {
+        first_name: contact?.fields?.first_name || "",
+        cref: contact?.fields?.referral_code || "",
+      });
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    const out = await sendViaCellcast({ phone: f.phone, message });
+    if (out.skipped) { results.skipped++; break; }
+    if (out.suppressed) {
+      // eslint-disable-next-line no-await-in-loop
+      await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: out.reason });
+      if (contact && !contact.fields?.sms_opt_out) {
+        // eslint-disable-next-line no-await-in-loop
+        await updateRow(CONTACTS_TABLE, contact.id, { sms_opt_out: true }).catch((e) =>
+          console.error("dispatchDueSMS opt-out sync:", e.message)
+        );
+      }
+      results.suppressed++;
+      continue;
+    }
+    // eslint-disable-next-line no-await-in-loop
+    await updateRow(SMS_SENDS_TABLE, row.id, out.ok
+      ? { status: "sent", sent_at: nowIso(), cellcast_id: out.cellcast_id || "", variant, message }
+      : { status: "failed", error: String(out.error || out.status).slice(0, 250) });
+    results[out.ok ? "sent" : "failed"]++;
+  }
+  return results;
+}
+
 module.exports = {
   SMS_SENDS_TABLE,
   renderSMS,
   assignVariant,
   sendViaCellcast,
+  dispatchDueSMS,
   enqueueSignupSMS,
   enqueueDonationLapseSMS,
 };

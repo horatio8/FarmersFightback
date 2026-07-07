@@ -9,6 +9,7 @@
 
 const { listRows, createRow, updateRow, nowIso } = require("../_airtable");
 const { requireCron, melbourneParts } = require("../_util");
+const { recomputeSignatureCount } = require("./refresh-signature-count");
 
 const EVENTS = process.env.AIRTABLE_EVENTS_TABLE || "Events";
 const SMS_SENDS = process.env.AIRTABLE_SMS_SENDS_TABLE || "SMS Sends";
@@ -137,7 +138,14 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ ok: true, date: label, ...out });
+    // Nightly reconciliation of the event-driven signature counter (Airtable
+    // has no atomic increment, so the per-signup bump can drift under
+    // concurrency; this full recount corrects it and fires missed milestones).
+    const signature = await recomputeSignatureCount().catch((e) => {
+      console.error("nightly recount:", e.message);
+      return null;
+    });
+    return res.status(200).json({ ok: true, date: label, signature, ...out });
   } catch (e) {
     console.error("nightly-rollup:", e.message);
     return res.status(500).json({ error: e.message });

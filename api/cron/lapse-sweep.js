@@ -16,7 +16,7 @@
 const { listRows, updateRow, findOne, nowIso } = require("../_airtable");
 const { requireCron, stripeClient, phoneHash, splitName } = require("../_util");
 const { cnAutomationAdd } = require("../_cn");
-const { enqueueDonationLapseSMS } = require("../_cellcast");
+const { enqueueDonationLapseSMS, dispatchDueSMS } = require("../_cellcast");
 
 const LAPSE_TABLE = process.env.AIRTABLE_LAPSE_TABLE || "Lapse Queue";
 const SIGNATURES_TABLE = process.env.AIRTABLE_PETITION_SIGNATURES_TABLE || "Petition Signatures";
@@ -160,7 +160,13 @@ module.exports = async function handler(req, res) {
         console.error(`lapse-sweep row ${row.id}:`, e.message);
       }
     }
-    return res.status(200).json({ ok: true, scanned: rows.length, ...results });
+    // This cron fires every 5 min anyway — drain any due SMS (the +24h
+    // nudges) on the way out, replacing the dedicated sms-queue cron.
+    const sms = await dispatchDueSMS({ maxRows: 25, deadlineMs: 30000 }).catch((e) => {
+      console.error("lapse-sweep sms drain:", e.message);
+      return null;
+    });
+    return res.status(200).json({ ok: true, scanned: rows.length, ...results, sms });
   } catch (e) {
     console.error("lapse-sweep:", e.message);
     return res.status(500).json({ error: e.message });

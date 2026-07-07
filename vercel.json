@@ -9,10 +9,8 @@
     { "source": "/leaderboard", "destination": "/api/leaderboard" }
   ],
   "crons": [
-    { "path": "/api/cron/sms-queue", "schedule": "* * * * *" },
-    { "path": "/api/cron/sms-inbound-poll", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/sms-inbound-poll", "schedule": "10 * * * *" },
     { "path": "/api/cron/lapse-sweep", "schedule": "*/5 * * * *" },
-    { "path": "/api/cron/refresh-signature-count", "schedule": "*/5 * * * *" },
     { "path": "/api/cron/nightly-rollup", "schedule": "15 18 * * *" }
   ],
   "functions": {
