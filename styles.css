@@ -108,6 +108,8 @@ img { max-width: 100%; display: block; }
 .ff-btn--red { background: var(--ff-red); color: #fff; box-shadow: 0 4px 0 var(--ff-red-2); }
 .ff-btn--red:hover { background: var(--ff-red-2); box-shadow: 0 2px 0 var(--ff-red-2); }
 .ff-btn--red:disabled { opacity: .7; cursor: not-allowed; }
+.ff-btn--pink { background: #FFE4EE; color: var(--ff-navy); box-shadow: 0 4px 0 #F3BFD2; }
+.ff-btn--pink:hover { background: #FFD3E4; box-shadow: 0 2px 0 #F3BFD2; }
 .ff-btn--outline { background: #fff; color: var(--ff-navy); border-color: var(--ff-navy); }
 .ff-btn--outline:hover { background: var(--ff-navy); color: #fff; }
 .ff-btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.5); }
@@ -207,6 +209,11 @@ img { max-width: 100%; display: block; }
   .ff-nav-list { display: none; }
   .ff-hamburger { display: flex; }
   .ff-mobile-menu { display: flex; }
+}
+/* Keep the header tidy on small phones: Donate stays, petition button folds
+   into the hamburger menu (which already links to the petition). */
+@media (max-width: 560px) {
+  .ff-nav-petition { display: none; }
 }
 
 /* ============ Placeholder ============ */

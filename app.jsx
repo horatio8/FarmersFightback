@@ -452,6 +452,7 @@ function Nav({ onDonate }) {
           ))}
         </ul>
         <div className="ff-nav-actions">
+          <a href="/petition" className="ff-btn ff-btn--pink ff-nav-petition">Sign the petition</a>
           <button className="ff-btn ff-btn--red" onClick={onDonate}>{c.donateLabel}</button>
           <button
             className="ff-hamburger"
