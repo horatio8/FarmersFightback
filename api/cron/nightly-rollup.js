@@ -88,6 +88,12 @@ module.exports = async function handler(req, res) {
       petition_lapse: { A: { sends: 0, clicks: 0, gifts: 0, revenue: 0, optouts: 0 }, B: { sends: 0, clicks: 0, gifts: 0, revenue: 0, optouts: 0 } },
       donation_lapse: { A: { sends: 0, clicks: 0, gifts: 0, revenue: 0, optouts: 0 }, B: { sends: 0, clicks: 0, gifts: 0, revenue: 0, optouts: 0 } },
     };
+    // Count DISTINCT clickers per variant, not raw taps. One person double-
+    // tapping the link (fat fingers, back-then-forward) or an app prefetch that
+    // slips past the UA filter would otherwise inflate the click count. Dedupe
+    // on the ?c= referral code; anonymous taps (no code) each count once.
+    const clickers = { A: new Set(), B: new Set() };
+    let anonClicks = { A: 0, B: 0 };
     for (const s of sends) {
       const v = s.fields?.variant?.name || s.fields?.variant;
       if (cells.sms_signup[v]) cells.sms_signup[v].sends++;
@@ -97,7 +103,8 @@ module.exports = async function handler(req, res) {
       const p = parsePayload(e.fields?.payload);
       if (type === "SMS Click") {
         const v = p.utm_content === "issue" ? "B" : "A";
-        cells.sms_signup[v].clicks++;
+        if (p.c) clickers[v].add(String(p.c).toUpperCase());
+        else anonClicks[v]++;
       } else if (type === "SMS Opt Out") {
         cells.sms_signup.A.optouts += 0.5; cells.sms_signup.B.optouts += 0.5; // attributed precisely below if possible
       } else if (type === "Donation") {
@@ -109,6 +116,11 @@ module.exports = async function handler(req, res) {
         else if (uc === "lapse_b") { cells.donation_lapse.B.gifts++; cells.donation_lapse.B.revenue += amt; }
       }
     }
+    // Fold the deduped click tally back in: distinct referral codes + any
+    // anonymous taps that carried no code.
+    cells.sms_signup.A.clicks = clickers.A.size + anonClicks.A;
+    cells.sms_signup.B.clicks = clickers.B.size + anonClicks.B;
+
     // lapse triggers (sends) by variant
     const lapses = await listRows(LAPSE, {
       formula: `AND({status}='triggered', IS_AFTER({triggered_at}, '${start.toISOString()}'), IS_BEFORE({triggered_at}, '${end.toISOString()}'))`,
