@@ -187,6 +187,18 @@ async function createDonationCheckout({ amount, frequency, email }) {
 
 
 // ---------- Live signature counter (WS3) ----------
+// Auto-advancing goal for the master petition: the milestone is always the
+// next 25k step strictly above the live count, with a 100k floor. So the
+// goal reads 100k until the count reaches 100k, then flips to 125k, 150k, …
+// with no manual edits or backend changes.
+const MILESTONE_STEP = 25000;
+const MILESTONE_FLOOR = 100000;
+function computeNextMilestone(count) {
+  const c = Number(count) || 0;
+  const stepped = (Math.floor(c / MILESTONE_STEP) + 1) * MILESTONE_STEP;
+  return Math.max(MILESTONE_FLOOR, stepped);
+}
+
 // Patch every count derived from the master petition number with the live
 // value from /api/signature-count. Baldwins/Fuel keep their own counts
 // (they don't equal the master).
@@ -207,7 +219,11 @@ function applyLiveSignatureCount(content, live) {
     const walk = (node) => {
       if (Array.isArray(node)) { node.forEach(walk); return; }
       if (node && typeof node === "object") {
-        if (Number(node.currentCount) === master) node.currentCount = live.count;
+        if (Number(node.currentCount) === master) {
+          node.currentCount = live.count;
+          // Advance the goal in lockstep with the live count.
+          if (node.nextMilestone !== undefined) node.nextMilestone = computeNextMilestone(live.count);
+        }
         Object.keys(node).forEach((k) => walk(node[k]));
       }
     };
