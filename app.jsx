@@ -3869,8 +3869,8 @@ function SendEmailPage() {
       {/* Email editor */}
       <section className="ff-section ff-email-editor">
         <div className="ff-wrap ff-email-narrow">
-          <h2 className="ff-h2">Here's your email</h2>
-          <p className="ff-lede">Firm, fair and polite. We're asking the Liberal Party to do something good, so the email treats them like people who can do good. Feel free to add why this matters to you personally. A line about your own farm, town or family is worth more than anything we could write.</p>
+          <h2 className="ff-h2">Prepare your email below</h2>
+          <p className="ff-lede">Firm, fair and polite: take a moment to review your email. You can generate a new email by clicking 'Say it my way'</p>
 
           {rewriteBlock}
 
@@ -3883,7 +3883,6 @@ function SendEmailPage() {
             <textarea className="ff-email-body" rows={14} value={bodyText} onChange={(e) => setBodyText(e.target.value)} />
           </div>
           <div className={`ff-email-counter ff-email-counter--${counterState}`}>
-            <span>Under 1,400 characters keeps it sending smoothly on every phone.</span>
             <span className="ff-email-counter-num">{encodedLen} / ~1900</span>
           </div>
         </div>

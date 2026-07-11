@@ -1,17 +1,17 @@
 [
   {
-    "name": "Placeholder Name One",
-    "role": "Placeholder Role, e.g. Leader of the Opposition",
-    "email": "placeholder-one@example.com"
+    "name": "Jess Wilson",
+    "role": "Leader of the Liberal Party",
+    "email": "jess.wilson.mp@parliament.vic.gov.au"
   },
   {
-    "name": "Placeholder Name Two",
-    "role": "Placeholder Role, e.g. Shadow Minister for Energy",
-    "email": "placeholder-two@example.com"
+    "name": "Danny O'Brien",
+    "role": "Leader of the National Party",
+    "email": "danny.obrien@parliament.vic.gov.au"
   },
   {
-    "name": "Placeholder Name Three",
-    "role": "Placeholder Role, e.g. Shadow Minister for Agriculture",
-    "email": "placeholder-three@example.com"
+    "name": "David Davis",
+    "role": "Shadow Minister for Energy",
+    "email": "david.davis@parliament.vic.gov.au"
   }
 ]
