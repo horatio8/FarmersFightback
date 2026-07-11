@@ -2379,35 +2379,54 @@ img { max-width: 100%; display: block; }
 .ff-email-narrow { max-width: 760px; }
 
 .ff-email-hero {
-  background: var(--ff-navy);
-  color: var(--ff-navy-ink);
+  background-color: var(--ff-navy);
+  background-image:
+    linear-gradient(rgba(14,41,64,.80), rgba(14,41,64,.62)),
+    url("assets/uploads/coalition-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
   padding-top: clamp(56px, 8vw, 96px);
 }
-.ff-email-hero .ff-h2--light { margin-top: 6px; }
-.ff-email-lede-light { color: rgba(255,255,255,.92); max-width: 60ch; }
-.ff-email-hero .ff-btn { margin-top: 26px; }
-
-.ff-email-steps { padding-top: clamp(40px, 6vw, 72px); padding-bottom: clamp(40px, 6vw, 72px); }
-.ff-email-step { display: flex; gap: 18px; align-items: flex-start; padding: 18px 0; border-bottom: 1px solid var(--ff-rule); }
-.ff-email-step:last-child { border-bottom: 0; }
-.ff-email-step-num {
-  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%;
-  background: var(--ff-red); color: #fff; font-family: var(--ff-cond);
-  font-weight: 700; font-size: 20px; display: grid; place-items: center;
-  box-shadow: 0 3px 0 var(--ff-red-2);
+.ff-email-hero .ff-eyebrow--light { color: rgba(255,255,255,.88); }
+.ff-email-hero .ff-h2--light { margin-top: 6px; text-shadow: 0 1px 2px rgba(0,0,0,.28); }
+.ff-email-lede-light { color: rgba(255,255,255,.94); max-width: 60ch; }
+.ff-email-hero-nudge {
+  margin: 18px 0 0;
+  font-family: var(--ff-cond);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .02em;
+  color: #fff;
 }
-.ff-email-step h3 { margin: 2px 0 6px; }
-.ff-email-step p { margin: 0; color: var(--ff-ink-2); }
+.ff-email-hero .ff-btn { margin-top: 20px; }
+
+/* Compact 3-step strip */
+.ff-email-steps {
+  padding-top: clamp(16px, 2.5vw, 26px);
+  padding-bottom: clamp(16px, 2.5vw, 26px);
+  background: var(--ff-paper-2);
+  border-bottom: 1px solid var(--ff-rule);
+}
+.ff-email-steps > .ff-wrap {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: center; gap: 10px 30px;
+}
+.ff-email-step { display: flex; gap: 11px; align-items: center; padding: 4px 0; }
+.ff-email-step-num {
+  flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--ff-red); color: #fff; font-family: var(--ff-cond);
+  font-weight: 700; font-size: 15px; display: grid; place-items: center;
+  box-shadow: 0 2px 0 var(--ff-red-2);
+}
+.ff-email-step-h {
+  margin: 0; font-family: var(--ff-serif); font-weight: 700;
+  font-size: clamp(16px, 1.6vw, 19px); line-height: 1.15; color: var(--ff-navy);
+}
 
 .ff-email-form-sec { background: var(--ff-paper-2); }
 .ff-email-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-
-.ff-email-consent {
-  display: flex; gap: 10px; align-items: flex-start; margin-top: 8px;
-  font-size: 14px; line-height: 1.5; color: var(--ff-ink-2);
-}
-.ff-email-consent input { margin-top: 3px; flex: 0 0 auto; width: 18px; height: 18px; }
-.ff-email-consent a { color: var(--ff-red); text-decoration: underline; }
 
 .ff-email-rewrite { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 4px 0 22px; }
 .ff-email-rewrite-help { font-size: 13px; color: var(--ff-muted); max-width: 40ch; }
@@ -2442,7 +2461,6 @@ img { max-width: 100%; display: block; }
 .ff-email-recipients ul { margin: 0; padding-left: 18px; }
 .ff-email-recipients li { margin: 4px 0; color: var(--ff-ink-2); }
 
-.ff-email-consent-note { margin: 12px 0 0; color: var(--ff-red); font-weight: 600; font-size: 14px; }
 .ff-email-reassure { margin-top: 16px; color: var(--ff-ink-2); font-size: 15px; }
 
 .ff-email-success .ff-lede { margin-bottom: 26px; }
@@ -2461,5 +2479,16 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 560px) {
   .ff-email-rewrite { flex-direction: column; align-items: stretch; }
-  .ff-email-fallback-btns .ff-btn, .ff-email-share .ff-btn { flex: 1 1 100%; }
+  .ff-email-rewrite .ff-btn { width: 100%; min-height: 48px; }
+  .ff-email-fallback-btns .ff-btn, .ff-email-share .ff-btn { flex: 1 1 100%; min-height: 48px; }
+  /* Hero CTA + nudge */
+  .ff-email-hero .ff-btn { width: 100%; min-height: 48px; }
+  .ff-email-hero-nudge { font-size: 14px; }
+  /* Step strip: slim stacked rows */
+  .ff-email-steps > .ff-wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .ff-email-step { width: 100%; padding: 3px 0; }
+  .ff-email-step-num { width: 28px; height: 28px; font-size: 14px; }
+  /* Form fields: full-width, comfortable tap targets */
+  .ff-email-form-sec .ff-field input { font-size: 16px; min-height: 48px; }
+  .ff-email-send .ff-btn--block { min-height: 52px; }
 }

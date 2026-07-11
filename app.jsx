@@ -3521,12 +3521,11 @@ function SendEmailPage() {
 
   const [variations, setVariations] = useState(null);
   const [recipients, setRecipients] = useState([]);
-  const [form, setForm] = useState({ first: "", last: "", email: "", mobile: "", consent: false, honeypot: "" });
+  const [form, setForm] = useState({ first: "", last: "", email: "", mobile: "", honeypot: "" });
   const [errors, setErrors] = useState({});
   const [subject, setSubject] = useState("");
   const [bodyText, setBodyText] = useState("");
   const [rewriteState, setRewriteState] = useState("idle"); // idle|loading|session_limit|unavailable
-  const [consentNote, setConsentNote] = useState(false);
   const [sent, setSent] = useState(false);
   const [sentData, setSentData] = useState({ subject: "", body: "", recipients: "" });
   const [toast, setToast] = useState("");
@@ -3570,7 +3569,6 @@ function SendEmailPage() {
   const update = (k) => (e) => {
     const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setForm(f => ({ ...f, [k]: v }));
-    if (k === "consent" && v) setConsentNote(false);
   };
 
   const recipientEmails = () => recipients.map(r => r.email).filter(Boolean).join(",");
@@ -3582,7 +3580,7 @@ function SendEmailPage() {
       session_id: sessionId.current,
       variation_shown: variationIndex + 1,
       user_agent: navigator.userAgent,
-      consent: !!f.consent,
+      consent: true,
       honeypot: f.honeypot || "",
     };
     if (f.first.trim()) p.first_name = f.first.trim();
@@ -3671,7 +3669,6 @@ function SendEmailPage() {
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
-    if (!f.consent) { setConsentNote(true); return; }
 
     const fb = composeBody();
     const emails = recipientEmails();
@@ -3704,7 +3701,6 @@ function SendEmailPage() {
   const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
 
   const recipientCount = recipients.length;
-  const step3 = `One click opens your email app, fully addressed to ${recipientCount || "[X]"} Liberal leaders. You press send.`;
 
   const toastEl = toast ? <div className="ff-email-toast" role="status">{toast}</div> : null;
 
@@ -3724,8 +3720,8 @@ function SendEmailPage() {
             </div>
 
             <div className="ff-email-fallback">
-              <h3 className="ff-h3">Didn't your email app open?</h3>
-              <p>No worries. Copy everything below and paste it into Gmail or Outlook.</p>
+              <h3 className="ff-h3">Prefer Gmail or Outlook?</h3>
+              <p>No worries. Copy everything below or open a ready-made draft in Gmail or Outlook.</p>
               <div className="ff-email-fallback-btns">
                 <button type="button" className="ff-btn ff-btn--outline" onClick={() => copyPiece(sentData.recipients, "Copied")}>Copy recipients</button>
                 <button type="button" className="ff-btn ff-btn--outline" onClick={() => copyPiece(sentData.subject, "Copied")}>Copy subject</button>
@@ -3765,35 +3761,27 @@ function SendEmailPage() {
       <section className="ff-section ff-email-hero">
         <div className="ff-wrap ff-email-narrow">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> AN EARNEST REQUEST FROM RURAL AUSTRALIA</span>
-          <h1 className="ff-h2 ff-h2--light">There's still time to do the right thing.</h1>
-          <p className="ff-lede ff-email-lede-light">VNI West and the Western Renewables Link would take prime farmland and push families off properties they've worked for generations. The Liberal Party hasn't locked in its position yet. A polite, personal email from you, this week, could help them land on the right side of it.</p>
+          <h1 className="ff-h2 ff-h2--light">Tell the Victorian Coalition: There's still time to do the right thing.</h1>
+          <p className="ff-lede ff-email-lede-light">The Liberal &amp; National Party hasn't locked in its position yet. It's imperative they know rural Australia will not accept the VNI West or Western Renewables Link. Take a moment to tell them!</p>
+          <p className="ff-email-hero-nudge">It only takes 10 seconds to tell the Coalition to do the right thing.</p>
           <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Send your email</button>
         </div>
       </section>
 
-      {/* How it works */}
+      {/* How it works — compact strip */}
       <section className="ff-section ff-email-steps">
         <div className="ff-wrap ff-email-narrow">
           <div className="ff-email-step">
             <span className="ff-email-step-num">1</span>
-            <div>
-              <h3 className="ff-h3">Tell us who you are.</h3>
-              <p>Your email carries your name. That's what makes an MP's office stop and read it.</p>
-            </div>
+            <h3 className="ff-email-step-h">Tell them who you are</h3>
           </div>
           <div className="ff-email-step">
             <span className="ff-email-step-num">2</span>
-            <div>
-              <h3 className="ff-h3">Check the message.</h3>
-              <p>We've written a courteous, firm email for you. Edit it, or let our rewrite tool put it in your own words.</p>
-            </div>
+            <h3 className="ff-email-step-h">Write your message</h3>
           </div>
           <div className="ff-email-step">
             <span className="ff-email-step-num">3</span>
-            <div>
-              <h3 className="ff-h3">Send it from your inbox.</h3>
-              <p>{step3}</p>
-            </div>
+            <h3 className="ff-email-step-h">Send it.</h3>
           </div>
         </div>
       </section>
@@ -3824,10 +3812,6 @@ function SendEmailPage() {
             <Field label={<>Mobile <span className="ff-req">*</span></>} error={errors.mobile}>
               <input type="tel" value={form.mobile} onChange={update("mobile")} onBlur={onFieldBlur} autoComplete="tel" placeholder="Your mobile" />
             </Field>
-            <label className="ff-email-consent">
-              <input type="checkbox" checked={form.consent} onChange={update("consent")} />
-              <span>Keep me updated on the fight for our farmland. We treat your details like a neighbour would: carefully, and never for sale. Opt out whenever you like. <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy policy</a>.</span>
-            </label>
           </form>
         </div>
       </section>
@@ -3835,7 +3819,7 @@ function SendEmailPage() {
       {/* Email editor */}
       <section className="ff-section ff-email-editor">
         <div className="ff-wrap ff-email-narrow">
-          <h2 className="ff-h2">Here's what they'll read</h2>
+          <h2 className="ff-h2">Here's your email</h2>
           <p className="ff-lede">Firm, fair and polite. We're asking the Liberal Party to do something good, so the email treats them like people who can do good. Feel free to add why this matters to you personally. A line about your own farm, town or family is worth more than anything we could write.</p>
 
           {rewriteBlock}
@@ -3869,7 +3853,6 @@ function SendEmailPage() {
             </div>
           )}
           <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" onClick={onSend}>SEND MY EMAIL TO THE LIBERAL PARTY</button>
-          {consentNote && <p className="ff-email-consent-note">Please tick the box above so we can keep you posted, then hit send.</p>}
           <p className="ff-email-reassure">Your email app opens with everything ready. It sends from your address, in your name. Personal emails get read. Form letters get filed.</p>
         </div>
       </section>
