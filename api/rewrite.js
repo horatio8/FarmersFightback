@@ -81,6 +81,7 @@ const SYSTEM_PROMPT = [
   "- Keep every factual claim unchanged. Do not add new claims, statistics, or figures.",
   "- Keep the email addressed to Liberal Party leadership.",
   "- Tone must remain respectful throughout, consistent with a campaign that treats these recipients as people who can do good.",
+  "- NEVER speak positively or approvingly of renewables, renewable energy, wind or solar projects, transmission projects, or the 'energy transition'. Do not add lines that endorse, welcome, or accept new energy infrastructure (no 'we support renewables', 'we're not against new energy', 'the transition done well', or anything similar). The campaign's position is that these projects take prime farmland and must be scrapped; stay strictly within that framing. 'Western Renewables Link' may appear only as the project's proper name.",
   "- The body must stay under 1400 characters.",
   '- Return strictly JSON: {"subject": "...", "body": "..."} with no extra commentary and no markdown fences.',
 ].join("\n");
