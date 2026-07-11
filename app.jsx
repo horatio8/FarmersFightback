@@ -3654,12 +3654,14 @@ function SendEmailPage() {
   }
 
   function composeBody() {
+    // Always sign off with the sender's name AND email so the MP's office
+    // can see and reply to a real constituent, even if they edited the body.
     const f = formRef.current;
-    const first = f.first.trim(), last = f.last.trim();
-    let fb = bodyText;
-    if (first && fb.slice(-80).indexOf(first) === -1) {
-      fb = `${fb}\n\n${(first + (last ? " " + last : "")).trim()}`;
-    }
+    const first = f.first.trim(), last = f.last.trim(), em = f.email.trim();
+    const name = (first + (last ? " " + last : "")).trim();
+    let fb = bodyText.replace(/\s+$/, "");
+    if (name && fb.slice(-120).indexOf(first) === -1) fb += `\n\n${name}`;
+    if (em && fb.slice(-160).toLowerCase().indexOf(em.toLowerCase()) === -1) fb += `\n${em}`;
     return fb;
   }
 
@@ -3870,9 +3872,7 @@ function SendEmailPage() {
       <section className="ff-section ff-email-editor">
         <div className="ff-wrap ff-email-narrow">
           <h2 className="ff-h2">Prepare your email below</h2>
-          <p className="ff-lede">Firm, fair and polite: take a moment to review your email. You can generate a new email by clicking 'Say it my way'</p>
-
-          {rewriteBlock}
+          <p className="ff-lede ff-email-lede-wide">Firm, fair and polite: take a moment to review your email. You can generate a new email by clicking 'Say it my way'</p>
 
           <div className="ff-field">
             <span className="ff-field-label">Subject</span>
@@ -3882,6 +3882,9 @@ function SendEmailPage() {
             <span className="ff-field-label">Email</span>
             <textarea className="ff-email-body" rows={14} value={bodyText} onChange={(e) => setBodyText(e.target.value)} />
           </div>
+
+          {rewriteBlock}
+
           <div className={`ff-email-counter ff-email-counter--${counterState}`}>
             <span className="ff-email-counter-num">{encodedLen} / ~1900</span>
           </div>

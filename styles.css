@@ -2533,3 +2533,6 @@ img { max-width: 100%; display: block; }
   .ff-email-form-sec .ff-field input { font-size: 16px; min-height: 48px; }
   .ff-email-send .ff-btn--block { min-height: 52px; }
 }
+
+/* Editor lede spans the full container (overrides .ff-lede max-width). */
+.ff-email-lede-wide { max-width: none; }
