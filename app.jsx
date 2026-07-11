@@ -1183,6 +1183,21 @@ function SocialProofPopup() {
   );
 }
 
+// ---------- Ask Jess CTA band (homepage → /askjess) ----------
+function AskJessBand() {
+  const c = useContent().askjessBand;
+  if (!c || c.hidden) return null;
+  return (
+    <section className="ff-section ff-askjess-band">
+      <div className="ff-wrap ff-askjess-band-inner">
+        <h2 className="ff-h2">{c.heading}</h2>
+        {c.sub && <p className="ff-lede">{c.sub}</p>}
+        <a href={c.href || "/askjess"} className="ff-btn ff-btn--red ff-btn--lg">{c.buttonLabel || "Send your email now"} <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  );
+}
+
 // ---------- HomePage (the original homepage layout) ----------
 function HomePage() {
   const [modal, setModal] = useState(false);
@@ -1196,6 +1211,7 @@ function HomePage() {
         <IntroVideo />
         <Summary />
         <Petition />
+        <AskJessBand />
         <ActionCards />
         <Quote />
         <DonateBand />
@@ -3782,7 +3798,7 @@ function SendEmailPage() {
     // Fire-and-forget: flag the send without blocking the mail client. Full
     // snapshot + seq via the coalescing sender, keepalive so it survives the
     // mailto navigation.
-    flushCapture({ send_clicked: true }, { keepalive: true });
+    flushCapture({ send_clicked: true, sent_subject: subject, sent_body: fb }, { keepalive: true });
     track("send_clicked");
 
     setSentData({ subject, body: fb, recipients: emails });

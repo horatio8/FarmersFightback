@@ -8,22 +8,56 @@
   },
   "nav": {
     "items": [
-      { "label": "Home", "href": "/", "active": true },
-      { "label": "The Fight", "href": "/the-fight", "active": false },
+      {
+        "label": "Home",
+        "href": "/",
+        "active": true
+      },
+      {
+        "label": "The Fight",
+        "href": "/the-fight",
+        "active": false
+      },
       {
         "label": "Take Action",
         "href": "/take-action",
         "active": false,
         "children": [
-          { "label": "Sign the petition ›", "href": "/take-action/hold-the-gate" },
-          { "label": "Back the Baldwins", "href": "/take-action/baldwins" },
-          { "label": "Stop the REZ", "href": "/take-action/remove-us-from-the-rez", "disabled": true },
-          { "label": "Fuel & Fertiliser Crisis", "href": "/take-action/fuel-and-fertiliser", "disabled": true }
+          {
+            "label": "Sign the petition ›",
+            "href": "/take-action/hold-the-gate"
+          },
+          {
+            "label": "Back the Baldwins",
+            "href": "/take-action/baldwins"
+          },
+          {
+            "label": "Stop the REZ",
+            "href": "/take-action/remove-us-from-the-rez",
+            "disabled": true
+          },
+          {
+            "label": "Fuel & Fertiliser Crisis",
+            "href": "/take-action/fuel-and-fertiliser",
+            "disabled": true
+          }
         ]
       },
-      { "label": "Volunteer", "href": "/take-action/volunteer", "active": false },
-      { "label": "News", "href": "/news", "active": false },
-      { "label": "Contact Us", "href": "/contact", "active": false }
+      {
+        "label": "Volunteer",
+        "href": "/take-action/volunteer",
+        "active": false
+      },
+      {
+        "label": "News",
+        "href": "/news",
+        "active": false
+      },
+      {
+        "label": "Contact Us",
+        "href": "/contact",
+        "active": false
+      }
     ],
     "donateLabel": "Donate",
     "donateHref": "/donate"
@@ -37,10 +71,30 @@
     "primaryCtaHref": "#petition"
   },
   "impactStats": [
-    { "value": 70981, "label": "Signatures", "suffix": "", "grow": "+4,590 this week" },
-    { "value": 4, "label": "Videos released", "suffix": "", "grow": "Evidence archive" },
-    { "value": 3, "label": "Media statements", "suffix": "", "grow": "ABC · 7News · WTimes" },
-    { "value": 187, "label": "Farms affected", "suffix": "", "grow": "Across 3 LGAs" }
+    {
+      "value": 70981,
+      "label": "Signatures",
+      "suffix": "",
+      "grow": "+4,590 this week"
+    },
+    {
+      "value": 4,
+      "label": "Videos released",
+      "suffix": "",
+      "grow": "Evidence archive"
+    },
+    {
+      "value": 3,
+      "label": "Media statements",
+      "suffix": "",
+      "grow": "ABC · 7News · WTimes"
+    },
+    {
+      "value": 187,
+      "label": "Farms affected",
+      "suffix": "",
+      "grow": "Across 3 LGAs"
+    }
   ],
   "intro": {
     "eyebrow": "Who we are",
@@ -53,17 +107,34 @@
     "headingHtml": "\"This'll be used as <em>evidence against you.</em>\"",
     "lede": "Filmed at dawn during lambing. Maiden ewes scattered across the paddock. A contractor reads from a script, threatens a half-million-dollar fine, and demands access the landholder never agreed to.",
     "meta": [
-      { "label": "Filmed", "value": "April 2026" },
-      { "label": "Location", "value": "Western Victoria" },
-      { "label": "Runtime", "value": "3:42" }
+      {
+        "label": "Filmed",
+        "value": "April 2026"
+      },
+      {
+        "label": "Location",
+        "value": "Western Victoria"
+      },
+      {
+        "label": "Runtime",
+        "value": "3:42"
+      }
     ],
     "thumbLabel": "VIDEO 4 · LAMBING SEASON · 3:42",
     "timecode": "03:42",
     "badgeText": "NEW",
     "captionText": "Video 4 — \"Corporate thugs threaten $500K fine\"",
     "links": [
-      { "label": "See all 4 videos →", "href": "#evidence", "red": true },
-      { "label": "Read your legal rights →", "href": "#rights", "red": false }
+      {
+        "label": "See all 4 videos →",
+        "href": "#evidence",
+        "red": true
+      },
+      {
+        "label": "Read your legal rights →",
+        "href": "#rights",
+        "red": false
+      }
     ]
   },
   "summary": {
@@ -79,8 +150,16 @@
       "We're Farmers Fightback — a farmer-led coalition from regional Australia. We're standing against industrial renewables being forced onto Australia's best farmland. We won't be walked over."
     ],
     "stats": [
-      { "number": "1,200", "unit": "km", "label": "Transmission corridors proposed" },
-      { "number": "$120", "unit": "B", "label": "Total project cost" }
+      {
+        "number": "1,200",
+        "unit": "km",
+        "label": "Transmission corridors proposed"
+      },
+      {
+        "number": "$120",
+        "unit": "B",
+        "label": "Total project cost"
+      }
     ]
   },
   "petition": {
@@ -145,18 +224,60 @@
     "heading": "Every dollar you chip in goes directly to the front line.",
     "body": "",
     "where": [
-      { "percent": "Legal Expertise", "label": "Commissioning expert reviews of flawed legislation and transmission planning." },
-      { "percent": "Campaign Materials", "label": "Printing the signs, banners, and flyers that make our voice visible in every district." },
-      { "percent": "Digital Advocacy", "label": "Countering the Government's narrative online to reach voters in the cities." },
-      { "percent": "Community Engagement & Events", "label": "Hiring venues and equipment for town halls and rallies." }
+      {
+        "percent": "Legal Expertise",
+        "label": "Commissioning expert reviews of flawed legislation and transmission planning."
+      },
+      {
+        "percent": "Campaign Materials",
+        "label": "Printing the signs, banners, and flyers that make our voice visible in every district."
+      },
+      {
+        "percent": "Digital Advocacy",
+        "label": "Countering the Government's narrative online to reach voters in the cities."
+      },
+      {
+        "percent": "Community Engagement & Events",
+        "label": "Hiring venues and equipment for town halls and rallies."
+      }
     ],
     "tiers": [
-      { "amount": 35,   "label": "Prints 500 leaflets",          "oneOffUrl": "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q", "monthlyUrl": "" },
-      { "amount": 65,   "label": "An hour of legal counsel",      "oneOffUrl": "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R", "monthlyUrl": "" },
-      { "amount": 135,  "label": "A targeted ad set",             "oneOffUrl": "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", "monthlyUrl": "" },
-      { "amount": 265,  "label": "A camera kit for a farmer",     "oneOffUrl": "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T", "monthlyUrl": "" },
-      { "amount": 550,  "label": "A regional billboard for a week","oneOffUrl": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", "monthlyUrl": "" },
-      { "amount": 1500, "label": "Fund a full TV campaign run",   "oneOffUrl": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "monthlyUrl": "" }
+      {
+        "amount": 35,
+        "label": "Prints 500 leaflets",
+        "oneOffUrl": "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q",
+        "monthlyUrl": ""
+      },
+      {
+        "amount": 65,
+        "label": "An hour of legal counsel",
+        "oneOffUrl": "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R",
+        "monthlyUrl": ""
+      },
+      {
+        "amount": 135,
+        "label": "A targeted ad set",
+        "oneOffUrl": "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S",
+        "monthlyUrl": ""
+      },
+      {
+        "amount": 265,
+        "label": "A camera kit for a farmer",
+        "oneOffUrl": "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T",
+        "monthlyUrl": ""
+      },
+      {
+        "amount": 550,
+        "label": "A regional billboard for a week",
+        "oneOffUrl": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U",
+        "monthlyUrl": ""
+      },
+      {
+        "amount": 1500,
+        "label": "Fund a full TV campaign run",
+        "oneOffUrl": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V",
+        "monthlyUrl": ""
+      }
     ],
     "customOneOffUrl": "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
     "customMonthlyUrl": "",
@@ -175,19 +296,48 @@
   "footer": {
     "blurb": "Farmers Fightback stands with the farming families being bulldozed by big government and foreign corporations — and we don't back down.",
     "social": [
-      { "label": "X",         "platform": "x",         "href": "https://x.com/FarmersFightbac" },
-      { "label": "TikTok",    "platform": "tiktok",    "href": "https://www.tiktok.com/@wallaloo.gre.gre" },
-      { "label": "Instagram", "platform": "instagram", "href": "https://www.instagram.com/farmersfightback.au" },
-      { "label": "Facebook",  "platform": "facebook",  "href": "https://www.facebook.com/farmersfightback/" },
-      { "label": "YouTube",   "platform": "youtube",   "href": "https://www.youtube.com/@FarmersFightback" }
+      {
+        "label": "X",
+        "platform": "x",
+        "href": "https://x.com/FarmersFightbac"
+      },
+      {
+        "label": "TikTok",
+        "platform": "tiktok",
+        "href": "https://www.tiktok.com/@wallaloo.gre.gre"
+      },
+      {
+        "label": "Instagram",
+        "platform": "instagram",
+        "href": "https://www.instagram.com/farmersfightback.au"
+      },
+      {
+        "label": "Facebook",
+        "platform": "facebook",
+        "href": "https://www.facebook.com/farmersfightback/"
+      },
+      {
+        "label": "YouTube",
+        "platform": "youtube",
+        "href": "https://www.youtube.com/@FarmersFightback"
+      }
     ],
     "columns": [
       {
         "heading": "Take action",
         "links": [
-          { "label": "Sign the petition", "href": "/take-action/hold-the-gate#sign" },
-          { "label": "Donate", "href": "/donate" },
-          { "label": "Volunteer", "href": "/take-action/volunteer" }
+          {
+            "label": "Sign the petition",
+            "href": "/take-action/hold-the-gate#sign"
+          },
+          {
+            "label": "Donate",
+            "href": "/donate"
+          },
+          {
+            "label": "Volunteer",
+            "href": "/take-action/volunteer"
+          }
         ]
       }
     ],
@@ -205,14 +355,46 @@
       "handle": "@farmersfightback.au",
       "lightWidgetId": "",
       "posts": [
-        { "image": "/assets/uploads/gate-flag-workers.jpg",        "url": "https://www.instagram.com/farmersfightback.au", "caption": "Hold the Gate — Wimmera" },
-        { "image": "/assets/uploads/fight-police-farmers.jpg",     "url": "https://www.instagram.com/farmersfightback.au", "caption": "DPP withdraws every charge" },
-        { "image": "/assets/uploads/transmission-burning.jpg",     "url": "https://www.instagram.com/farmersfightback.au", "caption": "VNI West — at what cost?" },
-        { "image": "/assets/uploads/parliament-steps-protest.jpg", "url": "https://www.instagram.com/farmersfightback.au", "caption": "On the steps of Spring St" },
-        { "image": "/assets/uploads/volunteer-rally-drone.jpg",    "url": "https://www.instagram.com/farmersfightback.au", "caption": "Rally — Wallaloo" },
-        { "image": "/assets/uploads/fight-combine-wheat.jpg",      "url": "https://www.instagram.com/farmersfightback.au", "caption": "Harvest 2026" },
-        { "image": "/assets/uploads/biosecurity-warning.jpg",      "url": "https://www.instagram.com/farmersfightback.au", "caption": "Biosecurity — the line at the gate" },
-        { "image": "/assets/uploads/shed-meeting-seats.jpg",       "url": "https://www.instagram.com/farmersfightback.au", "caption": "Shearing-shed meeting" }
+        {
+          "image": "/assets/uploads/gate-flag-workers.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "Hold the Gate — Wimmera"
+        },
+        {
+          "image": "/assets/uploads/fight-police-farmers.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "DPP withdraws every charge"
+        },
+        {
+          "image": "/assets/uploads/transmission-burning.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "VNI West — at what cost?"
+        },
+        {
+          "image": "/assets/uploads/parliament-steps-protest.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "On the steps of Spring St"
+        },
+        {
+          "image": "/assets/uploads/volunteer-rally-drone.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "Rally — Wallaloo"
+        },
+        {
+          "image": "/assets/uploads/fight-combine-wheat.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "Harvest 2026"
+        },
+        {
+          "image": "/assets/uploads/biosecurity-warning.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "Biosecurity — the line at the gate"
+        },
+        {
+          "image": "/assets/uploads/shed-meeting-seats.jpg",
+          "url": "https://www.instagram.com/farmersfightback.au",
+          "caption": "Shearing-shed meeting"
+        }
       ]
     },
     "youtube": {
@@ -227,32 +409,90 @@
       "lede": "Weekly dispatches from the corridor. Sent to 35,000+ supporters.",
       "subscribeUrl": "/#newsletter",
       "items": [
-        { "title": "Welcome to Farmers Fightback", "date": "2026-04-22", "excerpt": "How a kitchen-table conversation in western Victoria became a national campaign.", "url": "#" },
-        { "title": "Hold the Gate launches statewide", "date": "2026-04-15", "excerpt": "150 volunteers showed up at three properties in 48 hours. Zero contractors got through.", "url": "#" },
-        { "title": "Fuel & fertiliser prices double in a year", "date": "2026-04-08", "excerpt": "A second crisis nobody's talking about. Why farming families are being asked to plant at a loss.", "url": "#" }
+        {
+          "title": "Welcome to Farmers Fightback",
+          "date": "2026-04-22",
+          "excerpt": "How a kitchen-table conversation in western Victoria became a national campaign.",
+          "url": "#"
+        },
+        {
+          "title": "Hold the Gate launches statewide",
+          "date": "2026-04-15",
+          "excerpt": "150 volunteers showed up at three properties in 48 hours. Zero contractors got through.",
+          "url": "#"
+        },
+        {
+          "title": "Fuel & fertiliser prices double in a year",
+          "date": "2026-04-08",
+          "excerpt": "A second crisis nobody's talking about. Why farming families are being asked to plant at a loss.",
+          "url": "#"
+        }
       ]
     },
     "socials": {
       "heading": "On the socials",
       "lede": "Follow along across every platform — feeds embed live below.",
       "accounts": [
-        { "platform": "x",         "handle": "@FarmersFightbac",       "url": "https://x.com/FarmersFightbac" },
-        { "platform": "tiktok",    "handle": "@wallaloo.gre.gre",      "url": "https://www.tiktok.com/@wallaloo.gre.gre" },
-        { "platform": "instagram", "handle": "@farmersfightback.au",   "url": "https://www.instagram.com/farmersfightback.au" },
-        { "platform": "facebook",  "handle": "Farmers Fightback",      "url": "https://www.facebook.com/farmersfightback/" },
-        { "platform": "youtube",   "handle": "@FarmersFightback",      "url": "https://www.youtube.com/@FarmersFightback" }
+        {
+          "platform": "x",
+          "handle": "@FarmersFightbac",
+          "url": "https://x.com/FarmersFightbac"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "@wallaloo.gre.gre",
+          "url": "https://www.tiktok.com/@wallaloo.gre.gre"
+        },
+        {
+          "platform": "instagram",
+          "handle": "@farmersfightback.au",
+          "url": "https://www.instagram.com/farmersfightback.au"
+        },
+        {
+          "platform": "facebook",
+          "handle": "Farmers Fightback",
+          "url": "https://www.facebook.com/farmersfightback/"
+        },
+        {
+          "platform": "youtube",
+          "handle": "@FarmersFightback",
+          "url": "https://www.youtube.com/@FarmersFightback"
+        }
       ],
-      "embed": { "kind": "tiktok", "username": "wallaloo.gre.gre" }
+      "embed": {
+        "kind": "tiktok",
+        "username": "wallaloo.gre.gre"
+      }
     },
     "press": {
       "heading": "In the press",
       "lede": "Selected coverage. The metro broadcasters are still missing in action.",
       "items": [
-        { "outlet": "Stock & Land", "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys", "url": "#" },
-        { "outlet": "Stock & Land", "headline": "Farmers challenge VNI West power project access in Victoria", "url": "#" },
-        { "outlet": "The Weekly Advertiser", "headline": "Farmers dig in: new bill 'acquisition by stealth'", "url": "#" },
-        { "outlet": "ARR News", "headline": "District farmers fight back", "url": "#" },
-        { "outlet": "Sky News", "headline": "National broadcast leads to 5,000 new supporters in a single night", "url": "#" }
+        {
+          "outlet": "Stock & Land",
+          "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys",
+          "url": "#"
+        },
+        {
+          "outlet": "Stock & Land",
+          "headline": "Farmers challenge VNI West power project access in Victoria",
+          "url": "#"
+        },
+        {
+          "outlet": "The Weekly Advertiser",
+          "headline": "Farmers dig in: new bill 'acquisition by stealth'",
+          "url": "#"
+        },
+        {
+          "outlet": "ARR News",
+          "headline": "District farmers fight back",
+          "url": "#"
+        },
+        {
+          "outlet": "Sky News",
+          "headline": "National broadcast leads to 5,000 new supporters in a single night",
+          "url": "#"
+        }
       ]
     }
   },
@@ -295,9 +535,18 @@
       }
     ],
     "trustBadges": [
-      { "label": "On-shore data only", "icon": "lock" },
-      { "label": "Never sold or shared", "icon": "shield" },
-      { "label": "Unsubscribe anytime", "icon": "tick" }
+      {
+        "label": "On-shore data only",
+        "icon": "lock"
+      },
+      {
+        "label": "Never sold or shared",
+        "icon": "shield"
+      },
+      {
+        "label": "Unsubscribe anytime",
+        "icon": "tick"
+      }
     ]
   },
   "petitions": {
@@ -325,9 +574,21 @@
       "demandsIntro": "",
       "demands": [],
       "trustBadges": [
-        { "label": "Privacy Protected", "icon": "lock",   "sub": "Your details are never shared." },
-        { "label": "Community Verified", "icon": "shield", "sub": "Backed by Farmers Fightback Inc." },
-        { "label": "Farmer Led",        "icon": "tick",   "sub": "Built by the people it affects." }
+        {
+          "label": "Privacy Protected",
+          "icon": "lock",
+          "sub": "Your details are never shared."
+        },
+        {
+          "label": "Community Verified",
+          "icon": "shield",
+          "sub": "Backed by Farmers Fightback Inc."
+        },
+        {
+          "label": "Farmer Led",
+          "icon": "tick",
+          "sub": "Built by the people it affects."
+        }
       ],
       "currentCount": 70981,
       "nextMilestone": 100000,
@@ -395,9 +656,21 @@
       "demandsIntro": "",
       "demands": [],
       "trustBadges": [
-        { "label": "Privacy Protected", "icon": "lock",   "sub": "Your details are never shared." },
-        { "label": "Farmer-led",        "icon": "shield", "sub": "Built by the families it affects." },
-        { "label": "Authorised",        "icon": "tick",   "sub": "Authorised by Ben Duxson, Wallaloo VIC." }
+        {
+          "label": "Privacy Protected",
+          "icon": "lock",
+          "sub": "Your details are never shared."
+        },
+        {
+          "label": "Farmer-led",
+          "icon": "shield",
+          "sub": "Built by the families it affects."
+        },
+        {
+          "label": "Authorised",
+          "icon": "tick",
+          "sub": "Authorised by Ben Duxson, Wallaloo VIC."
+        }
       ],
       "currentCount": 70981,
       "nextMilestone": 100000,
@@ -410,10 +683,30 @@
       "ctaHrefBack": "/take-action",
       "whyMattersHeading": "Why this fight matters.",
       "whyMatters": [
-        { "heading": "$80 billion of food on the line.", "body": "Australian agriculture contributes over $80 billion to our national economy. Victoria's share alone is $20.1 billion. Industrial transmission lines through prime farmland don't just take a slice of one farm — they destroy the productivity of every paddock they cross.", "image": "/assets/uploads/volunteer-rally-drone.jpg", "imageAlt": "Drone shot of a rally of farmers and supporters" },
-        { "heading": "Fire crews won't fly near transmission lines.", "body": "Local CFA brigades have said it plainly: firefighting aircraft cannot operate safely near high-voltage transmission lines. Ground crews maintain a 25-metre no-go zone. In bushfire country, this isn't a hypothetical — it's the difference between containment and catastrophe.", "image": "/assets/uploads/transmission-burning.jpg", "imageAlt": "Transmission tower burning in a wheat field" },
-        { "heading": "Heavy machinery brings weeds, disease, and ruined paddocks.", "body": "Forced contractor access drags weeds, soil pathogens, and biosecurity risks onto farms that have spent decades being managed carefully. Once fragmented by easements, modern precision farming becomes impossible — the maths stops working.", "image": "/assets/uploads/biosecurity-warning.jpg", "imageAlt": "Biosecurity warning sign on a farm gate" },
-        { "heading": "Cost-blown to $11.4 billion. Still climbing.", "body": "VNI West was originally costed at $3.8 billion. It's now $11.4 billion. The Government keeps signing the cheque using farmers' land as collateral. Every blowout makes the case for an alternate route stronger — but they keep refusing to consider one.", "image": "/assets/uploads/parliament-steps-protest.jpg", "imageAlt": "Children with hand-made 'Stop the Towers' signs on the Parliament steps" }
+        {
+          "heading": "$80 billion of food on the line.",
+          "body": "Australian agriculture contributes over $80 billion to our national economy. Victoria's share alone is $20.1 billion. Industrial transmission lines through prime farmland don't just take a slice of one farm — they destroy the productivity of every paddock they cross.",
+          "image": "/assets/uploads/volunteer-rally-drone.jpg",
+          "imageAlt": "Drone shot of a rally of farmers and supporters"
+        },
+        {
+          "heading": "Fire crews won't fly near transmission lines.",
+          "body": "Local CFA brigades have said it plainly: firefighting aircraft cannot operate safely near high-voltage transmission lines. Ground crews maintain a 25-metre no-go zone. In bushfire country, this isn't a hypothetical — it's the difference between containment and catastrophe.",
+          "image": "/assets/uploads/transmission-burning.jpg",
+          "imageAlt": "Transmission tower burning in a wheat field"
+        },
+        {
+          "heading": "Heavy machinery brings weeds, disease, and ruined paddocks.",
+          "body": "Forced contractor access drags weeds, soil pathogens, and biosecurity risks onto farms that have spent decades being managed carefully. Once fragmented by easements, modern precision farming becomes impossible — the maths stops working.",
+          "image": "/assets/uploads/biosecurity-warning.jpg",
+          "imageAlt": "Biosecurity warning sign on a farm gate"
+        },
+        {
+          "heading": "Cost-blown to $11.4 billion. Still climbing.",
+          "body": "VNI West was originally costed at $3.8 billion. It's now $11.4 billion. The Government keeps signing the cheque using farmers' land as collateral. Every blowout makes the case for an alternate route stronger — but they keep refusing to consider one.",
+          "image": "/assets/uploads/parliament-steps-protest.jpg",
+          "imageAlt": "Children with hand-made 'Stop the Towers' signs on the Parliament steps"
+        }
       ],
       "bottomCta": {
         "heading": "Stand with Aussie farmers.",
@@ -435,10 +728,22 @@
       "lede": "Greg Baldwin rang triple zero to report trespassers on his own farm. Vic Police charged the farmer. On 27 April 2026, the Director of Public Prosecutions withdrew every charge. Greg does not want sympathy. Greg wants the Victorian Energy Minister to resign.",
       "demandsIntro": "Sign your name to demand:",
       "demands": [
-        { "numeral": "I",   "text": "Immediate suspension of all contractor access attempts on the Baldwins' property pending an independent investigation." },
-        { "numeral": "II",  "text": "A public apology from VicGrid for the conduct of contractors who threatened the Baldwins with $6,000 fines on their own land." },
-        { "numeral": "III", "text": "Statutory protection of all soldier-settlement properties from compulsory access without proper notice and consent." },
-        { "numeral": "IV",  "text": "Full disclosure of every contractor script, identification protocol, and access plan VicGrid is using on Victorian farms." }
+        {
+          "numeral": "I",
+          "text": "Immediate suspension of all contractor access attempts on the Baldwins' property pending an independent investigation."
+        },
+        {
+          "numeral": "II",
+          "text": "A public apology from VicGrid for the conduct of contractors who threatened the Baldwins with $6,000 fines on their own land."
+        },
+        {
+          "numeral": "III",
+          "text": "Statutory protection of all soldier-settlement properties from compulsory access without proper notice and consent."
+        },
+        {
+          "numeral": "IV",
+          "text": "Full disclosure of every contractor script, identification protocol, and access plan VicGrid is using on Victorian farms."
+        }
       ],
       "currentCount": 12019,
       "currentCountAsOf": "2026-05-20",
@@ -460,10 +765,22 @@
       "lede": "Fuel and fertiliser costs have risen 200% in a single year. Crop prices are flat. The maths stopped working. Farming families are being asked to plant a season at a guaranteed loss — or walk away from the only thing they know. We're demanding a freeze, an inquiry, and a path back to viable.",
       "demandsIntro": "Sign your name to demand:",
       "demands": [
-        { "numeral": "I",   "text": "An immediate ACCC inquiry into fuel and fertiliser pricing and supply concentration in Australian agriculture." },
-        { "numeral": "II",  "text": "A 12-month rebate scheme on diesel and key fertilisers for primary producers operating below cost." },
-        { "numeral": "III", "text": "Mandatory contract transparency between fertiliser distributors and Australian farmers — no more take-it-or-leave-it." },
-        { "numeral": "IV",  "text": "A national strategic-reserve plan for fertiliser inputs to insulate Australian food production from offshore price shocks." }
+        {
+          "numeral": "I",
+          "text": "An immediate ACCC inquiry into fuel and fertiliser pricing and supply concentration in Australian agriculture."
+        },
+        {
+          "numeral": "II",
+          "text": "A 12-month rebate scheme on diesel and key fertilisers for primary producers operating below cost."
+        },
+        {
+          "numeral": "III",
+          "text": "Mandatory contract transparency between fertiliser distributors and Australian farmers — no more take-it-or-leave-it."
+        },
+        {
+          "numeral": "IV",
+          "text": "A national strategic-reserve plan for fertiliser inputs to insulate Australian food production from offshore price shocks."
+        }
       ],
       "currentCount": 54418,
       "nextMilestone": 10000,
@@ -519,8 +836,15 @@
     "ctaHeading": "Pick a fight worth winning.",
     "ctaBody": "Four live campaigns. Sign one. Sign them all. The Government has billions. We have you.",
     "ctaButtons": [
-      { "label": "Take action", "href": "/take-action", "primary": true },
-      { "label": "Donate", "href": "/donate" }
+      {
+        "label": "Take action",
+        "href": "/take-action",
+        "primary": true
+      },
+      {
+        "label": "Donate",
+        "href": "/donate"
+      }
     ]
   },
   "contact": {
@@ -529,12 +853,23 @@
     "eyebrow": "Contact",
     "heading": "Get in touch.",
     "lede": "Send us a message and we'll come back to you. Whether you're a farmer at the gate, a journalist on deadline, a volunteer ready to turn up, or someone who just wants to help — write to us using the form below.",
-    "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/4b9cac7f-1cff-4aa5-aefe-9f4391c47e5c",
     "subjects": [
-      { "label": "General enquiry", "blurb": "Anything else — questions, ideas, stories from your district." },
-      { "label": "Media", "blurb": "Press enquiries, interview requests, asset packs, on-record statements. Same-day reply." },
-      { "label": "Volunteer", "blurb": "Want to stand at a gate, run a stall, code a page, or organise locally — start here." },
-      { "label": "Affected landholder", "blurb": "If contractors are coming to your property, we want to hear from you. Confidential." }
+      {
+        "label": "General enquiry",
+        "blurb": "Anything else — questions, ideas, stories from your district."
+      },
+      {
+        "label": "Media",
+        "blurb": "Press enquiries, interview requests, asset packs, on-record statements. Same-day reply."
+      },
+      {
+        "label": "Volunteer",
+        "blurb": "Want to stand at a gate, run a stall, code a page, or organise locally — start here."
+      },
+      {
+        "label": "Affected landholder",
+        "blurb": "If contractors are coming to your property, we want to hear from you. Confidential."
+      }
     ],
     "form": {
       "heading": "Send us a message",
@@ -551,12 +886,37 @@
     "heading": "They have billion$. We need you.",
     "lede": "Farmers Fightback is funded by Australians, not corporations. Every dollar is spent on the things that move the needle — ads that put the story in front of more people, video production, organising on the ground, and the legal fight to repeal forced-access powers.",
     "amounts": [
-      { "amount": 35,   "url": "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q", "tag": "Prints 500 leaflets" },
-      { "amount": 65,   "url": "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R", "tag": "An hour of legal counsel" },
-      { "amount": 135,  "url": "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", "tag": "A targeted ad set", "isDefault": true },
-      { "amount": 265,  "url": "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T", "tag": "A camera kit for a farmer" },
-      { "amount": 550,  "url": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", "tag": "A regional billboard for a week" },
-      { "amount": 1500, "url": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", "tag": "Fund a full TV campaign run" }
+      {
+        "amount": 35,
+        "url": "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q",
+        "tag": "Prints 500 leaflets"
+      },
+      {
+        "amount": 65,
+        "url": "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R",
+        "tag": "An hour of legal counsel"
+      },
+      {
+        "amount": 135,
+        "url": "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S",
+        "tag": "A targeted ad set",
+        "isDefault": true
+      },
+      {
+        "amount": 265,
+        "url": "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T",
+        "tag": "A camera kit for a farmer"
+      },
+      {
+        "amount": 550,
+        "url": "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U",
+        "tag": "A regional billboard for a week"
+      },
+      {
+        "amount": 1500,
+        "url": "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V",
+        "tag": "Fund a full TV campaign run"
+      }
     ],
     "otherUrl": "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
     "achievements": {
@@ -575,10 +935,22 @@
     },
     "monthlyHeading": "Or give monthly — they're not going anywhere, we're not either.",
     "monthlyAmounts": [
-      { "amount": 25,  "url": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604" },
-      { "amount": 50,  "url": "https://buy.stripe.com/00wcN4bB4d592IjfgcbV605" },
-      { "amount": 100, "url": "https://buy.stripe.com/5kQ00i0Wqe9d3Mn7NKbV606" },
-      { "amount": 250, "url": "https://buy.stripe.com/00w9ASbB47KPaaL1pmbV607" }
+      {
+        "amount": 25,
+        "url": "https://buy.stripe.com/7sY7sK7kO2qv5Uv0libV604"
+      },
+      {
+        "amount": 50,
+        "url": "https://buy.stripe.com/00wcN4bB4d592IjfgcbV605"
+      },
+      {
+        "amount": 100,
+        "url": "https://buy.stripe.com/5kQ00i0Wqe9d3Mn7NKbV606"
+      },
+      {
+        "amount": 250,
+        "url": "https://buy.stripe.com/00w9ASbB47KPaaL1pmbV607"
+      }
     ],
     "fineprint": "Stripe-secured · All amounts in AUD · Not tax-deductible."
   },
@@ -588,15 +960,33 @@
     "heading": "Volunteer with us.",
     "lede": "Your time and skills can change the course of this fight. Whether you can give two hours a week or twenty, there's a place for you.",
     "receiverUrl": "https://teller.campaignnucleus.com/forms/receiver/fb97da79-e214-424e-991f-092c4015affd",
-      "rolesHeading": "Volunteer roles.",
+    "rolesHeading": "Volunteer roles.",
     "rolesIntro": "Every role matters. Pick what fits your life right now.",
     "roles": [
-      { "title": "Hold the Gate volunteer", "body": "Be on the alert network. When contractors arrive at a farm gate, we ping volunteers nearby and you turn up to witness, film, and stand peacefully with the family." },
-      { "title": "Local organiser", "body": "Run your district — meetings, doorknocks, letterbox drops, signups at the markets. Help build the local chapter that holds your MPs to account." },
-      { "title": "Digital campaigning", "body": "Help us reach more Australians online — paid social, organic content, email lists, supporter onboarding. Tech-comfortable, no specific platform required." },
-      { "title": "Content & comms", "body": "Write, edit, design, film, cut. Turn the campaign's raw material into the next viral short, op-ed, or supporter dispatch." },
-      { "title": "Events", "body": "Public meetings, tractor rallies, hall-hires, the Spring St handover. If you've organised a school fete or a wedding, you can organise this." },
-      { "title": "Legal & policy support", "body": "Submissions, FOIs, briefing notes, parliamentary inquiry tracking. Lawyers, academics, and ex-public-servants especially welcome." }
+      {
+        "title": "Hold the Gate volunteer",
+        "body": "Be on the alert network. When contractors arrive at a farm gate, we ping volunteers nearby and you turn up to witness, film, and stand peacefully with the family."
+      },
+      {
+        "title": "Local organiser",
+        "body": "Run your district — meetings, doorknocks, letterbox drops, signups at the markets. Help build the local chapter that holds your MPs to account."
+      },
+      {
+        "title": "Digital campaigning",
+        "body": "Help us reach more Australians online — paid social, organic content, email lists, supporter onboarding. Tech-comfortable, no specific platform required."
+      },
+      {
+        "title": "Content & comms",
+        "body": "Write, edit, design, film, cut. Turn the campaign's raw material into the next viral short, op-ed, or supporter dispatch."
+      },
+      {
+        "title": "Events",
+        "body": "Public meetings, tractor rallies, hall-hires, the Spring St handover. If you've organised a school fete or a wedding, you can organise this."
+      },
+      {
+        "title": "Legal & policy support",
+        "body": "Submissions, FOIs, briefing notes, parliamentary inquiry tracking. Lawyers, academics, and ex-public-servants especially welcome."
+      }
     ],
     "formHeading": "Get started",
     "formSubheading": "Register as a volunteer.",
@@ -608,8 +998,14 @@
     "altHeading": "Prefer another way to help?",
     "altBody": "Every contribution matters — your signature, your dollar, your time. Each one moves the needle.",
     "altLinks": [
-      { "label": "Sign the petition →", "href": "/take-action/hold-the-gate" },
-      { "label": "Donate →", "href": "/donate" }
+      {
+        "label": "Sign the petition →",
+        "href": "/take-action/hold-the-gate"
+      },
+      {
+        "label": "Donate →",
+        "href": "/donate"
+      }
     ]
   },
   "mediaPage": {
@@ -623,23 +1019,64 @@
       "blurb": "Press enquiries, interview requests, statements, asset packs."
     },
     "spokespeople": [
-      { "name": "Ben Duxson", "role": "Founder & national spokesperson", "blurb": "Sixth-generation farmer, Wallaloo VIC. Available for broadcast and print interviews." },
-      { "name": "Campaign team",  "role": "On-the-ground organisers", "blurb": "Local district leads available for regional press and live-cross from the gate." }
+      {
+        "name": "Ben Duxson",
+        "role": "Founder & national spokesperson",
+        "blurb": "Sixth-generation farmer, Wallaloo VIC. Available for broadcast and print interviews."
+      },
+      {
+        "name": "Campaign team",
+        "role": "On-the-ground organisers",
+        "blurb": "Local district leads available for regional press and live-cross from the gate."
+      }
     ],
     "outletsHeading": "Recent coverage",
     "outletsLede": "Selected press to date. Full press kit available on request — write to media@farmersfightback.com.",
     "outlets": [
-      { "outlet": "Stock & Land", "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys", "url": "#" },
-      { "outlet": "Stock & Land", "headline": "Farmers challenge VNI West power project access in Victoria", "url": "#" },
-      { "outlet": "The Weekly Advertiser", "headline": "Farmers dig in: new bill 'acquisition by stealth'", "url": "#" },
-      { "outlet": "ARR News", "headline": "District farmers fight back", "url": "#" },
-      { "outlet": "Sky News", "headline": "National broadcast leads to 5,000 new supporters in a single night", "url": "#" },
-      { "outlet": "ABC Rural", "headline": "VNI West access denied by farmers", "url": "#" }
+      {
+        "outlet": "Stock & Land",
+        "headline": "VicGrid: Marnoo farmer blockade halts 15 property surveys",
+        "url": "#"
+      },
+      {
+        "outlet": "Stock & Land",
+        "headline": "Farmers challenge VNI West power project access in Victoria",
+        "url": "#"
+      },
+      {
+        "outlet": "The Weekly Advertiser",
+        "headline": "Farmers dig in: new bill 'acquisition by stealth'",
+        "url": "#"
+      },
+      {
+        "outlet": "ARR News",
+        "headline": "District farmers fight back",
+        "url": "#"
+      },
+      {
+        "outlet": "Sky News",
+        "headline": "National broadcast leads to 5,000 new supporters in a single night",
+        "url": "#"
+      },
+      {
+        "outlet": "ABC Rural",
+        "headline": "VNI West access denied by farmers",
+        "url": "#"
+      }
     ],
     "assets": [
-      { "label": "Brand assets · logo + colour palette", "href": "/assets/logo.png" },
-      { "label": "Hero photography pack",                "href": "/assets/uploads" },
-      { "label": "Campaign one-pager (PDF)",             "href": "mailto:media@farmersfightback.com?subject=One-pager%20request" }
+      {
+        "label": "Brand assets · logo + colour palette",
+        "href": "/assets/logo.png"
+      },
+      {
+        "label": "Hero photography pack",
+        "href": "/assets/uploads"
+      },
+      {
+        "label": "Campaign one-pager (PDF)",
+        "href": "mailto:media@farmersfightback.com?subject=One-pager%20request"
+      }
     ],
     "fineprint": "Authorised by Ben Duxson, Farmers Fightback"
   },
@@ -648,7 +1085,10 @@
     "eyebrow": "About us",
     "heading": "Left with no choice. Farmers Fightback.",
     "subheading": "Born for the soil. Built for the fight.",
-    "stat": { "value": "54,000+", "label": "Australians standing up for our farmers" },
+    "stat": {
+      "value": "54,000+",
+      "label": "Australians standing up for our farmers"
+    },
     "sections": [
       {
         "kicker": "Our roots",
@@ -672,21 +1112,49 @@
     "principles": {
       "heading": "What we stand for.",
       "items": [
-        { "title": "Right to farm",       "body": "Without interference. Without forced access. Without being mapped over by people who've never set foot on the soil." },
-        { "title": "Food security first", "body": "Australia's prime agricultural land is not vacant space for infrastructure. It is the food bowl of the nation. We defend it." },
-        { "title": "Real consultation",   "body": "Genuine community consent — not a tick-box exercise after the route is already drawn. Communities must have meaningful power to say no." },
-        { "title": "Intergenerational",   "body": "Family farms have been stewarded for generations. We fight to keep them in the hands of the families who built them — for the generations that come next." }
+        {
+          "title": "Right to farm",
+          "body": "Without interference. Without forced access. Without being mapped over by people who've never set foot on the soil."
+        },
+        {
+          "title": "Food security first",
+          "body": "Australia's prime agricultural land is not vacant space for infrastructure. It is the food bowl of the nation. We defend it."
+        },
+        {
+          "title": "Real consultation",
+          "body": "Genuine community consent — not a tick-box exercise after the route is already drawn. Communities must have meaningful power to say no."
+        },
+        {
+          "title": "Intergenerational",
+          "body": "Family farms have been stewarded for generations. We fight to keep them in the hands of the families who built them — for the generations that come next."
+        }
       ]
     },
     "cta": {
       "heading": "Stand with the farmers.",
       "body": "We've gone from a kitchen-table conversation to a national movement of 54,000+ Australians. The next step is yours.",
       "buttons": [
-        { "label": "Sign the petition", "href": "/take-action/hold-the-gate", "primary": true },
-        { "label": "Volunteer",         "href": "/take-action/volunteer" },
-        { "label": "Donate",            "href": "/donate" }
+        {
+          "label": "Sign the petition",
+          "href": "/take-action/hold-the-gate",
+          "primary": true
+        },
+        {
+          "label": "Volunteer",
+          "href": "/take-action/volunteer"
+        },
+        {
+          "label": "Donate",
+          "href": "/donate"
+        }
       ]
     },
     "authorised": "Authorised by Ben Duxson, Farmers Fightback"
+  },
+  "askjessBand": {
+    "heading": "Ask Victorian Liberals & Nationals to stand with farmers",
+    "sub": "The Coalition hasn't locked in its position on VNI West and the Western Renewables Link. A personal email from you takes 10 seconds and lands on the desks of all three leaders.",
+    "buttonLabel": "Send your email now",
+    "href": "/askjess"
   }
 }

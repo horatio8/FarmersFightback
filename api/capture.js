@@ -148,6 +148,11 @@ module.exports = async function handler(req, res) {
     if (incomingSeq !== undefined) patch.seq = incomingSeq;
     if (body.consent !== undefined) patch.consent = !!body.consent;
     if (body.send_clicked !== undefined) patch.send_clicked = !!body.send_clicked;
+    // Exact email content at the moment Send was clicked (post-edit/rewrite).
+    const sent_subject = pickStr(body.sent_subject, 300);
+    const sent_body = pickStr(body.sent_body, 4000);
+    if (sent_subject !== undefined) patch.sent_subject = sent_subject;
+    if (sent_body !== undefined) patch.sent_body = sent_body;
     if (body.variation_shown !== undefined) {
       const n = Number(body.variation_shown);
       if (Number.isFinite(n) && n >= 1 && n <= 10) patch.variation_shown = n;

@@ -2572,3 +2572,10 @@ img { max-width: 100%; display: block; }
 
 /* Editor lede spans the full container (overrides .ff-lede max-width). */
 .ff-email-lede-wide { max-width: none; }
+
+/* Homepage → /askjess CTA band */
+.ff-askjess-band { background: var(--ff-navy); text-align: center; padding-top: clamp(44px, 6vw, 72px); padding-bottom: clamp(44px, 6vw, 72px); }
+.ff-askjess-band .ff-h2 { color: #fff; }
+.ff-askjess-band .ff-lede { color: rgba(255,255,255,.92); max-width: 62ch; margin: 12px auto 24px; }
+.ff-askjess-band .ff-btn { min-height: 52px; }
+@media (max-width: 560px) { .ff-askjess-band .ff-btn { width: 100%; } }
