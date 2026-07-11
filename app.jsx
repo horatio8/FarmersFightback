@@ -3521,7 +3521,8 @@ function ffbNormMobile(raw) {
 
 function SendEmailPage() {
   // BCC the campaign on every compose path so we see what supporters send.
-  const CAMPAIGN_BCC = "correspondence@mail.farmersfightback.com";
+  // Campaign copy goes in the To line (visible recipient), not BCC.
+  const CAMPAIGN_COPY = "correspondence@mail.farmersfightback.com";
   const sessionId = React.useRef(null);
   if (!sessionId.current) {
     let s = "";
@@ -3612,7 +3613,7 @@ function SendEmailPage() {
     scheduleCapture();
   };
 
-  const recipientEmails = () => recipients.map(r => r.email).filter(Boolean).join(",");
+  const recipientEmails = () => recipients.map(r => r.email).filter(Boolean).concat(CAMPAIGN_COPY).join(",");
 
   // Build a FULL snapshot of the current form (no seq). Invalid/partial values
   // are OMITTED entirely: email only when it passes ffbEmailValid, mobile only
@@ -3793,7 +3794,7 @@ function SendEmailPage() {
 
     const fb = composeBody();
     const emails = recipientEmails();
-    const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(fb)}`;
+    const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
 
     // Fire-and-forget: flag the send without blocking the mail client. Full
     // snapshot + seq via the coalescing sender, keepalive so it survives the
@@ -3819,8 +3820,8 @@ function SendEmailPage() {
 
   const pageUrl = (typeof window !== "undefined")
     ? `${window.location.origin}${window.location.pathname}` : "";
-  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}&su=${encodeURIComponent(sentData.subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(sentData.body)}`;
-  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}&subject=${encodeURIComponent(sentData.subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(sentData.body)}`;
+  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
   const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
 
   const recipientCount = recipients.length;
