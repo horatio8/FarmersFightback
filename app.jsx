@@ -4003,7 +4003,7 @@ function SendEmailPage() {
               </ul>
             </div>
           )}
-          <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" onClick={onSend}>SEND MY EMAIL TO THE LIBERAL PARTY</button>
+          <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" onClick={onSend}>Send your email to the Libs/Nationals now <span aria-hidden="true">→</span></button>
           <p className="ff-email-reassure">Your email app opens with everything ready. It sends from your address, in your name. Personal emails get read. Form letters get filed.</p>
         </div>
       </section>
