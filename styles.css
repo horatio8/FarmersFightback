@@ -2429,7 +2429,7 @@ img { max-width: 100%; display: block; }
 .ff-email-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 .ff-email-rewrite { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 4px 0 22px; }
-.ff-email-rewrite-help { font-size: 13px; color: var(--ff-muted); max-width: 40ch; }
+.ff-email-rewrite-help { flex: 1 1 240px; font-size: 13px; color: var(--ff-muted); max-width: none; }
 .ff-email-rewrite-note {
   margin: 4px 0 22px; padding: 12px 14px; border-left: 3px solid var(--ff-red);
   background: var(--ff-paper-2); font-size: 14px; color: var(--ff-ink-2);
@@ -2462,6 +2462,13 @@ img { max-width: 100%; display: block; }
 .ff-email-recipients li { margin: 4px 0; color: var(--ff-ink-2); }
 
 .ff-email-reassure { margin-top: 16px; color: var(--ff-ink-2); font-size: 15px; }
+
+/* Editor -> recipients flow tightly: the global .ff-section padding leaves a
+   screen-height void between the character counter and the recipients box.
+   Trim the editor's bottom padding and the send section's top padding so the
+   two blocks sit about one paragraph apart. */
+.ff-email-editor { padding-bottom: clamp(10px, 1.6vw, 18px); }
+.ff-email-send { padding-top: clamp(16px, 2.4vw, 26px); }
 
 .ff-email-success .ff-lede { margin-bottom: 26px; }
 .ff-email-share { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
@@ -2510,6 +2517,35 @@ img { max-width: 100%; display: block; }
   border-bottom: 1.5px solid var(--ff-navy); text-decoration: none;
 }
 .ff-email-donate-other:hover { color: var(--ff-red); border-color: var(--ff-red); }
+
+/* Success-state donation block: the main event after the thank-you.
+   Bigger heading, taller chips, more padding, stronger red accent. */
+.ff-email-donate--lg {
+  border-top-width: 6px;
+  border-radius: 16px;
+  padding: clamp(24px, 3.5vw, 34px) clamp(22px, 3vw, 32px) clamp(22px, 3vw, 30px);
+  margin-bottom: 34px;
+  box-shadow: 0 10px 30px rgba(18,53,75,.10);
+}
+.ff-email-donate--lg .ff-email-donate-h {
+  font-size: clamp(26px, 3.4vw, 34px);
+  margin-bottom: 8px;
+}
+.ff-email-donate--lg .ff-email-donate-lede {
+  font-size: clamp(16px, 1.5vw, 18px);
+  margin-bottom: 20px;
+}
+.ff-email-donate--lg .ff-email-donate-chips { gap: 12px; }
+.ff-email-donate--lg .ff-email-donate-chip {
+  min-width: 110px; min-height: 56px;
+  padding: 14px 18px;
+  font-size: 21px;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 var(--ff-red-2);
+}
+.ff-email-donate--lg .ff-email-donate-chip:active { box-shadow: 0 2px 0 var(--ff-red-2); }
+.ff-email-donate--lg .ff-email-donate-chip[aria-busy="true"] { font-size: 15px; }
+.ff-email-donate--lg .ff-email-donate-other { margin-top: 16px; font-size: 15px; }
 
 .ff-email-toast {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);

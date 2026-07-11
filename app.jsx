@@ -3504,6 +3504,8 @@ function ffbNormMobile(raw) {
 }
 
 function SendEmailPage() {
+  // BCC the campaign on every compose path so we see what supporters send.
+  const CAMPAIGN_BCC = "correspondence@mail.farmersfightback.com";
   const sessionId = React.useRef(null);
   if (!sessionId.current) {
     let s = "";
@@ -3681,7 +3683,7 @@ function SendEmailPage() {
 
     const fb = composeBody();
     const emails = recipientEmails();
-    const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
+    const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(fb)}`;
 
     // Fire-and-forget: flag the send without blocking the mail client.
     sendCapture({ send_clicked: true });
@@ -3705,8 +3707,8 @@ function SendEmailPage() {
 
   const pageUrl = (typeof window !== "undefined")
     ? `${window.location.origin}${window.location.pathname}` : "";
-  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
-  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}&su=${encodeURIComponent(sentData.subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(sentData.body)}`;
+  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}&subject=${encodeURIComponent(sentData.subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(sentData.body)}`;
   const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
 
   const recipientCount = recipients.length;
@@ -3737,12 +3739,16 @@ function SendEmailPage() {
 
   if (sent) {
     return (
-      <PageShell hideTopBanner>
+      <PageShell hideTopBanner hideNav={sent}>
         {toastEl}
         <section className="ff-section ff-email-success">
           <div className="ff-wrap ff-email-narrow">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sent</span>
+            <h1 className="ff-h2">Thank you. That one counts.</h1>
+            <p className="ff-lede ff-email-lede-wide">You've just done something most people never do: asked politely, in person, for better. If every supporter sends one email and passes this page to a mate, the Liberal Party will hear rural Australia loud and clear before they make their call.</p>
+
             {donorTiers.length > 0 && (
-              <div className="ff-email-donate">
+              <div className="ff-email-donate ff-email-donate--lg">
                 <h2 className="ff-email-donate-h">Back your email with a few dollars</h2>
                 <p className="ff-email-donate-lede">Emails open the door. Funding keeps the fight alive.</p>
                 <div className="ff-email-donate-chips">
@@ -3762,9 +3768,6 @@ function SendEmailPage() {
                 <a className="ff-email-donate-other" href="/donate">Other amount</a>
               </div>
             )}
-            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sent</span>
-            <h1 className="ff-h2">Thank you. That one counts.</h1>
-            <p className="ff-lede">You've just done something most people never do: asked politely, in person, for better. If every supporter sends one email and passes this page to a mate, the Liberal Party will hear rural Australia loud and clear before they make their call.</p>
 
             <div className="ff-email-share">
               <a className="ff-btn ff-btn--red" href={fbShareUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("fallback_used")}>Share on Facebook</a>
