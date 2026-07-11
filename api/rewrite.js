@@ -189,13 +189,24 @@ module.exports = async function handler(req, res) {
     `Current subject:\n${subject}\n\n` +
     `Current body:\n${bodyText}`;
 
+  // Header values must be Latin-1; a key pasted through a smart-punctuation
+  // editor (em-dashes, curly quotes, stray whitespace) crashes fetch with a
+  // cryptic ByteString error. Trim it and fail loudly if it's still not
+  // plain printable ASCII so misconfiguration is diagnosable from the logs.
+  const apiKey = String(process.env.ANTHROPIC_API_KEY || "").trim();
+  if (!/^[\x21-\x7E]+$/.test(apiKey)) {
+    const bad = [...apiKey].findIndex((c) => c < "\x21" || c > "\x7E");
+    console.error(`rewrite: ANTHROPIC_API_KEY contains a non-ASCII character at index ${bad} (code ${apiKey.codePointAt(bad)}) — re-paste the key into Vercel from a plain-text source`);
+    return res.status(500).json({ error: "Rewrite isn't configured correctly.", reason: "api_key_invalid" });
+  }
+
   let input_tokens = 0;
   let output_tokens = 0;
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
