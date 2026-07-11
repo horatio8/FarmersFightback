@@ -3483,7 +3483,7 @@ function ShareThanksPage() {
 }
 
 // ---------- Email the Liberal Party (direct-URL action page) ----------
-// Reachable only via /send-your-email — intentionally NOT linked from any nav
+// Reachable only via /askjess — intentionally NOT linked from any nav
 // or take-action surface. Single scrolling flow: hero, 3-step explainer,
 // details form (debounced partial capture), editable email, AI rewrite,
 // send (mailto), success + fallback. Copy is approved verbatim (brief §13).
@@ -3529,6 +3529,13 @@ function SendEmailPage() {
   const [sent, setSent] = useState(false);
   const [sentData, setSentData] = useState({ subject: "", body: "", recipients: "" });
   const [toast, setToast] = useState("");
+  // Post-send donation block: reuses DonorPage's amount ladder + checkout
+  // helper. donateBusy holds the amount currently redirecting to Stripe so
+  // only the tapped chip shows its busy state.
+  const donor = useContent().donorPage || {};
+  const [donateBusy, setDonateBusy] = useState(null);
+  // Back from Stripe (bfcache restore) must clear the stuck chip.
+  useBfcacheReset(() => setDonateBusy(null));
 
   const formRef = React.useRef(form);
   useEffect(() => { formRef.current = form; }, [form]);
@@ -3704,12 +3711,55 @@ function SendEmailPage() {
 
   const toastEl = toast ? <div className="ff-email-toast" role="status">{toast}</div> : null;
 
+  // One-click donation from the success screen: straight to Stripe via the
+  // shared checkout helper, passing the supporter's email so Stripe prefills
+  // and an abandon stays identity-recoverable. Falls back to the tier's
+  // Payment Link if the API call fails — never lose the gift.
+  const donorTiers = donor.amounts || [];
+  const goDonate = async (amt) => {
+    if (donateBusy != null) return;
+    track("donate_block_click");
+    setDonateBusy(amt);
+    const email = (formRef.current.email || "").trim();
+    if (email) { try { sessionStorage.setItem("ff_email", email); } catch {} }
+    try {
+      window.location.href = await createDonationCheckout({ amount: amt, frequency: "oneoff", email: email || undefined });
+    } catch (e) {
+      const tier = donorTiers.find(t => Number(t.amount) === Number(amt));
+      const fallbackUrl = (tier && tier.url) || donor.otherUrl;
+      if (fallbackUrl) { window.location.href = appendClientRef(fallbackUrl, currentPetitionSlug()); return; }
+      setDonateBusy(null);
+      alert("Sorry — that didn't go through. Please try again.");
+    }
+  };
+
   if (sent) {
     return (
       <PageShell hideTopBanner>
         {toastEl}
         <section className="ff-section ff-email-success">
           <div className="ff-wrap ff-email-narrow">
+            {donorTiers.length > 0 && (
+              <div className="ff-email-donate">
+                <h2 className="ff-email-donate-h">Back your email with a few dollars</h2>
+                <p className="ff-email-donate-lede">Emails open the door. Funding keeps the fight alive.</p>
+                <div className="ff-email-donate-chips">
+                  {donorTiers.map(t => (
+                    <button
+                      key={t.amount}
+                      type="button"
+                      className="ff-email-donate-chip"
+                      disabled={donateBusy != null}
+                      aria-busy={donateBusy === t.amount}
+                      onClick={() => goDonate(Number(t.amount))}
+                    >
+                      {donateBusy === t.amount ? "One moment…" : `$${t.amount}`}
+                    </button>
+                  ))}
+                </div>
+                <a className="ff-email-donate-other" href="/donate">Other amount</a>
+              </div>
+            )}
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sent</span>
             <h1 className="ff-h2">Thank you. That one counts.</h1>
             <p className="ff-lede">You've just done something most people never do: asked politely, in person, for better. If every supporter sends one email and passes this page to a mate, the Liberal Party will hear rural Australia loud and clear before they make their call.</p>

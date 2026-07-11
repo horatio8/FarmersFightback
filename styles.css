@@ -2470,6 +2470,47 @@ img { max-width: 100%; display: block; }
 .ff-email-fallback p { margin: 0 0 16px; color: var(--ff-ink-2); }
 .ff-email-fallback-btns { display: flex; flex-wrap: wrap; gap: 10px; }
 
+/* Post-send donation block — sits above the thank-you copy. Cream card,
+   red accent, one-click amount chips straight to Stripe. */
+.ff-email-donate {
+  background: var(--ff-paper-2);
+  border: 1px solid var(--ff-rule);
+  border-top: 4px solid var(--ff-red);
+  border-radius: 14px;
+  padding: 22px 22px 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 6px 20px rgba(18,53,75,.06);
+}
+.ff-email-donate-h {
+  font-family: var(--ff-serif);
+  font-weight: 700;
+  color: var(--ff-navy);
+  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.2;
+  margin: 0 0 6px;
+}
+.ff-email-donate-lede { margin: 0 0 16px; color: var(--ff-ink-2); font-size: 16px; line-height: 1.5; }
+.ff-email-donate-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.ff-email-donate-chip {
+  flex: 1 1 auto; min-width: 92px; min-height: 48px;
+  padding: 10px 14px;
+  font-family: var(--ff-sans, inherit); font-size: 17px; font-weight: 700;
+  color: #fff; background: var(--ff-red);
+  border: none; border-radius: 10px; cursor: pointer;
+  box-shadow: 0 3px 0 var(--ff-red-2);
+  transition: background .12s ease, transform .05s ease;
+}
+.ff-email-donate-chip:hover { background: var(--ff-red-2); }
+.ff-email-donate-chip:active { transform: translateY(1px); box-shadow: 0 2px 0 var(--ff-red-2); }
+.ff-email-donate-chip:disabled { opacity: .6; cursor: default; box-shadow: 0 3px 0 var(--ff-red-2); }
+.ff-email-donate-chip[aria-busy="true"] { font-weight: 600; font-size: 14px; }
+.ff-email-donate-other {
+  display: inline-block; margin-top: 14px;
+  font-size: 14px; font-weight: 600; color: var(--ff-navy);
+  border-bottom: 1.5px solid var(--ff-navy); text-decoration: none;
+}
+.ff-email-donate-other:hover { color: var(--ff-red); border-color: var(--ff-red); }
+
 .ff-email-toast {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
   z-index: 1000; background: var(--ff-navy); color: #fff;
