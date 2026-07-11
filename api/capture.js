@@ -117,16 +117,35 @@ module.exports = async function handler(req, res) {
     const existing = await findOne(SIGNUPS_TABLE, `{session_id}='${esc(session_id)}'`);
     const cur = (existing && existing.fields) || {};
 
+    // Monotonic seq guard: a late-arriving older snapshot must never overwrite
+    // newer data. Only applies when BOTH incoming and stored seq are numbers;
+    // records/requests without seq behave as before (accepted).
+    const incomingSeq = (body.seq !== undefined && body.seq !== null
+      && Number.isFinite(Number(body.seq))) ? Number(body.seq) : undefined;
+    const storedSeq = Number.isFinite(Number(cur.seq)) && cur.seq !== null && cur.seq !== ""
+      ? Number(cur.seq) : undefined;
+    if (incomingSeq !== undefined && storedSeq !== undefined && incomingSeq <= storedSeq) {
+      return res.status(200).json({ ok: true, status: cur.status || "partial", stale: true });
+    }
+
     // Build the patch from provided fields only (omitted = leave unchanged).
     const patch = {};
     const first_name = pickStr(body.first_name, 80);
     const last_name = pickStr(body.last_name, 80);
-    const email = body.email !== undefined ? normEmail(body.email) : undefined;
-    const mobile = body.mobile !== undefined ? normPhone(body.mobile) : undefined;
+    // Server-side validation mirror of the client: ignore an incoming email
+    // unless it looks like a real address, and ignore a mobile unless it
+    // normalizes to an AU +614xxxxxxxx number. Ignored values are treated as
+    // omitted (stored value left unchanged) so junk can never overwrite good
+    // data — this is the core defence against the partial-capture bug.
+    const rawEmail = body.email !== undefined ? normEmail(body.email) : undefined;
+    const email = (rawEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) ? rawEmail : undefined;
+    const rawMobile = body.mobile !== undefined ? normPhone(body.mobile) : undefined;
+    const mobile = (rawMobile && /^\+614\d{8}$/.test(rawMobile)) ? rawMobile : undefined;
     if (first_name !== undefined) patch.first_name = first_name;
     if (last_name !== undefined) patch.last_name = last_name;
     if (email) patch.email = email;
     if (mobile) patch.mobile = mobile;
+    if (incomingSeq !== undefined) patch.seq = incomingSeq;
     if (body.consent !== undefined) patch.consent = !!body.consent;
     if (body.send_clicked !== undefined) patch.send_clicked = !!body.send_clicked;
     if (body.variation_shown !== undefined) {

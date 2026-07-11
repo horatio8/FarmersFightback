@@ -3542,6 +3542,19 @@ function SendEmailPage() {
   const formRef = React.useRef(form);
   useEffect(() => { formRef.current = form; }, [form]);
   const captureTimer = React.useRef(null);
+  // Coalescing capture sender state. seqRef gives every dispatched capture a
+  // monotonically increasing seq so the server can drop late-arriving older
+  // snapshots. inFlightRef/dirtyRef ensure only one /api/capture request is in
+  // flight per tab; a request raised while one is in flight is coalesced and
+  // the latest snapshot is sent when the in-flight completes. lastSentSnapRef
+  // holds the signature of the last successfully-sent snapshot so the abandon
+  // beacon only fires when something actually changed.
+  const seqRef = React.useRef(0);
+  const captureInFlight = React.useRef(false);
+  const captureDirty = React.useRef(false);
+  const pendingExtraRef = React.useRef({});
+  const pendingKeepaliveRef = React.useRef(false);
+  const lastSentSnapRef = React.useRef("");
   const toastTimer = React.useRef(null);
   const pageViewFired = React.useRef(false);
   const formStartedFired = React.useRef(false);
@@ -3578,11 +3591,18 @@ function SendEmailPage() {
   const update = (k) => (e) => {
     const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setForm(f => ({ ...f, [k]: v }));
+    // Debounced capture on every field change — "typing then moving on means
+    // done". The debounce reads the freshly-committed formRef.
+    scheduleCapture();
   };
 
   const recipientEmails = () => recipients.map(r => r.email).filter(Boolean).join(",");
 
-  function buildCapturePayload(extra) {
+  // Build a FULL snapshot of the current form (no seq). Invalid/partial values
+  // are OMITTED entirely: email only when it passes ffbEmailValid, mobile only
+  // when ffbNormMobile yields a value (sent normalized), names only when
+  // non-empty. A half-typed email therefore never reaches the server.
+  function captureSnapshot(extra) {
     const f = formRef.current;
     const utm = new URLSearchParams(window.location.search);
     const p = {
@@ -3594,28 +3614,101 @@ function SendEmailPage() {
     };
     if (f.first.trim()) p.first_name = f.first.trim();
     if (f.last.trim()) p.last_name = f.last.trim();
-    if (f.email.trim()) p.email = f.email.trim();
-    if (f.mobile.trim()) p.mobile = ffbNormMobile(f.mobile) || f.mobile.trim();
+    if (ffbEmailValid(f.email)) p.email = f.email.trim();
+    const nm = ffbNormMobile(f.mobile);
+    if (nm) p.mobile = nm;
     ["utm_source", "utm_medium", "utm_campaign"].forEach(k => {
       const v = utm.get(k); if (v) p[k] = v;
     });
     return { ...p, ...(extra || {}) };
   }
 
-  async function sendCapture(extra) {
-    try {
-      const r = await fetch("/api/capture", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildCapturePayload(extra)),
+  // The single coalescing sender. Never runs two /api/capture fetches at once:
+  // if one is in flight, mark dirty (and remember keepalive) and re-fire with
+  // the latest snapshot when it completes. Every dispatched capture carries a
+  // fresh monotonic seq.
+  function runCapture(keepalive) {
+    if (captureInFlight.current) {
+      captureDirty.current = true;
+      if (keepalive) pendingKeepaliveRef.current = true;
+      return;
+    }
+    captureInFlight.current = true;
+    captureDirty.current = false;
+    const useKeepalive = keepalive || pendingKeepaliveRef.current;
+    pendingKeepaliveRef.current = false;
+    const extra = pendingExtraRef.current;
+    pendingExtraRef.current = {};
+    const snap = captureSnapshot(extra);
+    const sig = JSON.stringify(snap);
+    const payload = { ...snap, seq: ++seqRef.current };
+    fetch("/api/capture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: !!useKeepalive,
+    })
+      .then(async (r) => {
+        lastSentSnapRef.current = sig;
+        const j = await r.json().catch(() => null);
+        if (j && j.status === "complete" && !formCompletedFired.current) {
+          formCompletedFired.current = true;
+          track("form_completed");
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        captureInFlight.current = false;
+        if (captureDirty.current) runCapture(false);
       });
-      const j = await r.json().catch(() => null);
-      if (j && j.status === "complete" && !formCompletedFired.current) {
-        formCompletedFired.current = true;
-        track("form_completed");
+  }
+
+  // Debounced capture — used on field CHANGE. ~800ms after typing stops.
+  function scheduleCapture() {
+    if (captureTimer.current) clearTimeout(captureTimer.current);
+    captureTimer.current = setTimeout(() => {
+      captureTimer.current = null;
+      flushCapture();
+    }, 800);
+  }
+
+  // Immediate capture — cancels any pending debounce and sends now. Optional
+  // extra fields (e.g. send_clicked) and keepalive for unload-time sends.
+  function flushCapture(extra, opts) {
+    if (captureTimer.current) { clearTimeout(captureTimer.current); captureTimer.current = null; }
+    if (extra) pendingExtraRef.current = { ...pendingExtraRef.current, ...extra };
+    runCapture(!!(opts && opts.keepalive));
+  }
+
+  // Abandon safety net: on tab close / hide, beacon the full snapshot so a
+  // half-filled form is still captured. Guarded so it only fires when there's
+  // any non-empty field AND the snapshot changed since the last good send.
+  function sendAbandonBeacon() {
+    try {
+      const f = formRef.current;
+      const hasAny = !!(f.first.trim() || f.last.trim() || f.email.trim() || f.mobile.trim());
+      if (!hasAny) return;
+      const snap = captureSnapshot();
+      const sig = JSON.stringify(snap);
+      if (sig === lastSentSnapRef.current) return;
+      const payload = { ...snap, seq: ++seqRef.current };
+      if (navigator.sendBeacon) {
+        const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+        if (navigator.sendBeacon("/api/capture", blob)) lastSentSnapRef.current = sig;
       }
     } catch {}
   }
+
+  useEffect(() => {
+    const onHide = () => sendAbandonBeacon();
+    const onVis = () => { if (document.visibilityState === "hidden") sendAbandonBeacon(); };
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, []);
 
   function onFieldBlur() {
     const f = formRef.current;
@@ -3623,12 +3716,13 @@ function SendEmailPage() {
       formStartedFired.current = true;
       track("form_started");
     }
-    if (captureTimer.current) clearTimeout(captureTimer.current);
-    captureTimer.current = setTimeout(() => sendCapture(), 500);
+    flushCapture();
   }
 
   async function onRewrite() {
     if (rewriteState === "loading") return;
+    // Moving on from the details form to reword — flush what they've typed.
+    flushCapture();
     track("rewrite_clicked");
     setRewriteState("loading");
     try {
@@ -3685,8 +3779,10 @@ function SendEmailPage() {
     const emails = recipientEmails();
     const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&bcc=${encodeURIComponent(CAMPAIGN_BCC)}&body=${encodeURIComponent(fb)}`;
 
-    // Fire-and-forget: flag the send without blocking the mail client.
-    sendCapture({ send_clicked: true });
+    // Fire-and-forget: flag the send without blocking the mail client. Full
+    // snapshot + seq via the coalescing sender, keepalive so it survives the
+    // mailto navigation.
+    flushCapture({ send_clicked: true }, { keepalive: true });
     track("send_clicked");
 
     setSentData({ subject, body: fb, recipients: emails });
@@ -3879,11 +3975,11 @@ function SendEmailPage() {
 
           <div className="ff-field">
             <span className="ff-field-label">Subject</span>
-            <input className="ff-email-subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <input className="ff-email-subject" value={subject} onChange={(e) => setSubject(e.target.value)} onFocus={() => flushCapture()} />
           </div>
           <div className="ff-field">
             <span className="ff-field-label">Email</span>
-            <textarea className="ff-email-body" rows={14} value={bodyText} onChange={(e) => setBodyText(e.target.value)} />
+            <textarea className="ff-email-body" rows={14} value={bodyText} onChange={(e) => setBodyText(e.target.value)} onFocus={() => flushCapture()} />
           </div>
 
           {rewriteBlock}
