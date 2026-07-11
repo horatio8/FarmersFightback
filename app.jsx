@@ -3482,6 +3482,401 @@ function ShareThanksPage() {
   );
 }
 
+// ---------- Email the Liberal Party (direct-URL action page) ----------
+// Reachable only via /send-your-email — intentionally NOT linked from any nav
+// or take-action surface. Single scrolling flow: hero, 3-step explainer,
+// details form (debounced partial capture), editable email, AI rewrite,
+// send (mailto), success + fallback. Copy is approved verbatim (brief §13).
+const FFB_SESSION_KEY = "ffb_session_id";
+
+function ffbHash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function ffbEmailValid(v) { return /^\S+@\S+\.\S+$/.test(String(v || "").trim()); }
+// AU mobile: accept 04xxxxxxxx or +614xxxxxxxx → normalize to +614xxxxxxxx.
+function ffbNormMobile(raw) {
+  const t = String(raw || "").replace(/\s+/g, "");
+  if (/^04\d{8}$/.test(t)) return "+61" + t.slice(1);
+  if (/^\+614\d{8}$/.test(t)) return t;
+  return null;
+}
+
+function SendEmailPage() {
+  const sessionId = React.useRef(null);
+  if (!sessionId.current) {
+    let s = "";
+    try {
+      s = sessionStorage.getItem(FFB_SESSION_KEY) || "";
+      if (!s) {
+        s = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        sessionStorage.setItem(FFB_SESSION_KEY, s);
+      }
+    } catch { s = `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+    sessionId.current = s;
+  }
+  const variationIndex = ffbHash(sessionId.current) % 10;
+
+  const [variations, setVariations] = useState(null);
+  const [recipients, setRecipients] = useState([]);
+  const [form, setForm] = useState({ first: "", last: "", email: "", mobile: "", consent: false, honeypot: "" });
+  const [errors, setErrors] = useState({});
+  const [subject, setSubject] = useState("");
+  const [bodyText, setBodyText] = useState("");
+  const [rewriteState, setRewriteState] = useState("idle"); // idle|loading|session_limit|unavailable
+  const [consentNote, setConsentNote] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [sentData, setSentData] = useState({ subject: "", body: "", recipients: "" });
+  const [toast, setToast] = useState("");
+
+  const formRef = React.useRef(form);
+  useEffect(() => { formRef.current = form; }, [form]);
+  const captureTimer = React.useRef(null);
+  const toastTimer = React.useRef(null);
+  const pageViewFired = React.useRef(false);
+  const formStartedFired = React.useRef(false);
+  const formCompletedFired = React.useRef(false);
+
+  const track = (name) => {
+    try { if (window.clarity) window.clarity("event", name); } catch {}
+    try { if (window.fbq) window.fbq("trackCustom", name); } catch {}
+  };
+
+  // Load content + fire page_view once.
+  useEffect(() => {
+    if (!pageViewFired.current) { pageViewFired.current = true; track("page_view"); }
+    fetch("content/variations.json", { cache: "no-cache" })
+      .then(r => r.json())
+      .then(list => {
+        setVariations(list);
+        const v = (Array.isArray(list) && list[variationIndex]) || (list && list[0]) || null;
+        if (v) { setSubject(v.subject || ""); setBodyText(v.body || ""); }
+      })
+      .catch(() => setVariations([]));
+    fetch("content/recipients.json", { cache: "no-cache" })
+      .then(r => r.json())
+      .then(list => setRecipients(Array.isArray(list) ? list : []))
+      .catch(() => setRecipients([]));
+  }, []);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(""), 2200);
+  };
+
+  const update = (k) => (e) => {
+    const v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setForm(f => ({ ...f, [k]: v }));
+    if (k === "consent" && v) setConsentNote(false);
+  };
+
+  const recipientEmails = () => recipients.map(r => r.email).filter(Boolean).join(",");
+
+  function buildCapturePayload(extra) {
+    const f = formRef.current;
+    const utm = new URLSearchParams(window.location.search);
+    const p = {
+      session_id: sessionId.current,
+      variation_shown: variationIndex + 1,
+      user_agent: navigator.userAgent,
+      consent: !!f.consent,
+      honeypot: f.honeypot || "",
+    };
+    if (f.first.trim()) p.first_name = f.first.trim();
+    if (f.last.trim()) p.last_name = f.last.trim();
+    if (f.email.trim()) p.email = f.email.trim();
+    if (f.mobile.trim()) p.mobile = ffbNormMobile(f.mobile) || f.mobile.trim();
+    ["utm_source", "utm_medium", "utm_campaign"].forEach(k => {
+      const v = utm.get(k); if (v) p[k] = v;
+    });
+    return { ...p, ...(extra || {}) };
+  }
+
+  async function sendCapture(extra) {
+    try {
+      const r = await fetch("/api/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildCapturePayload(extra)),
+      });
+      const j = await r.json().catch(() => null);
+      if (j && j.status === "complete" && !formCompletedFired.current) {
+        formCompletedFired.current = true;
+        track("form_completed");
+      }
+    } catch {}
+  }
+
+  function onFieldBlur() {
+    const f = formRef.current;
+    if ((f.first || f.last || f.email || f.mobile) && !formStartedFired.current) {
+      formStartedFired.current = true;
+      track("form_started");
+    }
+    if (captureTimer.current) clearTimeout(captureTimer.current);
+    captureTimer.current = setTimeout(() => sendCapture(), 500);
+  }
+
+  async function onRewrite() {
+    if (rewriteState === "loading") return;
+    track("rewrite_clicked");
+    setRewriteState("loading");
+    try {
+      const r = await fetch("/api/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId.current,
+          subject,
+          body: bodyText,
+          first_name: formRef.current.first.trim(),
+        }),
+      });
+      if (r.status === 429) {
+        const j = await r.json().catch(() => ({}));
+        setRewriteState(j.reason === "session_limit" ? "session_limit" : "unavailable");
+        return;
+      }
+      if (!r.ok) { setRewriteState("idle"); showToast("Rewrite didn't work — try again"); return; }
+      const j = await r.json();
+      if (typeof j.subject === "string") setSubject(j.subject);
+      if (typeof j.body === "string") setBodyText(j.body);
+      setRewriteState("idle");
+    } catch { setRewriteState("idle"); showToast("Rewrite didn't work — try again"); }
+  }
+
+  function composeBody() {
+    const f = formRef.current;
+    const first = f.first.trim(), last = f.last.trim();
+    let fb = bodyText;
+    if (first && fb.slice(-80).indexOf(first) === -1) {
+      fb = `${fb}\n\n${(first + (last ? " " + last : "")).trim()}`;
+    }
+    return fb;
+  }
+
+  function onSend() {
+    const f = formRef.current;
+    const e = {};
+    if (!f.first.trim()) e.first = "Required";
+    if (!f.last.trim()) e.last = "Required";
+    if (!ffbEmailValid(f.email)) e.email = "Please check that email address";
+    if (!ffbNormMobile(f.mobile)) e.mobile = "Please enter an Australian mobile, e.g. 04XX XXX XXX";
+    setErrors(e);
+    if (Object.keys(e).length) {
+      const el = document.getElementById("ff-email-form");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (!f.consent) { setConsentNote(true); return; }
+
+    const fb = composeBody();
+    const emails = recipientEmails();
+    const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
+
+    // Fire-and-forget: flag the send without blocking the mail client.
+    sendCapture({ send_clicked: true });
+    track("send_clicked");
+
+    setSentData({ subject, body: fb, recipients: emails });
+    setSent(true);
+    try { window.location.href = mailto; } catch {}
+  }
+
+  const encodedLen = encodeURIComponent(subject).length
+    + encodeURIComponent(bodyText).length
+    + recipientEmails().length;
+  const counterState = encodedLen > 1900 ? "over" : (encodedLen > 1700 ? "warn" : "ok");
+
+  const copyPiece = (text, msg) => {
+    try { navigator.clipboard.writeText(text); } catch {}
+    track("fallback_used");
+    showToast(msg);
+  };
+
+  const pageUrl = (typeof window !== "undefined")
+    ? `${window.location.origin}${window.location.pathname}` : "";
+  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+
+  const recipientCount = recipients.length;
+  const step3 = `One click opens your email app, fully addressed to ${recipientCount || "[X]"} Liberal leaders. You press send.`;
+
+  const toastEl = toast ? <div className="ff-email-toast" role="status">{toast}</div> : null;
+
+  if (sent) {
+    return (
+      <PageShell hideTopBanner>
+        {toastEl}
+        <section className="ff-section ff-email-success">
+          <div className="ff-wrap ff-email-narrow">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sent</span>
+            <h1 className="ff-h2">Thank you. That one counts.</h1>
+            <p className="ff-lede">You've just done something most people never do: asked politely, in person, for better. If every supporter sends one email and passes this page to a mate, the Liberal Party will hear rural Australia loud and clear before they make their call.</p>
+
+            <div className="ff-email-share">
+              <a className="ff-btn ff-btn--red" href={fbShareUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("fallback_used")}>Share on Facebook</a>
+              <button type="button" className="ff-btn ff-btn--outline" onClick={() => copyPiece(pageUrl, "Link copied")}>Copy link</button>
+            </div>
+
+            <div className="ff-email-fallback">
+              <h3 className="ff-h3">Didn't your email app open?</h3>
+              <p>No worries. Copy everything below and paste it into Gmail or Outlook.</p>
+              <div className="ff-email-fallback-btns">
+                <button type="button" className="ff-btn ff-btn--outline" onClick={() => copyPiece(sentData.recipients, "Copied")}>Copy recipients</button>
+                <button type="button" className="ff-btn ff-btn--outline" onClick={() => copyPiece(sentData.subject, "Copied")}>Copy subject</button>
+                <button type="button" className="ff-btn ff-btn--outline" onClick={() => copyPiece(sentData.body, "Copied")}>Copy email</button>
+                <a className="ff-btn ff-btn--outline" href={gmailUrl()} target="_blank" rel="noopener noreferrer" onClick={() => track("fallback_used")}>Open in Gmail</a>
+                <a className="ff-btn ff-btn--outline" href={outlookUrl()} target="_blank" rel="noopener noreferrer" onClick={() => track("fallback_used")}>Open in Outlook</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
+  const rewriteBlock = (() => {
+    if (rewriteState === "session_limit") {
+      return <p className="ff-email-rewrite-note">That's the limit of rewrites for now. You can still edit every word yourself above.</p>;
+    }
+    if (rewriteState === "unavailable") {
+      return <p className="ff-email-rewrite-note">The rewrite tool is having a breather. You can still edit every word yourself above.</p>;
+    }
+    return (
+      <div className="ff-email-rewrite">
+        <button type="button" className="ff-btn ff-btn--outline" onClick={onRewrite} disabled={rewriteState === "loading"}>
+          {rewriteState === "loading" ? "Rewording your email..." : "Say it my way"}
+        </button>
+        <span className="ff-email-rewrite-help">Keeps the message, changes the wording so no two emails read the same.</span>
+      </div>
+    );
+  })();
+
+  return (
+    <PageShell hideTopBanner>
+      {toastEl}
+
+      {/* Hero */}
+      <section className="ff-section ff-email-hero">
+        <div className="ff-wrap ff-email-narrow">
+          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> AN EARNEST REQUEST FROM RURAL AUSTRALIA</span>
+          <h1 className="ff-h2 ff-h2--light">There's still time to do the right thing.</h1>
+          <p className="ff-lede ff-email-lede-light">VNI West and the Western Renewables Link would take prime farmland and push families off properties they've worked for generations. The Liberal Party hasn't locked in its position yet. A polite, personal email from you, this week, could help them land on the right side of it.</p>
+          <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Send your email</button>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="ff-section ff-email-steps">
+        <div className="ff-wrap ff-email-narrow">
+          <div className="ff-email-step">
+            <span className="ff-email-step-num">1</span>
+            <div>
+              <h3 className="ff-h3">Tell us who you are.</h3>
+              <p>Your email carries your name. That's what makes an MP's office stop and read it.</p>
+            </div>
+          </div>
+          <div className="ff-email-step">
+            <span className="ff-email-step-num">2</span>
+            <div>
+              <h3 className="ff-h3">Check the message.</h3>
+              <p>We've written a courteous, firm email for you. Edit it, or let our rewrite tool put it in your own words.</p>
+            </div>
+          </div>
+          <div className="ff-email-step">
+            <span className="ff-email-step-num">3</span>
+            <div>
+              <h3 className="ff-h3">Send it from your inbox.</h3>
+              <p>{step3}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Details form */}
+      <section className="ff-section ff-email-form-sec" id="ff-email-form">
+        <div className="ff-wrap ff-email-narrow">
+          <h2 className="ff-h2">Your details</h2>
+          <p className="ff-lede">Just enough so the email is genuinely from you. Nothing more.</p>
+          <form className="ff-action-form" onSubmit={(e) => e.preventDefault()} noValidate>
+            {/* Honeypot — visually hidden, bots fill it */}
+            <div className="ff-email-hp" aria-hidden="true">
+              <label>Leave this field empty
+                <input tabIndex={-1} autoComplete="off" value={form.honeypot} onChange={update("honeypot")} />
+              </label>
+            </div>
+            <div className="ff-form-row">
+              <Field label={<>First name <span className="ff-req">*</span></>} error={errors.first}>
+                <input value={form.first} onChange={update("first")} onBlur={onFieldBlur} autoComplete="given-name" placeholder="First name" />
+              </Field>
+              <Field label={<>Last name <span className="ff-req">*</span></>} error={errors.last}>
+                <input value={form.last} onChange={update("last")} onBlur={onFieldBlur} autoComplete="family-name" placeholder="Last name" />
+              </Field>
+            </div>
+            <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}>
+              <input type="email" value={form.email} onChange={update("email")} onBlur={onFieldBlur} autoComplete="email" placeholder="Your email address" />
+            </Field>
+            <Field label={<>Mobile <span className="ff-req">*</span></>} error={errors.mobile}>
+              <input type="tel" value={form.mobile} onChange={update("mobile")} onBlur={onFieldBlur} autoComplete="tel" placeholder="Your mobile" />
+            </Field>
+            <label className="ff-email-consent">
+              <input type="checkbox" checked={form.consent} onChange={update("consent")} />
+              <span>Keep me updated on the fight for our farmland. We treat your details like a neighbour would: carefully, and never for sale. Opt out whenever you like. <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy policy</a>.</span>
+            </label>
+          </form>
+        </div>
+      </section>
+
+      {/* Email editor */}
+      <section className="ff-section ff-email-editor">
+        <div className="ff-wrap ff-email-narrow">
+          <h2 className="ff-h2">Here's what they'll read</h2>
+          <p className="ff-lede">Firm, fair and polite. We're asking the Liberal Party to do something good, so the email treats them like people who can do good. Feel free to add why this matters to you personally. A line about your own farm, town or family is worth more than anything we could write.</p>
+
+          {rewriteBlock}
+
+          <div className="ff-field">
+            <span className="ff-field-label">Subject</span>
+            <input className="ff-email-subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+          </div>
+          <div className="ff-field">
+            <span className="ff-field-label">Email</span>
+            <textarea className="ff-email-body" rows={14} value={bodyText} onChange={(e) => setBodyText(e.target.value)} />
+          </div>
+          <div className={`ff-email-counter ff-email-counter--${counterState}`}>
+            <span>Under 1,400 characters keeps it sending smoothly on every phone.</span>
+            <span className="ff-email-counter-num">{encodedLen} / ~1900</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Send */}
+      <section className="ff-section ff-email-send">
+        <div className="ff-wrap ff-email-narrow">
+          {recipients.length > 0 && (
+            <div className="ff-email-recipients">
+              <div className="ff-email-recipients-h">This email goes to {recipientCount} Liberal {recipientCount === 1 ? "leader" : "leaders"}:</div>
+              <ul>
+                {recipients.map((r, i) => (
+                  <li key={i}><strong>{r.name}</strong>{r.role ? <span> — {r.role}</span> : null}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" onClick={onSend}>SEND MY EMAIL TO THE LIBERAL PARTY</button>
+          {consentNote && <p className="ff-email-consent-note">Please tick the box above so we can keep you posted, then hit send.</p>}
+          <p className="ff-email-reassure">Your email app opens with everything ready. It sends from your address, in your name. Personal emails get read. Form letters get filed.</p>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
@@ -3548,6 +3943,7 @@ function App() {
   else if (page === "donate") view = <DonorPage />;
   else if (page === "volunteer") view = <VolunteerPage />;
   else if (page === "share") view = <ShareThanksPage />;
+  else if (page === "send-email") view = <SendEmailPage />;
   else view = <HomePage />;
 
   return <ContentContext.Provider value={content}>{view}</ContentContext.Provider>;

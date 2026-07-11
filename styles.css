@@ -2374,3 +2374,92 @@ img { max-width: 100%; display: block; }
   }
   .ff-sp--out { transform: none; }
 }
+
+/* ============ Email the Liberal Party action page ============ */
+.ff-email-narrow { max-width: 760px; }
+
+.ff-email-hero {
+  background: var(--ff-navy);
+  color: var(--ff-navy-ink);
+  padding-top: clamp(56px, 8vw, 96px);
+}
+.ff-email-hero .ff-h2--light { margin-top: 6px; }
+.ff-email-lede-light { color: rgba(255,255,255,.92); max-width: 60ch; }
+.ff-email-hero .ff-btn { margin-top: 26px; }
+
+.ff-email-steps { padding-top: clamp(40px, 6vw, 72px); padding-bottom: clamp(40px, 6vw, 72px); }
+.ff-email-step { display: flex; gap: 18px; align-items: flex-start; padding: 18px 0; border-bottom: 1px solid var(--ff-rule); }
+.ff-email-step:last-child { border-bottom: 0; }
+.ff-email-step-num {
+  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%;
+  background: var(--ff-red); color: #fff; font-family: var(--ff-cond);
+  font-weight: 700; font-size: 20px; display: grid; place-items: center;
+  box-shadow: 0 3px 0 var(--ff-red-2);
+}
+.ff-email-step h3 { margin: 2px 0 6px; }
+.ff-email-step p { margin: 0; color: var(--ff-ink-2); }
+
+.ff-email-form-sec { background: var(--ff-paper-2); }
+.ff-email-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.ff-email-consent {
+  display: flex; gap: 10px; align-items: flex-start; margin-top: 8px;
+  font-size: 14px; line-height: 1.5; color: var(--ff-ink-2);
+}
+.ff-email-consent input { margin-top: 3px; flex: 0 0 auto; width: 18px; height: 18px; }
+.ff-email-consent a { color: var(--ff-red); text-decoration: underline; }
+
+.ff-email-rewrite { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 4px 0 22px; }
+.ff-email-rewrite-help { font-size: 13px; color: var(--ff-muted); max-width: 40ch; }
+.ff-email-rewrite-note {
+  margin: 4px 0 22px; padding: 12px 14px; border-left: 3px solid var(--ff-red);
+  background: var(--ff-paper-2); font-size: 14px; color: var(--ff-ink-2);
+}
+
+.ff-email-subject, .ff-email-body {
+  width: 100%; font-family: var(--ff-sans); font-size: 16px; color: var(--ff-ink);
+  background: #fff; border: 1px solid var(--ff-rule-2); border-radius: var(--ff-radius);
+  padding: 12px 14px;
+}
+.ff-email-body { line-height: 1.55; resize: vertical; min-height: 240px; }
+.ff-email-subject:focus, .ff-email-body:focus {
+  outline: 0; border-color: var(--ff-navy); box-shadow: 0 0 0 3px rgba(18,53,75,.12);
+}
+
+.ff-email-counter {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin-top: 8px; font-size: 13px; color: var(--ff-muted);
+}
+.ff-email-counter-num { font-family: var(--ff-mono); }
+.ff-email-counter--warn .ff-email-counter-num { color: var(--ff-red); }
+.ff-email-counter--over .ff-email-counter-num { color: #fff; background: var(--ff-red); padding: 1px 6px; border-radius: 4px; }
+
+.ff-email-recipients {
+  background: var(--ff-paper-2); border: 1px solid var(--ff-rule);
+  border-radius: var(--ff-radius); padding: 16px 18px; margin-bottom: 20px;
+}
+.ff-email-recipients-h { font-family: var(--ff-cond); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; font-weight: 700; color: var(--ff-navy); margin-bottom: 8px; }
+.ff-email-recipients ul { margin: 0; padding-left: 18px; }
+.ff-email-recipients li { margin: 4px 0; color: var(--ff-ink-2); }
+
+.ff-email-consent-note { margin: 12px 0 0; color: var(--ff-red); font-weight: 600; font-size: 14px; }
+.ff-email-reassure { margin-top: 16px; color: var(--ff-ink-2); font-size: 15px; }
+
+.ff-email-success .ff-lede { margin-bottom: 26px; }
+.ff-email-share { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+.ff-email-fallback { border-top: 1px solid var(--ff-rule); padding-top: 24px; }
+.ff-email-fallback h3 { margin: 0 0 6px; }
+.ff-email-fallback p { margin: 0 0 16px; color: var(--ff-ink-2); }
+.ff-email-fallback-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.ff-email-toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  z-index: 1000; background: var(--ff-navy); color: #fff;
+  padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+
+@media (max-width: 560px) {
+  .ff-email-rewrite { flex-direction: column; align-items: stretch; }
+  .ff-email-fallback-btns .ff-btn, .ff-email-share .ff-btn { flex: 1 1 100%; }
+}
