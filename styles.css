@@ -339,7 +339,8 @@ img { max-width: 100%; display: block; }
   letter-spacing: -0.025em;
   margin: 18px 0 22px;
   max-width: 16ch;
-  text-wrap: balance;
+  /* no text-wrap:balance — Safari balances a <br/>-broken headline into a
+     one-word-per-line column; the manual break already sets the lines. */
 }
 .ff-hero-title em { font-style: italic; color: #ff8787; font-weight: 700; }
 .ff-hero-sub {
