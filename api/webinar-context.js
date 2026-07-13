@@ -2,7 +2,7 @@
 //
 // GET /api/webinar-context?session=tuesday&t=TOKEN
 //   → 200 { event: { title, starts_at_utc, timezone, join_url|null },
-//           prefill: { first_name, last_name, email, mobile } }
+//           prefill: { first_name, last_name, email, mobile, postcode } }
 //   → 403 { private: true }   invalid/expired token, or session mismatch
 //   → 503 { error: "not configured" } when WEBINAR_TOKEN_SECRET is unset
 //
@@ -73,6 +73,7 @@ module.exports = async function handler(req, res) {
         last_name: cf.last_name || "",
         email: cf.email || "",
         mobile: cf.mobile || "",
+        postcode: cf.postcode || "",
       },
     });
   } catch (e) {

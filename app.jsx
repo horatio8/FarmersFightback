@@ -4093,7 +4093,7 @@ function WebinarPage() {
   const [phase, setPhase] = useState("loading"); // loading | private | form | confirmed
   const [event, setEvent] = useState(null);
   const [joinUrl, setJoinUrl] = useState(null);
-  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", mobile: "" });
+  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", mobile: "", postcode: "" });
   const [intent, setIntent] = useState("Attending");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
@@ -4116,6 +4116,7 @@ function WebinarPage() {
           last_name: (d.prefill && d.prefill.last_name) || f.last_name,
           email: (d.prefill && d.prefill.email) || f.email,
           mobile: (d.prefill && d.prefill.mobile) || f.mobile,
+          postcode: (d.prefill && d.prefill.postcode) || f.postcode,
         }));
         setPhase("form");
       })
@@ -4141,6 +4142,7 @@ function WebinarPage() {
           last_name: form.last_name.trim(),
           email: form.email.trim(),
           mobile: form.mobile.trim(),
+          postcode: form.postcode.trim(),
           attendance_intent: intent,
         }),
       });
@@ -4223,9 +4225,14 @@ function WebinarPage() {
                 <Field label={<>Email <span className="ff-req">*</span></>}>
                   <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
                 </Field>
-                <Field label="Mobile">
-                  <input type="tel" value={form.mobile} onChange={update("mobile")} placeholder="0400 000 000" autoComplete="tel" />
-                </Field>
+                <div className="ff-form-row">
+                  <Field label="Mobile">
+                    <input type="tel" value={form.mobile} onChange={update("mobile")} placeholder="0400 000 000" autoComplete="tel" />
+                  </Field>
+                  <Field label="Postcode">
+                    <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} placeholder="3000" autoComplete="postal-code" />
+                  </Field>
+                </div>
                 <div className="ff-field">
                   <span className="ff-field-label">Will you be joining us?</span>
                   <div className="ff-webinar-intent" role="radiogroup" aria-label="Attendance">

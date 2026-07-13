@@ -49,11 +49,15 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 async function cnSignup(webinarFields, reg) {
   const eventId = webinarFields.webinar_id;
   if (!eventId) return { synced: false, id: "" };
+  // CN's signup form on this event marks first/last/email/phone AND zip
+  // required, so all five must go up or CN 422s. Postcode comes prefilled
+  // from the contact; a donor with no postcode on file can type one.
   const out = await cnFetch(`/events/${encodeURIComponent(eventId)}/signups`, {
     first_name: reg.first_name,
     last_name: reg.last_name,
     email: reg.email,
     phone: reg.mobile || undefined,
+    zip: reg.postcode || undefined,
     custom_fields: { attendance_intent: reg.attendance_intent },
   });
   if (out && out.ok) {
@@ -91,6 +95,7 @@ module.exports = async function handler(req, res) {
   const email = normEmail(body.email);
   const rawMobile = String(body.mobile || "").trim();
   const mobile = rawMobile ? normPhone(rawMobile) : "";
+  const postcode = String(body.postcode || "").trim().slice(0, 12);
   const attendance_intent = String(body.attendance_intent || "").trim();
 
   if (!first_name) return res.status(400).json({ error: "First name is required." });
@@ -110,7 +115,7 @@ module.exports = async function handler(req, res) {
     if (!webinar) return res.status(404).json({ error: "session not found" });
     const wf = webinar.fields || {};
 
-    const reg = { first_name, last_name, email, mobile, attendance_intent };
+    const reg = { first_name, last_name, email, mobile, postcode, attendance_intent };
 
     // (a) CN signup — best-effort, never blocks the Airtable mirror.
     let cn = { synced: false, id: "" };
