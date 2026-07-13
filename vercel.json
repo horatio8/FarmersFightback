@@ -6,7 +6,8 @@
     { "source": "/rally", "destination": "/rally/index.html" },
     { "source": "/fund",  "destination": "/api/track-redirect?l=fund" },
     { "source": "/fight", "destination": "/api/track-redirect?l=fight" },
-    { "source": "/leaderboard", "destination": "/api/leaderboard" }
+    { "source": "/leaderboard", "destination": "/api/leaderboard" },
+    { "source": "/webinar/:session", "destination": "/webinar.html" }
   ],
   "crons": [
     { "path": "/api/cron/sms-inbound-poll", "schedule": "10 * * * *" },

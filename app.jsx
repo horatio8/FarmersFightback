@@ -4028,6 +4028,266 @@ function SendEmailPage() {
   );
 }
 
+// ---------- Donor webinar (private, token-gated) ----------
+// Reachable only via /webinar/<session>?t=TOKEN — intentionally NOT linked
+// from any nav or take-action surface. The signed token in the invite email
+// is the access gate; no token (or a bad one) shows the private-invite state.
+// Times render in the visitor's own timezone, with the event's Melbourne
+// time alongside when the two differ (spec §8).
+
+function webinarFmtTime(iso, zone) {
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      timeZone: zone,
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    }).format(new Date(iso));
+  } catch {
+    return "";
+  }
+}
+function webinarFmtDay(iso, zone) {
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      timeZone: zone,
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date(iso));
+  } catch {
+    return "";
+  }
+}
+
+function WebinarWhen({ event }) {
+  if (!event || !event.starts_at_utc) return null;
+  let browserZone = "";
+  try { browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
+  const localZone = browserZone || event.timezone;
+  const localDay = webinarFmtDay(event.starts_at_utc, localZone);
+  const localTime = webinarFmtTime(event.starts_at_utc, localZone);
+  // Show the event's own (Melbourne) clock time too whenever the visitor's
+  // zone renders a different string — "7:00pm AEST / 5:00pm AWST" style.
+  const eventTime = webinarFmtTime(event.starts_at_utc, event.timezone);
+  const showEventZone = Boolean(eventTime) && eventTime !== localTime;
+  return (
+    <div className="ff-webinar-when">
+      <div className="ff-webinar-when-day">{localDay}</div>
+      <div className="ff-webinar-when-time">
+        {localTime}
+        {showEventZone && <span className="ff-webinar-when-alt"> / {eventTime}</span>}
+      </div>
+      <div className="ff-webinar-when-note">Shown in your local time{showEventZone ? ` — ${eventTime} where the briefing is hosted` : ""}.</div>
+    </div>
+  );
+}
+
+const WEBINAR_INTENTS = ["Attending", "Can't attend", "Maybe"];
+
+function WebinarPage() {
+  const session = (window.location.pathname.split("/")[2] || "tuesday").toLowerCase();
+  const token = new URLSearchParams(window.location.search).get("t") || "";
+
+  const [phase, setPhase] = useState("loading"); // loading | private | form | confirmed
+  const [event, setEvent] = useState(null);
+  const [joinUrl, setJoinUrl] = useState(null);
+  const [form, setForm] = useState({ first_name: "", last_name: "", email: "", mobile: "" });
+  const [intent, setIntent] = useState("Attending");
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  // Q&A state (confirmation screen).
+  const [question, setQuestion] = useState("");
+  const [qBusy, setQBusy] = useState(false);
+  const [qThanks, setQThanks] = useState(false);
+  const [qError, setQError] = useState("");
+
+  useEffect(() => {
+    if (!token) { setPhase("private"); return; }
+    fetch(`/api/webinar-context?session=${encodeURIComponent(session)}&t=${encodeURIComponent(token)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d) => {
+        setEvent(d.event || null);
+        setJoinUrl((d.event && d.event.join_url) || null);
+        setForm((f) => ({
+          first_name: (d.prefill && d.prefill.first_name) || f.first_name,
+          last_name: (d.prefill && d.prefill.last_name) || f.last_name,
+          email: (d.prefill && d.prefill.email) || f.email,
+          mobile: (d.prefill && d.prefill.mobile) || f.mobile,
+        }));
+        setPhase("form");
+      })
+      .catch(() => setPhase("private"));
+  }, []);
+
+  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submitRegistration = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    if (!form.first_name.trim()) { setFormError("Please add your first name."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) { setFormError("Please enter a valid email address."); return; }
+    setBusy(true);
+    try {
+      const r = await fetch("/api/webinar-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          t: token,
+          session,
+          first_name: form.first_name.trim(),
+          last_name: form.last_name.trim(),
+          email: form.email.trim(),
+          mobile: form.mobile.trim(),
+          attendance_intent: intent,
+        }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        if (r.status === 403) { setPhase("private"); return; }
+        setFormError(d.error || "Something went wrong. Please try again.");
+        return;
+      }
+      setJoinUrl(d.join_url || null);
+      setPhase("confirmed");
+      window.scrollTo(0, 0);
+    } catch {
+      setFormError("Something went wrong. Please check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitQuestion = async (e) => {
+    e.preventDefault();
+    setQError("");
+    setQThanks(false);
+    if (!question.trim()) { setQError("Write your question or comment first."); return; }
+    setQBusy(true);
+    try {
+      const r = await fetch("/api/webinar-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ t: token, session, body: question.trim().slice(0, 2000) }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setQError(d.error || "Couldn't send that. Please try again.");
+        return;
+      }
+      setQuestion("");
+      setQThanks(true);
+    } catch {
+      setQError("Couldn't send that. Please check your connection and try again.");
+    } finally {
+      setQBusy(false);
+    }
+  };
+
+  return (
+    <PageShell hideNav hideTopBanner>
+      <section className="ff-section ff-webinar">
+        <div className="ff-wrap ff-webinar-wrap">
+          {phase === "loading" && (
+            <div className="ff-webinar-card ff-webinar-loading">
+              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Donor briefing</span>
+              <h1 className="ff-h2">One moment…</h1>
+              <p className="ff-lede">Checking your invitation.</p>
+            </div>
+          )}
+
+          {phase === "private" && (
+            <div className="ff-webinar-card ff-webinar-private">
+              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Donor briefing</span>
+              <h1 className="ff-h2">This is a private invitation</h1>
+              <p className="ff-lede">This briefing is invite-only. If you're a Farmers Fightback donor, use the personal link from your invite email.</p>
+            </div>
+          )}
+
+          {phase === "form" && event && (
+            <div className="ff-webinar-card">
+              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Donor briefing</span>
+              <h1 className="ff-h2">{event.title}</h1>
+              <WebinarWhen event={event} />
+              <form className="ff-webinar-form" onSubmit={submitRegistration} noValidate>
+                <div className="ff-form-row">
+                  <Field label={<>First name <span className="ff-req">*</span></>}>
+                    <input value={form.first_name} onChange={update("first_name")} autoComplete="given-name" required aria-required="true" />
+                  </Field>
+                  <Field label="Last name">
+                    <input value={form.last_name} onChange={update("last_name")} autoComplete="family-name" />
+                  </Field>
+                </div>
+                <Field label={<>Email <span className="ff-req">*</span></>}>
+                  <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
+                </Field>
+                <Field label="Mobile">
+                  <input type="tel" value={form.mobile} onChange={update("mobile")} placeholder="0400 000 000" autoComplete="tel" />
+                </Field>
+                <div className="ff-field">
+                  <span className="ff-field-label">Will you be joining us?</span>
+                  <div className="ff-webinar-intent" role="radiogroup" aria-label="Attendance">
+                    {WEBINAR_INTENTS.map((label) => (
+                      <button
+                        key={label}
+                        type="button"
+                        role="radio"
+                        aria-checked={intent === label}
+                        className={`ff-webinar-intent-btn ${intent === label ? "is-on" : ""}`}
+                        onClick={() => setIntent(label)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button className="ff-btn ff-btn--red ff-btn--block" type="submit" disabled={busy}>
+                  {busy ? "Confirming…" : "Confirm my registration"}
+                </button>
+                {formError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{formError}</p>}
+                <p className="ff-form-fine">Your personal link is just for you — please don't forward it.</p>
+              </form>
+            </div>
+          )}
+
+          {phase === "confirmed" && (
+            <div className="ff-webinar-card ff-webinar-confirmed">
+              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> You're registered</span>
+              <h1 className="ff-h2">Thank you — we've saved your spot.</h1>
+              {event && <WebinarWhen event={event} />}
+              {joinUrl
+                ? <a href={joinUrl} className="ff-btn ff-btn--red ff-btn--lg ff-webinar-join" target="_blank" rel="noopener noreferrer">Join the briefing</a>
+                : <p className="ff-lede">Your join link will be emailed before the briefing.</p>}
+              <div className="ff-webinar-qa">
+                <h2 className="ff-h3">Ask a question or leave a comment</h2>
+                <p>We'll do our best to cover it on the night. You can send as many as you like.</p>
+                <form onSubmit={submitQuestion} noValidate>
+                  <textarea
+                    className="ff-webinar-qa-input"
+                    value={question}
+                    onChange={(e) => { setQuestion(e.target.value); if (qThanks) setQThanks(false); }}
+                    maxLength={2000}
+                    rows={4}
+                    placeholder="What would you like us to cover?"
+                    aria-label="Your question or comment"
+                  />
+                  <button className="ff-btn ff-btn--outline ff-webinar-qa-btn" type="submit" disabled={qBusy}>
+                    {qBusy ? "Sending…" : "Send it in"}
+                  </button>
+                  {qThanks && <p className="ff-webinar-qa-thanks">Thanks — we've got it.</p>}
+                  {qError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{qError}</p>}
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
@@ -4095,6 +4355,7 @@ function App() {
   else if (page === "volunteer") view = <VolunteerPage />;
   else if (page === "share") view = <ShareThanksPage />;
   else if (page === "send-email") view = <SendEmailPage />;
+  else if (page === "webinar") view = <WebinarPage />;
   else view = <HomePage />;
 
   return <ContentContext.Provider value={content}>{view}</ContentContext.Provider>;

@@ -60,4 +60,4 @@ function cnAutomationAdd(automationId, profile) {
   return cnFetch(`/automations/${encodeURIComponent(automationId)}/profiles`, profile);
 }
 
-module.exports = { cnProfileMatch, cnAutomationAdd };
+module.exports = { cnFetch, cnProfileMatch, cnAutomationAdd };
