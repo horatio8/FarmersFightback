@@ -4090,14 +4090,20 @@ function WebinarWhen({ event }) {
   return (
     <div className="ffw-when-wrap">
       <div className="ffw-when">
-        <div className="ffw-when-main">
-          <div className="ffw-when-label">In your time · {city}</div>
-          <div className="ffw-when-time">{localTime}</div>
+        <div className="ffw-when-top">
+          <div className="ffw-when-main">
+            <div className="ffw-when-label">In your time · {city}</div>
+            <div className="ffw-when-time">{localTime}</div>
+          </div>
+          <div className="ffw-when-rule" />
+          <div className="ffw-when-meta">
+            <span className="ffw-when-date">{localDay}</span>
+            <br /><span className="ffw-when-mel">Live from Melbourne · {eventTime}</span>
+          </div>
         </div>
-        <div className="ffw-when-rule" />
-        <div className="ffw-when-meta">
-          {localDay}
-          <br /><span className="ffw-when-mel">Live from Melbourne · {eventTime}</span>
+        <div className="ffw-when-online">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="5" width="14" height="14" rx="2"/><path d="M16 10l6-3v10l-6-3z"/></svg>
+          Online webinar
         </div>
       </div>
       {picking ? (

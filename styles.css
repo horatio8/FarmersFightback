@@ -2670,16 +2670,25 @@ img { max-width: 100%; display: block; }
 /* local-time chip (local time primary, Melbourne alongside) */
 .ffw-when {
   align-self: flex-start; margin-top: 6px;
-  display: inline-flex; align-items: center; gap: 18px;
+  display: flex; flex-direction: column;
   background: rgba(11,36,53,0.55);
   border: 1.5px solid rgba(255,255,255,0.2);
-  border-radius: 10px; padding: 12px 18px; max-width: 100%;
+  border-radius: 10px; max-width: 100%; overflow: hidden;
 }
+.ffw-when-top { display: flex; align-items: center; gap: 18px; padding: 12px 18px; }
 .ffw-when-label { font-family: var(--w-body-f); font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--w-navy-300); }
 .ffw-when-time { font-family: var(--w-disp); font-weight: 700; font-size: 28px; line-height: 1; color: var(--w-paper-50); margin-top: 3px; text-transform: uppercase; }
 .ffw-when-rule { width: 1.5px; align-self: stretch; background: rgba(255,255,255,0.2); }
 .ffw-when-meta { font-size: 13px; color: var(--w-navy-100); line-height: 1.4; }
+.ffw-when-date { font-size: 16px; font-weight: 600; color: var(--w-paper-50); }
 .ffw-when-mel { color: var(--w-navy-300); }
+.ffw-when-online {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-top: 1.5px solid rgba(255,255,255,0.18);
+  font-family: var(--w-body-f); font-weight: 700; font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--w-navy-100);
+}
+.ffw-when-online svg { color: var(--w-red-300); flex: none; }
 
 /* timezone chooser + helper text under the chip */
 .ffw-when-wrap { align-self: flex-start; display: flex; flex-direction: column; gap: 10px; margin-top: 6px; max-width: 100%; }
@@ -2782,13 +2791,13 @@ img { max-width: 100%; display: block; }
 .ffw-briefing { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 15px; line-height: 1.4; color: var(--w-body); }
 .ffw-briefing input {
   appearance: none; -webkit-appearance: none; flex-shrink: 0;
-  width: 22px; height: 22px; margin: 0; cursor: pointer;
-  border: 1.5px solid var(--w-paper-300); border-radius: 6px; background: #fff;
+  width: 17px; height: 17px; margin: 1px 0 0; cursor: pointer;
+  border: 1.5px solid var(--w-paper-300); border-radius: 3px; background: #fff;
   transition: background .12s ease, border-color .12s ease;
 }
 .ffw-briefing input:checked {
   background: var(--w-red); border-color: var(--w-red);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 6.5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 6.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: center;
 }
 .ffw-briefing input:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(174,53,40,.25); }
@@ -2866,7 +2875,8 @@ img { max-width: 100%; display: block; }
   .ffw-form .ff-form-row--split { flex-direction: row; }
   .ffw-form .ff-form-row--split .ff-field:last-child { max-width: 120px; }
   .ff-webinar-intent { flex-direction: column; }
-  .ffw-when { gap: 12px; padding: 12px 14px; }
+  .ffw-when-top { gap: 12px; padding: 12px 14px; }
+  .ffw-when-online { padding: 9px 14px; }
   .ffw-qa-btn { width: 100%; }
   .ffw-donate-chips { grid-template-columns: repeat(2, 1fr); }
 }
