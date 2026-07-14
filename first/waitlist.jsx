@@ -172,7 +172,7 @@ function WaitlistForm({ onDone }) {
     <div className="ffx-card">
       <div className="ffx-pitch">
         <div className="ffx-pitch-tag"><I.star width="13" height="13" /> Waitlist</div>
-        <div className="ffx-pitch-h">Get the first shout when tickets go live</div>
+        <div className="ffx-pitch-h">Get the first shout when details go live</div>
         <p className="ffx-pitch-p">Numbers are limited and this one will move fast. Join the waitlist and we&rsquo;ll text and email you the moment registrations are open &mdash; before we post it anywhere else.</p>
       </div>
 
@@ -197,7 +197,7 @@ function WaitlistForm({ onDone }) {
    ============================================================ */
 function SuccessCard({ first }) {
   const url = "https://www.farmersfightback.com/first";
-  const text = "Registrations for the Farmers Fightback Rally open soon — get on the waitlist so you don't miss out:";
+  const text = "Details for the Farmers Fightback Rally drop soon — get on the waitlist so you don't miss out:";
   const enc = encodeURIComponent;
   const [copied, setCopied] = useState(false);
   const chans = [
