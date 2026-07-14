@@ -4276,7 +4276,12 @@ function WebinarPage() {
       }
       setJoinUrl(d.join_url || null);
       setPhase("confirmed");
-      window.scrollTo(0, 0);
+      // Jump the visitor straight to the confirmation card (donation +
+      // "you're confirmed"), not the page top — on mobile the card is well
+      // below the hero. Wait a tick for the confirmed state to render.
+      setTimeout(() => {
+        document.querySelector(".ffw-confirmed")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 60);
     } catch {
       setFormError("Something went wrong. Please check your connection and try again.");
     } finally {

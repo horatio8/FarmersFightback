@@ -2766,7 +2766,7 @@ img { max-width: 100%; display: block; }
 .ffw-form .ff-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 .ffw-form .ff-field-label { font-family: var(--w-body-f); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--w-ink); }
 .ffw-form .ff-req { color: var(--w-red); }
-.ffw-form input {
+.ffw-form input:not([type="checkbox"]) {
   width: 100%; min-height: 48px;
   padding: 11px 14px; font-family: var(--w-body-f); font-size: 16px;
   color: var(--w-ink); background: #fff;
