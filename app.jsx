@@ -4061,7 +4061,7 @@ function webinarFmtDay(iso, zone) {
   }
 }
 
-function WebinarWhen({ event }) {
+function WebinarWhen({ event, variant }) {
   if (!event || !event.starts_at_utc) return null;
   let browserZone = "";
   try { browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
@@ -4069,17 +4069,21 @@ function WebinarWhen({ event }) {
   const localDay = webinarFmtDay(event.starts_at_utc, localZone);
   const localTime = webinarFmtTime(event.starts_at_utc, localZone);
   // Show the event's own (Melbourne) clock time too whenever the visitor's
-  // zone renders a different string — "7:00pm AEST / 5:00pm AWST" style.
+  // zone renders a different string — the local time is primary, Melbourne
+  // shown alongside so "5:00 PM in Perth" is never read as Melbourne time.
   const eventTime = webinarFmtTime(event.starts_at_utc, event.timezone);
   const showEventZone = Boolean(eventTime) && eventTime !== localTime;
   return (
-    <div className="ff-webinar-when">
-      <div className="ff-webinar-when-day">{localDay}</div>
-      <div className="ff-webinar-when-time">
-        {localTime}
-        {showEventZone && <span className="ff-webinar-when-alt"> / {eventTime}</span>}
+    <div className={`ffw-when${variant === "card" ? " ffw-when--card" : ""}`}>
+      <div className="ffw-when-main">
+        <div className="ffw-when-label">In your time</div>
+        <div className="ffw-when-time">{localTime}</div>
       </div>
-      <div className="ff-webinar-when-note">Shown in your local time{showEventZone ? ` — ${eventTime} where the briefing is hosted` : ""}.</div>
+      <div className="ffw-when-rule" />
+      <div className="ffw-when-meta">
+        {localDay}
+        {showEventZone && <><br /><span className="ffw-when-mel">Live from Melbourne · {eventTime}</span></>}
+      </div>
     </div>
   );
 }
@@ -4100,6 +4104,11 @@ function WebinarPage() {
   const [event, setEvent] = useState(null);
   const [joinUrl, setJoinUrl] = useState(null);
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", mobile: "", postcode: "" });
+  // Personalisation mode is driven by whether the context returned a prefilled
+  // first name: a valid token → non-empty name → the personalised "invite"
+  // hero; an open/no-token visit → empty prefill → the public hero variant.
+  const [invited, setInvited] = useState(false);
+  const [heroName, setHeroName] = useState("");
   const [intent, setIntent] = useState("Attending");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
@@ -4118,6 +4127,9 @@ function WebinarPage() {
       .then((d) => {
         setEvent(d.event || null);
         setJoinUrl((d.event && d.event.join_url) || null);
+        const prefillName = ((d.prefill && d.prefill.first_name) || "").trim();
+        setInvited(Boolean(prefillName));
+        setHeroName(prefillName);
         setForm((f) => ({
           first_name: (d.prefill && d.prefill.first_name) || f.first_name,
           last_name: (d.prefill && d.prefill.last_name) || f.last_name,
@@ -4195,110 +4207,193 @@ function WebinarPage() {
     }
   };
 
+  // Per-mode copy: personalised "invite" hero for a valid token, public
+  // "supporter" hero for an open/no-token visit. Same layout either way —
+  // only the top bar, kicker, headline and subhead swap.
+  const copy = invited
+    ? {
+        topbar: "Private donor briefing · by invitation only",
+        kicker: "Into the inner circle",
+        headline: `Come inside the campaign, ${heroName}.`,
+        sub: "You've done more than sign — you've backed this fight. We're bringing our closest supporters into the room for a private briefing on where the campaign goes next. Confirm your seat below.",
+        cardTitle: "Confirm your seat",
+        cardSub: "We've filled in what we know — please check it's right.",
+        submit: "Confirm my seat",
+      }
+    : {
+        topbar: "Supporter briefing",
+        kicker: "Come inside the campaign",
+        headline: "Come inside the campaign.",
+        sub: "You've stood with farmers when it mattered — now come into the room. We're holding a briefing for our supporters on where the campaign goes next, and how you can help. Grab your seat below.",
+        cardTitle: "Grab your seat",
+        cardSub: "Tell us where to send your join link.",
+        submit: "Confirm my registration",
+      };
+
+  const agenda = [
+    ["01", "Where VNI West stands", "The route, the timeline, and what's changed since the last update."],
+    ["02", "Your rights at the gate", "Access, land agents, and what you can say no to — with the legal team."],
+    ["03", "Where your support goes", "A frank look at the war chest — and the plan for the next six months."],
+  ];
+
+  const confirmName = form.first_name.trim();
+
   return (
-    <PageShell hideNav hideTopBanner>
-      <section className="ff-section ff-webinar">
-        <div className="ff-wrap ff-webinar-wrap">
-          {phase === "loading" && (
-            <div className="ff-webinar-card ff-webinar-loading">
-              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Donor briefing</span>
-              <h1 className="ff-h2">One moment…</h1>
-              <p className="ff-lede">Checking your invitation.</p>
-            </div>
-          )}
+    <div className="ffw">
+      <div className="ffw-topbar"><span className="ffw-star">★</span> {copy.topbar}</div>
+      <header className="ffw-header">
+        <a href="/" className="ffw-logo" aria-label="Farmers Fightback — back to homepage">
+          <img src="/assets/uploads/ff-logo-white.png" alt="Farmers Fightback" />
+        </a>
+        {invited && <span className="ffw-badge">Your invite</span>}
+      </header>
 
-          {phase === "private" && (
-            <div className="ff-webinar-card ff-webinar-private">
-              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Donor briefing</span>
-              <h1 className="ff-h2">This is a private invitation</h1>
-              <p className="ff-lede">This briefing is invite-only. If you're a Farmers Fightback donor, use the personal link from your invite email.</p>
+      {(phase === "loading" || phase === "private") ? (
+        <div className="ffw-notice-wrap">
+          <div className="ffw-notice">
+            <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> Donor briefing</div>
+            {phase === "loading" ? (
+              <>
+                <h1 className="ffw-notice-title">One moment…</h1>
+                <p className="ffw-notice-text">Checking your invitation.</p>
+              </>
+            ) : (
+              <>
+                <h1 className="ffw-notice-title">This invitation is private.</h1>
+                <p className="ffw-notice-text">This briefing is for invited supporters only, opened with the personal link from your invite email. That link looks like it's missing or has expired.</p>
+                <p className="ffw-notice-fine">Not sure? Reply to your invite email and we'll sort it.</p>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="ffw-hero">
+            <img className="ffw-hero-bg" src="/assets/uploads/webinar-hero-fire.jpg" alt="" aria-hidden="true" />
+            <div className="ffw-hero-scrim" />
+            <div className="ffw-hero-inner">
+              <div className="ffw-kicker ffw-kicker--ondark"><span className="ffw-star">★</span> {copy.kicker}</div>
+              <h1 className="ffw-hero-title">{copy.headline}</h1>
+              <p className="ffw-hero-sub">{copy.sub}</p>
+              {event && <WebinarWhen event={event} />}
             </div>
-          )}
+          </div>
 
-          {phase === "form" && event && (
-            <div className="ff-webinar-card">
-              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Donor briefing</span>
-              <h1 className="ff-h2">{event.title}</h1>
-              <WebinarWhen event={event} />
-              <form className="ff-webinar-form" onSubmit={submitRegistration} noValidate>
-                <div className="ff-form-row">
-                  <Field label={<>First name <span className="ff-req">*</span></>}>
-                    <input value={form.first_name} onChange={update("first_name")} autoComplete="given-name" required aria-required="true" />
-                  </Field>
-                  <Field label="Last name">
-                    <input value={form.last_name} onChange={update("last_name")} autoComplete="family-name" />
-                  </Field>
-                </div>
-                <Field label={<>Email <span className="ff-req">*</span></>}>
-                  <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
-                </Field>
-                <div className="ff-form-row">
-                  <Field label="Mobile">
-                    <input type="tel" value={form.mobile} onChange={update("mobile")} placeholder="0400 000 000" autoComplete="tel" />
-                  </Field>
-                  <Field label="Postcode">
-                    <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} placeholder="3000" autoComplete="postal-code" />
-                  </Field>
-                </div>
-                <div className="ff-field">
-                  <span className="ff-field-label">Will you be joining us?</span>
-                  <div className="ff-webinar-intent" role="radiogroup" aria-label="Attendance">
-                    {WEBINAR_INTENTS.map((label) => (
-                      <button
-                        key={label}
-                        type="button"
-                        role="radio"
-                        aria-checked={intent === label}
-                        className={`ff-webinar-intent-btn ${intent === label ? "is-on" : ""}`}
-                        onClick={() => setIntent(label)}
-                      >
-                        {label}
-                      </button>
-                    ))}
+          <div className="ffw-body">
+            <div className="ffw-agenda">
+              <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> What we'll cover</div>
+              <h2 className="ffw-agenda-title">An hour, straight with the people running the fight.</h2>
+              <ol className="ffw-agenda-list">
+                {agenda.map(([n, t, d]) => (
+                  <li className="ffw-agenda-item" key={n}>
+                    <span className="ffw-agenda-num">{n}</span>
+                    <div className="ffw-agenda-copy">
+                      <div className="ffw-agenda-name">{t}</div>
+                      <p className="ffw-agenda-desc">{d}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <p className="ffw-host">Hosted by <strong>Ben Duxson</strong> and the Farmers Fightback organising team.</p>
+            </div>
+
+            <div className="ffw-card">
+              {phase === "form" ? (
+                <>
+                  <div className="ffw-card-head">
+                    <div className="ffw-card-title">{copy.cardTitle}</div>
+                    <p className="ffw-card-sub">{copy.cardSub}</p>
+                  </div>
+                  <form className="ffw-form ff-webinar-form" onSubmit={submitRegistration} noValidate>
+                    <div className="ff-form-row">
+                      <Field label={<>First name <span className="ff-req">*</span></>}>
+                        <input value={form.first_name} onChange={update("first_name")} autoComplete="given-name" required aria-required="true" />
+                      </Field>
+                      <Field label="Last name">
+                        <input value={form.last_name} onChange={update("last_name")} autoComplete="family-name" />
+                      </Field>
+                    </div>
+                    <Field label={<>Email <span className="ff-req">*</span></>}>
+                      <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
+                    </Field>
+                    <div className="ff-form-row">
+                      <Field label="Mobile">
+                        <input type="tel" value={form.mobile} onChange={update("mobile")} placeholder="0400 000 000" autoComplete="tel" />
+                      </Field>
+                      <Field label="Postcode">
+                        <input value={form.postcode} onChange={update("postcode")} inputMode="numeric" maxLength={4} placeholder="3000" autoComplete="postal-code" />
+                      </Field>
+                    </div>
+                    <div className="ff-field">
+                      <span className="ff-field-label">Will you be joining us?</span>
+                      <div className="ff-webinar-intent" role="radiogroup" aria-label="Attendance">
+                        {WEBINAR_INTENTS.map((label) => (
+                          <button
+                            key={label}
+                            type="button"
+                            role="radio"
+                            aria-checked={intent === label}
+                            className={`ff-webinar-intent-btn ${intent === label ? "is-on" : ""}`}
+                            onClick={() => setIntent(label)}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button className="ff-btn ff-btn--red ff-btn--block ffw-submit" type="submit" disabled={busy}>
+                      {busy ? "Confirming…" : `${copy.submit} →`}
+                    </button>
+                    {formError && <p className="ffw-fine" style={{ color: "var(--ff-red)" }}>{formError}</p>}
+                    <p className="ffw-fine">{invited ? "This link is yours alone — please don't forward it." : "We'll email your private join link before the briefing."}</p>
+                  </form>
+                </>
+              ) : (
+                <div className="ffw-confirmed">
+                  <div className="ffw-check" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FBF7EE" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5" /></svg>
+                  </div>
+                  <div className="ffw-card-title">{confirmName ? `You're confirmed, ${confirmName}.` : "You're confirmed."}</div>
+                  <p className="ffw-card-sub">You're down as <strong>{intent}</strong>. We'll email your private join link before the briefing.</p>
+                  {event && <WebinarWhen event={event} variant="card" />}
+                  {joinUrl
+                    ? <a href={joinUrl} className="ff-btn ff-btn--red ff-btn--block ffw-submit ffw-join" target="_blank" rel="noopener noreferrer">Join the briefing →</a>
+                    : <p className="ffw-fine ffw-join-note">Your join link will be emailed before the briefing.</p>}
+                  <div className="ffw-qa">
+                    <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> Ask the panel</div>
+                    <h2 className="ffw-qa-title">Got a question for the briefing?</h2>
+                    <form onSubmit={submitQuestion} noValidate>
+                      <textarea
+                        className="ffw-qa-input"
+                        value={question}
+                        onChange={(e) => { setQuestion(e.target.value); if (qThanks) setQThanks(false); }}
+                        maxLength={2000}
+                        rows={3}
+                        placeholder="What would you like the campaign to cover?"
+                        aria-label="Your question or comment"
+                      />
+                      <div className="ffw-qa-row">
+                        <span className="ffw-qa-note">Read and curated before the night — we see every one.</span>
+                        <button className="ff-btn ff-btn--red ffw-qa-btn" type="submit" disabled={qBusy}>
+                          {qBusy ? "Sending…" : "Send question"}
+                        </button>
+                      </div>
+                      {qThanks && <p className="ffw-qa-thanks">Thanks — we've got it.</p>}
+                      {qError && <p className="ffw-fine" style={{ color: "var(--ff-red)" }}>{qError}</p>}
+                    </form>
                   </div>
                 </div>
-                <button className="ff-btn ff-btn--red ff-btn--block" type="submit" disabled={busy}>
-                  {busy ? "Confirming…" : "Confirm my registration"}
-                </button>
-                {formError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{formError}</p>}
-                <p className="ff-form-fine">Your personal link is just for you — please don't forward it.</p>
-              </form>
+              )}
             </div>
-          )}
+          </div>
+        </>
+      )}
 
-          {phase === "confirmed" && (
-            <div className="ff-webinar-card ff-webinar-confirmed">
-              <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> You're registered</span>
-              <h1 className="ff-h2">Thank you — we've saved your spot.</h1>
-              {event && <WebinarWhen event={event} />}
-              {joinUrl
-                ? <a href={joinUrl} className="ff-btn ff-btn--red ff-btn--lg ff-webinar-join" target="_blank" rel="noopener noreferrer">Join the briefing</a>
-                : <p className="ff-lede">Your join link will be emailed before the briefing.</p>}
-              <div className="ff-webinar-qa">
-                <h2 className="ff-h3">Ask a question or leave a comment</h2>
-                <p>We'll do our best to cover it on the night. You can send as many as you like.</p>
-                <form onSubmit={submitQuestion} noValidate>
-                  <textarea
-                    className="ff-webinar-qa-input"
-                    value={question}
-                    onChange={(e) => { setQuestion(e.target.value); if (qThanks) setQThanks(false); }}
-                    maxLength={2000}
-                    rows={4}
-                    placeholder="What would you like us to cover?"
-                    aria-label="Your question or comment"
-                  />
-                  <button className="ff-btn ff-btn--outline ff-webinar-qa-btn" type="submit" disabled={qBusy}>
-                    {qBusy ? "Sending…" : "Send it in"}
-                  </button>
-                  {qThanks && <p className="ff-webinar-qa-thanks">Thanks — we've got it.</p>}
-                  {qError && <p className="ff-form-fine" style={{ color: "var(--ff-red)" }}>{qError}</p>}
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-    </PageShell>
+      <footer className="ffw-footer">
+        <img src="/assets/uploads/ff-logo-white.png" alt="Farmers Fightback" className="ffw-footer-logo" />
+        <p className="ffw-footer-text">Fighting for farmers, food &amp; our future · Kanya, VIC<br />A private invitation for supporters of Farmers Fightback.</p>
+      </footer>
+    </div>
   );
 }
 
