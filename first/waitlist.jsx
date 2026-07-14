@@ -14,9 +14,6 @@ const { useState } = React;
 
 const EVENT = {
   date: "Saturday 29 August",
-  gates: "Gates from 6:00pm",
-  venue: "Marnoo Cricket Ground",
-  place: "Marnoo, Victoria",
 };
 
 // Campaign Nucleus receiver — waitlist list (verbatim per brief).
@@ -66,11 +63,8 @@ function Masthead() {
         <img className="ffx-logo" src="/assets/logo-horizontal.png" alt="Farmers Fightback" />
         <div className="ffx-kicker">Tickets drop soon</div>
         <h1 className="ffx-title">Be first<span className="ffx-rally">in line</span></h1>
-        <p className="ffx-sub"><strong>Tickets to the Farmers Fightback Rally are about to be released.</strong></p>
         <div className="ffx-band">
           <div className="ffx-band-date">{EVENT.date}</div>
-          <div className="ffx-band-time">{EVENT.gates}</div>
-          <div className="ffx-band-place">{EVENT.venue}<small>{EVENT.place}</small></div>
         </div>
       </div>
     </header>
@@ -101,6 +95,7 @@ function WaitlistForm({ onDone }) {
   const submit = async () => {
     const e = {};
     if (!form.first.trim()) e.first = "Required";
+    if (!form.last.trim()) e.last = "Required";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) e.email = "Enter a valid email";
     setErrs(e);
     if (Object.keys(e).length) return;
@@ -164,13 +159,13 @@ function WaitlistForm({ onDone }) {
       <div className="ffx-pitch">
         <div className="ffx-pitch-tag"><I.star width="13" height="13" /> Waitlist</div>
         <div className="ffx-pitch-h">Get the first shout when tickets go live</div>
-        <p className="ffx-pitch-p">Numbers are limited and this one will move fast. Join the waitlist and we&rsquo;ll text and email you the moment tickets are released &mdash; before we post it anywhere else.</p>
+        <p className="ffx-pitch-p">Numbers are limited and this one will move fast. Join the waitlist and we&rsquo;ll text and email you the moment registrations are open &mdash; before we post it anywhere else.</p>
       </div>
 
       <div className="ffx-sec-h">Your details</div>
       <div className="ffx-fields">
         <Field label="First name" value={form.first} onChange={set("first")} err={errs.first} placeholder="Jane" autoComplete="given-name" />
-        <Field label="Last name" opt value={form.last} onChange={set("last")} placeholder="Farmer" autoComplete="family-name" />
+        <Field label="Last name" value={form.last} onChange={set("last")} placeholder="Farmer" autoComplete="family-name" />
         <Field label="Email" type="email" inputMode="email" value={form.email} onChange={set("email")} err={errs.email} placeholder="jane@example.com" autoComplete="email" />
         <Field label="Mobile" opt type="tel" inputMode="tel" value={form.mobile} onChange={set("mobile")} placeholder="0400 000 000" autoComplete="tel" />
         <Field label="Postcode" opt inputMode="numeric" value={form.postcode} onChange={set("postcode")} placeholder="3387" autoComplete="postal-code" />
@@ -179,7 +174,6 @@ function WaitlistForm({ onDone }) {
       <button className="ffx-btn ffx-btn-lg" onClick={submit} disabled={busy}>
         {busy ? "Joining…" : "Join the waitlist →"}
       </button>
-      <p className="ffx-fine">No spam, ever. We&rsquo;ll only be in touch about the rally.</p>
     </div>
   );
 }
