@@ -4087,7 +4087,9 @@ function WebinarWhen({ event }) {
 const WEBINAR_INTENTS = ["Attending", "Can't attend", "Maybe"];
 
 function WebinarPage() {
-  const session = (window.location.pathname.split("/")[2] || "tuesday").toLowerCase();
+  // Slug is the last path segment: /supporters210726 (new, no /webinar/
+  // prefix) or a legacy /webinar/<slug>. Either way take the final segment.
+  const session = (window.location.pathname.split("/").filter(Boolean).pop() || "").toLowerCase();
   const token = new URLSearchParams(window.location.search).get("t") || "";
 
   const [phase, setPhase] = useState("loading"); // loading | private | form | confirmed

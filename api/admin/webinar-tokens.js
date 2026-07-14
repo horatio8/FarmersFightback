@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
   const days = Math.min(365, Math.max(1, Number(url.searchParams.get("days")) || 30));
   const email = normEmail(url.searchParams.get("email"));
 
-  const makeUrl = (token) => `${PUBLIC_BASE}/webinar/${session}?t=${token}`;
+  const makeUrl = (token) => `${PUBLIC_BASE}/${session}?t=${token}`;
 
   try {
     if (email) {
