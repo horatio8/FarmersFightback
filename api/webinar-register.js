@@ -99,6 +99,7 @@ module.exports = async function handler(req, res) {
   const mobile = rawMobile ? normPhone(rawMobile) : "";
   const postcode = String(body.postcode || "").trim().slice(0, 12);
   const attendance_intent = String(body.attendance_intent || "").trim();
+  const send_briefing = body.send_briefing === true || body.send_briefing === "true";
 
   if (!first_name) return res.status(400).json({ error: "First name is required." });
   if (!email || !EMAIL_RE.test(email) || email.length > 254) {
@@ -176,6 +177,7 @@ module.exports = async function handler(req, res) {
         email,
         mobile: mobile || undefined,
         attendance_intent,
+        send_briefing,
         donor_status,
         registered_at: nowIso(),
       };
@@ -195,6 +197,7 @@ module.exports = async function handler(req, res) {
         email,
         mobile: mobile || undefined,
         attendance_intent,
+        send_briefing,
         donor_status,
         cn_signup_id: cn.id || undefined,
         cn_synced: cn.synced || undefined,
