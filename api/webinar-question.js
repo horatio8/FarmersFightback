@@ -13,7 +13,7 @@
 // {"include":"Yes"|"No"|"Maybe","rationale":"one line"} written back to the
 // Questions row.
 
-const { findOne, listRows, createRow, updateRow, uuid, nowIso } = require("./_airtable");
+const { findOne, listRows, createRow, updateRow, uuid, nowIso, normEmail, findContactByEmail } = require("./_airtable");
 const {
   REGISTRATIONS_TABLE,
   QUESTIONS_TABLE,
@@ -112,18 +112,19 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
-  if (!isConfigured()) return res.status(503).json({ error: "not configured" });
-
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
   body = body || {};
 
   const token = String(body.t || "");
   const session = normSession(body.session);
-  const v = verifyToken(token);
-  if (!v || !session || v.session !== session) {
-    return res.status(403).json({ private: true });
-  }
+  const email = normEmail(body.email); // open mode: page POSTs the form email
+
+  // Only require token config when a token was supplied. Open mode needs none.
+  if (token && !isConfigured()) return res.status(503).json({ error: "not configured" });
+
+  const v = token ? verifyToken(token) : null;
+  const hasValidToken = Boolean(v && session && v.session === session);
 
   const text = String(body.body || "").trim();
   if (!text) return res.status(400).json({ error: "Please write a question or comment first." });
@@ -131,18 +132,42 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: `Please keep it under ${MAX_BODY} characters.` });
   }
 
-  // Rate limit: 10 questions per session-token. Fast path in-memory, durable
-  // path counts the Questions rows hanging off this token's registration.
-  const memCount = tokenHits.get(token) || 0;
+  // Rate limit: 10 questions per registrant. Fast path in-memory keyed on the
+  // token (auth mode) or email+session (open mode, where there is no token);
+  // durable path counts the Questions rows hanging off the registration.
+  const rateKey = hasValidToken ? token : `${email}|${session}`;
+  const memCount = tokenHits.get(rateKey) || 0;
   if (memCount >= MAX_QUESTIONS_PER_TOKEN) {
     return res.status(429).json({ error: "You've reached the question limit for this briefing." });
   }
 
   try {
     const webinar = await findWebinarBySession(session);
-    if (!webinar) return res.status(404).json({ error: "session not found" });
+    // Auth gate: valid token always passes; otherwise (open mode) the webinar
+    // row must be flagged open_registration.
+    if (!hasValidToken) {
+      if (!webinar || !(webinar.fields || {}).open_registration) {
+        return res.status(403).json({ private: true });
+      }
+    } else if (!webinar) {
+      return res.status(404).json({ error: "session not found" });
+    }
 
-    const registration = await findOne(REGISTRATIONS_TABLE, `{token}='${escFormula(token)}'`);
+    // Resolve the registration to link the question to. Token mode keys on
+    // the token; open mode keys on (email + this webinar).
+    let registration = null;
+    if (hasValidToken) {
+      registration = await findOne(REGISTRATIONS_TABLE, `{token}='${escFormula(token)}'`);
+    } else if (email) {
+      const candidates = await listRows(REGISTRATIONS_TABLE, {
+        formula: `LOWER({email})='${escFormula(email)}'`,
+        maxRecords: 50,
+      });
+      registration = candidates.find(
+        (r) => Array.isArray((r.fields || {}).webinar) && r.fields.webinar.includes(webinar.id)
+      ) || null;
+    }
+
     if (registration) {
       const regId = (registration.fields || {}).registration_id;
       if (regId) {
@@ -157,7 +182,17 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const contact = await findContactByContactId(v.contact_id);
+    // Link the contact: token's contact_id, or (open mode) by email. If
+    // neither resolves, the row is still created with the link omitted.
+    let contact = null;
+    try {
+      contact = hasValidToken
+        ? await findContactByContactId(v.contact_id)
+        : (email ? await findContactByEmail(email) : null);
+    } catch (e) {
+      console.error("webinar-question contact lookup failed:", e.message);
+      contact = null;
+    }
 
     const fields = {
       question_id: uuid(),
@@ -169,7 +204,7 @@ module.exports = async function handler(req, res) {
     };
     Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
     const row = await createRow(QUESTIONS_TABLE, fields);
-    tokenHits.set(token, memCount + 1);
+    tokenHits.set(rateKey, memCount + 1);
 
     // Inline AI triage — best-effort write-back, never blocks the response.
     const verdict = await triageQuestion(text);

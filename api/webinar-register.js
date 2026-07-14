@@ -12,7 +12,7 @@
 // Registrations mirror keyed on the exact token, so re-registration with the
 // same magic link updates intent/fields instead of duplicating.
 
-const { findOne, createRow, updateRow, uuid, nowIso, normEmail, normPhone } = require("./_airtable");
+const { findOne, listRows, createRow, updateRow, uuid, nowIso, normEmail, normPhone, findContactByEmail } = require("./_airtable");
 const { cnFetch } = require("./_cn");
 const {
   REGISTRATIONS_TABLE,
@@ -23,6 +23,7 @@ const {
   normSession,
   findWebinarBySession,
   findContactByContactId,
+  donorStatusFromContact,
 } = require("./_webinar");
 
 const ALLOWED_ORIGINS = new Set([
@@ -77,18 +78,19 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
-  if (!isConfigured()) return res.status(503).json({ error: "not configured" });
-
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
   body = body || {};
 
   const token = String(body.t || "");
   const session = normSession(body.session);
-  const v = verifyToken(token);
-  if (!v || !session || v.session !== session) {
-    return res.status(403).json({ private: true });
-  }
+
+  // Only require token config when a token was supplied. Open mode needs none.
+  if (token && !isConfigured()) return res.status(503).json({ error: "not configured" });
+
+  const v = token ? verifyToken(token) : null;
+  const hasValidToken = Boolean(v && session && v.session === session);
+  // A valid token or open mode (checked against the webinar below) is required.
 
   const first_name = String(body.first_name || "").trim().slice(0, 80);
   const last_name = String(body.last_name || "").trim().slice(0, 80);
@@ -112,8 +114,33 @@ module.exports = async function handler(req, res) {
 
   try {
     const webinar = await findWebinarBySession(session);
-    if (!webinar) return res.status(404).json({ error: "session not found" });
+    // Auth gate: a valid token always passes; otherwise (open mode) the
+    // webinar row must be flagged open_registration.
+    if (!hasValidToken) {
+      if (!webinar || !(webinar.fields || {}).open_registration) {
+        return res.status(403).json({ private: true });
+      }
+    } else if (!webinar) {
+      return res.status(404).json({ error: "session not found" });
+    }
     const wf = webinar.fields || {};
+    const openMode = !hasValidToken;
+
+    // Resolve the contact + donor_status. Token mode keys on the token's
+    // contact_id; open mode resolves identity by email. "Unknown" is only
+    // used defensively when the lookup itself throws.
+    let contact = null;
+    let donor_status = "Not a donor";
+    try {
+      contact = openMode
+        ? await findContactByEmail(email)
+        : await findContactByContactId(v.contact_id);
+      donor_status = donorStatusFromContact(contact);
+    } catch (e) {
+      console.error("webinar donor-status lookup failed:", e.message);
+      contact = null;
+      donor_status = "Unknown";
+    }
 
     const reg = { first_name, last_name, email, mobile, postcode, attendance_intent };
 
@@ -125,9 +152,23 @@ module.exports = async function handler(req, res) {
       console.error("webinar CN signup threw:", e.message);
     }
 
-    // (b) Upsert Registrations keyed on the exact magic-link token (one
-    // token = one contact + one webinar, so this is the natural unique key).
-    const existing = await findOne(REGISTRATIONS_TABLE, `{token}='${escFormula(token)}'`);
+    // (b) Upsert Registrations. Token mode keys on the exact magic-link
+    // token (one token = one contact + one webinar). Open mode has no token,
+    // so it keys on (email + this webinar): fetch candidate rows by email
+    // and pick the one already linked to this webinar record.
+    let existing;
+    if (openMode) {
+      const candidates = await listRows(REGISTRATIONS_TABLE, {
+        formula: `LOWER({email})='${escFormula(email)}'`,
+        maxRecords: 50,
+      });
+      existing = candidates.find(
+        (r) => Array.isArray((r.fields || {}).webinar) && r.fields.webinar.includes(webinar.id)
+      ) || null;
+    } else {
+      existing = await findOne(REGISTRATIONS_TABLE, `{token}='${escFormula(token)}'`);
+    }
+
     if (existing) {
       const patch = {
         first_name,
@@ -135,6 +176,7 @@ module.exports = async function handler(req, res) {
         email,
         mobile: mobile || undefined,
         attendance_intent,
+        donor_status,
         registered_at: nowIso(),
       };
       if (cn.synced) {
@@ -144,7 +186,6 @@ module.exports = async function handler(req, res) {
       Object.keys(patch).forEach((k) => patch[k] === undefined && delete patch[k]);
       await updateRow(REGISTRATIONS_TABLE, existing.id, patch);
     } else {
-      const contact = await findContactByContactId(v.contact_id);
       const fields = {
         registration_id: uuid(),
         contact: contact ? [contact.id] : undefined,
@@ -154,10 +195,11 @@ module.exports = async function handler(req, res) {
         email,
         mobile: mobile || undefined,
         attendance_intent,
+        donor_status,
         cn_signup_id: cn.id || undefined,
         cn_synced: cn.synced || undefined,
         registered_at: nowIso(),
-        token,
+        token: openMode ? "" : token,
         source_channel: "email",
       };
       Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);

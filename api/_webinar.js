@@ -97,6 +97,18 @@ async function findContactByContactId(contactId) {
   return findOne(CONTACTS_TABLE, `{contact_id}='${escFormula(contactId)}'`);
 }
 
+// Map a Contacts row to a Registrations.donor_status value.
+// Handles status as a singleSelect object ({name}) or a plain string.
+// A missing contact (null/undefined) → "Not a donor": a genuine donor
+// would already exist in Contacts. "Unknown" is reserved for the caller
+// to set defensively when the contact lookup itself throws.
+function donorStatusFromContact(contact) {
+  const raw = (contact && contact.fields && contact.fields.status) || "";
+  const status = raw && typeof raw === "object" ? raw.name : raw;
+  if (status === "Donor Only" || status === "Signatory + Donor") return "Donor";
+  return "Not a donor";
+}
+
 module.exports = {
   WEBINARS_TABLE,
   REGISTRATIONS_TABLE,
@@ -110,4 +122,5 @@ module.exports = {
   normSession,
   findWebinarBySession,
   findContactByContactId,
+  donorStatusFromContact,
 };

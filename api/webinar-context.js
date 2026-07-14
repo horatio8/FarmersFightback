@@ -42,32 +42,46 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "GET") return res.status(405).json({ error: "GET only" });
 
-  if (!isConfigured()) return res.status(503).json({ error: "not configured" });
-
   const url = new URL(req.url, hostBase(req));
   const session = normSession(url.searchParams.get("session"));
   const token = url.searchParams.get("t") || "";
 
-  const v = verifyToken(token);
-  if (!v || !session || v.session !== session) {
-    return res.status(403).json({ private: true });
-  }
+  // Only require token verification config when a token was actually
+  // supplied. Open mode needs no secret.
+  if (token && !isConfigured()) return res.status(503).json({ error: "not configured" });
+
+  const v = token ? verifyToken(token) : null;
+  const hasValidToken = Boolean(v && session && v.session === session);
+
+  const eventOf = (wf) => ({
+    title: wf.title || "Donor Briefing",
+    starts_at_utc: wf.starts_at_utc || null,
+    timezone: wf.timezone || "Australia/Melbourne",
+    join_url: wf.join_url || null,
+  });
 
   try {
     const webinar = await findWebinarBySession(session);
+
+    // No/invalid token: allowed only when the webinar is open. Empty prefill.
+    if (!hasValidToken) {
+      if (!webinar || !(webinar.fields || {}).open_registration) {
+        return res.status(403).json({ private: true });
+      }
+      return res.status(200).json({
+        event: eventOf(webinar.fields || {}),
+        prefill: { first_name: "", last_name: "", email: "", mobile: "", postcode: "" },
+      });
+    }
+
+    // Valid token → prefill from the token's own contact (unchanged).
     if (!webinar) return res.status(404).json({ error: "session not found" });
 
     const contact = await findContactByContactId(v.contact_id);
     const cf = (contact && contact.fields) || {};
-    const wf = webinar.fields || {};
 
     return res.status(200).json({
-      event: {
-        title: wf.title || "Donor Briefing",
-        starts_at_utc: wf.starts_at_utc || null,
-        timezone: wf.timezone || "Australia/Melbourne",
-        join_url: wf.join_url || null,
-      },
+      event: eventOf(webinar.fields || {}),
       prefill: {
         first_name: cf.first_name || "",
         last_name: cf.last_name || "",

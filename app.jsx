@@ -4091,6 +4091,10 @@ function WebinarPage() {
   // prefix) or a legacy /webinar/<slug>. Either way take the final segment.
   const session = (window.location.pathname.split("/").filter(Boolean).pop() || "").toLowerCase();
   const token = new URLSearchParams(window.location.search).get("t") || "";
+  // Open mode = no token in the URL. The server decides whether the event is
+  // actually open (200 → form) or private (403 → notice); the client just
+  // sends the email along so open registrations/questions can be linked.
+  const openMode = !token;
 
   const [phase, setPhase] = useState("loading"); // loading | private | form | confirmed
   const [event, setEvent] = useState(null);
@@ -4107,7 +4111,8 @@ function WebinarPage() {
   const [qError, setQError] = useState("");
 
   useEffect(() => {
-    if (!token) { setPhase("private"); return; }
+    // Always ask the server — it decides open (200) vs private (403). Send an
+    // empty t when there's no token; open events render the form to everyone.
     fetch(`/api/webinar-context?session=${encodeURIComponent(session)}&t=${encodeURIComponent(token)}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d) => {
@@ -4174,7 +4179,7 @@ function WebinarPage() {
       const r = await fetch("/api/webinar-question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ t: token, session, body: question.trim().slice(0, 2000) }),
+        body: JSON.stringify({ t: token, session, body: question.trim().slice(0, 2000), ...(openMode ? { email: form.email.trim() } : {}) }),
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) {
