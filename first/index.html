@@ -123,7 +123,17 @@
       color:var(--navy);text-decoration:none;cursor:pointer;transition:border-color .12s,transform .06s}
     .ffx-share-btn:hover{border-color:var(--ch);transform:translateY(-1px)}
     .ffx-share-ic{width:32px;height:32px;flex:none;border-radius:9px;background:var(--ch);color:#fff;display:flex;align-items:center;justify-content:center}
-    .ffx-navrow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:22px}
+    .ffx-share-copy{width:100%;font:inherit;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-size:13px}
+    /* ---- donor matrix ---- */
+    .ffx-give-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+    .ffx-give{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:74px;
+      background:#fff;border:1.5px solid var(--cream-dim);border-radius:14px;padding:12px 10px;text-align:center;
+      text-decoration:none;cursor:pointer;transition:border-color .12s,transform .06s,box-shadow .12s}
+    .ffx-give:hover{border-color:var(--field-green);transform:translateY(-1px);box-shadow:0 8px 18px rgba(31,107,59,0.14)}
+    .ffx-give.is-default{border-color:var(--field-green);background:#f2f8f2}
+    .ffx-give-amt{font-family:var(--f-disp);font-weight:700;font-size:26px;line-height:1;color:var(--field-green)}
+    .ffx-give-tag{font-size:11.5px;line-height:1.25;color:var(--ink-soft)}
+    .ffx-navrow{display:grid;grid-template-columns:1fr;gap:9px;margin-top:22px}
     @media (max-width:400px){.ffx-navrow{grid-template-columns:1fr}}
     .ffx-navbtn{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:14px 18px;
       font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:14px;text-decoration:none;

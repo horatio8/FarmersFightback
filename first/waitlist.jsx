@@ -27,7 +27,21 @@ const I = {
   bell: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>),
   fb: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v1.8H8v3h2.6V21H14v-8.5h2.6l.4-3z"/></svg>),
   wa: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.2.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.9-1c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3 0 .2 0 .8-.2 1.4z"/></svg>),
+  x: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.9 1.2h3.68l-8.04 9.19L24 22.79h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.2h7.59l5.24 6.93zM17.61 20.6h2.04L6.49 3.29H4.3z"/></svg>),
+  sms: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>),
+  link: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>),
 };
+
+/* Donation matrix — the standard donor tiers; each links straight to its
+   Stripe payment page. Mirrors content/site.json donorPage.amounts. */
+const DONATE = [
+  { amount: 35, url: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q", tag: "Prints 500 leaflets" },
+  { amount: 65, url: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R", tag: "An hour of legal counsel" },
+  { amount: 135, url: "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", tag: "A targeted ad set", isDefault: true },
+  { amount: 265, url: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T", tag: "A camera kit for a farmer" },
+  { amount: 550, url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", tag: "A regional billboard for a week" },
+  { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", tag: "Fund a full TV campaign run" },
+];
 
 /* ---------- attribution helper (inline — no app.jsx here) ----------
    Reads UTM/click-id/ref from the URL, _fbp from the cookie, and the
@@ -183,12 +197,20 @@ function WaitlistForm({ onDone }) {
    ============================================================ */
 function SuccessCard({ first }) {
   const url = "https://www.farmersfightback.com/first";
-  const text = "Tickets to the Farmers Fightback Rally drop soon — get on the waitlist so you don't miss out:";
+  const text = "Registrations for the Farmers Fightback Rally open soon — get on the waitlist so you don't miss out:";
   const enc = encodeURIComponent;
+  const [copied, setCopied] = useState(false);
   const chans = [
     { k: "fb", label: "Facebook", Ic: I.fb, href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, c: "#1877F2" },
+    { k: "x", label: "X", Ic: I.x, href: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`, c: "#111111" },
     { k: "wa", label: "WhatsApp", Ic: I.wa, href: `https://wa.me/?text=${enc(text + " " + url)}`, c: "#25D366" },
+    { k: "sms", label: "Text", Ic: I.sms, href: `sms:?&body=${enc(text + " " + url)}`, c: "#2C6E8F" },
   ];
+  const copy = () => {
+    try { navigator.clipboard.writeText(url); } catch {}
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="ffx-card">
@@ -196,7 +218,7 @@ function SuccessCard({ first }) {
         <span className="ffx-success-badge"><I.check width="34" height="34" /></span>
         <div className="ffx-success-script">You&rsquo;re on the list{first ? ", " + first : ""}.</div>
         <h2 className="ffx-success-h">You&rsquo;re first in line</h2>
-        <p className="ffx-success-p">We&rsquo;ll text and email you the moment tickets are released. Tell a mate so they don&rsquo;t miss out.</p>
+        <p className="ffx-success-p">We&rsquo;ll text and email you the moment details are released.</p>
       </div>
 
       <div className="ffx-block">
@@ -211,12 +233,30 @@ function SuccessCard({ first }) {
               <span className="ffx-share-ic"><Ic width="18" height="18" /></span>{label}
             </a>
           ))}
+          <button type="button" className="ffx-share-btn ffx-share-copy" onClick={copy} style={{ "--ch": "#175530" }}>
+            <span className="ffx-share-ic"><I.link width="18" height="18" /></span>{copied ? "Copied!" : "Copy link"}
+          </button>
+        </div>
+      </div>
+
+      <div className="ffx-block">
+        <div className="ffx-block-h">
+          <span className="ffx-block-eb"><I.star width="12" height="12" /> Back the fight</span>
+          <h3>Chip in while you wait</h3>
+          <p>They have billions. We have you. Every dollar keeps the fight on the road.</p>
+        </div>
+        <div className="ffx-give-grid">
+          {DONATE.map(({ amount, url: durl, tag, isDefault }) => (
+            <a key={amount} className={"ffx-give" + (isDefault ? " is-default" : "")} href={durl} target="_top" rel="noopener">
+              <span className="ffx-give-amt">${amount}</span>
+              <span className="ffx-give-tag">{tag}</span>
+            </a>
+          ))}
         </div>
       </div>
 
       <div className="ffx-navrow">
         <a className="ffx-navbtn ffx-navbtn-green" href="/">← Back to home</a>
-        <a className="ffx-navbtn ffx-navbtn-gold" href="/donate">Chip in →</a>
       </div>
     </div>
   );
