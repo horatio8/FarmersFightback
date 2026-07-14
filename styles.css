@@ -2630,8 +2630,16 @@ img { max-width: 100%; display: block; }
   padding-inline: max(clamp(20px, 5vw, 40px), calc((100% - var(--ffw-max)) / 2));
   background: var(--w-navy);
 }
+/* Logo centred in the header; the invite badge (if any) floats to the right
+   without shifting the logo off-centre. */
+.ffw-header--center { position: relative; justify-content: center; }
+.ffw-header--center .ffw-badge {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  right: max(clamp(20px, 5vw, 40px), calc((100% - var(--ffw-max)) / 2));
+}
+@media (max-width: 620px) { .ffw-header--center .ffw-badge { display: none; } }
 .ffw-logo { display: block; line-height: 0; }
-.ffw-logo img { height: 30px; width: auto; display: block; }
+.ffw-logo img { height: 34px; width: auto; display: block; }
 .ffw-badge {
   font-family: var(--w-disp); font-weight: 600; font-size: 13px;
   letter-spacing: 0.1em; text-transform: uppercase;
@@ -2680,15 +2688,15 @@ img { max-width: 100%; display: block; }
 .ffw-when-time { font-family: var(--w-disp); font-weight: 700; font-size: 28px; line-height: 1; color: var(--w-paper-50); margin-top: 3px; text-transform: uppercase; }
 .ffw-when-rule { width: 1.5px; align-self: stretch; background: rgba(255,255,255,0.2); }
 .ffw-when-meta { font-size: 13px; color: var(--w-navy-100); line-height: 1.4; }
-.ffw-when-date { font-size: 16px; font-weight: 600; color: var(--w-paper-50); }
+.ffw-when-date { font-size: 20px; font-weight: 700; color: var(--w-paper-50); }
 .ffw-when-mel { color: var(--w-navy-300); }
 .ffw-when-online {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 18px; border-top: 1.5px solid rgba(255,255,255,0.18);
-  font-family: var(--w-body-f); font-weight: 700; font-size: 11px;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--w-navy-100);
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 18px; border-top: 1.5px solid rgba(255,255,255,0.18);
+  font-family: var(--w-body-f); font-weight: 700; font-size: 15px;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--w-paper-50);
 }
-.ffw-when-online svg { color: var(--w-red-300); flex: none; }
+.ffw-when-online svg { color: var(--w-red-300); flex: none; width: 17px; height: 17px; }
 
 /* timezone chooser + helper text under the chip */
 .ffw-when-wrap { align-self: flex-start; display: flex; flex-direction: column; gap: 10px; margin-top: 6px; max-width: 100%; }

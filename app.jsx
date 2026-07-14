@@ -4346,8 +4346,7 @@ function WebinarPage() {
 
   return (
     <div className="ffw">
-      <div className="ffw-topbar"><span className="ffw-star">★</span> {copy.topbar}</div>
-      <header className="ffw-header">
+      <header className="ffw-header ffw-header--center">
         <a href="/" className="ffw-logo" aria-label="Farmers Fightback — back to homepage">
           <img src="/assets/uploads/ff-logo-white.png" alt="Farmers Fightback" />
         </a>
