@@ -221,6 +221,22 @@ function SuccessCard({ first }) {
         <p className="ffx-success-p">We&rsquo;ll text and email you the moment details are released.</p>
       </div>
 
+      <div className="ffx-block ffx-block--give">
+        <div className="ffx-block-h">
+          <span className="ffx-block-eb"><I.star width="12" height="12" /> Back the fight</span>
+          <h3>Chip in while you wait</h3>
+          <p>They have billions. We have you. Every dollar keeps the fight on the road.</p>
+        </div>
+        <div className="ffx-give-grid">
+          {DONATE.map(({ amount, url: durl, tag, isDefault }) => (
+            <a key={amount} className={"ffx-give" + (isDefault ? " is-default" : "")} href={durl} target="_top" rel="noopener">
+              <span className="ffx-give-amt">${amount}</span>
+              <span className="ffx-give-tag">{tag}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
       <div className="ffx-block">
         <div className="ffx-block-h">
           <span className="ffx-block-eb"><I.star width="12" height="12" /> Bring your people</span>
@@ -236,22 +252,6 @@ function SuccessCard({ first }) {
           <button type="button" className="ffx-share-btn ffx-share-copy" onClick={copy} style={{ "--ch": "#175530" }}>
             <span className="ffx-share-ic"><I.link width="18" height="18" /></span>{copied ? "Copied!" : "Copy link"}
           </button>
-        </div>
-      </div>
-
-      <div className="ffx-block">
-        <div className="ffx-block-h">
-          <span className="ffx-block-eb"><I.star width="12" height="12" /> Back the fight</span>
-          <h3>Chip in while you wait</h3>
-          <p>They have billions. We have you. Every dollar keeps the fight on the road.</p>
-        </div>
-        <div className="ffx-give-grid">
-          {DONATE.map(({ amount, url: durl, tag, isDefault }) => (
-            <a key={amount} className={"ffx-give" + (isDefault ? " is-default" : "")} href={durl} target="_top" rel="noopener">
-              <span className="ffx-give-amt">${amount}</span>
-              <span className="ffx-give-tag">{tag}</span>
-            </a>
-          ))}
         </div>
       </div>
 
@@ -275,7 +275,16 @@ function WaitlistApp() {
       <div className="ffx-wrap">
         {done
           ? <SuccessCard first={first} />
-          : <WaitlistForm onDone={(f) => { setFirst(f); setDone(true); window.scrollTo(0, 0); }} />}
+          : <WaitlistForm onDone={(f) => {
+              setFirst(f); setDone(true);
+              // Land on the donor ask, not the masthead, so the give block
+              // is the first thing they see on the followup page.
+              setTimeout(() => {
+                const el = document.querySelector(".ffx-block--give");
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                else window.scrollTo(0, 0);
+              }, 60);
+            }} />}
       </div>
       <footer className="ffx-foot">
         <div><span className="ffx-foot-l">Enquiries</span> events@farmersfightback.com</div>
