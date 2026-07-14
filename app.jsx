@@ -155,7 +155,7 @@ function useBfcacheReset(reset) {
 
 // Create a Stripe-hosted Checkout Session via /api/checkout and return its
 // URL. All attribution (utm_*, ref, contact_id, sms_variant) rides along.
-async function createDonationCheckout({ amount, frequency, email }) {
+async function createDonationCheckout({ amount, frequency, email, slug }) {
   const attr = getAttribution();
   const urlNow = new URL(window.location.href);
   let contactId = urlNow.searchParams.get("c") || "";
@@ -168,7 +168,7 @@ async function createDonationCheckout({ amount, frequency, email }) {
     amount: Number(amount),
     frequency,
     email: email || undefined,
-    slug: currentPetitionSlug() || undefined,
+    slug: slug || currentPetitionSlug() || undefined,
     ref: (attr.ref || "").toUpperCase() || undefined,
     contact_id: contactId || undefined,
     sms_variant: attr.utm_source === "sms" ? (attr.utm_content === "issue" ? "B" : "A") : undefined,
@@ -4061,34 +4061,129 @@ function webinarFmtDay(iso, zone) {
   }
 }
 
-function WebinarWhen({ event, variant }) {
+// AU timezones the visitor can switch between, and the derived city label.
+const WEBINAR_AU_ZONES = [
+  "Australia/Perth", "Australia/Adelaide", "Australia/Darwin",
+  "Australia/Brisbane", "Australia/Sydney", "Australia/Melbourne", "Australia/Hobart",
+];
+function webinarCityFromZone(zone) {
+  // City = the part of the IANA zone after "/", "_" → " ", uppercased.
+  const part = (zone || "").split("/")[1] || zone || "";
+  return part.replace(/_/g, " ").toUpperCase();
+}
+
+function WebinarWhen({ event }) {
   if (!event || !event.starts_at_utc) return null;
   let browserZone = "";
   try { browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
-  const localZone = browserZone || event.timezone;
-  const localDay = webinarFmtDay(event.starts_at_utc, localZone);
-  const localTime = webinarFmtTime(event.starts_at_utc, localZone);
-  // Show the event's own (Melbourne) clock time too whenever the visitor's
-  // zone renders a different string — the local time is primary, Melbourne
-  // shown alongside so "5:00 PM in Perth" is never read as Melbourne time.
+  const [zone, setZone] = useState(browserZone || event.timezone);
+  const [picking, setPicking] = useState(false);
+  const city = webinarCityFromZone(zone);
+  const localDay = webinarFmtDay(event.starts_at_utc, zone);
+  const localTime = webinarFmtTime(event.starts_at_utc, zone);
+  // The event's own (Melbourne) clock time, shown alongside so a visitor in
+  // Perth never reads their local "5:00 PM" as the Melbourne start time.
   const eventTime = webinarFmtTime(event.starts_at_utc, event.timezone);
-  const showEventZone = Boolean(eventTime) && eventTime !== localTime;
+  // Zone options: always offer the AU set, plus the visitor's detected zone
+  // if it isn't already one of them.
+  const zoneOpts = WEBINAR_AU_ZONES.includes(zone) ? WEBINAR_AU_ZONES : [zone, ...WEBINAR_AU_ZONES];
   return (
-    <div className={`ffw-when${variant === "card" ? " ffw-when--card" : ""}`}>
-      <div className="ffw-when-main">
-        <div className="ffw-when-label">In your time</div>
-        <div className="ffw-when-time">{localTime}</div>
+    <div className="ffw-when-wrap">
+      <div className="ffw-when">
+        <div className="ffw-when-main">
+          <div className="ffw-when-label">In your time · {city}</div>
+          <div className="ffw-when-time">{localTime}</div>
+        </div>
+        <div className="ffw-when-rule" />
+        <div className="ffw-when-meta">
+          {localDay}
+          <br /><span className="ffw-when-mel">Live from Melbourne · {eventTime}</span>
+        </div>
       </div>
-      <div className="ffw-when-rule" />
-      <div className="ffw-when-meta">
-        {localDay}
-        {showEventZone && <><br /><span className="ffw-when-mel">Live from Melbourne · {eventTime}</span></>}
-      </div>
+      {picking ? (
+        <select
+          className="ffw-when-select"
+          value={zone}
+          onChange={(e) => { setZone(e.target.value); }}
+          aria-label="Choose your timezone"
+        >
+          {zoneOpts.map((z) => (
+            <option key={z} value={z}>{webinarCityFromZone(z)}</option>
+          ))}
+        </select>
+      ) : (
+        <button type="button" className="ffw-when-change" onClick={() => setPicking(true)}>
+          Not in {city}? Change timezone →
+        </button>
+      )}
+      <p className="ffw-when-help">Online briefing · we'll show the time in your own city when you open the page.</p>
     </div>
   );
 }
 
-const WEBINAR_INTENTS = ["Attending", "Can't attend", "Maybe"];
+// Attendance options: [POST value (strict), button label shown to the user].
+const WEBINAR_INTENTS = [
+  ["Attending", "I'll be there"],
+  ["Maybe", "Maybe"],
+  ["Can't attend", "Can't make it"],
+];
+
+// Confirmation-screen donation matrix. Reuses the site donorPage amount ladder
+// and the shared /api/checkout helper (with a webinar slug + the registrant's
+// email), plus the Payment-Link fallback for one-off gifts.
+function WebinarDonate({ email }) {
+  const donor = useContent().donorPage || {};
+  const tiers = donor.amounts || [];
+  const [monthly, setMonthly] = useState(false);
+  const [picked, setPicked] = useState(65);
+  const [busy, setBusy] = useState(false);
+  useBfcacheReset(() => setBusy(false));
+  const base = tiers.find((t) => Number(t.amount) === picked) ? picked : (tiers[1] && tiers[1].amount) || (tiers[0] && tiers[0].amount) || 65;
+  const amount = monthly ? monthlyFor(base) : base;
+  const go = async () => {
+    if (busy) return;
+    setBusy(true);
+    const frequency = monthly ? "monthly" : "oneoff";
+    try {
+      window.location.href = await createDonationCheckout({ amount, frequency, email, slug: "webinar" });
+    } catch (e) {
+      const selected = tiers.find((t) => Number(t.amount) === base);
+      const fallbackUrl = (!monthly && selected && selected.url) || donor.otherUrl;
+      if (!monthly && fallbackUrl) { window.location.href = fallbackUrl; return; }
+      setBusy(false);
+      alert("Sorry — that didn't go through. Please try again.");
+    }
+  };
+  return (
+    <div className="ffw-donate">
+      <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> Chip in while you're here</div>
+      <h2 className="ffw-donate-title">Donate to the farmers fighting back</h2>
+      <p className="ffw-card-sub">We're a citizen-funded movement. Every dollar keeps us at the gate.</p>
+      <div className="ffw-donate-toggle" role="group" aria-label="Donation frequency">
+        <button type="button" className={`ffw-donate-tab ${!monthly ? "is-on" : ""}`} aria-pressed={!monthly} onClick={() => setMonthly(false)}>Give once</button>
+        <button type="button" className={`ffw-donate-tab ${monthly ? "is-on" : ""}`} aria-pressed={monthly} onClick={() => setMonthly(true)}>Monthly</button>
+      </div>
+      <div className="ffw-donate-chips">
+        {tiers.map((t) => {
+          const shown = monthly ? monthlyFor(t.amount) : t.amount;
+          return (
+            <button
+              key={t.amount}
+              type="button"
+              className={`ffw-donate-chip ${base === t.amount ? "is-on" : ""}`}
+              aria-pressed={base === t.amount}
+              onClick={() => setPicked(t.amount)}
+            >${shown}{monthly ? "/mo" : ""}</button>
+          );
+        })}
+      </div>
+      <button type="button" className="ff-btn ff-btn--red ff-btn--block ffw-submit ffw-donate-btn" disabled={busy} onClick={go}>
+        {busy ? "One moment…" : `Donate $${amount}${monthly ? " / month" : ""} →`}
+      </button>
+      <p className="ffw-fine ffw-donate-fine">Secure payment · you can cancel a monthly gift any time.</p>
+    </div>
+  );
+}
 
 function WebinarPage() {
   // Slug is the last path segment: /supporters210726 (new, no /webinar/
@@ -4110,6 +4205,7 @@ function WebinarPage() {
   const [invited, setInvited] = useState(false);
   const [heroName, setHeroName] = useState("");
   const [intent, setIntent] = useState("Attending");
+  const [sendBriefing, setSendBriefing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -4163,6 +4259,7 @@ function WebinarPage() {
           mobile: form.mobile.trim(),
           postcode: form.postcode.trim(),
           attendance_intent: intent,
+          send_briefing: sendBriefing,
         }),
       });
       const d = await r.json().catch(() => ({}));
@@ -4213,27 +4310,30 @@ function WebinarPage() {
   const copy = invited
     ? {
         topbar: "Private donor briefing · by invitation only",
+        badge: `Your invite · ${heroName}`,
         kicker: "Into the inner circle",
         headline: `Come inside the campaign, ${heroName}.`,
         sub: "You've done more than sign — you've backed this fight. We're bringing our closest supporters into the room for a private briefing on where the campaign goes next. Confirm your seat below.",
         cardTitle: "Confirm your seat",
         cardSub: "We've filled in what we know — please check it's right.",
-        submit: "Confirm my seat",
+        submit: "Confirm my webinar ticket",
+        submitNote: "This link is yours alone — unregistered or shared links will not be allowed.",
       }
     : {
         topbar: "Supporter briefing",
+        badge: "",
         kicker: "Come inside the campaign",
         headline: "Come inside the campaign.",
-        sub: "You've stood with farmers when it mattered — now come into the room. We're holding a briefing for our supporters on where the campaign goes next, and how you can help. Grab your seat below.",
+        sub: "A private briefing for our closest supporters. Confirm your seat below.",
         cardTitle: "Grab your seat",
         cardSub: "Tell us where to send your join link.",
-        submit: "Confirm my registration",
+        submit: "Reserve my seat",
+        submitNote: "We'll email your private join link before the briefing.",
       };
 
   const agenda = [
-    ["01", "Where VNI West stands", "The route, the timeline, and what's changed since the last update."],
-    ["02", "Your rights at the gate", "Access, land agents, and what you can say no to — with the legal team."],
-    ["03", "Where your support goes", "A frank look at the war chest — and the plan for the next six months."],
+    ["Campaign update", "Ben walks you through where the fight stands and what's coming next."],
+    ["Q&A of your questions", "A live Q&A answering the questions you send in when you register."],
   ];
 
   const confirmName = form.first_name.trim();
@@ -4245,7 +4345,7 @@ function WebinarPage() {
         <a href="/" className="ffw-logo" aria-label="Farmers Fightback — back to homepage">
           <img src="/assets/uploads/ff-logo-white.png" alt="Farmers Fightback" />
         </a>
-        {invited && <span className="ffw-badge">Your invite</span>}
+        {copy.badge && <span className="ffw-badge">{copy.badge}</span>}
       </header>
 
       {(phase === "loading" || phase === "private") ? (
@@ -4260,7 +4360,7 @@ function WebinarPage() {
             ) : (
               <>
                 <h1 className="ffw-notice-title">This invitation is private.</h1>
-                <p className="ffw-notice-text">This briefing is for invited supporters only, opened with the personal link from your invite email. That link looks like it's missing or has expired.</p>
+                <p className="ffw-notice-text">This briefing is invite-only. If you're a Farmers Fightback supporter, use the personal link from your invite email.</p>
                 <p className="ffw-notice-fine">Not sure? Reply to your invite email and we'll sort it.</p>
               </>
             )}
@@ -4282,11 +4382,11 @@ function WebinarPage() {
           <div className="ffw-body">
             <div className="ffw-agenda">
               <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> What we'll cover</div>
-              <h2 className="ffw-agenda-title">An hour, straight with the people running the fight.</h2>
+              <h2 className="ffw-agenda-title">An intimate 30 minutes with Ben from Farmers Fightback.</h2>
               <ol className="ffw-agenda-list">
-                {agenda.map(([n, t, d]) => (
-                  <li className="ffw-agenda-item" key={n}>
-                    <span className="ffw-agenda-num">{n}</span>
+                {agenda.map(([t, d]) => (
+                  <li className="ffw-agenda-item" key={t}>
+                    <span className="ffw-agenda-badge">15 min</span>
                     <div className="ffw-agenda-copy">
                       <div className="ffw-agenda-name">{t}</div>
                       <p className="ffw-agenda-desc">{d}</p>
@@ -4294,7 +4394,11 @@ function WebinarPage() {
                   </li>
                 ))}
               </ol>
-              <p className="ffw-host">Hosted by <strong>Ben Duxson</strong> and the Farmers Fightback organising team.</p>
+              <div className="ffw-agenda-note">
+                <svg className="ffw-agenda-note-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5" /><path d="M12 8h.01" /></svg>
+                <span>Full session details will be released closer to the webinar date — please keep tuned.</span>
+              </div>
+              <p className="ffw-host">Hosted by <strong>Ben Duxson</strong> and the Farmers Fightback campaign team.</p>
             </div>
 
             <div className="ffw-card">
@@ -4316,7 +4420,7 @@ function WebinarPage() {
                     <Field label={<>Email <span className="ff-req">*</span></>}>
                       <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
                     </Field>
-                    <div className="ff-form-row">
+                    <div className="ff-form-row ff-form-row--split">
                       <Field label="Mobile">
                         <input type="tel" value={form.mobile} onChange={update("mobile")} placeholder="0400 000 000" autoComplete="tel" />
                       </Field>
@@ -4327,38 +4431,43 @@ function WebinarPage() {
                     <div className="ff-field">
                       <span className="ff-field-label">Will you be joining us?</span>
                       <div className="ff-webinar-intent" role="radiogroup" aria-label="Attendance">
-                        {WEBINAR_INTENTS.map((label) => (
+                        {WEBINAR_INTENTS.map(([value, label]) => (
                           <button
-                            key={label}
+                            key={value}
                             type="button"
                             role="radio"
-                            aria-checked={intent === label}
-                            className={`ff-webinar-intent-btn ${intent === label ? "is-on" : ""}`}
-                            onClick={() => setIntent(label)}
+                            aria-checked={intent === value}
+                            className={`ff-webinar-intent-btn ${intent === value ? "is-on" : ""}`}
+                            onClick={() => setIntent(value)}
                           >
                             {label}
                           </button>
                         ))}
                       </div>
                     </div>
+                    <label className="ffw-briefing">
+                      <input type="checkbox" checked={sendBriefing} onChange={(e) => setSendBriefing(e.target.checked)} />
+                      <span>Send me a briefing if I can't make it.</span>
+                    </label>
                     <button className="ff-btn ff-btn--red ff-btn--block ffw-submit" type="submit" disabled={busy}>
                       {busy ? "Confirming…" : `${copy.submit} →`}
                     </button>
                     {formError && <p className="ffw-fine" style={{ color: "var(--ff-red)" }}>{formError}</p>}
-                    <p className="ffw-fine">{invited ? "This link is yours alone — please don't forward it." : "We'll email your private join link before the briefing."}</p>
+                    <p className="ffw-fine">{copy.submitNote}</p>
                   </form>
                 </>
               ) : (
                 <div className="ffw-confirmed">
-                  <div className="ffw-check" aria-hidden="true">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FBF7EE" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5" /></svg>
+                  <div className="ffw-confirmed-head">
+                    <div className="ffw-check" aria-hidden="true">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FBF7EE" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5" /></svg>
+                    </div>
+                    <div className="ffw-card-title">{confirmName ? `You're confirmed, ${confirmName}.` : "You're confirmed."}</div>
+                    <p className="ffw-card-sub">You're on the list. We'll email your private join link before the day begins.</p>
+                    {joinUrl && <a href={joinUrl} className="ff-btn ff-btn--red ff-btn--block ffw-submit ffw-join" target="_blank" rel="noopener noreferrer">Join the briefing →</a>}
                   </div>
-                  <div className="ffw-card-title">{confirmName ? `You're confirmed, ${confirmName}.` : "You're confirmed."}</div>
-                  <p className="ffw-card-sub">You're down as <strong>{intent}</strong>. We'll email your private join link before the briefing.</p>
-                  {event && <WebinarWhen event={event} variant="card" />}
-                  {joinUrl
-                    ? <a href={joinUrl} className="ff-btn ff-btn--red ff-btn--block ffw-submit ffw-join" target="_blank" rel="noopener noreferrer">Join the briefing →</a>
-                    : <p className="ffw-fine ffw-join-note">Your join link will be emailed before the briefing.</p>}
+                  {/* Donation matrix sits ABOVE the Q&A per the approved flow. */}
+                  <WebinarDonate email={form.email.trim()} />
                   <div className="ffw-qa">
                     <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> Ask the panel</div>
                     <h2 className="ffw-qa-title">Got a question for the briefing?</h2>

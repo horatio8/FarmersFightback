@@ -2633,10 +2633,9 @@ img { max-width: 100%; display: block; }
 .ffw-logo { display: block; line-height: 0; }
 .ffw-logo img { height: 30px; width: auto; display: block; }
 .ffw-badge {
-  font-family: var(--w-disp); font-weight: 600; font-size: 12px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: #fff; background: var(--w-red);
-  border-radius: 6px; padding: 5px 11px; white-space: nowrap;
+  font-family: var(--w-disp); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; white-space: nowrap;
 }
 
 /* kicker / eyebrow */
@@ -2677,12 +2676,27 @@ img { max-width: 100%; display: block; }
   border-radius: 10px; padding: 12px 18px; max-width: 100%;
 }
 .ffw-when-label { font-family: var(--w-body-f); font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--w-navy-300); }
-.ffw-when-time { font-family: var(--w-disp); font-weight: 700; font-size: 26px; line-height: 1; color: var(--w-paper-50); margin-top: 2px; }
+.ffw-when-time { font-family: var(--w-disp); font-weight: 700; font-size: 28px; line-height: 1; color: var(--w-paper-50); margin-top: 3px; text-transform: uppercase; }
 .ffw-when-rule { width: 1.5px; align-self: stretch; background: rgba(255,255,255,0.2); }
 .ffw-when-meta { font-size: 13px; color: var(--w-navy-100); line-height: 1.4; }
 .ffw-when-mel { color: var(--w-navy-300); }
-.ffw-when--card { background: var(--w-navy); border-color: rgba(255,255,255,0.14); align-self: stretch; }
-.ffw-when--card .ffw-when-time { color: #fff; }
+
+/* timezone chooser + helper text under the chip */
+.ffw-when-wrap { align-self: flex-start; display: flex; flex-direction: column; gap: 10px; margin-top: 6px; max-width: 100%; }
+.ffw-when-wrap .ffw-when { margin-top: 0; align-self: flex-start; }
+.ffw-when-change {
+  align-self: flex-start; background: none; border: 0; padding: 0; cursor: pointer;
+  font-family: var(--w-body-f); font-weight: 700; font-size: 14px;
+  color: var(--w-red-300); text-decoration: underline; text-underline-offset: 3px;
+}
+.ffw-when-change:hover { color: #fff; }
+.ffw-when-select {
+  align-self: flex-start; min-height: 44px; max-width: 100%;
+  padding: 8px 12px; font-family: var(--w-body-f); font-size: 15px;
+  color: var(--w-ink); background: #fff;
+  border: 1.5px solid var(--w-paper-300); border-radius: 8px;
+}
+.ffw-when-help { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--w-navy-300); max-width: 460px; }
 
 /* two-column body */
 .ffw-body {
@@ -2695,12 +2709,23 @@ img { max-width: 100%; display: block; }
 .ffw-agenda { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
 .ffw-agenda-title { font-family: var(--w-disp); font-weight: 700; font-size: clamp(24px, 3vw, 30px); line-height: 1.06; color: var(--w-navy); margin: 6px 0 0; }
 .ffw-agenda-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.ffw-agenda-item { display: flex; gap: 16px; padding: 18px 0; border-top: 1.5px solid var(--w-paper-200); }
+.ffw-agenda-item { display: flex; gap: 20px; padding: 18px 0; border-top: 1.5px solid var(--w-paper-200); }
 .ffw-agenda-item:last-child { border-bottom: 1.5px solid var(--w-paper-200); }
-.ffw-agenda-num { font-family: var(--w-disp); font-weight: 700; font-size: 20px; color: var(--w-red); min-width: 34px; }
+.ffw-agenda-badge {
+  font-family: var(--w-disp); font-weight: 700; font-size: 14px;
+  letter-spacing: 0.04em; color: var(--w-red); min-width: 52px; flex-shrink: 0;
+  padding-top: 1px;
+}
 .ffw-agenda-copy { min-width: 0; }
-.ffw-agenda-name { font-family: var(--w-disp); font-weight: 700; font-size: 18px; color: var(--w-navy); }
+.ffw-agenda-name { font-family: var(--w-disp); font-weight: 700; font-size: 19px; color: var(--w-navy); }
 .ffw-agenda-desc { margin: 4px 0 0; font-size: 15px; line-height: 1.45; color: var(--w-body); }
+.ffw-agenda-note {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--w-paper-100); border: 1.5px solid var(--w-paper-200);
+  border-radius: 10px; padding: 13px 15px;
+  font-size: 14px; line-height: 1.45; color: var(--w-muted);
+}
+.ffw-agenda-note-ic { flex-shrink: 0; color: var(--w-navy-300); margin-top: 1px; }
 .ffw-host { margin: 4px 0 0; font-size: 15px; line-height: 1.45; color: var(--w-body); }
 .ffw-host strong { color: var(--w-navy); }
 
@@ -2753,10 +2778,52 @@ img { max-width: 100%; display: block; }
 .ffw-join { margin-top: 2px; text-decoration: none; }
 .ffw-join-note { text-align: left; }
 
+/* "send me a briefing" opt-in checkbox */
+.ffw-briefing { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 15px; line-height: 1.4; color: var(--w-body); }
+.ffw-briefing input {
+  appearance: none; -webkit-appearance: none; flex-shrink: 0;
+  width: 22px; height: 22px; margin: 0; cursor: pointer;
+  border: 1.5px solid var(--w-paper-300); border-radius: 6px; background: #fff;
+  transition: background .12s ease, border-color .12s ease;
+}
+.ffw-briefing input:checked {
+  background: var(--w-red); border-color: var(--w-red);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 6.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center;
+}
+.ffw-briefing input:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(174,53,40,.25); }
+
 /* confirmation */
-.ffw-confirmed { display: flex; flex-direction: column; gap: 16px; }
+.ffw-confirmed { display: flex; flex-direction: column; gap: 22px; }
+.ffw-confirmed-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+.ffw-confirmed-head .ffw-join { width: 100%; }
 .ffw-check { width: 56px; height: 56px; border-radius: 50%; background: var(--w-navy); display: flex; align-items: center; justify-content: center; }
 .ffw-confirmed .ffw-card-title { font-size: 26px; }
+
+/* confirmation donation matrix (sits above the Q&A) */
+.ffw-donate { border-top: 1.5px solid var(--w-paper-200); padding-top: 20px; display: flex; flex-direction: column; gap: 14px; }
+.ffw-donate-title { font-family: var(--w-disp); font-weight: 700; font-size: 22px; line-height: 1.1; color: var(--w-navy); margin: 4px 0 0; }
+.ffw-donate-toggle { display: flex; gap: 0; background: var(--w-paper-100); border: 1.5px solid var(--w-paper-200); border-radius: 10px; padding: 4px; }
+.ffw-donate-tab {
+  flex: 1 1 0; min-height: 44px; border: 0; border-radius: 7px; cursor: pointer;
+  font-family: var(--w-disp); font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--w-navy); background: transparent; transition: background .12s ease, color .12s ease;
+}
+.ffw-donate-tab.is-on { background: var(--w-navy); color: #fff; }
+.ffw-donate-tab:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(18,53,75,.25); }
+.ffw-donate-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ffw-donate-chip {
+  min-height: 48px; padding: 10px 6px; cursor: pointer;
+  font-family: var(--w-disp); font-weight: 700; font-size: 16px;
+  color: var(--w-navy); background: #fff;
+  border: 1.5px solid var(--w-paper-300); border-radius: 8px;
+  transition: all .12s ease;
+}
+.ffw-donate-chip:hover { border-color: var(--w-navy); }
+.ffw-donate-chip.is-on { background: var(--w-red); border-color: var(--w-red); color: #fff; }
+.ffw-donate-chip:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(174,53,40,.25); }
+.ffw-donate-btn { margin-top: 2px; }
+.ffw-donate-fine { text-align: center; }
 
 /* Q&A */
 .ffw-qa { border-top: 1.5px solid var(--w-paper-200); padding-top: 20px; display: flex; flex-direction: column; gap: 14px; }
@@ -2796,7 +2863,10 @@ img { max-width: 100%; display: block; }
 }
 @media (max-width: 560px) {
   .ffw-form .ff-form-row { flex-direction: column; }
+  .ffw-form .ff-form-row--split { flex-direction: row; }
+  .ffw-form .ff-form-row--split .ff-field:last-child { max-width: 120px; }
   .ff-webinar-intent { flex-direction: column; }
   .ffw-when { gap: 12px; padding: 12px 14px; }
   .ffw-qa-btn { width: 100%; }
+  .ffw-donate-chips { grid-template-columns: repeat(2, 1fr); }
 }
