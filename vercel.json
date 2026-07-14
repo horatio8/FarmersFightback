@@ -7,7 +7,7 @@
     { "source": "/fund",  "destination": "/api/track-redirect?l=fund" },
     { "source": "/fight", "destination": "/api/track-redirect?l=fight" },
     { "source": "/leaderboard", "destination": "/api/leaderboard" },
-    { "source": "/webinar/:session", "destination": "/webinar.html" }
+    { "source": "/webinar/:session", "destination": "/webinar" }
   ],
   "crons": [
     { "path": "/api/cron/sms-inbound-poll", "schedule": "10 * * * *" },
