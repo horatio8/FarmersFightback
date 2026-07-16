@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Share the sign-up — Farmers Fightback</title>
+  <meta name="description" content="Help pack out the Farmers Fightback Rally. Share the sign-up page with everyone who'd stand with Aussie farmers — it takes ten seconds."/>
+  <meta property="og:title" content="Share the sign-up — Farmers Fightback"/>
+  <meta property="og:description" content="The rally only hits as hard as the crowd behind it. Pass the sign-up on to everyone who'd stand with farmers."/>
+  <meta property="og:image" content="https://www.farmersfightback.com/assets/uploads/volunteer-rally-drone.jpg"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://www.farmersfightback.com/funshare"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="theme-color" content="#1F6B3B"/>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="alternate icon" href="/assets/logo.png"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Caveat:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --field-green:#1F6B3B; --field-deep:#175530; --sky-blue:#2C6E8F; --sun-gold:#F4B400;
+      --cream:#FBF7EC; --cream-dim:#F1E9D4; --ink:#25241F; --ink-soft:#5b574b;
+      --navy:#12354B; --barn:#AE3528;
+      --f-disp:"Oswald",sans-serif; --f-script:"Caveat",cursive; --f-body:"Source Sans 3",system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:#e7e3d7}
+    body{font-family:var(--f-body);color:var(--ink);
+      background-image:radial-gradient(circle at 50% -10%,#f2eee2,#dcd8cb 80%);min-height:100vh}
+
+    /* ---- masthead: cream + sunburst ---- */
+    .ffx-app{background:var(--cream);color:var(--ink);min-height:100%;font-size:16px;line-height:1.5}
+    .ffx-mast{position:relative;overflow:hidden;text-align:center;padding:44px 24px 30px}
+    .ffx-rays{position:absolute;top:min(-220px,-30vw);left:50%;transform:translateX(-50%);
+      width:min(2600px,200vw);height:min(1400px,120vw);pointer-events:none;
+      background:repeating-conic-gradient(from 0deg at 50% 100%,rgba(244,180,0,0.15) 0deg 4deg,transparent 4deg 12deg)}
+    .ffx-sun{position:absolute;top:min(-160px,-18vw);left:50%;transform:translateX(-50%);
+      width:min(720px,68vw);height:min(720px,68vw);border-radius:50%;
+      background:radial-gradient(circle,rgba(244,180,0,0.42) 0 28%,rgba(244,180,0,0.16) 29% 50%,transparent 64%);pointer-events:none}
+    .ffx-mast-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+    .ffx-logo{height:56px;width:auto;display:block}
+    .ffx-kicker{font-family:var(--f-script);font-weight:700;color:var(--field-green);font-size:38px;line-height:0.9;
+      margin-top:20px;transform:rotate(-2deg)}
+    .ffx-title{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;color:var(--barn);
+      font-size:64px;line-height:0.84;letter-spacing:-0.01em;margin-top:2px;display:flex;flex-direction:column;align-items:center}
+    .ffx-rally{font-family:var(--f-script);font-weight:700;text-transform:none;font-size:74px;line-height:0.7;
+      color:var(--sun-gold);-webkit-text-stroke:2px var(--field-green);paint-order:stroke fill;
+      text-shadow:2px 3px 0 rgba(31,107,59,0.28);margin-top:0}
+    .ffx-sub{font-size:19px;line-height:1.35;color:var(--ink-soft);max-width:480px;margin-top:12px;text-wrap:pretty}
+    .ffx-sub strong{color:var(--field-green);font-weight:700}
+    .ffx-band{margin-top:20px;width:100%;max-width:520px;background:var(--field-green);color:#fff;border-radius:18px;
+      padding:18px 22px;box-shadow:0 12px 26px rgba(31,107,59,0.22)}
+    .ffx-band-date{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:42px;line-height:0.98;letter-spacing:0.01em}
+    .ffx-band-time{font-family:var(--f-disp);font-weight:500;text-transform:uppercase;letter-spacing:0.14em;font-size:17px;color:var(--sun-gold);margin-top:2px}
+    .ffx-band-place{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:26px;line-height:1;letter-spacing:0.01em;margin-top:10px}
+    .ffx-band-place small{display:block;font-weight:500;font-size:14px;text-transform:none;letter-spacing:0;opacity:0.9;margin-top:3px}
+
+    /* ---- content wrap ---- */
+    .ffx-wrap{max-width:600px;margin:0 auto;padding:6px 20px 40px}
+
+    /* ---- card ---- */
+    .ffx-card{background:#fff;border-radius:22px;padding:32px 34px;box-shadow:0 18px 44px rgba(31,107,59,0.12);border:1px solid var(--cream-dim)}
+    .ffx-sec-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.02em;font-size:16px;
+      color:var(--navy);margin:22px 0 12px}
+    .ffx-sec-h:first-child{margin-top:0}
+
+    /* ---- pitch banner ---- */
+    .ffx-pitch{background:linear-gradient(135deg,#fff6dc,#fbe7b0);border:2px solid var(--sun-gold);border-radius:16px;padding:16px 18px;margin-bottom:22px}
+    .ffx-pitch-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--field-green)}
+    .ffx-pitch-tag svg{color:var(--sun-gold);stroke:var(--field-green)}
+    .ffx-pitch-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:22px;color:var(--barn);line-height:1.02;margin-top:6px}
+    .ffx-pitch-p{font-size:14px;color:var(--ink-soft);margin-top:6px;line-height:1.45}
+
+    /* ---- cta ---- */
+    .ffx-btn{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:16px;
+      background:var(--field-green);color:#fff;border:0;border-radius:999px;padding:14px 24px;cursor:pointer;
+      transition:background .14s,transform .06s;box-shadow:0 8px 20px rgba(31,107,59,0.24)}
+    .ffx-btn:hover{background:var(--field-deep)}
+    .ffx-btn:active{transform:translateY(1px)}
+    .ffx-fine{font-size:12.5px;color:var(--ink-soft);margin-top:12px;line-height:1.4;text-align:center}
+
+    /* ---- share + link buttons ---- */
+    .ffx-block{margin-top:22px;border-radius:18px;padding:20px;background:var(--cream);border:1.5px solid var(--cream-dim)}
+    .ffx-block-h{text-align:center}
+    .ffx-block-eb{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--field-green)}
+    .ffx-block-eb svg{color:var(--sun-gold)}
+    .ffx-block-h h3{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:19px;line-height:1.02;color:var(--navy);margin-top:4px}
+    .ffx-block-h p{font-size:13.5px;color:var(--ink-soft);margin-top:6px;line-height:1.4}
+    .ffx-share-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}
+    .ffx-share-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1.5px solid var(--cream-dim);border-radius:12px;
+      padding:13px 14px;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-size:13px;
+      color:var(--navy);text-decoration:none;cursor:pointer;transition:border-color .12s,transform .06s}
+    .ffx-share-btn:hover{border-color:var(--ch);transform:translateY(-1px)}
+    .ffx-share-btn.is-shared{border-color:var(--field-green);background:#f2f8f2}
+    .ffx-share-btn.is-shared .ffx-share-ic{background:var(--field-green)}
+    .ffx-share-ic{width:32px;height:32px;flex:none;border-radius:9px;background:var(--ch);color:#fff;display:flex;align-items:center;justify-content:center}
+    .ffx-share-copy{grid-column:1 / -1;width:100%;font:inherit;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-size:13px}
+
+    /* ---- nav buttons ---- */
+    .ffx-navrow{display:grid;grid-template-columns:1fr;gap:9px;margin-top:22px}
+    .ffx-navbtn{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:14px 18px;
+      font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:14px;text-decoration:none;
+      transition:background .14s,transform .06s}
+    .ffx-navbtn:active{transform:translateY(1px)}
+    .ffx-navbtn-green{background:var(--field-green);color:#fff;box-shadow:0 8px 20px rgba(31,107,59,0.24)}
+    .ffx-navbtn-green:hover{background:var(--field-deep)}
+    .ffx-navbtn-gold{background:var(--sun-gold);color:var(--field-green);box-shadow:0 8px 20px rgba(244,180,0,0.3)}
+    .ffx-navbtn-gold:hover{background:#e0a516}
+
+    /* ---- footer ---- */
+    .ffx-foot{max-width:600px;margin:0 auto;padding:22px 20px 34px;border-top:2px solid rgba(31,107,59,0.16);
+      display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--navy);font-weight:600}
+    .ffx-foot-l{font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--field-green);display:block}
+    .ffx-foot-auth{font-family:var(--f-body);font-weight:400;font-size:10.5px;color:var(--ink-soft);text-align:right;max-width:52%}
+
+    /* Mobile masthead scaling */
+    @media (max-width:520px){
+      .ffx-mast{padding:34px 22px 26px}
+      .ffx-logo{height:46px}
+      .ffx-kicker{font-size:30px;margin-top:16px}
+      .ffx-title{font-size:46px}
+      .ffx-rally{font-size:54px}
+      .ffx-sub{font-size:16px;max-width:400px}
+      .ffx-card{padding:26px 22px}
+    }
+
+    /* Wide-desktop scaling */
+    @media (min-width:960px){
+      .ffx-mast{padding:60px 24px 46px}
+      .ffx-logo{height:68px}
+      .ffx-kicker{font-size:44px;margin-top:24px}
+      .ffx-title{font-size:82px}
+      .ffx-rally{font-size:96px}
+      .ffx-sub{font-size:21px;max-width:560px}
+      .ffx-wrap{max-width:720px;padding:6px 32px 60px}
+    }
+  </style>
+
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "wiwu1ljpqw");
+  </script>
+
+  <!-- Meta Pixel -->
+  <script type="text/javascript">
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1135127088810831');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1135127088810831&ev=PageView&noscript=1"/></noscript>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="/funshare/funshare.jsx"></script>
+</body>
+</html>
