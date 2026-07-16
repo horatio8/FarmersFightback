@@ -6,6 +6,7 @@
     { "source": "/rally", "destination": "/rally/index.html" },
     { "source": "/first", "destination": "/first/index.html" },
     { "source": "/funshare", "destination": "/funshare/index.html" },
+    { "source": "/funraiser", "destination": "/funraiser/index.html" },
     { "source": "/fund",  "destination": "/api/track-redirect?l=fund" },
     { "source": "/fight", "destination": "/api/track-redirect?l=fight" },
     { "source": "/leaderboard", "destination": "/api/leaderboard" },

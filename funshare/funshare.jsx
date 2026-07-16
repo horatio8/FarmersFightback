@@ -1,14 +1,17 @@
 /* ============================================================
-   Farmers Fightback — share the sign-up (/funshare)
+   Farmers Fightback — share the sign-up
    Standalone, self-contained page mirroring the /rally & /first
-   design (ffx- system, styles inlined in funshare/index.html).
+   design (ffx- system, styles inlined in the page shell).
    NOT part of the main app.jsx/site.json system and NOT in the menu.
 
-   Sole purpose: get people to share the rally sign-up page
-   (/first) across Facebook, X, email, text, WhatsApp, LinkedIn,
-   Telegram, Reddit — plus copy-link. Each outbound link carries
-   per-platform UTM params so signups from a share are attributable
-   in Clarity / Campaign Nucleus.
+   Two variants share this one file, selected by window.__FUN_VARIANT:
+     "share"  → /funshare  ("Bring the mates" — cold share ask)
+     "raiser" → /funraiser ("Thank you, you're on the list" — post-signup
+                 invite-a-friend framing)
+   Both have identical body content: share the sign-up (/first) across
+   Facebook, X, email, text, WhatsApp, LinkedIn, Telegram, Reddit +
+   copy-link, then a clearly-secondary donor matrix that leads straight
+   to Stripe (same amount ladder as /donate, including "Other").
    ============================================================ */
 
 const { useState } = React;
@@ -16,10 +19,42 @@ const { useState } = React;
 // The sign-up page we want everyone to share.
 const SHARE_BASE = "https://www.farmersfightback.com/first";
 const SHARE_TITLE = "Farmers Fightback Rally";
-// One line that reads well as a post, an SMS, and an email body.
 const SHARE_MSG =
   "Stand with Aussie farmers. Details for the Farmers Fightback Rally drop soon — get on the list so you don't miss out:";
 const EMAIL_SUBJECT = "Stand with Aussie farmers — get on the list";
+
+// Donor ladder — mirrors content/site.json donorPage. Each links straight to
+// its Stripe payment page; "Other" opens Stripe's choose-your-amount page.
+const DONATE = [
+  { amount: 35, url: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q", tag: "Prints 500 leaflets" },
+  { amount: 65, url: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R", tag: "An hour of legal counsel" },
+  { amount: 135, url: "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", tag: "A targeted ad set", isDefault: true },
+  { amount: 265, url: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T", tag: "A camera kit for a farmer" },
+  { amount: 550, url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U", tag: "A regional billboard for a week" },
+  { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V", tag: "Fund a full TV campaign run" },
+];
+const DONATE_OTHER = "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X";
+
+// Per-variant masthead copy. Body content is identical across variants.
+const VARIANT = (typeof window !== "undefined" && window.__FUN_VARIANT) || "share";
+const HEAD = {
+  share: {
+    kicker: "Bring the mates",
+    titleTop: "Share the",
+    titleScript: "sign-up",
+    sub: (<>The rally only hits as hard as the crowd behind it. Send the sign-up to everyone who&rsquo;d stand with farmers &mdash; <strong>it takes ten seconds</strong>.</>),
+  },
+  raiser: {
+    kicker: "Thank you",
+    titleTop: "You&rsquo;re on",
+    titleScript: "the list",
+    sub: (<>You&rsquo;re in. Now the biggest thing you can do is bring a mate &mdash; the more of us on the list, the harder farmers are to ignore. <strong>It takes ten seconds</strong>.</>),
+  },
+}[VARIANT] || null;
+const H = HEAD || {
+  kicker: "Bring the mates", titleTop: "Share the", titleScript: "sign-up",
+  sub: (<>Send the sign-up to everyone who&rsquo;d stand with farmers.</>),
+};
 
 // Per-platform tagged link so a signup can be traced back to the share.
 function taggedUrl(platform) {
@@ -29,6 +64,7 @@ function taggedUrl(platform) {
 /* ---------- tiny inline icons ---------- */
 const I = {
   star: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 21.4l1.4-6.8L2.2 9.9l6.9-.8z"/></svg>),
+  heart: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 21S3.5 15.4 3.5 9.4C3.5 6.6 5.7 4.6 8.2 4.6c1.7 0 3.1 1 3.8 2 .7-1 2.1-2 3.8-2 2.5 0 4.7 2 4.7 4.8 0 6-8.5 11.6-8.5 11.6z"/></svg>),
   check: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M20 6 9 17l-5-5"/></svg>),
   fb: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v1.8H8v3h2.6V21H14v-8.5h2.6l.4-3z"/></svg>),
   x: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.9 1.2h3.68l-8.04 9.19L24 22.79h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.2h7.59l5.24 6.93zM17.61 20.6h2.04L6.49 3.29H4.3z"/></svg>),
@@ -64,11 +100,42 @@ function Masthead() {
       <span className="ffx-sun" />
       <div className="ffx-mast-in">
         <img className="ffx-logo" src="/assets/logo-horizontal.png" alt="Farmers Fightback" />
-        <div className="ffx-kicker">Now bring backup</div>
-        <h1 className="ffx-title">Share the<span className="ffx-rally">sign-up</span></h1>
-        <p className="ffx-sub">The rally only hits as hard as the crowd behind it. Send the sign-up to everyone who&rsquo;d stand with farmers &mdash; <strong>it takes ten seconds</strong>.</p>
+        <div className="ffx-kicker" dangerouslySetInnerHTML={{ __html: H.kicker }} />
+        <h1 className="ffx-title">
+          <span dangerouslySetInnerHTML={{ __html: H.titleTop }} />
+          <span className="ffx-rally" dangerouslySetInnerHTML={{ __html: H.titleScript }} />
+        </h1>
+        <p className="ffx-sub">{H.sub}</p>
       </div>
     </header>
+  );
+}
+
+/* ---------- secondary ask: donor matrix straight to Stripe ---------- */
+function DonorAsk() {
+  return (
+    <React.Fragment>
+      <div className="ffx-give-sep"><span>A second way to help</span></div>
+      <div className="ffx-block ffx-block--give">
+      <div className="ffx-block-h">
+        <span className="ffx-block-eb ffx-block-eb--give"><I.heart width="12" height="12" /> Optional</span>
+        <h3>Chip in to power the fight</h3>
+        <p>Sharing is the number one thing you can do &mdash; this is only if you&rsquo;re able. A one-off gift keeps farmers&rsquo; story in front of more Australians.</p>
+      </div>
+      <div className="ffx-give-grid">
+        {DONATE.map(({ amount, url, tag, isDefault }) => (
+          <a key={amount} className={"ffx-give" + (isDefault ? " is-default" : "")} href={url} target="_top" rel="noopener">
+            <span className="ffx-give-amt">${amount}</span>
+            <span className="ffx-give-tag">{tag}</span>
+          </a>
+        ))}
+        <a className="ffx-give ffx-give--other" href={DONATE_OTHER} target="_top" rel="noopener">
+          <span className="ffx-give-amt">Other</span>
+          <span className="ffx-give-tag">Choose your own amount</span>
+        </a>
+      </div>
+      </div>
+    </React.Fragment>
   );
 }
 
@@ -161,8 +228,9 @@ function ShareCard() {
         )}
       </div>
 
+      <DonorAsk />
+
       <div className="ffx-navrow">
-        <a className="ffx-navbtn ffx-navbtn-gold" href="/first">Haven&rsquo;t signed up yet? Join the list →</a>
         <a className="ffx-navbtn ffx-navbtn-green" href="/">← Back to home</a>
       </div>
     </div>
