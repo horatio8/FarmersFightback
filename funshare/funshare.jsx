@@ -48,7 +48,7 @@ const HEAD = {
     kicker: "Thank you",
     titleTop: "You&rsquo;re on",
     titleScript: "the list",
-    sub: (<>You&rsquo;re in. Now the biggest thing you can do is bring a mate &mdash; the more of us on the list, the harder farmers are to ignore. <strong>It takes ten seconds</strong>.</>),
+    sub: null,
   },
 }[VARIANT] || null;
 const H = HEAD || {
@@ -105,7 +105,7 @@ function Masthead() {
           <span dangerouslySetInnerHTML={{ __html: H.titleTop }} />
           <span className="ffx-rally" dangerouslySetInnerHTML={{ __html: H.titleScript }} />
         </h1>
-        <p className="ffx-sub">{H.sub}</p>
+        {H.sub && <p className="ffx-sub">{H.sub}</p>}
       </div>
     </header>
   );
@@ -133,21 +133,14 @@ function DonorGrid() {
 
 function DonorAskPrimary() {
   return (
-    <React.Fragment>
-      <div className="ffx-pitch">
-        <div className="ffx-pitch-tag"><I.star width="13" height="13" /> Back the fight</div>
-        <div className="ffx-pitch-h">Help defend Aussie farmers</div>
-        <p className="ffx-pitch-p">They have billions. We have you. Every dollar puts farmers&rsquo; stories on TV screens, billboards and news feeds the Government can&rsquo;t ignore &mdash; and keeps the pressure on until they back off.</p>
+    <div className="ffx-block ffx-block--give-primary">
+      <div className="ffx-block-h">
+        <span className="ffx-block-eb"><I.heart width="12" height="12" /> We&rsquo;ve got you</span>
+        <h3>You&rsquo;re already on the list: if you can, help arm the fight</h3>
+        <p>You&rsquo;re confirmed on the list! If you can spare it, help give to the front-line fight for Aussie farmers.</p>
       </div>
-      <div className="ffx-block ffx-block--give-primary">
-        <div className="ffx-block-h">
-          <span className="ffx-block-eb"><I.heart width="12" height="12" /> Stand with farmers</span>
-          <h3>Arm the fight</h3>
-          <p>Pick what your stand is worth. Every gift goes straight to the front line.</p>
-        </div>
-        <DonorGrid />
-      </div>
-    </React.Fragment>
+      <DonorGrid />
+    </div>
   );
 }
 
