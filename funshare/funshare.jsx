@@ -158,8 +158,8 @@ function DonorAskSecondary() {
       <div className="ffx-block ffx-block--give">
         <div className="ffx-block-h">
           <span className="ffx-block-eb ffx-block-eb--give"><I.heart width="12" height="12" /> Optional</span>
-          <h3>Chip in to power the fight</h3>
-          <p>Sharing is the number one thing you can do &mdash; this is only if you&rsquo;re able. A one-off gift keeps farmers&rsquo; story in front of more Australians.</p>
+          <h3>Back Aussie farmers</h3>
+          <p>Keep the fight for farmers going.</p>
         </div>
         <DonorGrid />
       </div>
