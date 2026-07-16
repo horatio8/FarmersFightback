@@ -18,9 +18,9 @@ const { useState } = React;
 
 // The sign-up page we want everyone to share.
 const SHARE_BASE = "https://www.farmersfightback.com/first";
-const SHARE_TITLE = "Farmers Fightback Rally";
+const SHARE_TITLE = "Farmers Fightback";
 const SHARE_MSG =
-  "Stand with Aussie farmers. Details for the Farmers Fightback Rally drop soon — get on the list so you don't miss out:";
+  "Stand with Aussie farmers. Something big is coming from Farmers Fightback — get on the list so you don't miss out:";
 const EMAIL_SUBJECT = "Stand with Aussie farmers — get on the list";
 
 // Donor ladder — mirrors content/site.json donorPage. Each links straight to
@@ -42,7 +42,7 @@ const HEAD = {
     kicker: "Bring the mates",
     titleTop: "Share the",
     titleScript: "sign-up",
-    sub: (<>The rally only hits as hard as the crowd behind it. Send the sign-up to everyone who&rsquo;d stand with farmers &mdash; <strong>it takes ten seconds</strong>.</>),
+    sub: (<>This fight only works if the word spreads. Send the sign-up to everyone who&rsquo;d stand with farmers &mdash; <strong>it takes ten seconds</strong>.</>),
   },
   raiser: {
     kicker: "Thank you",
@@ -58,7 +58,7 @@ const H = HEAD || {
 
 // Per-platform tagged link so a signup can be traced back to the share.
 function taggedUrl(platform) {
-  return `${SHARE_BASE}?utm_source=funshare&utm_medium=${platform}&utm_campaign=rally_waitlist`;
+  return `${SHARE_BASE}?utm_source=funshare&utm_medium=${platform}&utm_campaign=signup_waitlist`;
 }
 
 /* ---------- tiny inline icons ---------- */
@@ -111,29 +111,57 @@ function Masthead() {
   );
 }
 
-/* ---------- secondary ask: donor matrix straight to Stripe ---------- */
-function DonorAsk() {
+/* ---------- donor matrix straight to Stripe ----------
+   Two skins: primary (leads the /funraiser card — full-blooded ask) and
+   secondary (sits under the share grid on /funshare — dashed, optional). */
+function DonorGrid() {
+  return (
+    <div className="ffx-give-grid">
+      {DONATE.map(({ amount, url, tag, isDefault }) => (
+        <a key={amount} className={"ffx-give" + (isDefault ? " is-default" : "")} href={url} target="_top" rel="noopener">
+          <span className="ffx-give-amt">${amount}</span>
+          <span className="ffx-give-tag">{tag}</span>
+        </a>
+      ))}
+      <a className="ffx-give ffx-give--other" href={DONATE_OTHER} target="_top" rel="noopener">
+        <span className="ffx-give-amt">Other</span>
+        <span className="ffx-give-tag">Choose your own amount</span>
+      </a>
+    </div>
+  );
+}
+
+function DonorAskPrimary() {
+  return (
+    <React.Fragment>
+      <div className="ffx-pitch">
+        <div className="ffx-pitch-tag"><I.star width="13" height="13" /> Back the fight</div>
+        <div className="ffx-pitch-h">Help defend Aussie farmers</div>
+        <p className="ffx-pitch-p">They have billions. We have you. Every dollar puts farmers&rsquo; stories on TV screens, billboards and news feeds the Government can&rsquo;t ignore &mdash; and keeps the pressure on until they back off.</p>
+      </div>
+      <div className="ffx-block ffx-block--give-primary">
+        <div className="ffx-block-h">
+          <span className="ffx-block-eb"><I.heart width="12" height="12" /> Stand with farmers</span>
+          <h3>Arm the fight</h3>
+          <p>Pick what your stand is worth. Every gift goes straight to the front line.</p>
+        </div>
+        <DonorGrid />
+      </div>
+    </React.Fragment>
+  );
+}
+
+function DonorAskSecondary() {
   return (
     <React.Fragment>
       <div className="ffx-give-sep"><span>A second way to help</span></div>
       <div className="ffx-block ffx-block--give">
-      <div className="ffx-block-h">
-        <span className="ffx-block-eb ffx-block-eb--give"><I.heart width="12" height="12" /> Optional</span>
-        <h3>Chip in to power the fight</h3>
-        <p>Sharing is the number one thing you can do &mdash; this is only if you&rsquo;re able. A one-off gift keeps farmers&rsquo; story in front of more Australians.</p>
-      </div>
-      <div className="ffx-give-grid">
-        {DONATE.map(({ amount, url, tag, isDefault }) => (
-          <a key={amount} className={"ffx-give" + (isDefault ? " is-default" : "")} href={url} target="_top" rel="noopener">
-            <span className="ffx-give-amt">${amount}</span>
-            <span className="ffx-give-tag">{tag}</span>
-          </a>
-        ))}
-        <a className="ffx-give ffx-give--other" href={DONATE_OTHER} target="_top" rel="noopener">
-          <span className="ffx-give-amt">Other</span>
-          <span className="ffx-give-tag">Choose your own amount</span>
-        </a>
-      </div>
+        <div className="ffx-block-h">
+          <span className="ffx-block-eb ffx-block-eb--give"><I.heart width="12" height="12" /> Optional</span>
+          <h3>Chip in to power the fight</h3>
+          <p>Sharing is the number one thing you can do &mdash; this is only if you&rsquo;re able. A one-off gift keeps farmers&rsquo; story in front of more Australians.</p>
+        </div>
+        <DonorGrid />
       </div>
     </React.Fragment>
   );
@@ -182,13 +210,14 @@ function ShareCard() {
   };
 
   const count = shared.length;
+  const isRaiser = VARIANT === "raiser";
 
-  return (
-    <div className="ffx-card">
+  const shareSection = (
+    <React.Fragment>
       <div className="ffx-pitch">
         <div className="ffx-pitch-tag"><I.star width="13" height="13" /> Why it matters</div>
         <div className="ffx-pitch-h">Every share puts more boots on the ground</div>
-        <p className="ffx-pitch-p">Details drop soon and spots are limited. The more people on the list, the bigger the turnout &mdash; and the harder farmers are to ignore. Pick a couple of channels below and pass it on.</p>
+        <p className="ffx-pitch-p">The more Australians who stand with farmers, the harder they are to ignore. One share reaches people we never could &mdash; pick a couple of channels below and pass it on.</p>
       </div>
 
       <div className="ffx-block">
@@ -227,8 +256,23 @@ function ShareCard() {
           </div>
         )}
       </div>
+    </React.Fragment>
+  );
 
-      <DonorAsk />
+  return (
+    <div className="ffx-card">
+      {isRaiser ? (
+        <React.Fragment>
+          <DonorAskPrimary />
+          <div className="ffx-give-sep"><span>Then spread the word</span></div>
+          {shareSection}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          {shareSection}
+          <DonorAskSecondary />
+        </React.Fragment>
+      )}
 
       <div className="ffx-navrow">
         <a className="ffx-navbtn ffx-navbtn-green" href="/">← Back to home</a>
