@@ -27,7 +27,56 @@ const {
   matchOrCreateContact,
   logEventIdempotent,
   updateContactStatusFromEvent,
+  listRows,
+  updateRow,
+  normPhone,
 } = require("./_airtable");
+const { cnProfileMatch } = require("./_cn");
+
+const LAPSE_TABLE = process.env.AIRTABLE_LAPSE_TABLE || "Lapse Queue";
+function escFormula(s) { return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+
+// A successful payment is the authoritative "they donated" signal — fired
+// for EVERY donation (any checkout session, the buy.stripe.com Payment
+// Links, and subscription rebills). The lapse system only checks the one
+// session logged at abandon time, so a donor who paid via a different
+// session / Payment Link, or who completed after the 30-min sweep already
+// enrolled them, stays in the CN donation-lapse drip. Reconcile by identity:
+// tag them completed (exits the CN automation, same tag the completion
+// beacon uses) and close any open/enrolled donation lapse rows. Best-effort.
+async function reconcileDonationLapse(details) {
+  const email = details && details.email ? String(details.email).trim().toLowerCase() : "";
+  const mobile = details && details.phone ? normPhone(details.phone) : "";
+  if (!email && !mobile) return;
+  try {
+    await cnProfileMatch({
+      email: email || undefined,
+      mobile: mobile || undefined,
+      tags: ["donation_completed"],
+    }).catch(() => {});
+  } catch (e) {
+    console.error("lapse reconcile CN tag failed:", e.message);
+  }
+  try {
+    const clauses = [];
+    if (email) clauses.push(`LOWER({email})='${escFormula(email)}'`);
+    if (mobile) clauses.push(`{mobile}='${escFormula(mobile)}'`);
+    if (!clauses.length) return;
+    const rows = await listRows(LAPSE_TABLE, {
+      formula: `AND({form}='donation', OR({status}='pending',{status}='triggered',{status}='error'), OR(${clauses.join(",")}))`,
+      maxRecords: 25,
+    }).catch(() => []);
+    for (const row of rows) {
+      // eslint-disable-next-line no-await-in-loop
+      await updateRow(LAPSE_TABLE, row.id, {
+        status: "completed",
+        note: "donation reconciled (stripe webhook)",
+      }).catch(() => {});
+    }
+  } catch (e) {
+    console.error("lapse reconcile close-rows failed:", e.message);
+  }
+}
 
 // Disable Vercel's automatic body parsing — Stripe signature verification
 // requires the raw request body bytes.
@@ -262,6 +311,7 @@ module.exports = async function handler(req, res) {
         stripeObjectType: "checkout.session",
         rawStripeObject: obj,
       });
+      await reconcileDonationLapse(details);
       await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,                   // idempotent across retries
         amount_minor: obj.amount_total,
@@ -317,6 +367,7 @@ module.exports = async function handler(req, res) {
         stripeObjectType: "invoice",
         rawStripeObject: obj,
       });
+      await reconcileDonationLapse(details);
       await fireCAPIPurchase({
         event_id: `stripe_${obj.id}`,
         amount_minor: obj.amount_paid,

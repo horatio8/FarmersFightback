@@ -20,8 +20,9 @@ const { enqueueDonationLapseSMS, dispatchDueSMS } = require("../_cellcast");
 
 const LAPSE_TABLE = process.env.AIRTABLE_LAPSE_TABLE || "Lapse Queue";
 const SIGNATURES_TABLE = process.env.AIRTABLE_PETITION_SIGNATURES_TABLE || "Petition Signatures";
+const DONATIONS_TABLE = process.env.AIRTABLE_DONATIONS_TABLE || "Donations";
 
-function esc(s) { return String(s).replace(/'/g, "\\'"); }
+function esc(s) { return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
 
 function automationFor(form, variant) {
   const key = form === "donation" ? "CN_AUTOMATION_DONATION_LAPSE" : "CN_AUTOMATION_PETITION_LAPSE";
@@ -41,6 +42,30 @@ async function petitionCompleted(f) {
   const hit = await findOne(
     SIGNATURES_TABLE,
     `AND(OR(${clauses.join(",")}), IS_AFTER({timestamp}, '${f.created_at}'))`
+  ).catch(() => null);
+  return !!hit;
+}
+
+// Identity-based donation completion — the crucial backstop the per-session
+// check misses. Donors routinely mint several checkout sessions (tap an
+// amount, go back, tap again) and pay only ONE; the abandoned sessions land
+// here with a session_id that never turns "paid", so we'd dun a donor who
+// gave seconds later on a different session. Match the Donations projection
+// by email/mobile instead. A 15-min lookback before this row's created_at
+// covers the paid session landing just either side of the abandon.
+async function donationCompleted(f) {
+  const clauses = [];
+  if (f.email) clauses.push(`LOWER({email})='${esc(String(f.email).toLowerCase())}'`);
+  if (f.mobile) clauses.push(`{phone}='${esc(f.mobile)}'`);
+  if (!clauses.length) return false;
+  let cutoff = f.created_at;
+  try {
+    const t = new Date(f.created_at).getTime();
+    if (Number.isFinite(t)) cutoff = new Date(t - 15 * 60 * 1000).toISOString();
+  } catch (e) {}
+  const hit = await findOne(
+    DONATIONS_TABLE,
+    `AND(OR(${clauses.join(",")}), IS_AFTER({timestamp}, '${cutoff}'))`
   ).catch(() => null);
   return !!hit;
 }
@@ -67,10 +92,18 @@ module.exports = async function handler(req, res) {
         // below to recover contact details for the CN enrolment)
         let done = false;
         let session = null;
-        if (f.form === "donation" && f.session_id && stripe) {
-          // eslint-disable-next-line no-await-in-loop
-          session = await stripe(`checkout/sessions/${f.session_id}`).catch(() => null);
-          done = session?.payment_status === "paid";
+        if (f.form === "donation") {
+          if (f.session_id && stripe) {
+            // eslint-disable-next-line no-await-in-loop
+            session = await stripe(`checkout/sessions/${f.session_id}`).catch(() => null);
+            done = session?.payment_status === "paid";
+          }
+          // Identity backstop: caught the multi-session / different-session
+          // donor the per-session check above can't see.
+          if (!done) {
+            // eslint-disable-next-line no-await-in-loop
+            done = await donationCompleted(f);
+          }
         } else if (f.form === "petition") {
           // eslint-disable-next-line no-await-in-loop
           done = await petitionCompleted(f);
