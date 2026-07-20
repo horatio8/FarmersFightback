@@ -3051,6 +3051,20 @@ function VolunteerPage() {
   const [errors, setErrors] = useState({});
   const receiverUrl = c.receiverUrl || useContent().petition?.receiverUrl;
   const toggleRole = (r) => setForm(f => ({ ...f, roles: f.roles.includes(r) ? f.roles.filter(x => x !== r) : [...f.roles, r] }));
+  // Honour a URL hash (e.g. /volunteer#signup) once React has mounted the
+  // form node — browsers can't scroll to a target that doesn't exist yet on
+  // a JS-rendered page, so retry briefly.
+  useEffect(() => {
+    const id = (window.location.hash || "").replace(/^#/, "");
+    if (!id) return;
+    let tries = 0;
+    const tick = () => {
+      const el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      if (++tries < 40) setTimeout(tick, 75);
+    };
+    tick();
+  }, []);
   const submit = async (ev) => {
     ev.preventDefault();
     const e = {};
@@ -3102,7 +3116,7 @@ function VolunteerPage() {
           </ul>
         </div>
       </section>
-      <section className="ff-section ff-vol-form-section">
+      <section id="signup" className="ff-section ff-vol-form-section">
         <div className="ff-wrap ff-vol-form-wrap">
           <div className="ff-vol-form-head">
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.formHeading}</span>
