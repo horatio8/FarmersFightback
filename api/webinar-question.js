@@ -28,6 +28,21 @@ const {
 const MAX_BODY = 2000;
 const MAX_QUESTIONS_PER_TOKEN = 10;
 
+// Australian state from a 4-digit postcode (standard AusPost ranges).
+function auStateFromPostcode(pc) {
+  const n = parseInt(String(pc || "").trim(), 10);
+  if (!Number.isFinite(n)) return "";
+  if (n >= 800 && n <= 999) return "NT";
+  if ((n >= 1000 && n <= 2599) || (n >= 2619 && n <= 2899) || (n >= 2921 && n <= 2999)) return "NSW";
+  if ((n >= 2600 && n <= 2618) || (n >= 2900 && n <= 2920)) return "ACT";
+  if ((n >= 3000 && n <= 3999) || (n >= 8000 && n <= 8999)) return "VIC";
+  if ((n >= 4000 && n <= 4999) || (n >= 9000 && n <= 9999)) return "QLD";
+  if (n >= 5000 && n <= 5999) return "SA";
+  if (n >= 6000 && n <= 6999) return "WA";
+  if (n >= 7000 && n <= 7999) return "TAS";
+  return "";
+}
+
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",
   "https://www.farmersfightback.com",
@@ -200,6 +215,7 @@ module.exports = async function handler(req, res) {
     const cf = (contact && contact.fields) || {};
     const rf = (registration && registration.fields) || {};
     const formFirst = String(body.first_name || "").trim().slice(0, 80);
+    const postcode = String(cf.postcode || rf.postcode || body.postcode || "").trim().slice(0, 12);
     const fields = {
       question_id: uuid(),
       registration: registration ? [registration.id] : undefined,
@@ -212,6 +228,8 @@ module.exports = async function handler(req, res) {
       last_name: cf.last_name || rf.last_name || undefined,
       email: email || cf.email || rf.email || undefined,
       mobile: cf.mobile || rf.mobile || undefined,
+      postcode: postcode || undefined,
+      state: auStateFromPostcode(postcode) || undefined,
     };
     Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
     const row = await createRow(QUESTIONS_TABLE, fields);
