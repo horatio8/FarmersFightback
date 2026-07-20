@@ -48,6 +48,11 @@ function normPhone(p) {
   // Australian mobile heuristics — assume AU if 0-leading 10 digits.
   if (digits.length === 10 && digits.startsWith("0")) return "+61" + digits.slice(1);
   if (digits.startsWith("61") && digits.length === 11) return "+" + digits;
+  // Mobile typed without its leading 0 (e.g. "412 345 678") — 9 digits
+  // starting 4. Recover it to E.164 the same way cellcastToE164 does;
+  // otherwise the bare-digit fallback below has no "+" and every downstream
+  // consumer (SMS enqueue, contact match) silently drops it.
+  if (digits.length === 9 && digits.startsWith("4")) return "+61" + digits;
   return digits;
 }
 function normLower(s) {
