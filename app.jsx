@@ -4530,6 +4530,119 @@ function WebinarPage() {
   );
 }
 
+// ---------- Standalone webinar question page (/question) ----------
+// Public question box for the current supporter briefing. Posts to
+// /api/webinar-question in open mode (session + email + body); the webinar
+// row is flagged open_registration so no magic-link token is needed. Update
+// WEBINAR_QUESTION_SESSION when a new briefing goes live.
+const WEBINAR_QUESTION_SESSION = "supporters210726";
+
+function QuestionPage() {
+  const [form, setForm] = useState({ first: "", email: "", question: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [done, setDone] = useState(false);
+  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setErr("");
+    if (!form.question.trim()) { setErr("Write your question or comment first."); return; }
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) { setErr("Enter a valid email so we can link your question."); return; }
+    setBusy(true);
+    try {
+      const r = await fetch("/api/webinar-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session: WEBINAR_QUESTION_SESSION,
+          email: form.email.trim(),
+          body: form.question.trim().slice(0, 2000),
+        }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { setErr(d.error || "Couldn't send that. Please try again."); return; }
+      setForm((f) => ({ ...f, question: "" }));
+      setDone(true);
+    } catch {
+      setErr("Couldn't send that. Please check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="ffw">
+      <header className="ffw-header ffw-header--center">
+        <a href="/" className="ffw-logo" aria-label="Farmers Fightback — back to homepage">
+          <img src="/assets/uploads/ff-logo-white.png" alt="Farmers Fightback" />
+        </a>
+      </header>
+
+      <div className="ffw-hero">
+        <img className="ffw-hero-bg" src="/assets/uploads/webinar-hero-fire.jpg" alt="" aria-hidden="true" />
+        <div className="ffw-hero-scrim" />
+        <div className="ffw-hero-inner">
+          <div className="ffw-kicker ffw-kicker--ondark"><span className="ffw-star">★</span> Ask the panel</div>
+          <h1 className="ffw-hero-title">Got a question for the briefing?</h1>
+          <p className="ffw-hero-sub">Send in a question or comment for Ben and the team. We read and curate every one before the night.</p>
+        </div>
+      </div>
+
+      <div className="ffw-body">
+        <div className="ffw-card">
+          {done ? (
+            <div className="ffw-confirmed">
+              <div className="ffw-confirmed-head">
+                <div className="ffw-check" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FBF7EE" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5" /></svg>
+                </div>
+                <div className="ffw-card-title">Thanks — we've got it.</div>
+                <p className="ffw-card-sub">Your question is in front of the team. Send another any time.</p>
+              </div>
+              <button type="button" className="ff-btn ff-btn--red ff-btn--block ffw-submit" onClick={() => setDone(false)}>Ask another question</button>
+            </div>
+          ) : (
+            <>
+              <div className="ffw-kicker ffw-kicker--red"><span className="ffw-star">★</span> Your question</div>
+              <h2 className="ffw-qa-title">What would you like us to cover?</h2>
+              <form onSubmit={submit} noValidate>
+                <textarea
+                  className="ffw-qa-input"
+                  value={form.question}
+                  onChange={(e) => { setForm((f) => ({ ...f, question: e.target.value })); if (done) setDone(false); }}
+                  maxLength={2000}
+                  rows={4}
+                  placeholder="Type your question or comment…"
+                  aria-label="Your question or comment"
+                />
+                <div className="ff-form-row ff-form-row--split" style={{ marginTop: 14 }}>
+                  <Field label="First name">
+                    <input value={form.first} onChange={update("first")} autoComplete="given-name" placeholder="Jane" />
+                  </Field>
+                  <Field label={<>Email <span className="ff-req">*</span></>}>
+                    <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" autoComplete="email" required aria-required="true" />
+                  </Field>
+                </div>
+                <button className="ff-btn ff-btn--red ff-btn--block ffw-submit" type="submit" disabled={busy}>
+                  {busy ? "Sending…" : "Send question →"}
+                </button>
+                {err && <p className="ffw-fine" style={{ color: "var(--ff-red)" }}>{err}</p>}
+                <p className="ffw-fine">Read and curated before the night — we see every one.</p>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+
+      <footer className="ffw-footer">
+        <img src="/assets/uploads/ff-logo-white.png" alt="Farmers Fightback" className="ffw-footer-logo" />
+        <p className="ffw-footer-text">Fighting for farmers, food &amp; our future · Kanya, VIC</p>
+      </footer>
+    </div>
+  );
+}
+
 function App() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
@@ -4598,6 +4711,7 @@ function App() {
   else if (page === "share") view = <ShareThanksPage />;
   else if (page === "send-email") view = <SendEmailPage />;
   else if (page === "webinar") view = <WebinarPage />;
+  else if (page === "question") view = <QuestionPage />;
   else view = <HomePage />;
 
   return <ContentContext.Provider value={content}>{view}</ContentContext.Provider>;
