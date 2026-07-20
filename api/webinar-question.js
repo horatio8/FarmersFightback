@@ -194,6 +194,12 @@ module.exports = async function handler(req, res) {
       contact = null;
     }
 
+    // Surface the submitter's contact details + a date-coded source right on
+    // the Questions row (so the tab is readable without hopping to Contacts).
+    // Prefer the matched contact, then the registration, then the form.
+    const cf = (contact && contact.fields) || {};
+    const rf = (registration && registration.fields) || {};
+    const formFirst = String(body.first_name || "").trim().slice(0, 80);
     const fields = {
       question_id: uuid(),
       registration: registration ? [registration.id] : undefined,
@@ -201,6 +207,11 @@ module.exports = async function handler(req, res) {
       webinar: [webinar.id],
       body: text,
       submitted_at: nowIso(),
+      source: session || undefined,
+      first_name: cf.first_name || rf.first_name || formFirst || undefined,
+      last_name: cf.last_name || rf.last_name || undefined,
+      email: email || cf.email || rf.email || undefined,
+      mobile: cf.mobile || rf.mobile || undefined,
     };
     Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
     const row = await createRow(QUESTIONS_TABLE, fields);

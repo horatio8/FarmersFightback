@@ -4557,6 +4557,7 @@ function QuestionPage() {
         body: JSON.stringify({
           session: WEBINAR_QUESTION_SESSION,
           email: form.email.trim(),
+          first_name: form.first.trim(),
           body: form.question.trim().slice(0, 2000),
         }),
       });
