@@ -2,52 +2,51 @@
   "slug": "supporters",
   "version": "1",
   "title": "Farmers Fightback Supporter Survey",
+  "intro": {
+    "headline": "G'day {first_name}.",
+    "body": "Two minutes, all taps, and it makes the campaign smarter. Let's go."
+  },
   "screens": [
-    { "id": "S0", "tier": "core", "type": "statement",
-      "headline": "G'day {first_name}.",
-      "body": "Two minutes, all taps, and it makes the campaign smarter. Let's go.",
-      "button": "Start" },
+    { "id": "A1", "tier": "core", "type": "single_select", "field": "supporter_type", "cn_tag": "type:{value}",
+      "question": "Which best describes you?",
+      "options": [
+        { "value": "farmer", "label": "I'm a farmer", "icon": "tractor" },
+        { "value": "farming-family", "label": "I'm from a farming family", "icon": "home" },
+        { "value": "regional", "label": "I live in a rural or regional community", "icon": "mappin" },
+        { "value": "city", "label": "I'm a city-based supporter", "icon": "city" }
+      ] },
 
     { "id": "C1", "tier": "core", "type": "single_select", "field": "motivation_primary", "cn_tag": "motiv:{value}",
       "question": "What matters most to you in this fight?",
       "options": [
-        { "value": "food-security", "label": "Protecting family farms and food security" },
-        { "value": "overreach", "label": "Stopping government overreach on private property" },
-        { "value": "fire-risk", "label": "Fire risk and community safety" },
-        { "value": "environment", "label": "Protecting the environment and landscape" },
-        { "value": "fair-go", "label": "A fair go for regional Australians" },
-        { "value": "energy-policy", "label": "Australia's energy policy is on the wrong track" }
-      ] },
-
-    { "id": "A1", "tier": "core", "type": "single_select", "field": "supporter_type", "cn_tag": "type:{value}",
-      "question": "Which best describes you?",
-      "options": [
-        { "value": "farmer", "label": "I'm a farmer" },
-        { "value": "farming-family", "label": "I'm from a farming family" },
-        { "value": "regional", "label": "I live in a rural or regional community" },
-        { "value": "city", "label": "I'm a city-based supporter" }
+        { "value": "food-security", "label": "Protecting family farms and food security", "icon": "wheat" },
+        { "value": "overreach", "label": "Stopping government overreach on private property", "icon": "gavel" },
+        { "value": "fire-risk", "label": "Fire risk and community safety", "icon": "flame" },
+        { "value": "environment", "label": "Protecting the environment and landscape", "icon": "leaf" },
+        { "value": "fair-go", "label": "A fair go for regional Australians", "icon": "handshake" },
+        { "value": "energy-policy", "label": "Australia's energy policy is on the wrong track", "icon": "bolt" }
       ] },
 
     { "id": "B2", "tier": "core", "type": "single_select", "field": "route_proximity", "cn_tag": "route:{value}",
       "question": "How close is the VNI West route to you?",
       "options": [
-        { "value": "crosses-land", "label": "It's slated to cross my land" },
-        { "value": "district", "label": "It runs through my district" },
-        { "value": "regional-vic", "label": "I'm in regional Victoria" },
-        { "value": "metro", "label": "I'm in Melbourne or metro" },
-        { "value": "interstate", "label": "I'm interstate" }
+        { "value": "crosses-land", "label": "It's slated to cross my land", "icon": "alert" },
+        { "value": "district", "label": "It runs through my district", "icon": "map" },
+        { "value": "regional-vic", "label": "I'm in regional Victoria", "icon": "mappin" },
+        { "value": "metro", "label": "I'm in Melbourne or metro", "icon": "city" },
+        { "value": "interstate", "label": "I'm interstate", "icon": "compass" }
       ] },
 
     { "id": "D1", "tier": "core", "type": "multi_select", "field": "actions_offered", "cn_tag": "act:{value}",
       "question": "How would you like to help?",
       "help": "Tick all that apply.",
       "options": [
-        { "value": "chip-in", "label": "Chip in when it counts" },
-        { "value": "volunteer", "label": "Volunteer my time" },
-        { "value": "events", "label": "Attend events" },
-        { "value": "share", "label": "Share our posts" },
-        { "value": "sign", "label": "Put up a sign" },
-        { "value": "mp", "label": "Contact my MP" }
+        { "value": "chip-in", "label": "Chip in when it counts", "icon": "dollar" },
+        { "value": "volunteer", "label": "Volunteer my time", "icon": "hand" },
+        { "value": "events", "label": "Attend events", "icon": "calendar" },
+        { "value": "share", "label": "Share our posts", "icon": "share" },
+        { "value": "sign", "label": "Put up a sign", "icon": "sign" },
+        { "value": "mp", "label": "Contact my MP", "icon": "mail" }
       ] },
 
     { "id": "B1", "tier": "core", "type": "postcode", "field": "postcode", "skip_if_known": "postcode",
@@ -70,20 +69,20 @@
     { "id": "C3", "tier": "extension", "type": "single_select", "field": "win_definition", "cn_tag": "win:{value}",
       "question": "What does winning look like to you?",
       "options": [
-        { "value": "scrap", "label": "Scrap VNI West entirely" },
-        { "value": "underground", "label": "Put the lines underground" },
-        { "value": "compensation", "label": "Real consent and fair compensation for farmers" },
-        { "value": "accountability", "label": "Ministers held accountable" },
-        { "value": "protect-farms", "label": "Protecting farms right across Australia" }
+        { "value": "scrap", "label": "Scrap VNI West entirely", "icon": "xcircle" },
+        { "value": "underground", "label": "Put the lines underground", "icon": "arrowdown" },
+        { "value": "compensation", "label": "Real consent and fair compensation for farmers", "icon": "scales" },
+        { "value": "accountability", "label": "Ministers held accountable", "icon": "gavel" },
+        { "value": "protect-farms", "label": "Protecting farms right across Australia", "icon": "shield" }
       ] },
 
     { "id": "D2", "tier": "extension", "type": "single_select", "field": "giving_style", "cn_tag": "give:{value}",
       "question": "If you back us financially, what suits you best?",
       "options": [
-        { "value": "oneoff", "label": "A one-off when it matters most" },
-        { "value": "monthly", "label": "A small monthly amount" },
-        { "value": "major", "label": "A larger gift for a specific fight (legal, advertising)" },
-        { "value": "other-help", "label": "I help in other ways" }
+        { "value": "oneoff", "label": "A one-off when it matters most", "icon": "gift" },
+        { "value": "monthly", "label": "A small monthly amount", "icon": "repeat" },
+        { "value": "major", "label": "A larger gift for a specific fight (legal, advertising)", "icon": "star" },
+        { "value": "other-help", "label": "I help in other ways", "icon": "hand" }
       ] },
 
     { "id": "C5", "tier": "extension", "type": "scale_1_5", "field": "intensity", "cn_field": "intensity",
@@ -95,21 +94,21 @@
       "question": "Which events would you come to?",
       "help": "Tick all that apply.",
       "options": [
-        { "value": "funraiser", "label": "The FUNdraiser (Sat 29 August)" },
-        { "value": "briefings", "label": "Online supporter briefings" },
-        { "value": "town-meetings", "label": "Local town meetings" },
-        { "value": "lunches", "label": "Melbourne lunches" },
-        { "value": "none", "label": "None for now" }
+        { "value": "funraiser", "label": "The FUNdraiser (Sat 29 August)", "icon": "star" },
+        { "value": "briefings", "label": "Online supporter briefings", "icon": "video" },
+        { "value": "town-meetings", "label": "Local town meetings", "icon": "users" },
+        { "value": "lunches", "label": "Melbourne lunches", "icon": "utensils" },
+        { "value": "none", "label": "None for now", "icon": "xcircle" }
       ] },
 
     { "id": "A2", "tier": "extension", "type": "single_select", "field": "age_bracket", "cn_field": "age_bracket",
       "question": "Your age group?",
       "options": [
-        { "value": "under-30", "label": "Under 30" },
-        { "value": "30-44", "label": "30 to 44" },
-        { "value": "45-59", "label": "45 to 59" },
-        { "value": "60-74", "label": "60 to 74" },
-        { "value": "75-plus", "label": "75+" }
+        { "value": "under-30", "label": "Under 30", "icon": "user" },
+        { "value": "30-44", "label": "30 to 44", "icon": "user" },
+        { "value": "45-59", "label": "45 to 59", "icon": "user" },
+        { "value": "60-74", "label": "60 to 74", "icon": "user" },
+        { "value": "75-plus", "label": "75+", "icon": "user" }
       ] },
 
     { "id": "D4", "tier": "extension", "type": "single_select", "field": "comms_cadence", "cn_field": "comms_cadence",
@@ -125,12 +124,12 @@
       "question": "Anything else driving your support?",
       "help": "Tick all that apply.",
       "options": [
-        { "value": "food-security", "label": "Protecting family farms and food security" },
-        { "value": "overreach", "label": "Stopping government overreach on private property" },
-        { "value": "fire-risk", "label": "Fire risk and community safety" },
-        { "value": "environment", "label": "Protecting the environment and landscape" },
-        { "value": "fair-go", "label": "A fair go for regional Australians" },
-        { "value": "energy-policy", "label": "Australia's energy policy is on the wrong track" }
+        { "value": "food-security", "label": "Protecting family farms and food security", "icon": "wheat" },
+        { "value": "overreach", "label": "Stopping government overreach on private property", "icon": "gavel" },
+        { "value": "fire-risk", "label": "Fire risk and community safety", "icon": "flame" },
+        { "value": "environment", "label": "Protecting the environment and landscape", "icon": "leaf" },
+        { "value": "fair-go", "label": "A fair go for regional Australians", "icon": "handshake" },
+        { "value": "energy-policy", "label": "Australia's energy policy is on the wrong track", "icon": "bolt" }
       ] }
   ],
 

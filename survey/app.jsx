@@ -199,28 +199,46 @@ function App() {
   if (phase === "capture") return <Capture boot={boot} ctx={ctx} onDone={startFrom} />;
   if (phase === "ask") return <AskScreen boot={boot} ask={ask} vars={vars} />;
 
-  // run
-  let screen = null, total = flow.core.length + (flow.gate ? 1 : 0) + (extOptIn ? flow.ext.length : 0), done = 0;
-  if (pos.stage === "core") { screen = flow.core[pos.i]; done = pos.i; }
-  else if (pos.stage === "gate") { screen = flow.gate; done = flow.core.length; }
-  else if (pos.stage === "ext") { screen = flow.ext[pos.i]; done = flow.core.length + (flow.gate ? 1 : 0) + pos.i; }
+  // run — progress + numbering are PER SECTION (core, then extension), so the
+  // bar fills to the end of the section and resets when they opt into more.
+  let screen = null, qIndex = 0, qTotal = 1, progress = 0, showNumber = true, showGreeting = false;
+  if (pos.stage === "core") {
+    screen = flow.core[pos.i]; qTotal = flow.core.length; qIndex = pos.i;
+    progress = qTotal > 0 ? (pos.i + 1) / qTotal : 0;
+    showGreeting = pos.i === 0; // greeting/intro rides on top of question 1
+  } else if (pos.stage === "gate") {
+    screen = flow.gate; showNumber = false; progress = 1; // core section complete
+  } else if (pos.stage === "ext") {
+    screen = flow.ext[pos.i]; qTotal = flow.ext.length; qIndex = pos.i;
+    progress = qTotal > 0 ? (pos.i + 1) / qTotal : 0;
+  }
   if (!screen) return <Loading />;
-
-  const progress = total > 0 ? Math.min(0.99, done / total) : 0;
+  const intro = boot.survey.intro;
 
   return (
     <div className="sv-shell">
       <div className="sv-bar"><div className="sv-bar-fill" style={{ width: `${Math.round(progress * 100)}%` }} /></div>
       <div className="sv-stage">
-        <Screen
-          key={screen.id}
-          screen={screen}
-          survey={boot.survey}
-          answers={answers}
-          vars={vars}
-          onCommit={commit}
-          onGate={onGate}
-        />
+        <div className="sv-col">
+          {showGreeting && intro ? (
+            <div className="sv-greet">
+              <h2>{interp(intro.headline, vars)}</h2>
+              {intro.body ? <p>{interp(intro.body, vars)}</p> : null}
+            </div>
+          ) : null}
+          {showNumber ? (
+            <div className="sv-qnum">Question {qIndex + 1} <span>of {qTotal}</span></div>
+          ) : null}
+          <Screen
+            key={screen.id}
+            screen={screen}
+            survey={boot.survey}
+            answers={answers}
+            vars={vars}
+            onCommit={commit}
+            onGate={onGate}
+          />
+        </div>
       </div>
       <Foot copy={boot.copy} />
     </div>
@@ -274,6 +292,7 @@ function GateScreen({ screen, vars, onGate }) {
 function SingleSelect({ screen, answers, vars, onCommit }) {
   const [picked, setPicked] = useState(null);
   const cur = answers[screen.field];
+  const deco = screen.options.length > 3; // >3 answers get icon + bold to differentiate
   return (
     <div>
       <Q screen={screen} vars={vars} />
@@ -281,9 +300,10 @@ function SingleSelect({ screen, answers, vars, onCommit }) {
         {screen.options.map((o) => {
           const active = picked === o.value || (picked == null && cur === o.value);
           return (
-            <button key={o.value} className={"sv-opt" + (active ? " is-pick" : "")}
+            <button key={o.value} className={"sv-opt" + (deco ? " sv-opt--deco" : "") + (active ? " is-pick" : "")}
               onClick={() => { setPicked(o.value); onCommit(screen, o.value, true); }}>
-              <span className="sv-opt-label">{o.label}</span>
+              {deco ? <span className="sv-opt-ic"><Icon name={o.icon} /></span> : null}
+              <span className={"sv-opt-label" + (deco ? " is-bold" : "")}>{o.label}</span>
               <span className="sv-opt-tick"><Check /></span>
             </button>
           );
@@ -304,6 +324,7 @@ function MultiSelect({ screen, survey, answers, vars, onCommit }) {
     const chosen = srcField ? answers[srcField] : null;
     if (chosen) options = options.filter((o) => o.value !== chosen);
   }
+  const deco = options.length > 3; // >3 answers get icon + bold to differentiate
   function toggle(v) {
     setSel((s) => s.includes(v) ? s.filter((x) => x !== v) : [...s, v]);
   }
@@ -314,8 +335,9 @@ function MultiSelect({ screen, survey, answers, vars, onCommit }) {
         {options.map((o) => {
           const active = sel.includes(o.value);
           return (
-            <button key={o.value} className={"sv-opt" + (active ? " is-pick" : "")} onClick={() => toggle(o.value)}>
-              <span className="sv-opt-label">{o.label}</span>
+            <button key={o.value} className={"sv-opt" + (deco ? " sv-opt--deco" : "") + (active ? " is-pick" : "")} onClick={() => toggle(o.value)}>
+              {deco ? <span className="sv-opt-ic"><Icon name={o.icon} /></span> : null}
+              <span className={"sv-opt-label" + (deco ? " is-bold" : "")}>{o.label}</span>
               <span className="sv-opt-box">{active ? <Check /> : null}</span>
             </button>
           );
@@ -525,6 +547,45 @@ function Foot({ copy }) {
 function Arrow() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
 function Check() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
 
+// Line-art icon set (24x24, stroke). Keyed by option `icon` in survey config.
+const ICON_PATHS = {
+  tractor: '<circle cx="7" cy="16" r="4"/><circle cx="18" cy="17" r="3"/><path d="M11 14l-1-6h4l2 6"/><path d="M14 8h4v6"/>',
+  home: '<path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/>',
+  mappin: '<path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/>',
+  city: '<rect x="4" y="9" width="7" height="12"/><rect x="12" y="5" width="8" height="16"/><path d="M15 9v0M15 13v0M15 17v0"/>',
+  wheat: '<path d="M12 21V9"/><path d="M12 12c-2 0-3.5-1.2-3.5-3 2 0 3.5 1.2 3.5 3z"/><path d="M12 12c2 0 3.5-1.2 3.5-3-2 0-3.5 1.2-3.5 3z"/><path d="M12 16c-2 0-3.5-1.2-3.5-3 2 0 3.5 1.2 3.5 3z"/><path d="M12 16c2 0 3.5-1.2 3.5-3-2 0-3.5 1.2-3.5 3z"/>',
+  gavel: '<path d="M9 11l4 4"/><path d="M14 6l4 4-3 3-4-4z"/><path d="M4 21l6-6"/><path d="M13 19h7"/>',
+  flame: '<path d="M12 3c3 4 5 6 5 9a5 5 0 01-10 0c0-1.6.6-2.7 1.6-3.7C9 10 10 8 12 3z"/>',
+  leaf: '<path d="M5 19c0-8 6-13 14-13 0 8-5 14-13 14"/><path d="M5 19c4-1 7-4 9-8"/>',
+  handshake: '<path d="M12 8l2.5 2.5a1.5 1.5 0 002-2L14 6H9L5 9"/><path d="M19 9l-3 3"/><path d="M9 12l2 2M11 11l2 2M13 10l2 2"/>',
+  bolt: '<path d="M13 2L4 14h7l-2 8 9-12h-7z"/>',
+  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v5"/><path d="M12 18h0"/>',
+  map: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-4 1 2-5z"/>',
+  dollar: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M14.5 9.3c-.6-.8-1.5-1-2.5-1-1.4 0-2.5.7-2.5 1.8 0 2.4 5 1.2 5 3.6 0 1.1-1.1 1.8-2.5 1.8-1 0-1.9-.3-2.5-1.1"/>',
+  hand: '<path d="M9 11V5.5a1.5 1.5 0 013 0V10"/><path d="M12 10V4.5a1.5 1.5 0 013 0V10"/><path d="M15 10.5V7a1.5 1.5 0 013 0v6c0 3.5-2.5 6-6 6-2 0-3.5-1-4.5-2.5L6 13c-.7-1.1.8-2.2 1.8-1.3L9 13"/>',
+  calendar: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/>',
+  share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 11l8-4M8 13l8 4"/>',
+  sign: '<path d="M12 3v18"/><path d="M6 6h10l2 2.5L16 11H6z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/>',
+  xcircle: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  arrowdown: '<path d="M12 4v14M6 12l6 6 6-6"/>',
+  scales: '<path d="M12 4v16M6 20h12M4 8h16"/><path d="M4 8l-2 4h4z"/><path d="M20 8l-2 4h4z"/><path d="M8 5l4-1 4 1"/>',
+  shield: '<path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/>',
+  gift: '<rect x="4" y="10" width="16" height="10" rx="1"/><path d="M3 10h18v3H3z"/><path d="M12 10v10"/><path d="M12 10C10.5 10 9 9 9 7.5S11 5.5 12 10zM12 10c1.5 0 3-1 3-2.5S13 5.5 12 10z"/>',
+  repeat: '<path d="M4 9l3-3 3 3"/><path d="M7 6v5a4 4 0 004 4h6"/><path d="M20 15l-3 3-3-3"/><path d="M17 18v-5a4 4 0 00-4-4H7"/>',
+  star: '<path d="M12 3l2.6 5.6L20 9.3l-4 4 1 6-5-3-5 3 1-6-4-4 5.4-.7z"/>',
+  video: '<rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l6-3v10l-6-3z"/>',
+  users: '<circle cx="9" cy="9" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 012 5.5"/><path d="M17 14.5c2 .6 4 2 4 4.5"/>',
+  utensils: '<path d="M7 3v8M5 3v5a2 2 0 004 0V3M7 11v10"/><path d="M16 3c-1.5 0-3 2-3 5s1.5 4 3 4v9"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>',
+  _default: '<circle cx="12" cy="12" r="8"/>',
+};
+function Icon({ name }) {
+  const p = ICON_PATHS[name] || ICON_PATHS._default;
+  return <svg className="sv-ic-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: p }} aria-hidden="true" />;
+}
+
 // ---- inject brand + component CSS --------------------------------------
 function applyBrand(brand) {
   if (!brand) return;
@@ -538,6 +599,12 @@ const CSS = `
 .sv-bar{position:fixed;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,.10);z-index:5}
 .sv-bar-fill{height:100%;background:var(--gold);transition:width .35s cubic-bezier(.4,0,.2,1)}
 .sv-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:64px 22px 32px;width:100%}
+.sv-col{width:100%;max-width:560px}
+.sv-greet{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sv-greet h2{font-family:var(--f-head);font-weight:700;font-size:25px;color:var(--ink);letter-spacing:-.01em}
+.sv-greet p{color:var(--muted);font-size:15.5px;margin-top:7px;line-height:1.45}
+.sv-qnum{font-family:var(--f-ui);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.sv-qnum span{color:var(--muted);font-weight:600}
 .sv-q{width:100%;max-width:560px}
 .sv-center{text-align:center;display:flex;flex-direction:column;align-items:center}
 .sv-h{font-family:var(--f-head);font-weight:700;font-size:29px;line-height:1.18;color:var(--ink);letter-spacing:-.01em;text-wrap:balance}
@@ -553,6 +620,11 @@ const CSS = `
 .sv-opt:active{transform:scale(.994)}
 .sv-opt.is-pick{border-color:var(--gold);background:rgba(255,179,0,.16)}
 .sv-opt-label{flex:1}
+.sv-opt--deco{gap:14px}
+.sv-opt-ic{width:42px;height:42px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(255,179,0,.15);color:var(--gold);transition:background .12s,color .12s}
+.sv-opt.is-pick .sv-opt-ic{background:var(--gold);color:var(--navy-deep)}
+.sv-opt-label.is-bold{font-weight:700}
+.sv-ic-svg{display:block}
 .sv-opt-tick{width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;color:var(--gold);opacity:0;transition:opacity .1s}
 .sv-opt.is-pick .sv-opt-tick{opacity:1}
 .sv-opt-box{width:24px;height:24px;flex:none;border:2px solid rgba(255,255,255,.35);border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--navy-deep)}

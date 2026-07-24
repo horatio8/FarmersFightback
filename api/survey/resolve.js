@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
         needs_capture: true,
         slug: survey.slug,
         version: survey.version,
-        survey: { slug: survey.slug, version: survey.version, title: survey.title, screens: survey.screens },
+        survey: { slug: survey.slug, version: survey.version, title: survey.title, intro: survey.intro, screens: survey.screens },
         brand: client.brand,
         copy: client.copy,
         cap: client.donation,
