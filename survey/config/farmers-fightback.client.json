@@ -1,0 +1,41 @@
+{
+  "client": "farmers-fightback",
+  "name": "Farmers Fightback",
+  "host": "survey.farmersfightback.com",
+  "sms_host": "go.farmersfightback.com",
+  "brand": {
+    "navy": "#12354B",
+    "navy_deep": "#0d2637",
+    "red": "#C62828",
+    "button": "#990000",
+    "button_hover": "#7d0000",
+    "gold": "#FFB300",
+    "cream": "#F4F1EA",
+    "ink_on_dark": "#FFFFFF",
+    "muted_on_dark": "#B8C6D2",
+    "pill_radius": "30px",
+    "heading_font": "Georgia, 'Times New Roman', serif",
+    "ui_font": "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    "logo": "/assets/logo.png",
+    "favicon": "/assets/favicon.svg"
+  },
+  "copy": {
+    "no_em_dashes": true,
+    "privacy_line": "We'll only use your answers to keep you informed and make our campaign smarter.",
+    "privacy_url": "https://www.farmersfightback.com/privacy",
+    "capture_intro": "So we can save your answers and keep you posted, tell us who you are.",
+    "greeting": "G'day {first_name}."
+  },
+  "cn": {
+    "account": "teller",
+    "sending_identity_id": 15,
+    "member_id_alias": "member_id",
+    "writeback": "csv"
+  },
+  "donation": {
+    "cap_amount": 5030,
+    "cap_currency": "AUD",
+    "cap_until": "2026-11-28",
+    "cap_disclosure": "Victorian law caps political donations at $5,030 per person to 28 November 2026."
+  }
+}

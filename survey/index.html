@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Farmers Fightback Supporter Survey</title>
+  <meta name="description" content="Two minutes that make the fight smarter."/>
+  <meta name="robots" content="noindex"/>
+  <meta name="theme-color" content="#12354B"/>
+  <meta property="og:title" content="Two minutes that make the fight smarter"/>
+  <meta property="og:description" content="Help us fight smarter for Aussie farms."/>
+  <meta property="og:type" content="website"/>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="alternate icon" href="/assets/logo.png"/>
+
+  <style>
+    :root{
+      --navy:#12354B; --navy-deep:#0d2637; --red:#C62828; --button:#990000; --button-hover:#7d0000;
+      --gold:#FFB300; --cream:#F4F1EA; --ink:#FFFFFF; --muted:#B8C6D2; --pill:30px;
+      --f-head:Georgia,"Times New Roman",serif;
+      --f-ui:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:var(--f-ui);color:var(--ink);background:var(--navy);
+      background-image:linear-gradient(180deg,#164560 0,#12354B 44%,#0d2637 100%);
+      background-attachment:fixed;min-height:100dvh;-webkit-font-smoothing:antialiased}
+    #root{min-height:100dvh}
+    .sv-load{display:flex;min-height:100dvh;align-items:center;justify-content:center;color:var(--muted);
+      font-family:var(--f-head);font-size:18px;letter-spacing:.02em}
+    .sv-load span{opacity:.0;animation:svp 1.1s ease-in-out infinite}
+    @keyframes svp{0%,100%{opacity:.25}50%{opacity:1}}
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="sv-load"><span>Loading&hellip;</span></div>
+  </div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script type="text/babel" src="/survey/app.jsx"></script>
+</body>
+</html>

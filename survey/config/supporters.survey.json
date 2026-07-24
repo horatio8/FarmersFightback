@@ -1,0 +1,186 @@
+{
+  "slug": "supporters",
+  "version": "1",
+  "title": "Farmers Fightback Supporter Survey",
+  "screens": [
+    { "id": "S0", "tier": "core", "type": "statement",
+      "headline": "G'day {first_name}.",
+      "body": "Two minutes, all taps, and it makes the campaign smarter. Let's go.",
+      "button": "Start" },
+
+    { "id": "C1", "tier": "core", "type": "single_select", "field": "motivation_primary", "cn_tag": "motiv:{value}",
+      "question": "What matters most to you in this fight?",
+      "options": [
+        { "value": "food-security", "label": "Protecting family farms and food security" },
+        { "value": "overreach", "label": "Stopping government overreach on private property" },
+        { "value": "fire-risk", "label": "Fire risk and community safety" },
+        { "value": "environment", "label": "Protecting the environment and landscape" },
+        { "value": "fair-go", "label": "A fair go for regional Australians" },
+        { "value": "energy-policy", "label": "Australia's energy policy is on the wrong track" }
+      ] },
+
+    { "id": "A1", "tier": "core", "type": "single_select", "field": "supporter_type", "cn_tag": "type:{value}",
+      "question": "Which best describes you?",
+      "options": [
+        { "value": "farmer", "label": "I'm a farmer" },
+        { "value": "farming-family", "label": "I'm from a farming family" },
+        { "value": "regional", "label": "I live in a rural or regional community" },
+        { "value": "city", "label": "I'm a city-based supporter" }
+      ] },
+
+    { "id": "B2", "tier": "core", "type": "single_select", "field": "route_proximity", "cn_tag": "route:{value}",
+      "question": "How close is the VNI West route to you?",
+      "options": [
+        { "value": "crosses-land", "label": "It's slated to cross my land" },
+        { "value": "district", "label": "It runs through my district" },
+        { "value": "regional-vic", "label": "I'm in regional Victoria" },
+        { "value": "metro", "label": "I'm in Melbourne or metro" },
+        { "value": "interstate", "label": "I'm interstate" }
+      ] },
+
+    { "id": "D1", "tier": "core", "type": "multi_select", "field": "actions_offered", "cn_tag": "act:{value}",
+      "question": "How would you like to help?",
+      "help": "Tick all that apply.",
+      "options": [
+        { "value": "chip-in", "label": "Chip in when it counts" },
+        { "value": "volunteer", "label": "Volunteer my time" },
+        { "value": "events", "label": "Attend events" },
+        { "value": "share", "label": "Share our posts" },
+        { "value": "sign", "label": "Put up a sign" },
+        { "value": "mp", "label": "Contact my MP" }
+      ] },
+
+    { "id": "B1", "tier": "core", "type": "postcode", "field": "postcode", "skip_if_known": "postcode",
+      "cn_field": "postcode",
+      "question": "What's your postcode?",
+      "help": "So we can put you on the map." },
+
+    { "id": "B3", "tier": "core", "type": "phone_optin", "field": "mobile_optin", "skip_if_known": "mobile",
+      "contact_field": "mobile", "cn_field": "mobile", "cn_tag_yes": "sms:opt-in",
+      "question": "Want urgent campaign alerts by text?",
+      "yesLabel": "Yes, text me the big moments",
+      "noLabel": "No thanks" },
+
+    { "id": "S7", "tier": "interstitial", "type": "statement", "extension_gate": true,
+      "headline": "You're a legend.",
+      "body": "Got 60 more seconds? It sharpens everything we do.",
+      "button": "Go on then",
+      "skip_button": "Take me to the end" },
+
+    { "id": "C3", "tier": "extension", "type": "single_select", "field": "win_definition", "cn_tag": "win:{value}",
+      "question": "What does winning look like to you?",
+      "options": [
+        { "value": "scrap", "label": "Scrap VNI West entirely" },
+        { "value": "underground", "label": "Put the lines underground" },
+        { "value": "compensation", "label": "Real consent and fair compensation for farmers" },
+        { "value": "accountability", "label": "Ministers held accountable" },
+        { "value": "protect-farms", "label": "Protecting farms right across Australia" }
+      ] },
+
+    { "id": "D2", "tier": "extension", "type": "single_select", "field": "giving_style", "cn_tag": "give:{value}",
+      "question": "If you back us financially, what suits you best?",
+      "options": [
+        { "value": "oneoff", "label": "A one-off when it matters most" },
+        { "value": "monthly", "label": "A small monthly amount" },
+        { "value": "major", "label": "A larger gift for a specific fight (legal, advertising)" },
+        { "value": "other-help", "label": "I help in other ways" }
+      ] },
+
+    { "id": "C5", "tier": "extension", "type": "scale_1_5", "field": "intensity", "cn_field": "intensity",
+      "question": "How much does this fight matter to you personally?",
+      "low_label": "I keep an eye on it",
+      "high_label": "I think about it every day" },
+
+    { "id": "D3", "tier": "extension", "type": "multi_select", "field": "event_interest", "cn_tag": "event:{value}",
+      "question": "Which events would you come to?",
+      "help": "Tick all that apply.",
+      "options": [
+        { "value": "funraiser", "label": "The FUNdraiser (Sat 29 August)" },
+        { "value": "briefings", "label": "Online supporter briefings" },
+        { "value": "town-meetings", "label": "Local town meetings" },
+        { "value": "lunches", "label": "Melbourne lunches" },
+        { "value": "none", "label": "None for now" }
+      ] },
+
+    { "id": "A2", "tier": "extension", "type": "single_select", "field": "age_bracket", "cn_field": "age_bracket",
+      "question": "Your age group?",
+      "options": [
+        { "value": "under-30", "label": "Under 30" },
+        { "value": "30-44", "label": "30 to 44" },
+        { "value": "45-59", "label": "45 to 59" },
+        { "value": "60-74", "label": "60 to 74" },
+        { "value": "75-plus", "label": "75+" }
+      ] },
+
+    { "id": "D4", "tier": "extension", "type": "single_select", "field": "comms_cadence", "cn_field": "comms_cadence",
+      "question": "How often do you want to hear from us?",
+      "options": [
+        { "value": "everything", "label": "Everything as it happens" },
+        { "value": "weekly", "label": "A weekly wrap-up" },
+        { "value": "big-moments", "label": "Just the big moments" }
+      ] },
+
+    { "id": "C2", "tier": "extension", "type": "multi_select", "field": "motivation_secondary", "cn_tag": "motiv2:{value}",
+      "pipe_from": "C1",
+      "question": "Anything else driving your support?",
+      "help": "Tick all that apply.",
+      "options": [
+        { "value": "food-security", "label": "Protecting family farms and food security" },
+        { "value": "overreach", "label": "Stopping government overreach on private property" },
+        { "value": "fire-risk", "label": "Fire risk and community safety" },
+        { "value": "environment", "label": "Protecting the environment and landscape" },
+        { "value": "fair-go", "label": "A fair go for regional Australians" },
+        { "value": "energy-policy", "label": "Australia's energy policy is on the wrong track" }
+      ] }
+  ],
+
+  "ask": {
+    "donate_url": "https://www.farmersfightback.com/donate",
+    "volunteer_url": "https://www.farmersfightback.com/volunteer",
+    "share_url": "https://www.farmersfightback.com/funshare",
+    "major_mailto": "hello@mail.farmersfightback.com",
+    "c1_framing": {
+      "fire-risk": "Help make the CFA's warnings impossible to ignore.",
+      "overreach": "Help us hold them to account.",
+      "food-security": "Help protect the paddocks that feed Australia.",
+      "environment": "Help protect the landscapes they'd carve up.",
+      "fair-go": "Help regional Australia get the fair go it's owed.",
+      "energy-policy": "Help force a rethink before it's too late."
+    },
+    "rules": [
+      { "id": "on-route", "when": { "field": "route_proximity", "in": ["crosses-land", "district"] },
+        "style": "solidarity",
+        "framing": "We stand at the gate with you.",
+        "body": "You're the face of this fight, not its wallet. Here's how to dig in.",
+        "primary_cta": { "label": "Volunteer / put up a sign", "kind": "volunteer" },
+        "secondary_cta": { "label": "Or chip in a little", "kind": "donate_soft" } },
+
+      { "id": "share", "when": { "field": "actions_offered", "not_includes": "chip-in" },
+        "style": "share",
+        "framing": "The next 93,000 start with one share.",
+        "body": "The fastest way to grow this fight is to pass it on.",
+        "primary_cta": { "label": "Share the campaign", "kind": "share" },
+        "secondary_cta": { "label": "Or make a small donation", "kind": "donate_soft" } },
+
+      { "id": "monthly", "when": { "field": "giving_style", "equals": "monthly" },
+        "style": "ladder_monthly",
+        "framing": "Join the standing fighting fund that lets us plan ahead.",
+        "amounts": [10, 20, 35], "frequency": "monthly" },
+
+      { "id": "major", "when": { "field": "giving_style", "equals": "major" },
+        "style": "ladder_major",
+        "framing": "Back a specific fight and we'll make it count.",
+        "amounts": [265, 550, 1000], "allow_other": true, "frequency": "oneoff",
+        "talk_to_us": true }
+    ],
+    "default": { "id": "hard-ask", "style": "ladder_oneoff",
+      "framing": "Chip in and keep the fight on the road.",
+      "frequency": "oneoff",
+      "amounts": [
+        { "amount": 35, "tag": "keeps advertising running" },
+        { "amount": 65, "tag": "funds one FOI" },
+        { "amount": 135, "tag": "puts signs across a community" }
+      ],
+      "allow_other": true }
+  }
+}
