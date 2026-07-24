@@ -7,7 +7,7 @@
     { "source": "/first", "destination": "/first/index.html" },
     { "source": "/funshare", "destination": "/funshare/index.html" },
     { "source": "/funraiser", "destination": "/funraiser/index.html" },
-    { "source": "/s/:slug", "destination": "/survey/index.html" },
+    { "source": "/s/:slug", "destination": "/survey" },
     { "source": "/fund",  "destination": "/api/track-redirect?l=fund" },
     { "source": "/fight", "destination": "/api/track-redirect?l=fight" },
     { "source": "/leaderboard", "destination": "/api/leaderboard" },
