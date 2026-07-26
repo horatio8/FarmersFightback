@@ -219,7 +219,7 @@ module.exports = async function handler(req, res) {
       console.error("rally pre-payment Airtable write failed:", e.message);
     }
 
-    const base = process.env.RALLY_SUCCESS_URL_BASE || `${hostBase(req)}/rally`;
+    const base = process.env.RALLY_SUCCESS_URL_BASE || `${hostBase(req)}/fundraiser`;
     const line_items = [];
     if (adult_qty > 0) line_items.push({ price: ADULT_PRICE_ID, quantity: adult_qty });
     if (kid_qty > 0) line_items.push({ price: KID_PRICE_ID, quantity: kid_qty });

@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/rally", "destination": "/rally/index.html" },
+    { "source": "/fundraiser", "destination": "/fundraiser/index.html" },
     { "source": "/first", "destination": "/first/index.html" },
     { "source": "/funshare", "destination": "/funshare/index.html" },
     { "source": "/funraiser", "destination": "/funraiser/index.html" },
@@ -27,6 +27,7 @@
     "api/admin/stripe-backfill.js": { "maxDuration": 300 }
   },
   "redirects": [
+    { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
     { "source": "/baldwin",     "destination": "/take-action/baldwins", "permanent": false },
     { "source": "/baldwins",    "destination": "/take-action/baldwins", "permanent": false },
     { "source": "/defend",      "destination": "/take-action/baldwins#donate", "permanent": false },

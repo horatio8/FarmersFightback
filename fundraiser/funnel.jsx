@@ -1,9 +1,9 @@
 /* ============================================================
-   Farmers Fightback Rally — ticketing funnel
+   Farmers Fightback Fundraiser — ticketing funnel (served at /fundraiser)
    Design ported from claude.ai/design ticketing/Farmers Fightback
    Rally Ticketing.html. Two flows:
      - paid: Adult + Kids qty → Stripe hosted Checkout → confirm
-     - comp: /rally?claim=<token> → confirm (skips Stripe on $0)
+     - comp: /fundraiser?claim=<token> → confirm (skips Stripe on $0)
    Backend:
      POST /api/rally-checkout  — creates Stripe Checkout Session
      POST /api/rally-claim     — validates comp token, records claim
@@ -74,7 +74,7 @@ function Masthead() {
       <div className="ffx-mast-in">
         <img className="ffx-logo" src="/assets/logo-horizontal.png" alt="Farmers Fightback" />
         <div className="ffx-kicker">You&rsquo;re invited to the</div>
-        <h1 className="ffx-title">Farmers Fightback<span className="ffx-rally">Rally</span></h1>
+        <h1 className="ffx-title">Farmers Fightback<span className="ffx-rally">Fundraiser</span></h1>
         <p className="ffx-sub"><strong>A night to fight for the future of farming &mdash; everyone welcome.</strong></p>
         <div className="ffx-band">
           <div className="ffx-band-date">{EVENT.date}</div>
@@ -420,8 +420,8 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
    SHARE block
    ============================================================ */
 function ShareBlock({ myToken }) {
-  const url = `https://www.farmersfightback.com/rally${myToken ? `?ref=${myToken}` : ""}`;
-  const text = "I'm going to the Farmers Fightback Rally — Sat 29 Aug, Marnoo. Come stand with us:";
+  const url = `https://www.farmersfightback.com/fundraiser${myToken ? `?ref=${myToken}` : ""}`;
+  const text = "I'm going to the Farmers Fightback Fundraiser — Sat 29 Aug, Marnoo. Come stand with us:";
   const [copied, setCopied] = useState(false);
   const copy = () => {
     try { navigator.clipboard.writeText(url); } catch (e) {}
@@ -431,7 +431,7 @@ function ShareBlock({ myToken }) {
   const chans = [
     { k: "fb", label: "Facebook", Ic: I.fb, href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, c: "#1877F2" },
     { k: "wa", label: "WhatsApp", Ic: I.wa, href: `https://wa.me/?text=${enc(text + " " + url)}`, c: "#25D366" },
-    { k: "mail", label: "Email", Ic: I.mail, href: `mailto:?subject=${enc("Come to the Farmers Fightback Rally")}&body=${enc(text + "\n\n" + url)}`, c: "#AE3528" },
+    { k: "mail", label: "Email", Ic: I.mail, href: `mailto:?subject=${enc("Come to the Farmers Fightback Fundraiser")}&body=${enc(text + "\n\n" + url)}`, c: "#AE3528" },
     { k: "sms", label: "Text", Ic: I.sms, href: `sms:?&body=${enc(text + " " + url)}`, c: "#1F6B3B" },
   ];
   return (
@@ -535,7 +535,7 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
     if (window.fbq) {
       try {
         window.fbq("track", comp ? "Lead" : "Purchase", {
-          content_name: comp ? "Rally Ticket (comp)" : "Rally Ticket",
+          content_name: comp ? "Fundraiser Ticket (comp)" : "Fundraiser Ticket",
           value: total,
           currency: "AUD",
           num_items: totalTix,
@@ -565,7 +565,7 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
 
       <div className="ffx-stub">
         <div className="ffx-stub-main">
-          <div className="ffx-stub-eb"><I.star width="12" height="12" /> Farmers Fightback Rally</div>
+          <div className="ffx-stub-eb"><I.star width="12" height="12" /> Farmers Fightback Fundraiser</div>
           <div className="ffx-stub-date">{EVENT.date}</div>
           <div className="ffx-stub-rows">
             <div><span>Name</span><b>{name}</b></div>
