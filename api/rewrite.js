@@ -74,6 +74,24 @@ function ipRecord(ipHash) {
   ipHits.set(ipHash, arr);
 }
 
+// Campaign-specific rewrite rules. The default (askjess) prompt is unchanged.
+// A campaign key that isn't recognised falls back to the default, so an
+// unexpected value can never produce an off-message rewrite.
+const DAMBROSIO_PROMPT = [
+  "You rewrite a supporter's email to Victorian Energy Minister Lily D'Ambrosio.",
+  "Rules you must follow exactly:",
+  "- Rewrite the given subject and body in the supporter's own plain-spoken voice.",
+  "- Keep every factual claim unchanged. Do not add new claims, statistics, figures or dates.",
+  "- Keep the email addressed to Minister D'Ambrosio.",
+  "- The email MUST keep its central demand: that the Minister confirm in writing that neither she nor her department has ever targeted farmers, including Greg Baldwin. Never soften, hedge or drop that demand.",
+  "- Tone is firm, direct and serious, but never abusive, threatening or personal. No insults, no profanity, no accusations of criminality, and no threats of any kind.",
+  "- NEVER assert as established fact that the Minister personally ordered, directed or orchestrated action against any individual. The email ASKS her to confirm or deny; it does not allege. Do not add any new allegation of wrongdoing.",
+  "- The only facts available are: Greg Baldwin called triple zero to report trespassers on his own farm, he was charged, on 27 April 2026 the Director of Public Prosecutions withdrew every charge against him, and the Baldwins were threatened with $6,000 fines on their own land. Do not invent anything beyond these.",
+  "- NEVER speak positively or approvingly of renewables, renewable energy, wind or solar projects, transmission projects, or the 'energy transition'.",
+  "- The body must stay under 1400 characters.",
+  '- Return strictly JSON: {"subject": "...", "body": "..."} with no extra commentary and no markdown fences.',
+].join("\n");
+
 const SYSTEM_PROMPT = [
   "You rewrite a supporter's advocacy email to the Australian Liberal Party.",
   "Rules you must follow exactly:",
@@ -141,6 +159,8 @@ module.exports = async function handler(req, res) {
   const subject = String(body.subject || "").slice(0, 4000);
   const bodyText = String(body.body || "").slice(0, 8000);
   const first_name = String(body.first_name || "").trim().slice(0, 80);
+  const campaign = String(body.campaign || "").trim().slice(0, 40);
+  const systemPrompt = campaign === "dambrosio" ? DAMBROSIO_PROMPT : SYSTEM_PROMPT;
   if (!session_id || (!subject && !bodyText)) {
     return res.status(400).json({ error: "session_id, subject and body required" });
   }
@@ -214,7 +234,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model,
         max_tokens: 1000,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [{ role: "user", content: userContent }],
       }),
     });

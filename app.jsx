@@ -3524,6 +3524,56 @@ function ffbHash(s) {
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return h;
 }
+// Per-campaign config for the email-action engine. Everything that differs
+// between campaigns lives here so the page component stays generic and adding
+// a target is a config change, not a fork of the component.
+//
+// sessionKey MUST be unique per campaign: /api/capture upserts the Signups row
+// on session_id, so a shared key would let a visitor who opens both campaigns
+// overwrite their first campaign's row with the second's.
+const FFB_CAMPAIGNS = {
+  askjess: {
+    id: "askjess",
+    sessionKey: FFB_SESSION_KEY,
+    recipientsUrl: "content/recipients.json",
+    variationsUrl: "content/variations.json",
+    utmCampaign: "askjess",
+    heroEyebrow: "AN EARNEST REQUEST FROM RURAL AUSTRALIA",
+    heroHeading: "Tell the Victorian Coalition: There's still time to do the right thing.",
+    heroLede: <>The Liberal &amp; National Party hasn't locked in its position yet. It's imperative they know rural Australia will not accept the VNI West or Western Renewables Link. Take a moment to tell them!</>,
+    heroNudge: "It only takes 10 seconds to tell the Coalition to do the right thing.",
+    heroCta: "Send your email",
+    editorLede: "Firm, fair and polite: take a moment to review your email. You can generate a new email by clicking 'Say it my way'",
+    recipientsLabel: (n) => <>This email goes to {n} Liberal {n === 1 ? "leader" : "leaders"}:</>,
+    sendLabel: "Send your email to the Libs/Nationals now",
+    successHeading: "Thank you. That one counts.",
+    successLede: "You've just done something most people never do: asked politely, in person, for better. If every supporter sends one email and passes this page to a mate, the Liberal Party will hear rural Australia loud and clear before they make their call.",
+    donateHeading: "Back your email with a few dollars",
+    donateLede: "Emails open the door. Funding keeps the fight alive.",
+  },
+  dambrosio: {
+    id: "dambrosio",
+    sessionKey: "ffb_session_id_dambrosio",
+    recipientsUrl: "content/dambrosio-recipients.json",
+    variationsUrl: "content/dambrosio-variations.json",
+    utmCampaign: "demand-dambrosio",
+    heroEyebrow: "A DIRECT DEMAND FROM RURAL VICTORIA",
+    heroHeading: "Demand D'Ambrosio answers.",
+    heroLede: <>Greg Baldwin rang triple zero to report trespassers on his own farm. Police charged <em>him</em>. On 27 April 2026 the DPP withdrew every single charge &mdash; there was never a case. The Minister has still not answered one simple question.</>,
+    heroNudge: "Ask her to state it plainly: has she or her department ever targeted a farmer? It takes 10 seconds.",
+    heroCta: "Demand an answer",
+    editorLede: "Firm, direct and on the record: take a moment to review your email. You can generate a new version by clicking 'Say it my way'",
+    recipientsLabel: (n) => (n === 1
+      ? <>This email goes straight to the Minister:</>
+      : <>This email goes to {n} recipients:</>),
+    sendLabel: "Send your demand to Minister D'Ambrosio now",
+    successHeading: "Sent. Now she has to answer.",
+    successLede: "Ministers count emails. One is a letter; thousands are a problem she cannot file away. You've just put your name to a question she has avoided answering — pass this page to a mate and make it impossible to ignore.",
+    donateHeading: "Back your demand with a few dollars",
+    donateLede: "Emails force the question. Funding keeps us asking until she answers.",
+  },
+};
+
 function ffbEmailValid(v) { return /^\S+@\S+\.\S+$/.test(String(v || "").trim()); }
 // AU mobile: accept 04xxxxxxxx or +614xxxxxxxx → normalize to +614xxxxxxxx.
 function ffbNormMobile(raw) {
@@ -3533,7 +3583,8 @@ function ffbNormMobile(raw) {
   return null;
 }
 
-function SendEmailPage() {
+function SendEmailPage({ campaign }) {
+  const camp = campaign || FFB_CAMPAIGNS.askjess;
   // BCC the campaign on every compose path so we see what supporters send.
   // Campaign copy goes in the To line (visible recipient), not BCC.
   const CAMPAIGN_COPY = "correspondence@mail.farmersfightback.com";
@@ -3541,11 +3592,11 @@ function SendEmailPage() {
   if (!sessionId.current) {
     let s = "";
     try {
-      s = sessionStorage.getItem(FFB_SESSION_KEY) || "";
+      s = sessionStorage.getItem(camp.sessionKey) || "";
       if (!s) {
         s = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
           : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        sessionStorage.setItem(FFB_SESSION_KEY, s);
+        sessionStorage.setItem(camp.sessionKey, s);
       }
     } catch { s = `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
     sessionId.current = s;
@@ -3599,7 +3650,7 @@ function SendEmailPage() {
   // Load content + fire page_view once.
   useEffect(() => {
     if (!pageViewFired.current) { pageViewFired.current = true; track("page_view"); }
-    fetch("content/variations.json", { cache: "no-cache" })
+    fetch(camp.variationsUrl, { cache: "no-cache" })
       .then(r => r.json())
       .then(list => {
         setVariations(list);
@@ -3607,7 +3658,7 @@ function SendEmailPage() {
         if (v) { setSubject(v.subject || ""); setBodyText(v.body || ""); }
       })
       .catch(() => setVariations([]));
-    fetch("content/recipients.json", { cache: "no-cache" })
+    fetch(camp.recipientsUrl, { cache: "no-cache" })
       .then(r => r.json())
       .then(list => setRecipients(Array.isArray(list) ? list : []))
       .catch(() => setRecipients([]));
@@ -3651,6 +3702,9 @@ function SendEmailPage() {
     ["utm_source", "utm_medium", "utm_campaign"].forEach(k => {
       const v = utm.get(k); if (v) p[k] = v;
     });
+    // Both campaigns share the Signups table, so stamp which one this row came
+    // from. A real inbound ?utm_campaign= always wins.
+    if (!p.utm_campaign && camp.utmCampaign) p.utm_campaign = camp.utmCampaign;
     return { ...p, ...(extra || {}) };
   }
 
@@ -3765,6 +3819,7 @@ function SendEmailPage() {
           subject,
           body: bodyText,
           first_name: formRef.current.first.trim(),
+          campaign: camp.id,
         }),
       });
       if (r.status === 429) {
@@ -3871,13 +3926,13 @@ function SendEmailPage() {
         <section className="ff-section ff-email-success">
           <div className="ff-wrap ff-email-narrow">
             <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sent</span>
-            <h1 className="ff-h2">Thank you. That one counts.</h1>
-            <p className="ff-lede ff-email-lede-wide">You've just done something most people never do: asked politely, in person, for better. If every supporter sends one email and passes this page to a mate, the Liberal Party will hear rural Australia loud and clear before they make their call.</p>
+            <h1 className="ff-h2">{camp.successHeading}</h1>
+            <p className="ff-lede ff-email-lede-wide">{camp.successLede}</p>
 
             {donorTiers.length > 0 && (
               <div className="ff-email-donate ff-email-donate--lg">
-                <h2 className="ff-email-donate-h">Back your email with a few dollars</h2>
-                <p className="ff-email-donate-lede">Emails open the door. Funding keeps the fight alive.</p>
+                <h2 className="ff-email-donate-h">{camp.donateHeading}</h2>
+                <p className="ff-email-donate-lede">{camp.donateLede}</p>
                 <div className="ff-email-donate-chips">
                   {donorTiers.map(t => (
                     <button
@@ -3942,11 +3997,11 @@ function SendEmailPage() {
       {/* Hero */}
       <section className="ff-section ff-email-hero">
         <div className="ff-wrap ff-email-narrow">
-          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> AN EARNEST REQUEST FROM RURAL AUSTRALIA</span>
-          <h1 className="ff-h2 ff-h2--light">Tell the Victorian Coalition: There's still time to do the right thing.</h1>
-          <p className="ff-lede ff-email-lede-light">The Liberal &amp; National Party hasn't locked in its position yet. It's imperative they know rural Australia will not accept the VNI West or Western Renewables Link. Take a moment to tell them!</p>
-          <p className="ff-email-hero-nudge">It only takes 10 seconds to tell the Coalition to do the right thing.</p>
-          <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Send your email</button>
+          <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {camp.heroEyebrow}</span>
+          <h1 className="ff-h2 ff-h2--light">{camp.heroHeading}</h1>
+          <p className="ff-lede ff-email-lede-light">{camp.heroLede}</p>
+          <p className="ff-email-hero-nudge">{camp.heroNudge}</p>
+          <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{camp.heroCta}</button>
         </div>
       </section>
 
@@ -4002,7 +4057,7 @@ function SendEmailPage() {
       <section className="ff-section ff-email-editor">
         <div className="ff-wrap ff-email-narrow">
           <h2 className="ff-h2">Prepare your email below</h2>
-          <p className="ff-lede ff-email-lede-wide">Firm, fair and polite: take a moment to review your email. You can generate a new email by clicking 'Say it my way'</p>
+          <p className="ff-lede ff-email-lede-wide">{camp.editorLede}</p>
 
           <div className="ff-field">
             <span className="ff-field-label">Subject</span>
@@ -4026,7 +4081,7 @@ function SendEmailPage() {
         <div className="ff-wrap ff-email-narrow">
           {recipients.length > 0 && (
             <div className="ff-email-recipients">
-              <div className="ff-email-recipients-h">This email goes to {recipientCount} Liberal {recipientCount === 1 ? "leader" : "leaders"}:</div>
+              <div className="ff-email-recipients-h">{camp.recipientsLabel(recipientCount)}</div>
               <ul>
                 {recipients.map((r, i) => (
                   <li key={i}><strong>{r.name}</strong>{r.role ? <span> — {r.role}</span> : null}</li>
@@ -4034,7 +4089,7 @@ function SendEmailPage() {
               </ul>
             </div>
           )}
-          <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" onClick={onSend}>Send your email to the Libs/Nationals now <span aria-hidden="true">→</span></button>
+          <button type="button" className="ff-btn ff-btn--red ff-btn--block ff-btn--lg" onClick={onSend}>{camp.sendLabel} <span aria-hidden="true">→</span></button>
           <p className="ff-email-reassure">Your email app opens with everything ready. It sends from your address, in your name. Personal emails get read. Form letters get filed.</p>
         </div>
       </section>
@@ -4710,7 +4765,8 @@ function App() {
   else if (page === "donate") view = <DonorPage />;
   else if (page === "volunteer") view = <VolunteerPage />;
   else if (page === "share") view = <ShareThanksPage />;
-  else if (page === "send-email") view = <SendEmailPage />;
+  else if (page === "send-email") view = <SendEmailPage campaign={FFB_CAMPAIGNS.askjess} />;
+  else if (page === "demand-dambrosio") view = <SendEmailPage campaign={FFB_CAMPAIGNS.dambrosio} />;
   else if (page === "webinar") view = <WebinarPage />;
   else if (page === "question") view = <QuestionPage />;
   else view = <HomePage />;
