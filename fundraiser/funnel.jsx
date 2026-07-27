@@ -176,7 +176,7 @@ function TermsModal({ onClose }) {
           <h4>1. Tickets &amp; payment</h4>
           <p>All ticket sales are processed securely through Stripe. Prices are in Australian dollars and include GST where applicable. Your ticket is confirmed once payment is received and a confirmation email has been sent.</p>
           <h4>2. Refunds &amp; transfers</h4>
-          <p>Tickets are non-refundable unless the event is cancelled. Tickets are non-transferable and may only be used by the person named on the booking. If the event is cancelled, ticket holders will be refunded in full.</p>
+          <p>Tickets are non-refundable. Tickets are non-transferable and may only be used by the person named on the booking.</p>
           <h4>3. Entry</h4>
           <p>Bring your ticket (printed or on your phone) to scan at the gate. Gates open from 6:00pm. Organisers reserve the right to refuse entry.</p>
           <h4>4. Cancellation at our discretion</h4>
