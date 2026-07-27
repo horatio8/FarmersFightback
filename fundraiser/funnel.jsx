@@ -177,23 +177,25 @@ function TermsModal({ onClose }) {
           <p>All ticket sales are processed securely through Stripe. Prices are in Australian dollars and include GST where applicable. Your ticket is confirmed once payment is received and a confirmation email has been sent.</p>
           <h4>2. Refunds &amp; transfers</h4>
           <p>Tickets are non-refundable. Tickets are non-transferable and may only be used by the person named on the booking.</p>
-          <h4>3. Entry</h4>
-          <p>Bring your ticket (printed or on your phone) to scan at the gate. Gates open from 6:00pm. Organisers reserve the right to refuse entry.</p>
-          <h4>4. Cancellation at our discretion</h4>
-          <p>We may cancel or void any ticket at any time, at our absolute discretion and without giving reasons. Where we do, the price paid for that ticket is refunded. This is separate from clause 6, under which a person removed from the event for their behaviour is not entitled to a refund.</p>
-          <h4>5. Children &amp; families</h4>
+          <h4>3. Ticket delivery</h4>
+          <p>Tickets are not issued at the time of purchase. Your ticket will be emailed to you at a later date, closer to the event, to the email address on your booking. Your confirmation code is your proof of purchase until then.</p>
+          <h4>4. Entry</h4>
+          <p>Bring your ticket (printed or on your phone) to scan at the gate, or photo identification matching the name on your booking. Gates open from 6:00pm. Organisers reserve the right to refuse entry.</p>
+          <h4>5. Cancellation at our discretion</h4>
+          <p>We may cancel or void any ticket at any time, at our absolute discretion and without giving reasons. Where we do, the price paid for that ticket is refunded. This is separate from clause 7, under which a person removed from the event for their behaviour is not entitled to a refund.</p>
+          <h4>6. Children &amp; families</h4>
           <p>Children 12 and under require a Kids ticket. Under-18s must be accompanied by a parent or guardian at all times.</p>
-          <h4>6. Conduct</h4>
+          <h4>7. Conduct</h4>
           <p>This is a peaceful, family-friendly community event. Anyone behaving in a threatening, abusive or unsafe manner will be asked to leave without refund.</p>
-          <h4>7. Photography &amp; media</h4>
+          <h4>8. Photography &amp; media</h4>
           <p>Photography and filming take place for campaign and media purposes. By attending you consent to appearing in images and footage. Tell a staff member if you would prefer not to be photographed.</p>
-          <h4>8. Program changes</h4>
+          <h4>9. Program changes</h4>
           <p>Speakers, program and running times are indicative and may change without notice. Advertised guests are subject to availability.</p>
-          <h4>9. Donations</h4>
+          <h4>10. Donations</h4>
           <p>Donations are voluntary, separate from ticket purchases, and non-refundable. They are not tax-deductible unless otherwise stated.</p>
-          <h4>10. Privacy</h4>
+          <h4>11. Privacy</h4>
           <p>Your details are collected to manage your booking and to keep you updated about the campaign. We do not sell your information, and you can unsubscribe at any time.</p>
-          <h4>11. Liability</h4>
+          <h4>12. Liability</h4>
           <p>Attendees enter the venue at their own risk. The organisers are not liable for any loss, damage or injury except to the extent required by law.</p>
           <p className="ffx-modal-meta">Farmers Fightback · Marnoo, Victoria. Authorised by Ben Duxson. Questions? events@farmersfightback.com. Last updated July 2026.</p>
         </div>
@@ -556,14 +558,7 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
         <p className="ffx-fine">You&rsquo;re all set &mdash; see you at the gate.</p>
       </div>
 
-      <div className="ffx-inbox">
-        <span className="ffx-inbox-ic"><I.check width="30" height="30" /></span>
-        <div className="ffx-inbox-tx">
-          <div className="ffx-inbox-h">You&rsquo;re on the list</div>
-          <div className="ffx-inbox-code">Confirmation code <b>{orderRef}</b></div>
-          <p>Your receipt is in your inbox. Tickets will be issued closer to the function.</p>
-        </div>
-      </div>
+      <p className="ffx-fine ffx-ticket-note">Your ticket will be emailed to you closer to the event.</p>
 
       <div className="ffx-stub">
         <div className="ffx-stub-main">
