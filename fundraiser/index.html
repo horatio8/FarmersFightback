@@ -394,6 +394,10 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 
-  <script type="text/babel" src="/fundraiser/funnel.jsx"></script>
+  <!-- Cache-bust the funnel on every copy/price change. Babel fetches this
+       file itself, and browsers hang on to it: without a changing query a
+       returning visitor can be served an old funnel with stale prices or
+       terms on a live payment page. Bump this whenever funnel.jsx changes. -->
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260727-2"></script>
 </body>
 </html>
