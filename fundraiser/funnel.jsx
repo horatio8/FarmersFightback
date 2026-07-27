@@ -176,24 +176,26 @@ function TermsModal({ onClose }) {
           <h4>1. Tickets &amp; payment</h4>
           <p>All ticket sales are processed securely through Stripe. Prices are in Australian dollars and include GST where applicable. Your ticket is confirmed once payment is received and a confirmation email has been sent.</p>
           <h4>2. Refunds &amp; transfers</h4>
-          <p>Tickets are non-refundable unless the event is cancelled. Tickets are transferable &mdash; forward your confirmation email to the new attendee. If the event is cancelled, ticket holders will be refunded in full.</p>
+          <p>Tickets are non-refundable unless the event is cancelled. Tickets are non-transferable and may only be used by the person named on the booking. If the event is cancelled, ticket holders will be refunded in full.</p>
           <h4>3. Entry</h4>
           <p>Bring your ticket (printed or on your phone) to scan at the gate. Gates open from 6:00pm. Organisers reserve the right to refuse entry.</p>
-          <h4>4. Children &amp; families</h4>
+          <h4>4. Cancellation at our discretion</h4>
+          <p>We may cancel or void any ticket at any time, at our absolute discretion and without giving reasons. Where we do, the price paid for that ticket is refunded. This is separate from clause 6, under which a person removed from the event for their behaviour is not entitled to a refund.</p>
+          <h4>5. Children &amp; families</h4>
           <p>Children 12 and under require a Kids ticket. Under-18s must be accompanied by a parent or guardian at all times.</p>
-          <h4>5. Conduct</h4>
+          <h4>6. Conduct</h4>
           <p>This is a peaceful, family-friendly community event. Anyone behaving in a threatening, abusive or unsafe manner will be asked to leave without refund.</p>
-          <h4>6. Photography &amp; media</h4>
+          <h4>7. Photography &amp; media</h4>
           <p>Photography and filming take place for campaign and media purposes. By attending you consent to appearing in images and footage. Tell a staff member if you would prefer not to be photographed.</p>
-          <h4>7. Program changes</h4>
+          <h4>8. Program changes</h4>
           <p>Speakers, program and running times are indicative and may change without notice. Advertised guests are subject to availability.</p>
-          <h4>8. Donations</h4>
+          <h4>9. Donations</h4>
           <p>Donations are voluntary, separate from ticket purchases, and non-refundable. They are not tax-deductible unless otherwise stated.</p>
-          <h4>9. Privacy</h4>
+          <h4>10. Privacy</h4>
           <p>Your details are collected to manage your booking and to keep you updated about the campaign. We do not sell your information, and you can unsubscribe at any time.</p>
-          <h4>10. Liability</h4>
+          <h4>11. Liability</h4>
           <p>Attendees enter the venue at their own risk. The organisers are not liable for any loss, damage or injury except to the extent required by law.</p>
-          <p className="ffx-modal-meta">Farmers Fightback · Marnoo, Victoria. Authorised by Ben Duxson. Questions? events@farmersfightback.com. Last updated August 2025.</p>
+          <p className="ffx-modal-meta">Farmers Fightback · Marnoo, Victoria. Authorised by Ben Duxson. Questions? events@farmersfightback.com. Last updated July 2026.</p>
         </div>
       </div>
     </div>
