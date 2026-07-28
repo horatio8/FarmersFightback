@@ -14,9 +14,12 @@ const { useState, useRef, useEffect } = React;
 
 /* Ticket prices — these mirror the design's TWEAK_DEFAULTS. To change
    after ship, update these constants; the server-side Stripe Price still
-   controls what actually gets charged, so both must stay in sync. */
-const ADULT_PRICE = 30;
-const KID_PRICE = 15;
+   controls what actually gets charged, so both must stay in sync.
+   Under-18s are free, so an order of only under-18 tickets would total $0 —
+   which Stripe Checkout rejects. That can't arise because under-18s must be
+   accompanied by an adult, enforced here and again in api/rally-checkout.js. */
+const ADULT_PRICE = 50;
+const KID_PRICE = 0;
 
 const EVENT = {
   date: "Saturday 29 August",
@@ -184,7 +187,7 @@ function TermsModal({ onClose }) {
           <h4>5. Cancellation at our discretion</h4>
           <p>We may cancel or void any ticket at any time, at our absolute discretion and without giving reasons. Where we do, the price paid for that ticket is refunded. This is separate from clause 7, under which a person removed from the event for their behaviour is not entitled to a refund.</p>
           <h4>6. Children &amp; families</h4>
-          <p>Children 12 and under require a Kids ticket. Under-18s must be accompanied by a parent or guardian at all times.</p>
+          <p>Anyone under 18 attends free and requires an Under 18 ticket. Anyone under 18 must be accompanied by an adult at all times, and every booking that includes an Under 18 ticket must also include at least one adult ticket.</p>
           <h4>7. Conduct</h4>
           <p>This is a peaceful, family-friendly community event. Anyone behaving in a threatening, abusive or unsafe manner will be asked to leave without refund.</p>
           <h4>8. Photography &amp; media</h4>
@@ -222,6 +225,10 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) e.email = "Enter a valid email";
     if (!form.phone.trim()) e.phone = "Required";
     if (totalTix < 1) e.qty = "Add at least one ticket";
+    // Under-18s are free and must be accompanied, so every order needs an
+    // adult on it. This also keeps the order total above $0 — Stripe Checkout
+    // will not create a session for a $0 payment.
+    else if (!comp && qty.kids > 0 && qty.adults < 1) e.qty = "Anyone under 18 must be accompanied by an adult — please add at least one adult ticket";
     setErrs(e);
     if (Object.keys(e).length) return;
     onNext();
@@ -268,7 +275,7 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
             </div>
             <div className="ffx-trow">
               <div className="ffx-trow-i"><I.ticket width="22" height="22" className="ffx-trow-ic" />
-                <div><div className="ffx-trow-n">Kids <span className="ffx-trow-sub">12 &amp; under</span></div><div className="ffx-trow-p">{money(KID_PRICE)} each</div></div>
+                <div><div className="ffx-trow-n">Under 18 <span className="ffx-trow-sub">must be with an adult</span></div><div className="ffx-trow-p">Free</div></div>
               </div>
               <Qty value={qty.kids} onChange={(v) => setQty({ ...qty, kids: v })} />
             </div>
@@ -315,7 +322,7 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
   const total = qty.adults * ADULT_PRICE + qty.kids * KID_PRICE;
   const lines = [
     qty.adults > 0 && { n: "Adult", q: qty.adults, u: ADULT_PRICE },
-    qty.kids > 0 && { n: "Kids (12 & under)", q: qty.kids, u: KID_PRICE },
+    qty.kids > 0 && { n: "Under 18 (free)", q: qty.kids, u: KID_PRICE },
   ].filter(Boolean);
 
   useEffect(() => {
@@ -414,7 +421,7 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
           <button className="ffx-btn ffx-btn-lg" onClick={() => window.location.reload()} style={{ marginTop: 12 }}>Try again</button>
         </div>
       )}
-      <p className="ffx-agree">By purchasing tickets you agree to the <a href="#terms" onClick={(e) => { e.preventDefault(); onTerms && onTerms(); }}>Terms and Conditions</a>.</p>
+      <p className="ffx-agree">Tickets are non-transferable and non-refundable. By purchasing tickets you agree to the <a href="#terms" onClick={(e) => { e.preventDefault(); onTerms && onTerms(); }}>Terms and Conditions</a>.</p>
       <button className="ffx-link" onClick={onBack}>&larr; Back to details</button>
     </div>
   );

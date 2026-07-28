@@ -167,6 +167,13 @@ module.exports = async function handler(req, res) {
     if (adult_qty + kid_qty < 1) {
       return res.status(400).json({ error: "Add at least one ticket." });
     }
+    // Under-18 tickets are free, so an under-18-only order totals $0 and
+    // Stripe refuses to create the session. It is also the rule for the
+    // event: anyone under 18 must be accompanied by an adult. Enforced on
+    // the client too — repeated here because that can be bypassed.
+    if (kid_qty > 0 && adult_qty < 1) {
+      return res.status(400).json({ error: "Anyone under 18 must be accompanied by an adult — please add at least one adult ticket." });
+    }
     const first_name = String(body.first_name || "").trim();
     const last_name = String(body.last_name || "").trim();
     const email = String(body.email || "").trim();
