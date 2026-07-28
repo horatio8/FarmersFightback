@@ -392,8 +392,7 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
       {comp && <p className="ffx-fine">$0 order &mdash; you&rsquo;ll skip payment and go straight to your tickets.</p>}
     </div>
     <a className="ffx-cantmake" href="/cantmakeit">
-      <span>Can&rsquo;t make it, let us know and we&rsquo;ll include you next time</span>
-      <span className="ffx-cantmake-arw" aria-hidden="true">&rsaquo;</span>
+      Can&rsquo;t make it? <span className="ffx-cantmake-arw" aria-hidden="true">&rsaquo;</span>
     </a>
     <LineupSection />
     </React.Fragment>

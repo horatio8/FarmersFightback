@@ -228,15 +228,15 @@
     .ffx-success-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:32px;color:var(--barn);line-height:1;margin-top:6px}
 
     /* ---- "can't make it" link between the ticket card and the lineup ---- */
-    .ffx-cantmake{display:flex;align-items:center;justify-content:space-between;gap:14px;
-      margin-top:14px;background:#fff;border:1.5px solid var(--cream-dim);border-radius:16px;
-      padding:16px 20px;text-decoration:none;color:var(--field-green);
-      font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.03em;
-      font-size:14px;line-height:1.25;box-shadow:0 6px 18px rgba(31,107,59,0.08);
-      transition:border-color .14s,transform .06s,box-shadow .14s}
-    .ffx-cantmake:hover{border-color:var(--field-green);transform:translateY(-1px);
-      box-shadow:0 10px 24px rgba(31,107,59,0.14)}
-    .ffx-cantmake-arw{flex:none;font-size:26px;line-height:1;color:var(--sun-gold)}
+    .ffx-cantmake{display:flex;align-items:center;justify-content:center;gap:10px;
+      margin-top:14px;background:var(--barn);border:0;border-radius:16px;
+      padding:16px 20px;text-decoration:none;color:#fff;text-align:center;
+      font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;
+      font-size:17px;line-height:1.2;box-shadow:0 8px 20px rgba(174,53,40,0.28);
+      transition:background .14s,transform .06s,box-shadow .14s}
+    .ffx-cantmake:hover{background:#932c21;transform:translateY(-1px);
+      box-shadow:0 12px 26px rgba(174,53,40,0.36)}
+    .ffx-cantmake-arw{flex:none;font-size:24px;line-height:1;color:var(--sun-gold)}
 
     /* ---- ticket stub (confirmation, foot of page) ---- */
     .ffx-stub{display:flex;background:var(--navy);color:#fff;border-radius:16px;overflow:hidden;margin:20px 0;box-shadow:0 14px 30px rgba(18,53,75,0.3)}
@@ -481,6 +481,6 @@
        file itself, and browsers hang on to it: without a changing query a
        returning visitor can be served an old funnel with stale prices or
        terms on a live payment page. Bump this whenever funnel.jsx changes. -->
-  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-13"></script>
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-14"></script>
 </body>
 </html>

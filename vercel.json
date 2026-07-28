@@ -29,6 +29,7 @@
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
+    { "source": "/fun",         "destination": "/cantmakeit",           "permanent": false },
     { "source": "/baldwin",     "destination": "/take-action/baldwins", "permanent": false },
     { "source": "/baldwins",    "destination": "/take-action/baldwins", "permanent": false },
     { "source": "/defend",      "destination": "/take-action/baldwins#donate", "permanent": false },
