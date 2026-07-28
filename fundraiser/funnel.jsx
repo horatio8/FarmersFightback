@@ -76,7 +76,7 @@ function Masthead() {
       <div className="ffx-mast-in">
         <img className="ffx-logo" src="/assets/logo-horizontal.png" alt="Farmers Fightback" />
         <div className="ffx-kicker">You&rsquo;re invited to the</div>
-        <h1 className="ffx-title">Farmers Fightback<span className="ffx-rally">Fundraiser</span></h1>
+        <h1 className="ffx-title">Farmers Fightback<span className="ffx-rally">FUNdraiser</span></h1>
         <p className="ffx-sub"><strong>A night to fight for the future of farming &mdash; everyone welcome.</strong></p>
         <div className="ffx-band">
           <div className="ffx-band-date">{EVENT.date}</div>
