@@ -4,6 +4,7 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/fundraiser", "destination": "/fundraiser/index.html" },
+    { "source": "/cantmakeit", "destination": "/fundraiser/index.html" },
     { "source": "/first", "destination": "/first/index.html" },
     { "source": "/funshare", "destination": "/funshare/index.html" },
     { "source": "/funraiser", "destination": "/funraiser/index.html" },

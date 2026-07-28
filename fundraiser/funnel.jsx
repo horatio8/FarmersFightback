@@ -391,6 +391,10 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
       {submitError && <div className="ffx-err-line">{submitError}</div>}
       {comp && <p className="ffx-fine">$0 order &mdash; you&rsquo;ll skip payment and go straight to your tickets.</p>}
     </div>
+    <a className="ffx-cantmake" href="/cantmakeit">
+      <span>Can&rsquo;t make it, let us know and we&rsquo;ll include you next time</span>
+      <span className="ffx-cantmake-arw" aria-hidden="true">&rsaquo;</span>
+    </a>
     <LineupSection />
     </React.Fragment>
   );
@@ -817,4 +821,114 @@ function RallyFunnel() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<RallyFunnel />);
+/* ============================================================
+   CAN'T MAKE IT  (/cantmakeit)
+   Served by a rewrite onto this same page shell, so it inherits the
+   masthead, styles and footer rather than duplicating them.
+   Details go to /api/capture, which normalises the mobile, marks the row
+   complete once first+last+email are present, and pushes the supporter to
+   Campaign Nucleus — which is what "we'll include you next time" means in
+   practice. The donation ladder underneath is the shared DonationBlock, so
+   the amounts stay in step with /donate.
+   ============================================================ */
+function CantMakeIt() {
+  const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", honeypot: "" });
+  const [errs, setErrs] = useState({});
+  const [status, setStatus] = useState("idle"); // idle | saving | done | error
+  const [showTerms, setShowTerms] = useState(false);
+  const sessionId = useRef(null);
+  if (!sessionId.current) {
+    sessionId.current = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submit = async () => {
+    const e = {};
+    if (!form.first.trim()) e.first = "Required";
+    if (!form.last.trim()) e.last = "Required";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) e.email = "Enter a valid email";
+    if (!form.phone.trim()) e.phone = "Required";
+    setErrs(e);
+    if (Object.keys(e).length) return;
+
+    setStatus("saving");
+    try {
+      const r = await fetch("/api/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId.current,
+          first_name: form.first.trim(),
+          last_name: form.last.trim(),
+          email: form.email.trim(),
+          mobile: form.phone.trim(),
+          consent: true,
+          honeypot: form.honeypot || "",
+          utm_campaign: "fundraiser-cant-make-it",
+        }),
+      });
+      if (!r.ok) throw new Error("capture failed");
+      setStatus("done");
+    } catch (err) {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="ffx-app">
+      <Masthead />
+      <div className="ffx-wrap">
+        <div className="ffx-card">
+          {status === "done" ? (
+            <div className="ffx-success">
+              <span className="ffx-success-badge"><I.check width="34" height="34" /></span>
+              <div className="ffx-success-script">Thanks!</div>
+              <h2 className="ffx-success-h">We&rsquo;ll keep you posted</h2>
+              <p className="ffx-fine">You&rsquo;re on the list for the next one &mdash; we&rsquo;ll be in touch before it&rsquo;s announced.</p>
+            </div>
+          ) : (
+            <React.Fragment>
+              <div className="ffx-sec-h">Can&rsquo;t make it?</div>
+              <p className="ffx-fine">No worries &mdash; leave your details and we&rsquo;ll make sure you hear about the next one first.</p>
+              <div className="ffx-fields" style={{ marginTop: 16 }}>
+                <Field label="First name" value={form.first} onChange={set("first")} err={errs.first} placeholder="Jane" />
+                <Field label="Last name" value={form.last} onChange={set("last")} err={errs.last} placeholder="Farmer" />
+                <Field label="Email" type="email" value={form.email} onChange={set("email")} err={errs.email} placeholder="jane@example.com" />
+                <Field label="Mobile" type="tel" value={form.phone} onChange={set("phone")} err={errs.phone} placeholder="0400 000 000" />
+              </div>
+              {/* Honeypot — hidden from people, filled by bots; /api/capture drops those. */}
+              <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}>
+                <label>Leave this empty<input tabIndex={-1} autoComplete="off" value={form.honeypot} onChange={set("honeypot")} /></label>
+              </div>
+              <div className="ffx-cta-row">
+                <button className="ffx-btn ffx-btn-lg" onClick={submit} disabled={status === "saving"}>
+                  {status === "saving" ? "Saving…" : "Keep me posted"}
+                </button>
+              </div>
+              {status === "error" && <div className="ffx-err-line">That didn&rsquo;t save. Please try again.</div>}
+            </React.Fragment>
+          )}
+        </div>
+
+        <DonationBlock />
+      </div>
+      <footer className="ffx-foot">
+        <div><span className="ffx-foot-l">Enquiries</span> events@farmersfightback.com</div>
+        <button type="button" className="ffx-foot-terms" onClick={() => setShowTerms(true)}>Terms &amp; Conditions</button>
+        <div className="ffx-foot-auth">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
+      </footer>
+      {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+    </div>
+  );
+}
+
+/* /cantmakeit is a rewrite onto this same shell, so the path decides which
+   app renders. */
+const IS_CANT_MAKE_IT = /^\/cantmakeit\/?$/i.test(window.location.pathname);
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  IS_CANT_MAKE_IT ? <CantMakeIt /> : <RallyFunnel />
+);
