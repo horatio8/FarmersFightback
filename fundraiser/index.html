@@ -113,7 +113,7 @@
       background:var(--cream);border:1.5px solid var(--cream-dim);border-radius:14px;padding:14px 16px}
     .ffx-trow-i{display:flex;align-items:center;gap:12px;min-width:0}
     .ffx-trow-ic{color:var(--field-green);flex:none}
-    /* flex-wrap so the qualifier ("supper included", "must be with an adult")
+    /* flex-wrap so the qualifier ("meal included", "must be with an adult")
        drops to its own full-width line on narrow screens instead of being
        squeezed into a few-characters-wide column beside the ticket name. */
     .ffx-trow-n{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:16px;color:var(--navy);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -200,6 +200,11 @@
     /* Post-purchase note replacing the old confirmation panel. The order ref
        still shows on the ticket stub below, so nothing is lost here. */
     .ffx-ticket-note{text-align:center;font-size:14.5px;color:var(--ink-soft);margin:4px 0 2px;line-height:1.45}
+    /* The order reference used to live on the ticket stub; with that gone this
+       is the only place it appears, and the terms lean on it as proof of
+       purchase until the ticket is emailed. */
+    .ffx-ticket-note b{font-family:var(--f-disp);font-weight:700;font-size:16px;
+      letter-spacing:0.04em;color:var(--field-green);white-space:nowrap}
     .ffx-processing{text-align:center;padding:34px 0 20px}
     .ffx-spinner{width:44px;height:44px;border-radius:50%;border:4px solid var(--cream-dim);border-top-color:var(--field-green);
       margin:0 auto 18px;animation:ffx-spin 0.8s linear infinite}
@@ -212,20 +217,6 @@
       display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(244,180,0,0.4)}
     .ffx-success-script{font-family:var(--f-script);font-weight:700;color:var(--field-green);font-size:54px;line-height:0.8;transform:rotate(-2deg);margin-top:12px}
     .ffx-success-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:32px;color:var(--barn);line-height:1;margin-top:6px}
-    .ffx-stub{display:flex;background:var(--navy);color:#fff;border-radius:16px;overflow:hidden;margin:20px 0;box-shadow:0 14px 30px rgba(18,53,75,0.3)}
-    .ffx-stub-main{flex:1;padding:18px 20px}
-    .ffx-stub-eb{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--sun-gold)}
-    .ffx-stub-date{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:24px;line-height:1;margin-top:6px}
-    .ffx-stub-rows{margin-top:14px;display:flex;flex-direction:column;gap:7px}
-    .ffx-stub-rows>div{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;border-top:1px solid rgba(255,255,255,0.12);padding-top:7px}
-    .ffx-stub-rows span{color:rgba(255,255,255,0.6);font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:11px}
-    .ffx-stub-rows b{font-weight:700;text-align:right}
-    .ffx-stub-tear{width:104px;flex:none;border-left:2px dashed rgba(255,255,255,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px 10px;background:rgba(255,255,255,0.04)}
-    .ffx-stub-ref{text-align:center}
-    .ffx-stub-ref span{display:block;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-size:9px;color:rgba(255,255,255,0.6)}
-    .ffx-stub-ref b{font-family:var(--f-disp);font-weight:700;font-size:14px;letter-spacing:0.04em}
-    .ffx-qr{width:60px;height:60px;border-radius:8px;background:
-      conic-gradient(#12354B 25%,#fff 0 50%,#12354B 0 75%,#fff 0) 0 0/15px 15px,#fff;border:3px solid #fff}
 
     /* ---- share + donation blocks ---- */
     .ffx-block{margin-top:18px;border-radius:18px;padding:20px;background:var(--cream);border:1.5px solid var(--cream-dim)}
@@ -455,6 +446,6 @@
        file itself, and browsers hang on to it: without a changing query a
        returning visitor can be served an old funnel with stale prices or
        terms on a live payment page. Bump this whenever funnel.jsx changes. -->
-  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-10"></script>
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-11"></script>
 </body>
 </html>

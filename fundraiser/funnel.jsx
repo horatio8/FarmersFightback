@@ -359,7 +359,7 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
           <div className="ffx-trow">
             <div className="ffx-trow-i"><I.ticket width="22" height="22" className="ffx-trow-ic" />
               <div>
-                <div className="ffx-trow-n">Ticket <span className="ffx-trow-badge">Supper included</span></div>
+                <div className="ffx-trow-n">Ticket <span className="ffx-trow-badge">Meal included</span></div>
                 <div className="ffx-trow-note">Under 18s must be accompanied by an adult.</div>
                 <div className="ffx-trow-p">{money(ADULT_PRICE)} each &middot; drinks available for purchase</div>
               </div>
@@ -407,7 +407,7 @@ function CheckoutStep({ qty, form, ref_code, onBack, onTerms }) {
   const [errorMsg, setErrorMsg] = useState("");
   const total = qty.adults * ADULT_PRICE;
   const lines = [
-    qty.adults > 0 && { n: "Adult", q: qty.adults, u: ADULT_PRICE },
+    qty.adults > 0 && { n: "Ticket", q: qty.adults, u: ADULT_PRICE },
   ].filter(Boolean);
 
   useEffect(() => {
@@ -621,7 +621,6 @@ function DonationBlock() {
 function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
   const totalTix = comp ? qty.comp : qty.adults;
   const total = comp ? 0 : qty.adults * ADULT_PRICE;
-  const name = (form.first || "Friend") + (form.last ? " " + form.last : "");
 
   useEffect(() => {
     // Fire a client-side Meta Pixel Purchase event too so the browser side
@@ -649,21 +648,10 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
         <p className="ffx-fine">Thanks &mdash; we&rsquo;ve got your booking.</p>
       </div>
 
-      <p className="ffx-fine ffx-ticket-note">Your ticket will be sent to you closer to the event day as confirmation.</p>
-
-      <div className="ffx-stub">
-        <div className="ffx-stub-main">
-          <div className="ffx-stub-eb"><I.star width="12" height="12" /> Farmers Fightback Fundraiser</div>
-          <div className="ffx-stub-date">{EVENT.date}</div>
-          <div className="ffx-stub-rows">
-            <div><span>Name</span><b>{name}</b></div>
-            <div><span>{comp ? "Type" : "Paid"}</span><b>{comp ? "Comped · " + money(0) : money(total)}</b></div>
-          </div>
-        </div>
-        <div className="ffx-stub-tear">
-          <div className="ffx-stub-ref"><span>Order</span><b>{orderRef}</b></div>
-        </div>
-      </div>
+      <p className="ffx-fine ffx-ticket-note">
+        Your ticket will be sent to you closer to the event day as confirmation.
+        {orderRef ? <> Your confirmation code is <b>{orderRef}</b>.</> : null}
+      </p>
 
       <ShareBlock myToken={myToken} />
       <DonationBlock />
