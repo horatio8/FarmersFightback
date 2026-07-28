@@ -264,6 +264,10 @@
     .ffx-lineup-head h2{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:26px;line-height:0.98;margin-top:6px;color:#fff}
     .ffx-lineup-head p{font-size:14px;color:rgba(255,255,255,0.85);margin-top:8px;line-height:1.4;text-wrap:pretty}
     .ffx-speakers{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+    /* Keep a short lineup centred at a sensible card size instead of leaving
+       one portrait stretched across the full width (or stranded in column 1). */
+    .ffx-speakers-duo{grid-template-columns:repeat(2,1fr);max-width:420px;margin-left:auto;margin-right:auto}
+    .ffx-speakers-solo{grid-template-columns:1fr;max-width:230px;margin-left:auto;margin-right:auto}
     .ffx-spk{text-align:center}
     .ffx-spk-photo{position:relative;width:100%;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
       background:linear-gradient(160deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
@@ -403,6 +407,6 @@
        file itself, and browsers hang on to it: without a changing query a
        returning visitor can be served an old funnel with stale prices or
        terms on a live payment page. Bump this whenever funnel.jsx changes. -->
-  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-4"></script>
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-6"></script>
 </body>
 </html>

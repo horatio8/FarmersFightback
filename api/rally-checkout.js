@@ -6,8 +6,11 @@
 // from Stripe rather than trusting the client to preserve them).
 //
 // POST /api/rally-checkout
-// Body: { adult_qty, kid_qty, first_name, last_name, email, phone,
-//         postcode, ref }
+// Body: { adult_qty, first_name, last_name, email, phone, postcode, ref }
+//   The event has a single ticket type. kid_qty is no longer accepted on
+//   POST — it is forced to 0 — but is still read back on GET so orders
+//   placed while a second ticket type existed still render correctly. To
+//   reintroduce a second type, restore kid_qty from the body below.
 // Response: { client_secret, publishable_key }
 //   - client_secret is passed to stripe.initEmbeddedCheckout on the client
 //   - publishable_key lets us keep pk_live_... out of the git repo
@@ -163,16 +166,13 @@ module.exports = async function handler(req, res) {
   try {
     const body = req.body || {};
     const adult_qty = Math.max(0, Math.min(50, Number(body.adult_qty) || 0));
-    const kid_qty = Math.max(0, Math.min(50, Number(body.kid_qty) || 0));
-    if (adult_qty + kid_qty < 1) {
+    // The event has a single ticket type. Any kid_qty posted by a stale
+    // client is ignored rather than honoured, so no free line item can be
+    // added to a new order. It stays in the metadata as 0 so the shape of
+    // records and the GET read-back below is unchanged for older orders.
+    const kid_qty = 0;
+    if (adult_qty < 1) {
       return res.status(400).json({ error: "Add at least one ticket." });
-    }
-    // Under-18 tickets are free, so an under-18-only order totals $0 and
-    // Stripe refuses to create the session. It is also the rule for the
-    // event: anyone under 18 must be accompanied by an adult. Enforced on
-    // the client too — repeated here because that can be bypassed.
-    if (kid_qty > 0 && adult_qty < 1) {
-      return res.status(400).json({ error: "Anyone under 18 must be accompanied by an adult — please add at least one adult ticket." });
     }
     const first_name = String(body.first_name || "").trim();
     const last_name = String(body.last_name || "").trim();
