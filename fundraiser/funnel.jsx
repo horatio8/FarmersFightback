@@ -621,6 +621,7 @@ function DonationBlock() {
 function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
   const totalTix = comp ? qty.comp : qty.adults;
   const total = comp ? 0 : qty.adults * ADULT_PRICE;
+  const name = (form.first || "Friend") + (form.last ? " " + form.last : "");
 
   useEffect(() => {
     // Fire a client-side Meta Pixel Purchase event too so the browser side
@@ -645,16 +646,30 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
         <span className="ffx-success-badge"><I.check width="34" height="34" /></span>
         <div className="ffx-success-script">You&rsquo;re in!</div>
         <h2 className="ffx-success-h">{totalTix} ticket{totalTix === 1 ? "" : "s"} booked</h2>
+        {orderRef && (
+          <p className="ffx-order-code">Confirmation code <b>{orderRef}</b></p>
+        )}
         <p className="ffx-fine">Thanks &mdash; we&rsquo;ve got your booking.</p>
       </div>
 
-      <p className="ffx-fine ffx-ticket-note">
-        Your ticket will be sent to you closer to the event day as confirmation.
-        {orderRef ? <> Your confirmation code is <b>{orderRef}</b>.</> : null}
-      </p>
+      <p className="ffx-ticket-note">Your ticket will be sent to you closer to the event day as confirmation.</p>
 
       <ShareBlock myToken={myToken} />
       <DonationBlock />
+
+      <div className="ffx-stub">
+        <div className="ffx-stub-main">
+          <div className="ffx-stub-eb"><I.star width="12" height="12" /> Farmers Fightback Fundraiser</div>
+          <div className="ffx-stub-date">{EVENT.date}</div>
+          <div className="ffx-stub-rows">
+            <div><span>Name</span><b>{name}</b></div>
+            <div><span>{comp ? "Type" : "Paid"}</span><b>{comp ? "Comped · " + money(0) : money(total)}</b></div>
+          </div>
+        </div>
+        <div className="ffx-stub-tear">
+          <div className="ffx-stub-ref"><span>Order</span><b>{orderRef}</b></div>
+        </div>
+      </div>
     </div>
   );
 }
