@@ -285,7 +285,7 @@ function FunShareApp() {
         <ShareCard />
       </div>
       <footer className="ffx-foot">
-        <div><span className="ffx-foot-l">Enquiries</span> events@farmersfightback.com</div>
+        <div><span className="ffx-foot-l">Enquiries</span> support@farmersfightback.com</div>
         <div className="ffx-foot-auth">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
       </footer>
     </div>

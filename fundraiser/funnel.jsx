@@ -294,7 +294,7 @@ function TermsModal({ onClose }) {
           <p>Your details are collected to manage your booking and to keep you updated about the campaign. We do not sell your information, and you can unsubscribe at any time.</p>
           <h4>12. Liability</h4>
           <p>Attendees enter the venue at their own risk. The organisers are not liable for any loss, damage or injury except to the extent required by law.</p>
-          <p className="ffx-modal-meta">Farmers Fightback · Marnoo, Victoria. Authorised by Ben Duxson. Questions? events@farmersfightback.com. Last updated July 2026.</p>
+          <p className="ffx-modal-meta">Farmers Fightback · Marnoo, Victoria. Authorised by Ben Duxson. Questions? support@farmersfightback.com. Last updated July 2026.</p>
         </div>
       </div>
     </div>
@@ -341,7 +341,7 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
         <div className="ffx-vip ffx-vip-err">
           <div className="ffx-vip-tag"><I.warn width="13" height="13" /> Token issue</div>
           <div className="ffx-vip-h">{claimInfo.error}</div>
-          <p className="ffx-vip-p">Check the link in your email, or <a href="mailto:events@farmersfightback.com" style={{color:"var(--barn)",textDecoration:"underline"}}>get in touch</a> and we'll sort it.</p>
+          <p className="ffx-vip-p">Check the link in your email, or <a href="mailto:support@farmersfightback.com" style={{color:"var(--barn)",textDecoration:"underline"}}>get in touch</a> and we'll sort it.</p>
         </div>
       )}
 
@@ -811,7 +811,7 @@ function RallyFunnel() {
       <Masthead />
       <div className="ffx-wrap">{body}<GettingThere /></div>
       <footer className="ffx-foot">
-        <div><span className="ffx-foot-l">Enquiries</span> events@farmersfightback.com</div>
+        <div><span className="ffx-foot-l">Enquiries</span> support@farmersfightback.com</div>
         <button type="button" className="ffx-foot-terms" onClick={() => setShowTerms(true)}>Terms &amp; Conditions</button>
         <div className="ffx-foot-auth">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
       </footer>
@@ -915,7 +915,7 @@ function CantMakeIt() {
         <DonationBlock />
       </div>
       <footer className="ffx-foot">
-        <div><span className="ffx-foot-l">Enquiries</span> events@farmersfightback.com</div>
+        <div><span className="ffx-foot-l">Enquiries</span> support@farmersfightback.com</div>
         <button type="button" className="ffx-foot-terms" onClick={() => setShowTerms(true)}>Terms &amp; Conditions</button>
         <div className="ffx-foot-auth">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
       </footer>
