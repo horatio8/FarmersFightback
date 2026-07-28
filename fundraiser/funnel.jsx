@@ -177,7 +177,7 @@ function TermsModal({ onClose }) {
         </div>
         <div className="ffx-modal-body">
           <h4>1. Tickets &amp; payment</h4>
-          <p>All ticket sales are processed securely through Stripe. Prices are in Australian dollars and include GST where applicable. Your ticket is confirmed once payment is received and a confirmation email has been sent.</p>
+          <p>All ticket sales are processed securely through Stripe. Prices are in Australian dollars and include GST where applicable. Your booking is complete once payment is received; your ticket is sent to you closer to the event day as confirmation.</p>
           <h4>2. Refunds &amp; transfers</h4>
           <p>Tickets are non-refundable. Tickets are non-transferable and may only be used by the person named on the booking.</p>
           <h4>3. Ticket delivery</h4>
@@ -561,11 +561,11 @@ function ConfirmStep({ comp, qty, form, orderRef, myToken }) {
       <div className="ffx-success">
         <span className="ffx-success-badge"><I.check width="34" height="34" /></span>
         <div className="ffx-success-script">You&rsquo;re in!</div>
-        <h2 className="ffx-success-h">{totalTix} ticket{totalTix === 1 ? "" : "s"} confirmed</h2>
-        <p className="ffx-fine">You&rsquo;re all set &mdash; see you at the gate.</p>
+        <h2 className="ffx-success-h">{totalTix} ticket{totalTix === 1 ? "" : "s"} booked</h2>
+        <p className="ffx-fine">Thanks &mdash; we&rsquo;ve got your booking.</p>
       </div>
 
-      <p className="ffx-fine ffx-ticket-note">Your ticket will be emailed to you closer to the event.</p>
+      <p className="ffx-fine ffx-ticket-note">Your ticket will be sent to you closer to the event day as confirmation.</p>
 
       <div className="ffx-stub">
         <div className="ffx-stub-main">
