@@ -135,7 +135,7 @@ function LineupSection() {
   const guests = [
     { lead: true, name: "Pauline Hanson", role: "Headline speaker · from 7pm", img: "/assets/rally-hanson.jpg", ph: "Photo of Pauline Hanson" },
     { name: "Ben Duxson", role: "Farmers Fightback", img: "/assets/rally-duxson.jpg", ph: "Photo of Ben Duxson" },
-    { name: "Special guests", role: "More to be announced", img: "/assets/rally-guests.jpg", ph: "Add photo" },
+    { name: "More guests", role: "More to be announced", img: "/assets/rally-guests.jpg", ph: "Add photo" },
   ];
   return (
     <section className="ffx-lineup">
