@@ -112,6 +112,11 @@
     .ffx-trow-n{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:16px;color:var(--navy);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
     .ffx-trow-n .ffx-trow-sub{flex:1 1 100%;text-transform:none;letter-spacing:0.01em;line-height:1.35}
     @media (min-width:560px){.ffx-trow-n .ffx-trow-sub{flex:0 1 auto}}
+    /* Gold pill so what's included in the price reads at a glance. */
+    .ffx-trow-badge{display:inline-flex;align-items:center;background:var(--sun-gold);color:var(--field-deep);
+      font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;font-size:10px;
+      padding:3px 9px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 6px rgba(244,180,0,0.35)}
+    .ffx-trow-note{font-size:12px;color:var(--ink-soft);line-height:1.35;margin-top:4px}
     .ffx-trow-sub{font-size:11px;letter-spacing:0.04em;color:var(--ink-soft);font-weight:500}
     .ffx-trow-p{font-size:13px;color:var(--ink-soft);margin-top:1px}
 
@@ -316,6 +321,12 @@
 
     /* Mobile masthead scaling */
     @media (max-width:520px){
+      /* The qty stepper is a fixed ~106px, which leaves the ticket text a
+         very narrow column on a phone. Let the row wrap so the text gets the
+         full width and the stepper sits beneath it, right-aligned. */
+      .ffx-trow{flex-wrap:wrap;row-gap:10px}
+      .ffx-trow-i{flex:1 1 100%}
+      .ffx-trow .ffx-qty{margin-left:auto}
       .ffx-mast{padding:34px 24px 26px}
       .ffx-logo{height:46px}
       .ffx-kicker{font-size:30px;margin-top:16px}
@@ -407,6 +418,6 @@
        file itself, and browsers hang on to it: without a changing query a
        returning visitor can be served an old funnel with stale prices or
        terms on a live payment page. Bump this whenever funnel.jsx changes. -->
-  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-6"></script>
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-7"></script>
 </body>
 </html>

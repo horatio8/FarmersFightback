@@ -15,8 +15,9 @@ const { useState, useRef, useEffect } = React;
 /* Ticket price — this mirrors the design's TWEAK_DEFAULTS. To change after
    ship, update this constant; the server-side Stripe Price still controls
    what actually gets charged, so both must stay in sync.
-   The event has a single ticket type. Under-18s attend free and do not need
-   a ticket, but must be accompanied by an adult. */
+   One ticket type, one price, for everyone attending — there is no free or
+   concession entry. Under-18s need a ticket like anyone else and must be
+   accompanied by an adult. */
 const ADULT_PRICE = 50;
 
 const EVENT = {
@@ -134,6 +135,7 @@ function LineupSection() {
   // speaker back is just another entry here.
   const guests = [
     { lead: true, name: "Pauline Hanson", role: "Headline speaker · from 7pm", img: "/assets/rally-hanson.jpg", ph: "Photo of Pauline Hanson" },
+    { name: "Ben Duxson", role: "Farmers Fightback", img: "/assets/rally-duxson.jpg", ph: "Photo of Ben Duxson" },
   ];
   return (
     <section className="ffx-lineup">
@@ -185,7 +187,7 @@ function TermsModal({ onClose }) {
           <h4>5. Cancellation at our discretion</h4>
           <p>We may cancel or void any ticket at any time, at our absolute discretion and without giving reasons. Where we do, the price paid for that ticket is refunded. This is separate from clause 7, under which a person removed from the event for their behaviour is not entitled to a refund.</p>
           <h4>6. Children &amp; families</h4>
-          <p>Anyone under 18 attends free and does not need a ticket. Anyone under 18 must be accompanied by an adult at all times.</p>
+          <p>Everyone attending requires a ticket, including children. There is no free or concession entry. Anyone under 18 must be accompanied by an adult at all times.</p>
           <h4>7. Conduct</h4>
           <p>This is a peaceful, family-friendly community event. Anyone behaving in a threatening, abusive or unsafe manner will be asked to leave without refund.</p>
           <h4>8. Photography &amp; media</h4>
@@ -262,7 +264,11 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
         ) : (
           <div className="ffx-trow">
             <div className="ffx-trow-i"><I.ticket width="22" height="22" className="ffx-trow-ic" />
-              <div><div className="ffx-trow-n">Adult <span className="ffx-trow-sub">&mdash; supper included. Drinks for purchase.</span></div><div className="ffx-trow-p">{money(ADULT_PRICE)} each</div></div>
+              <div>
+                <div className="ffx-trow-n">Ticket <span className="ffx-trow-badge">Supper included</span></div>
+                <div className="ffx-trow-note">Under 18s must be accompanied by an adult.</div>
+                <div className="ffx-trow-p">{money(ADULT_PRICE)} each &middot; drinks available for purchase</div>
+              </div>
             </div>
             <Qty value={qty.adults} onChange={(v) => setQty({ ...qty, adults: v })} />
           </div>
@@ -584,7 +590,7 @@ function RallyFunnel() {
 
   const [step, setStep] = useState(returningFromStripe ? "confirm" : "details");
   const [showTerms, setShowTerms] = useState(false);
-  const [qty, setQty] = useState({ adults: 2, comp: 1 });
+  const [qty, setQty] = useState({ adults: 1, comp: 1 });
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });
   const [claimInfo, setClaimInfo] = useState(null);
   const [claimSubmitting, setClaimSubmitting] = useState(false);
