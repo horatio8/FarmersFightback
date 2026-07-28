@@ -579,7 +579,10 @@ const RALLY_DONATE_URLS = {
   other: "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
 };
 
-function DonationBlock() {
+// `heading` overrides the headline. /cantmakeit passes its own because
+// "invite your mates" is a ticket-funnel ask, and the people on that page
+// have just told us they aren't coming.
+function DonationBlock({ heading }) {
   const AMTS = [35, 65, 265, 550, 1500];
   const [urls, setUrls] = useState(RALLY_DONATE_URLS);
 
@@ -608,7 +611,7 @@ function DonationBlock() {
     <div className="ffx-block ffx-block-green">
       <div className="ffx-block-h">
         <span className="ffx-block-eb light">Chip in as well?</span>
-        <h3 className="light">Invite your mates &mdash; <span className="ffx-scriptgold">and</span> chip in</h3>
+        <h3 className="light">{heading || <React.Fragment>Invite your mates &mdash; <span className="ffx-scriptgold">and</span> chip in</React.Fragment>}</h3>
         <p className="light">Tickets get you there; donations keep the campaign on the road. Both help. Skip if you&rsquo;d rather not.</p>
       </div>
       <div className="ffx-don-grid">
@@ -885,7 +888,7 @@ function CantMakeIt() {
     <div className="ffx-app">
       <Masthead hideBand />
       <div className="ffx-wrap">
-        <DonationBlock />
+        <DonationBlock heading="Chip in" />
         <div className="ffx-card ffx-cmi-card">
           {status === "done" ? (
             <div className="ffx-success">
