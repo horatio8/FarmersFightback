@@ -129,6 +129,99 @@ function Field({ label, opt, err, ...rest }) {
   );
 }
 
+/* ---------- getting there ----------
+   The map and the directions link both address the venue by name so Google
+   resolves the real place. VENUE_LAT/LNG are Marnoo's town-centre
+   coordinates and are used only for the rough "how far away am I" figure —
+   over the distances people drive to this, the few hundred metres between
+   the town centre and the ground is noise. Straight-line distance is
+   labelled as such; the drive itself is left to Google. No API key is
+   needed for either the embed or the directions link. */
+const VENUE_NAME = "Marnoo Cricket Ground";
+const VENUE_ADDRESS = "Marnoo Recreation Reserve, Park St, Marnoo VIC 3387";
+const VENUE_QUERY = "Marnoo Recreation Reserve, Marnoo VIC 3387";
+const VENUE_LAT = -36.65;
+const VENUE_LNG = 142.8833;
+
+function GettingThere() {
+  const [status, setStatus] = useState("idle"); // idle | locating | done | error
+  const [km, setKm] = useState(null);
+  const [origin, setOrigin] = useState(null);
+  const [msg, setMsg] = useState("");
+
+  const q = encodeURIComponent(VENUE_QUERY);
+  const embedSrc = `https://maps.google.com/maps?q=${q}&z=12&output=embed`;
+  const directionsUrl = origin
+    ? `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lng}&destination=${q}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+
+  const howFar = () => {
+    if (!navigator.geolocation) {
+      setStatus("error");
+      setMsg("Your browser can’t share your location. Use Get directions instead.");
+      return;
+    }
+    setStatus("locating");
+    setMsg("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        const toRad = (d) => (d * Math.PI) / 180;
+        const dLat = toRad(VENUE_LAT - lat), dLng = toRad(VENUE_LNG - lng);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+          + Math.cos(toRad(lat)) * Math.cos(toRad(VENUE_LAT)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        setKm(2 * 6371 * Math.asin(Math.min(1, Math.sqrt(a))));
+        setOrigin({ lat, lng });
+        setStatus("done");
+      },
+      (err) => {
+        setStatus("error");
+        setMsg(err && err.code === 1
+          ? "Location access was blocked. You can still tap Get directions."
+          : "Couldn’t work out where you are. Tap Get directions instead.");
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  };
+
+  const prettyKm = (n) => (n < 10 ? n.toFixed(1) : Math.round(n).toLocaleString("en-AU"));
+
+  return (
+    <section className="ffx-map">
+      <div className="ffx-map-head">
+        <span className="ffx-map-eb">Getting there</span>
+        <h2>{VENUE_NAME}</h2>
+        <p>{VENUE_ADDRESS}</p>
+      </div>
+
+      <div className="ffx-map-frame">
+        <iframe
+          title={`Map showing ${VENUE_NAME}`}
+          src={embedSrc}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+      </div>
+
+      <div className="ffx-map-actions">
+        <a className="ffx-btn ffx-btn-map" href={directionsUrl} target="_blank" rel="noopener noreferrer">Get directions</a>
+        <button type="button" className="ffx-btn ffx-btn-mapghost" onClick={howFar} disabled={status === "locating"}>
+          {status === "locating" ? "Finding you…" : "How far is it from me?"}
+        </button>
+      </div>
+
+      {status === "done" && km != null && (
+        <p className="ffx-map-dist">
+          You&rsquo;re about <b>{prettyKm(km)} km</b> away in a straight line
+          &mdash; tap <span className="ffx-map-dist-cta">Get directions</span> for the drive.
+        </p>
+      )}
+      {status === "error" && <p className="ffx-map-dist ffx-map-dist-err">{msg}</p>}
+    </section>
+  );
+}
+
 /* ---------- lineup ---------- */
 function LineupSection() {
   // The grid below sizes itself to however many are listed, so adding a
@@ -710,7 +803,7 @@ function RallyFunnel() {
   return (
     <div className="ffx-app">
       <Masthead />
-      <div className="ffx-wrap">{body}</div>
+      <div className="ffx-wrap">{body}<GettingThere /></div>
       <footer className="ffx-foot">
         <div><span className="ffx-foot-l">Enquiries</span> events@farmersfightback.com</div>
         <button type="button" className="ffx-foot-terms" onClick={() => setShowTerms(true)}>Terms &amp; Conditions</button>
