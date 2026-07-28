@@ -227,8 +227,8 @@ function LineupSection() {
   // The grid below sizes itself to however many are listed, so adding a
   // speaker back is just another entry here.
   const guests = [
-    { lead: true, name: "Pauline Hanson", role: "Headline speaker · from 7pm", img: "/assets/rally-hanson.jpg", ph: "Photo of Pauline Hanson" },
-    { name: "Ben Duxson", role: "Farmers Fightback", img: "/assets/rally-duxson.jpg", ph: "Photo of Ben Duxson" },
+    { lead: true, name: "Pauline Hanson", role: "Headline speaker · from 7pm", img: "/assets/rally-hanson.jpg?v=2", ph: "Photo of Pauline Hanson" },
+    { name: "Ben Duxson", role: "Farmers Fightback", img: "/assets/rally-duxson.jpg?v=2", ph: "Photo of Ben Duxson" },
   ];
   return (
     <section className="ffx-lineup">
