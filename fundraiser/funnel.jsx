@@ -269,7 +269,7 @@ function DetailsStep({ comp, claimInfo, qty, setQty, form, setForm, onNext, subm
           <React.Fragment>
             <div className="ffx-trow">
               <div className="ffx-trow-i"><I.ticket width="22" height="22" className="ffx-trow-ic" />
-                <div><div className="ffx-trow-n">Adult</div><div className="ffx-trow-p">{money(ADULT_PRICE)} each</div></div>
+                <div><div className="ffx-trow-n">Adult <span className="ffx-trow-sub">&mdash; supper included. Drinks for purchase.</span></div><div className="ffx-trow-p">{money(ADULT_PRICE)} each</div></div>
               </div>
               <Qty value={qty.adults} onChange={(v) => setQty({ ...qty, adults: v })} />
             </div>

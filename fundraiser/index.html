@@ -106,7 +106,12 @@
       background:var(--cream);border:1.5px solid var(--cream-dim);border-radius:14px;padding:14px 16px}
     .ffx-trow-i{display:flex;align-items:center;gap:12px;min-width:0}
     .ffx-trow-ic{color:var(--field-green);flex:none}
-    .ffx-trow-n{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:16px;color:var(--navy);display:flex;align-items:baseline;gap:8px}
+    /* flex-wrap so the qualifier ("supper included", "must be with an adult")
+       drops to its own full-width line on narrow screens instead of being
+       squeezed into a few-characters-wide column beside the ticket name. */
+    .ffx-trow-n{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:16px;color:var(--navy);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+    .ffx-trow-n .ffx-trow-sub{flex:1 1 100%;text-transform:none;letter-spacing:0.01em;line-height:1.35}
+    @media (min-width:560px){.ffx-trow-n .ffx-trow-sub{flex:0 1 auto}}
     .ffx-trow-sub{font-size:11px;letter-spacing:0.04em;color:var(--ink-soft);font-weight:500}
     .ffx-trow-p{font-size:13px;color:var(--ink-soft);margin-top:1px}
 
@@ -398,6 +403,6 @@
        file itself, and browsers hang on to it: without a changing query a
        returning visitor can be served an old funnel with stale prices or
        terms on a live payment page. Bump this whenever funnel.jsx changes. -->
-  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-2"></script>
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-3"></script>
 </body>
 </html>
