@@ -94,6 +94,9 @@
     .ffx-sec-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.02em;font-size:16px;
       color:var(--navy);margin:22px 0 12px}
     .ffx-sec-h:first-child{margin-top:0}
+    /* On /cantmakeit the donate ladder sits above the form, so the card needs
+       the same gap .ffx-block gives itself. */
+    .ffx-cmi-card{margin-top:18px}
 
     /* ---- VIP banner ---- */
     .ffx-vip{background:linear-gradient(135deg,#fff6dc,#fbe7b0);border:2px solid var(--sun-gold);border-radius:16px;padding:16px 18px;margin-bottom:20px}
@@ -481,6 +484,6 @@
        file itself, and browsers hang on to it: without a changing query a
        returning visitor can be served an old funnel with stale prices or
        terms on a live payment page. Bump this whenever funnel.jsx changes. -->
-  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-16"></script>
+  <script type="text/babel" src="/fundraiser/funnel.jsx?v=20260728-17"></script>
 </body>
 </html>

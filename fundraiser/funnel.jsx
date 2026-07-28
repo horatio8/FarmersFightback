@@ -68,7 +68,9 @@ function readSessionId() {
 }
 
 /* ---------- masthead ---------- */
-function Masthead() {
+/* hideBand drops the date/venue panel — /cantmakeit is for people who can't
+   come, so leading with when and where the event is makes no sense there. */
+function Masthead({ hideBand }) {
   return (
     <header className="ffx-mast">
       <span className="ffx-rays" />
@@ -78,11 +80,13 @@ function Masthead() {
         <div className="ffx-kicker">You&rsquo;re invited to the</div>
         <h1 className="ffx-title">Farmers Fightback<span className="ffx-rally">FUNdraiser</span></h1>
         <p className="ffx-sub"><strong>A night to fight for the future of farming &mdash; everyone welcome.</strong></p>
-        <div className="ffx-band">
-          <div className="ffx-band-date">{EVENT.date}</div>
-          <div className="ffx-band-time">{EVENT.gates}</div>
-          <div className="ffx-band-place">{EVENT.venue}<small>{EVENT.place}</small></div>
-        </div>
+        {!hideBand && (
+          <div className="ffx-band">
+            <div className="ffx-band-date">{EVENT.date}</div>
+            <div className="ffx-band-time">{EVENT.gates}</div>
+            <div className="ffx-band-place">{EVENT.venue}<small>{EVENT.place}</small></div>
+          </div>
+        )}
       </div>
     </header>
   );
@@ -827,8 +831,9 @@ function RallyFunnel() {
    Details go to /api/capture, which normalises the mobile, marks the row
    complete once first+last+email are present, and pushes the supporter to
    Campaign Nucleus — which is what "we'll include you next time" means in
-   practice. The donation ladder underneath is the shared DonationBlock, so
-   the amounts stay in step with /donate.
+   practice. The donation ladder sits above the form (the ask people who
+   can't attend can still act on) and is the shared DonationBlock, so the
+   amounts stay in step with /donate.
    ============================================================ */
 function CantMakeIt() {
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", honeypot: "" });
@@ -878,9 +883,10 @@ function CantMakeIt() {
 
   return (
     <div className="ffx-app">
-      <Masthead />
+      <Masthead hideBand />
       <div className="ffx-wrap">
-        <div className="ffx-card">
+        <DonationBlock />
+        <div className="ffx-card ffx-cmi-card">
           {status === "done" ? (
             <div className="ffx-success">
               <span className="ffx-success-badge"><I.check width="34" height="34" /></span>
@@ -911,8 +917,6 @@ function CantMakeIt() {
             </React.Fragment>
           )}
         </div>
-
-        <DonationBlock />
       </div>
       <footer className="ffx-foot">
         <div><span className="ffx-foot-l">Enquiries</span> support@farmersfightback.com</div>
