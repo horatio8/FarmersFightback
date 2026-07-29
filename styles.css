@@ -2455,10 +2455,10 @@ img { max-width: 100%; display: block; }
   background-image:
     linear-gradient(to right, rgba(10,30,48,.93) 0%, rgba(10,30,48,.88) 38%, rgba(10,30,48,.55) 60%, rgba(10,30,48,.18) 82%, rgba(10,30,48,.08) 100%),
     var(--ff-hero-img);
-  /* Stretch the photograph edge to edge rather than cropping it: the whole
-     frame stays visible at every width and nothing is filled in around it, so
-     the Minister holds her place near the centre. */
-  background-size: 100% 100%;
+  /* Crop, never distort. `cover` keeps the photograph's own proportions at
+     every viewport; the position keeps her face in frame as the crop moves. */
+  background-size: cover;
+  background-position: 62% center;
 }
 /* Details and editor read as one continuous panel: drop the doubled padding
    where they meet so the two headed blocks sit a paragraph apart. */
