@@ -3562,6 +3562,8 @@ const FFB_CAMPAIGNS = {
     // Single-purpose action page: the nav only offers ways to leave before the
     // email is sent, so it's replaced by a logo that still gets you home.
     hideNav: true,
+    campaignCopy: "correspondence@farmersfightback.com",
+    campaignCopyMode: "cc",
     heroImage: "assets/uploads/dambrosio-hero.jpg",
     heroEyebrow: "SHE WROTE THE LAWS. SHE TARGETED FARMERS.",
     heroHeading: "Demand Lily D'Ambrosio apologise for targeting Aussie farmers today.",
@@ -3576,8 +3578,8 @@ const FFB_CAMPAIGNS = {
     sendLabel: "Send your demand to Minister D'Ambrosio",
     successHeading: "Sent. Now she has to front up.",
     successLede: "Ministers count emails. One is a letter; thousands are a problem she cannot file away. Your name is now on the record demanding she admit it, apologise and stop — pass this page to a mate and make it impossible to ignore.",
-    donateHeading: "Back your demand with a few dollars",
-    donateLede: "Emails put it on the record. Funding keeps us on her until she answers for it.",
+    donateHeading: "They have billions. We need you.",
+    donateLede: "Emails put it on the record. Financial support keeps the pressure on until she apologises. Every dollar goes to giving Aussie farmers a voice and building our movement.",
   },
 };
 
@@ -3592,9 +3594,14 @@ function ffbNormMobile(raw) {
 
 function SendEmailPage({ campaign }) {
   const camp = campaign || FFB_CAMPAIGNS.askjess;
-  // BCC the campaign on every compose path so we see what supporters send.
-  // Campaign copy goes in the To line (visible recipient), not BCC.
-  const CAMPAIGN_COPY = "correspondence@mail.farmersfightback.com";
+  // Address that receives a copy of every supporter email, so we can see what
+  // is actually being sent. campaignCopyMode decides how it rides along:
+  //   "to" — appended to the To line (askjess's original behaviour)
+  //   "cc" — a real cc= parameter, leaving one address in To
+  // Two comma-joined addresses in a mailto To line is a known failure mode in
+  // several desktop mail clients, which silently do nothing on click.
+  const CAMPAIGN_COPY = camp.campaignCopy || "correspondence@mail.farmersfightback.com";
+  const COPY_AS_CC = camp.campaignCopyMode === "cc";
   const sessionId = React.useRef(null);
   if (!sessionId.current) {
     let s = "";
@@ -3685,7 +3692,12 @@ function SendEmailPage({ campaign }) {
     scheduleCapture();
   };
 
-  const recipientEmails = () => recipients.map(r => r.email).filter(Boolean).concat(CAMPAIGN_COPY).join(",");
+  // The To line. In cc mode the campaign copy is kept out of it and passed as
+  // cc= instead, so the Minister is the single visible addressee.
+  const recipientEmails = () => {
+    const to = recipients.map(r => r.email).filter(Boolean);
+    return (COPY_AS_CC ? to : to.concat(CAMPAIGN_COPY)).join(",");
+  };
 
   // Build a FULL snapshot of the current form (no seq). Invalid/partial values
   // are OMITTED entirely: email only when it passes ffbEmailValid, mobile only
@@ -3870,7 +3882,8 @@ function SendEmailPage({ campaign }) {
 
     const fb = composeBody();
     const emails = recipientEmails();
-    const mailto = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
+    const ccParam = COPY_AS_CC ? `cc=${encodeURIComponent(CAMPAIGN_COPY)}&` : "";
+    const mailto = `mailto:${emails}?${ccParam}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
 
     // Fire-and-forget: flag the send without blocking the mail client. Full
     // snapshot + seq via the coalescing sender, keepalive so it survives the
@@ -3896,8 +3909,11 @@ function SendEmailPage({ campaign }) {
 
   const pageUrl = (typeof window !== "undefined")
     ? `${window.location.origin}${window.location.pathname}` : "";
-  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
-  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  // The webmail fallbacks need the cc spelled out too, or the campaign copy is
+  // silently dropped for anyone who composes that way.
+  const ccQs = COPY_AS_CC ? `&cc=${encodeURIComponent(CAMPAIGN_COPY)}` : "";
+  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}${ccQs}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}${ccQs}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
   const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
 
   const recipientCount = recipients.length;
@@ -3928,14 +3944,22 @@ function SendEmailPage({ campaign }) {
 
   if (sent) {
     return (
-      <PageShell hideTopBanner hideNav={sent}>
+      <PageShell hideTopBanner hideNav={sent} bodyClass={`ff-emailpage ff-emailpage--${camp.id}`}>
         {toastEl}
+        {/* The confirmation leads with the same portrait as the hero, so the
+            page you land on after sending still has her looking back at you. */}
+        <section
+          className={"ff-section ff-email-success-top" + (camp.heroImage ? " ff-email-hero" : "")}
+          style={camp.heroImage ? { "--ff-hero-img": `url(${camp.heroImage})` } : undefined}
+        >
+          <div className="ff-wrap ff-email-narrow">
+            <span className={"ff-eyebrow" + (camp.heroImage ? " ff-eyebrow--light" : "")}><span className="ff-eyebrow-dot" /> Sent</span>
+            <h1 className={"ff-h2" + (camp.heroImage ? " ff-h2--light" : "")}>{camp.successHeading}</h1>
+            <p className={"ff-lede " + (camp.heroImage ? "ff-email-lede-light" : "ff-email-lede-wide")}>{camp.successLede}</p>
+          </div>
+        </section>
         <section className="ff-section ff-email-success">
           <div className="ff-wrap ff-email-narrow">
-            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> Sent</span>
-            <h1 className="ff-h2">{camp.successHeading}</h1>
-            <p className="ff-lede ff-email-lede-wide">{camp.successLede}</p>
-
             {donorTiers.length > 0 && (
               <div className="ff-email-donate ff-email-donate--lg">
                 <h2 className="ff-email-donate-h">{camp.donateHeading}</h2>
@@ -3953,8 +3977,8 @@ function SendEmailPage({ campaign }) {
                       {donateBusy === t.amount ? "One moment…" : `$${t.amount}`}
                     </button>
                   ))}
+                  <a className="ff-email-donate-chip ff-email-donate-chip--other" href="/donate">Other</a>
                 </div>
-                <a className="ff-email-donate-other" href="/donate">Other amount</a>
               </div>
             )}
 
