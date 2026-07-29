@@ -3565,6 +3565,7 @@ const FFB_CAMPAIGNS = {
     campaignCopy: "correspondence@farmersfightback.com",
     campaignCopyMode: "cc",
     storiesUrl: "content/dambrosio-stories.json",
+    storiesCta: "Demand D'Ambrosio apologise",
     heroImage: "assets/uploads/dambrosio-hero.jpg",
     heroEyebrow: "SHE WROTE THE LAWS. SHE TARGETED FARMERS.",
     heroHeading: "Demand Lily D'Ambrosio apologise for targeting Aussie farmers today.",
@@ -3589,7 +3590,7 @@ const FFB_CAMPAIGNS = {
 // the browser's native behaviour rather than a drag handler we have to
 // maintain; the arrows exist for mouse-only desktop users, who have no
 // equivalent gesture. Keyboard users get the same thing via native scroll.
-function StoryRail({ src }) {
+function StoryRail({ src, ctaLabel, onCta }) {
   const [data, setData] = useState(null);
   const railRef = React.useRef(null);
   const [atStart, setAtStart] = useState(true);
@@ -3656,7 +3657,13 @@ function StoryRail({ src }) {
         ))}
       </div>
 
-      <div className="ff-wrap">
+      {/* Sits directly under the rail so it stays on screen the whole time
+          someone is swiping through panels — they never have to hunt back up
+          the page to act on what they've just read. */}
+      <div className="ff-wrap ff-stories-act">
+        <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={onCta}>
+          {ctaLabel} <span aria-hidden="true">&rsaquo;</span>
+        </button>
         <p className="ff-stories-foot">Every story was told to us on camera. No names are used.</p>
       </div>
     </section>
@@ -4084,6 +4091,13 @@ function SendEmailPage({ campaign }) {
     );
   }
 
+  // Both the hero CTA and the one under the story rail do the same thing:
+  // jump to the details form. Shared so they can never drift apart.
+  const goToForm = () => {
+    const el = document.getElementById("ff-email-form");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const rewriteBlock = (() => {
     if (rewriteState === "session_limit") {
       return <p className="ff-email-rewrite-note">That's the limit of rewrites for now. You can still edit every word yourself above.</p>;
@@ -4123,7 +4137,7 @@ function SendEmailPage({ campaign }) {
           )}
           <p className="ff-email-hero-nudge">{camp.heroNudge}</p>
           <div className="ff-email-hero-ctas">
-            <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{camp.heroCta}</button>
+            <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={goToForm}>{camp.heroCta}</button>
             {camp.storiesUrl && (
               <button type="button" className="ff-btn ff-btn--lg ff-btn--ghost" onClick={() => { const el = document.getElementById("ff-stories"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Hear their stories</button>
             )}
@@ -4220,7 +4234,9 @@ function SendEmailPage({ campaign }) {
         </div>
       </section>
 
-      {camp.storiesUrl && <StoryRail src={camp.storiesUrl} />}
+      {camp.storiesUrl && (
+        <StoryRail src={camp.storiesUrl} ctaLabel={camp.storiesCta || camp.heroCta} onCta={goToForm} />
+      )}
     </PageShell>
   );
 }

@@ -2560,12 +2560,14 @@ img { max-width: 100%; display: block; }
   font-style: italic; font-size: 15px; line-height: 1.5; color: var(--ff-ink);
 }
 .ff-story-q:last-child { margin-bottom: 0; }
-.ff-stories-foot { margin: 4px 0 0; font-size: 14px; color: var(--ff-muted); }
+.ff-stories-act { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
+.ff-stories-foot { margin: 0; font-size: 14px; color: var(--ff-muted); }
 
 @media (max-width: 560px) {
   .ff-stories-rail { scroll-padding-left: var(--ff-pad); padding-left: var(--ff-pad); padding-right: var(--ff-pad); }
   .ff-story { width: 84vw; }
   .ff-email-hero-ctas .ff-btn { width: 100%; }
+  .ff-stories-act .ff-btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ff-stories-rail { scroll-behavior: auto; }
