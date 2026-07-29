@@ -3564,6 +3564,7 @@ const FFB_CAMPAIGNS = {
     hideNav: true,
     campaignCopy: "correspondence@farmersfightback.com",
     campaignCopyMode: "cc",
+    storiesUrl: "content/dambrosio-stories.json",
     heroImage: "assets/uploads/dambrosio-hero.jpg",
     heroEyebrow: "SHE WROTE THE LAWS. SHE TARGETED FARMERS.",
     heroHeading: "Demand Lily D'Ambrosio apologise for targeting Aussie farmers today.",
@@ -3582,6 +3583,85 @@ const FFB_CAMPAIGNS = {
     donateLede: "Emails put it on the record. Financial support keeps the pressure on until she apologises. Every dollar goes to giving Aussie farmers a voice and building our movement.",
   },
 };
+
+// Horizontally scrolled story panels. The scroller itself is a plain
+// overflow-x element with scroll-snap, so touch swipe and trackpad flicks are
+// the browser's native behaviour rather than a drag handler we have to
+// maintain; the arrows exist for mouse-only desktop users, who have no
+// equivalent gesture. Keyboard users get the same thing via native scroll.
+function StoryRail({ src }) {
+  const [data, setData] = useState(null);
+  const railRef = React.useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(src, { cache: "no-store" });
+        const j = await r.json();
+        if (!cancelled) setData(j);
+      } catch (e) { /* section simply doesn't render */ }
+    })();
+    return () => { cancelled = true; };
+  }, [src]);
+
+  const syncEdges = () => {
+    const el = railRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 2);
+    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 2);
+  };
+  useEffect(() => { syncEdges(); }, [data]);
+
+  const nudge = (dir) => {
+    const el = railRef.current;
+    if (!el) return;
+    const card = el.querySelector(".ff-story");
+    const step = card ? card.getBoundingClientRect().width + 20 : el.clientWidth * 0.8;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
+  if (!data || !(data.stories || []).length) return null;
+
+  return (
+    <section className="ff-section ff-stories" id="ff-stories">
+      <div className="ff-wrap">
+        <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {data.eyebrow}</span>
+        <h2 className="ff-h2">{data.heading}</h2>
+        <p className="ff-lede ff-stories-lede">{data.lede}</p>
+
+        <div className="ff-stories-ctl">
+          <button type="button" className="ff-stories-arw" onClick={() => nudge(-1)} disabled={atStart} aria-label="Previous stories">&lsaquo;</button>
+          <button type="button" className="ff-stories-arw" onClick={() => nudge(1)} disabled={atEnd} aria-label="More stories">&rsaquo;</button>
+        </div>
+      </div>
+
+      <div className="ff-stories-rail" ref={railRef} onScroll={syncEdges} tabIndex={0} aria-label="Farmers' stories, scroll sideways">
+        {data.stories.map((s) => (
+          <article className="ff-story" key={s.n}>
+            <div className="ff-story-img">
+              <img src={s.image} alt={s.alt || ""} loading="lazy" width="640" height="360" />
+              <span className="ff-story-n">{s.n}</span>
+            </div>
+            <div className="ff-story-body">
+              <h3 className="ff-story-h">{s.title}</h3>
+              <p className="ff-story-p">{s.body}</p>
+              {(s.quotes || []).map((q, i) => (
+                <blockquote className="ff-story-q" key={i}>&ldquo;{q}&rdquo;</blockquote>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="ff-wrap">
+        <p className="ff-stories-foot">Every story was told to us on camera. No names are used.</p>
+      </div>
+    </section>
+  );
+}
 
 function ffbEmailValid(v) { return /^\S+@\S+\.\S+$/.test(String(v || "").trim()); }
 // AU mobile: accept 04xxxxxxxx or +614xxxxxxxx → normalize to +614xxxxxxxx.
@@ -4042,7 +4122,12 @@ function SendEmailPage({ campaign }) {
             </ol>
           )}
           <p className="ff-email-hero-nudge">{camp.heroNudge}</p>
-          <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{camp.heroCta}</button>
+          <div className="ff-email-hero-ctas">
+            <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{camp.heroCta}</button>
+            {camp.storiesUrl && (
+              <button type="button" className="ff-btn ff-btn--lg ff-btn--ghost" onClick={() => { const el = document.getElementById("ff-stories"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Hear their stories</button>
+            )}
+          </div>
         </div>
       </section>
 
@@ -4134,6 +4219,8 @@ function SendEmailPage({ campaign }) {
           <p className="ff-email-reassure">Your email app opens with everything ready. It sends from your address, in your name. Personal emails get read. Form letters get filed.</p>
         </div>
       </section>
+
+      {camp.storiesUrl && <StoryRail src={camp.storiesUrl} />}
     </PageShell>
   );
 }

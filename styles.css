@@ -2483,6 +2483,94 @@ img { max-width: 100%; display: block; }
 .ff-emailpage--dambrosio .ff-email-form-sec .ff-lede,
 .ff-emailpage--dambrosio .ff-email-editor .ff-lede { margin-bottom: 18px; }
 
+/* Hero CTAs sit side by side, wrapping on narrow screens. */
+.ff-email-hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.ff-email-hero .ff-email-hero-ctas .ff-btn { margin-top: 0; }
+/* Outline-only secondary action — deliberately quiet next to the red CTA. */
+.ff-btn--ghost {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,.55);
+  box-shadow: none;
+}
+.ff-btn--ghost:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.85); }
+
+/* ---- The Intimidation Files: horizontally scrolled story panels ---- */
+.ff-stories { background: var(--ff-paper-2); border-top: 1px solid var(--ff-rule); }
+.ff-stories-lede { max-width: 68ch; }
+.ff-stories-ctl { display: flex; gap: 10px; margin-top: 18px; }
+.ff-stories-arw {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--ff-navy); background: #fff; color: var(--ff-navy);
+  font-size: 22px; line-height: 1; cursor: pointer;
+  display: grid; place-items: center;
+}
+.ff-stories-arw:hover:not(:disabled) { background: var(--ff-navy); color: #fff; }
+.ff-stories-arw:disabled { opacity: .3; cursor: default; }
+
+/* Native horizontal scrolling: touch swipe and trackpad flicks come free, and
+   scroll-snap parks each panel where it should sit. The negative-margin trick
+   lets the rail bleed to the viewport edge while the first card still lines up
+   with the page's text column. */
+.ff-stories-rail {
+  margin-top: 22px;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: max(24px, calc((100vw - var(--ff-max)) / 2 + var(--ff-pad)));
+  padding: 4px max(24px, calc((100vw - var(--ff-max)) / 2 + var(--ff-pad))) 22px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.ff-stories-rail:focus-visible { outline: 2px solid var(--ff-navy); outline-offset: 4px; }
+
+.ff-story {
+  flex: 0 0 auto;
+  width: min(420px, 82vw);
+  scroll-snap-align: start;
+  background: #fff;
+  border: 1px solid var(--ff-rule);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 20px rgba(18,53,75,.06);
+}
+.ff-story-img { position: relative; aspect-ratio: 16 / 9; background: var(--ff-navy); }
+.ff-story-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ff-story-n {
+  position: absolute; left: 14px; bottom: -18px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--ff-red); color: #fff;
+  font-family: var(--ff-cond); font-weight: 700; font-size: 17px;
+  display: grid; place-items: center;
+  box-shadow: 0 3px 0 var(--ff-red-2);
+}
+.ff-story-body { padding: 30px 22px 24px; }
+.ff-story-h {
+  margin: 0 0 10px; font-family: var(--ff-serif); font-weight: 700;
+  font-size: 21px; line-height: 1.2; color: var(--ff-navy);
+}
+.ff-story-p { margin: 0 0 14px; font-size: 15px; line-height: 1.55; color: var(--ff-ink-2); }
+.ff-story-q {
+  margin: 0 0 10px; padding-left: 13px;
+  border-left: 3px solid var(--ff-red);
+  font-style: italic; font-size: 15px; line-height: 1.5; color: var(--ff-ink);
+}
+.ff-story-q:last-child { margin-bottom: 0; }
+.ff-stories-foot { margin: 4px 0 0; font-size: 14px; color: var(--ff-muted); }
+
+@media (max-width: 560px) {
+  .ff-stories-rail { scroll-padding-left: var(--ff-pad); padding-left: var(--ff-pad); padding-right: var(--ff-pad); }
+  .ff-story { width: 84vw; }
+  .ff-email-hero-ctas .ff-btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-stories-rail { scroll-behavior: auto; }
+}
+
 /* Confirmation screen: portrait band up top, content below. */
 .ff-emailpage--dambrosio .ff-email-success-top { padding-bottom: clamp(30px, 3.6vw, 46px); }
 .ff-emailpage--dambrosio .ff-email-success-top .ff-lede { margin-bottom: 0; }
