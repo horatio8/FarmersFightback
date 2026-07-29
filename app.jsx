@@ -3559,6 +3559,9 @@ const FFB_CAMPAIGNS = {
     recipientsUrl: "content/dambrosio-recipients.json",
     variationsUrl: "content/dambrosio-variations.json",
     utmCampaign: "demand-dambrosio",
+    // Single-purpose action page: the nav only offers ways to leave before the
+    // email is sent, so it's replaced by a logo that still gets you home.
+    hideNav: true,
     heroImage: "assets/uploads/dambrosio-hero.jpg",
     heroEyebrow: "SHE WROTE THE LAWS. SHE TARGETED FARMERS.",
     heroHeading: "Demand Lily D'Ambrosio apologise for targeting Aussie farmers today.",
@@ -3995,7 +3998,7 @@ function SendEmailPage({ campaign }) {
   })();
 
   return (
-    <PageShell hideTopBanner bodyClass={`ff-emailpage ff-emailpage--${camp.id}`}>
+    <PageShell hideTopBanner hideNav={!!camp.hideNav} bodyClass={`ff-emailpage ff-emailpage--${camp.id}`}>
       {toastEl}
 
       {/* Hero. heroImage overrides the shared background so each campaign can
