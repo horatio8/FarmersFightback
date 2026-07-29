@@ -3560,9 +3560,9 @@ const FFB_CAMPAIGNS = {
     variationsUrl: "content/dambrosio-variations.json",
     utmCampaign: "demand-dambrosio",
     heroImage: "assets/uploads/dambrosio-hero.jpg",
-    heroEyebrow: "SHE WROTE THE LAWS. SHE SENT THE DEPARTMENT.",
-    heroHeading: "Lily D'Ambrosio is targeting farmers.",
-    heroLede: <>She wrote the powers. She directs the department that uses them. Her staff have tried to get onto dozens of Victorian farms uninvited &mdash; in one case bringing security to lean on a farmer in his eighties. Greg Baldwin rang triple zero about trespassers on his own land and it was <em>Baldwin</em> who got charged. Every charge withdrawn by the DPP, 27 April 2026.</>,
+    heroEyebrow: "SHE WROTE THE LAWS. SHE TARGETED FARMERS.",
+    heroHeading: "Demand Lily D'Ambrosio apologise for targeting Aussie farmers today.",
+    heroLede: <>She wrote the laws and built a system aimed at destroying Aussie farmers. She must answer for the intimidation of farmers and for Greg Baldwin being falsely charged for just standing up for his farm.</>,
     heroDemands: ["Admit she directed her department to target farmers.", "Apologise to every farming family she put through it.", "Come clean, and stop."],
     heroNudge: "Put your name to it. It takes 10 seconds.",
     heroCta: "Demand she comes clean",
@@ -4003,7 +4003,7 @@ function SendEmailPage({ campaign }) {
           page states them before the fold instead of only inside the email. */}
       <section
         className="ff-section ff-email-hero"
-        style={camp.heroImage ? { backgroundImage: `linear-gradient(to right, rgba(10,30,48,.93) 0%, rgba(10,30,48,.88) 38%, rgba(10,30,48,.55) 60%, rgba(10,30,48,.18) 82%, rgba(10,30,48,.08) 100%), url(${camp.heroImage})` } : undefined}
+        style={camp.heroImage ? { "--ff-hero-img": `url(${camp.heroImage})` } : undefined}
       >
         <div className="ff-wrap ff-email-narrow">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {camp.heroEyebrow}</span>

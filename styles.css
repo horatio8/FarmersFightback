@@ -2446,7 +2446,16 @@ img { max-width: 100%; display: block; }
    campaign so /askjess keeps the spacing it was signed off with. Column widths
    and the 760px measure are untouched — this is padding only. */
 .ff-emailpage--dambrosio { --ff-section-y: clamp(30px, 3.6vw, 46px); }
-.ff-emailpage--dambrosio .ff-email-hero { padding-top: clamp(40px, 5vw, 66px); }
+/* The art comes in as --ff-hero-img (set per campaign in the config) so the
+   scrim stays in CSS and can differ by breakpoint: on desktop the copy sits
+   left of the subject and only needs cover on that side; on a phone the copy
+   crosses her face, so the whole frame has to go down. */
+.ff-emailpage--dambrosio .ff-email-hero {
+  padding-top: clamp(40px, 5vw, 66px);
+  background-image:
+    linear-gradient(to right, rgba(10,30,48,.93) 0%, rgba(10,30,48,.88) 38%, rgba(10,30,48,.55) 60%, rgba(10,30,48,.18) 82%, rgba(10,30,48,.08) 100%),
+    var(--ff-hero-img);
+}
 /* Details and editor read as one continuous panel: drop the doubled padding
    where they meet so the two headed blocks sit a paragraph apart. */
 .ff-emailpage--dambrosio .ff-email-form-sec { padding-bottom: clamp(20px, 2.4vw, 30px); }
@@ -2472,8 +2481,13 @@ img { max-width: 100%; display: block; }
 
 /* Keep the Minister in frame on narrow screens, where the crop would otherwise
    push her out of the viewport entirely and leave a flat navy block. */
-@media (max-width: 720px) {
-  .ff-emailpage--dambrosio .ff-email-hero { background-position: 72% center; }
+@media (max-width: 860px) {
+  .ff-emailpage--dambrosio .ff-email-hero {
+    background-position: 76% center;
+    background-image:
+      linear-gradient(rgba(10,30,48,.86), rgba(10,30,48,.90)),
+      var(--ff-hero-img);
+  }
 }
 
 /* Compact 3-step strip */
