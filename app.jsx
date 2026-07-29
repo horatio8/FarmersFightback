@@ -1032,7 +1032,9 @@ function VideoModal({ open, onClose }) {
 }
 
 // ---------- Shared page shell (Nav + Footer + TopBanner) ----------
-function PageShell({ children, hideTopBanner, hideNav }) {
+// bodyClass lands on <main> so a page can scope its own layout rules (e.g. the
+// email-action pages tightening section spacing) without leaking to the site.
+function PageShell({ children, hideTopBanner, hideNav, bodyClass }) {
   const onDonate = () => {
     window.location.href = "/donate";
   };
@@ -1045,7 +1047,7 @@ function PageShell({ children, hideTopBanner, hideNav }) {
       {hideNav
         ? <a href="/" className="ff-minihead" aria-label="Farmers Fightback — back to homepage"><img src={logoSrc} alt="Farmers Fightback" /></a>
         : <Nav onDonate={onDonate} />}
-      <main>{children}</main>
+      <main className={bodyClass || undefined}>{children}</main>
       <Footer />
       <SocialProofPopup />
     </>
@@ -3557,20 +3559,22 @@ const FFB_CAMPAIGNS = {
     recipientsUrl: "content/dambrosio-recipients.json",
     variationsUrl: "content/dambrosio-variations.json",
     utmCampaign: "demand-dambrosio",
-    heroEyebrow: "A DIRECT DEMAND FROM RURAL VICTORIA",
-    heroHeading: "Demand D'Ambrosio answers.",
-    heroLede: <>Greg Baldwin rang triple zero to report trespassers on his own farm. Police charged <em>him</em>. On 27 April 2026 the DPP withdrew every single charge &mdash; there was never a case. The Minister has still not answered one simple question.</>,
-    heroNudge: "Ask her to state it plainly: has she or her department ever targeted a farmer? It takes 10 seconds.",
-    heroCta: "Demand an answer",
+    heroImage: "assets/uploads/dambrosio-hero.jpg",
+    heroEyebrow: "SHE WROTE THE LAWS. SHE SENT THE DEPARTMENT.",
+    heroHeading: "Lily D'Ambrosio is targeting farmers.",
+    heroLede: <>She wrote the powers. She directs the department that uses them. Her staff have tried to get onto dozens of Victorian farms uninvited &mdash; in one case bringing security to lean on a farmer in his eighties. Greg Baldwin rang triple zero about trespassers on his own land and it was <em>Baldwin</em> who got charged. Every charge withdrawn by the DPP, 27 April 2026.</>,
+    heroDemands: ["Admit she directed her department to target farmers.", "Apologise to every farming family she put through it.", "Come clean, and stop."],
+    heroNudge: "Put your name to it. It takes 10 seconds.",
+    heroCta: "Demand she comes clean",
     editorLede: "Firm, direct and on the record: take a moment to review your email. You can generate a new version by clicking 'Say it my way'",
     recipientsLabel: (n) => (n === 1
       ? <>This email goes straight to the Minister:</>
       : <>This email goes to {n} recipients:</>),
-    sendLabel: "Send your demand to Minister D'Ambrosio now",
-    successHeading: "Sent. Now she has to answer.",
-    successLede: "Ministers count emails. One is a letter; thousands are a problem she cannot file away. You've just put your name to a question she has avoided answering — pass this page to a mate and make it impossible to ignore.",
+    sendLabel: "Send your demand to Minister D'Ambrosio",
+    successHeading: "Sent. Now she has to front up.",
+    successLede: "Ministers count emails. One is a letter; thousands are a problem she cannot file away. Your name is now on the record demanding she admit it, apologise and stop — pass this page to a mate and make it impossible to ignore.",
     donateHeading: "Back your demand with a few dollars",
-    donateLede: "Emails force the question. Funding keeps us asking until she answers.",
+    donateLede: "Emails put it on the record. Funding keeps us on her until she answers for it.",
   },
 };
 
@@ -3991,15 +3995,25 @@ function SendEmailPage({ campaign }) {
   })();
 
   return (
-    <PageShell hideTopBanner>
+    <PageShell hideTopBanner bodyClass={`ff-emailpage ff-emailpage--${camp.id}`}>
       {toastEl}
 
-      {/* Hero */}
-      <section className="ff-section ff-email-hero">
+      {/* Hero. heroImage overrides the shared background so each campaign can
+          carry its own art; heroDemands renders the numbered asks inline so the
+          page states them before the fold instead of only inside the email. */}
+      <section
+        className="ff-section ff-email-hero"
+        style={camp.heroImage ? { backgroundImage: `linear-gradient(to right, rgba(10,30,48,.93) 0%, rgba(10,30,48,.88) 38%, rgba(10,30,48,.55) 60%, rgba(10,30,48,.18) 82%, rgba(10,30,48,.08) 100%), url(${camp.heroImage})` } : undefined}
+      >
         <div className="ff-wrap ff-email-narrow">
           <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {camp.heroEyebrow}</span>
           <h1 className="ff-h2 ff-h2--light">{camp.heroHeading}</h1>
           <p className="ff-lede ff-email-lede-light">{camp.heroLede}</p>
+          {camp.heroDemands && (
+            <ol className="ff-email-demands">
+              {camp.heroDemands.map((d, i) => <li key={i}>{d}</li>)}
+            </ol>
+          )}
           <p className="ff-email-hero-nudge">{camp.heroNudge}</p>
           <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={() => { const el = document.getElementById("ff-email-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{camp.heroCta}</button>
         </div>

@@ -2403,6 +2403,79 @@ img { max-width: 100%; display: block; }
 }
 .ff-email-hero .ff-btn { margin-top: 20px; }
 
+/* The three demands, stated in the hero rather than only inside the email. */
+.ff-email-demands {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ff-demand;
+  max-width: 60ch;
+}
+.ff-email-demands li {
+  counter-increment: ff-demand;
+  position: relative;
+  padding: 0 0 0 34px;
+  margin: 0 0 9px;
+  font-family: var(--ff-serif);
+  font-weight: 700;
+  font-size: clamp(17px, 1.9vw, 20px);
+  line-height: 1.3;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+.ff-email-demands li:last-child { margin-bottom: 0; }
+.ff-email-demands li::before {
+  content: counter(ff-demand);
+  position: absolute;
+  left: 0;
+  top: .12em;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--ff-red);
+  color: #fff;
+  font-family: var(--ff-cond);
+  font-size: 13px;
+  line-height: 24px;
+  text-align: center;
+  text-shadow: none;
+}
+
+/* ---- /demanddambrosio: tighter vertical rhythm ----
+   The page inherits the site-wide --ff-section-y (up to 120px top AND bottom
+   per section), which stacked to roughly 3.3 screens of scroll. Scoped to this
+   campaign so /askjess keeps the spacing it was signed off with. Column widths
+   and the 760px measure are untouched — this is padding only. */
+.ff-emailpage--dambrosio { --ff-section-y: clamp(30px, 3.6vw, 46px); }
+.ff-emailpage--dambrosio .ff-email-hero { padding-top: clamp(40px, 5vw, 66px); }
+/* Details and editor read as one continuous panel: drop the doubled padding
+   where they meet so the two headed blocks sit a paragraph apart. */
+.ff-emailpage--dambrosio .ff-email-form-sec { padding-bottom: clamp(20px, 2.4vw, 30px); }
+.ff-emailpage--dambrosio .ff-email-editor { padding-top: clamp(20px, 2.4vw, 30px); }
+/* rows={14} sets the textarea height, so min-height alone can't shrink it. */
+.ff-emailpage--dambrosio .ff-email-body { height: 250px; min-height: 0; }
+/* Hold the hero copy to the left of the portrait so lines never run across her
+   face. Full width again once the image is a backdrop rather than a subject. */
+.ff-emailpage--dambrosio .ff-email-hero .ff-lede { margin-bottom: 0; max-width: 46ch; }
+.ff-emailpage--dambrosio .ff-email-hero .ff-h2,
+.ff-emailpage--dambrosio .ff-email-demands { max-width: 46ch; }
+@media (max-width: 860px) {
+  .ff-emailpage--dambrosio .ff-email-hero .ff-lede,
+  .ff-emailpage--dambrosio .ff-email-hero .ff-h2,
+  .ff-emailpage--dambrosio .ff-email-demands { max-width: none; }
+}
+/* The section headings run to 58px site-wide, which is display size for a
+   landing page and far too loud above a four-field form. */
+.ff-emailpage--dambrosio .ff-email-form-sec .ff-h2,
+.ff-emailpage--dambrosio .ff-email-editor .ff-h2 { font-size: clamp(26px, 2.8vw, 34px); }
+.ff-emailpage--dambrosio .ff-email-form-sec .ff-lede,
+.ff-emailpage--dambrosio .ff-email-editor .ff-lede { margin-bottom: 18px; }
+
+/* Keep the Minister in frame on narrow screens, where the crop would otherwise
+   push her out of the viewport entirely and leave a flat navy block. */
+@media (max-width: 720px) {
+  .ff-emailpage--dambrosio .ff-email-hero { background-position: 72% center; }
+}
+
 /* Compact 3-step strip */
 .ff-email-steps {
   padding-top: clamp(16px, 2.5vw, 26px);
@@ -2558,6 +2631,18 @@ img { max-width: 100%; display: block; }
 @media (max-width: 560px) {
   .ff-email-rewrite { flex-direction: column; align-items: stretch; }
   .ff-email-rewrite .ff-btn { width: 100%; min-height: 48px; }
+  /* flex-direction:column makes the help text's `flex: 1 1 240px` a 240px
+     HEIGHT, not width — 240px of dead space under the rewrite button. Scoped
+     to this campaign; /askjess carries the same bug and is deliberately
+     untouched. */
+  .ff-emailpage--dambrosio .ff-email-rewrite-help { flex: 0 0 auto; }
+  /* Long recipient names overflow a nowrap button at phone widths. */
+  .ff-emailpage--dambrosio .ff-email-send .ff-btn {
+    white-space: normal;
+    line-height: 1.25;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
   .ff-email-fallback-btns .ff-btn, .ff-email-share .ff-btn { flex: 1 1 100%; min-height: 48px; }
   /* Hero CTA + nudge */
   .ff-email-hero .ff-btn { width: 100%; min-height: 48px; }
