@@ -3154,3 +3154,80 @@ img { max-width: 100%; display: block; }
   .ffw-qa-btn { width: 100%; }
   .ffw-donate-chips { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ============ Twin promo panels (homepage, under the hero) ============
+   Two live campaigns side by side, one action each. Equal-height cards on a
+   two-column grid; stacks to one column before the copy gets cramped. */
+.ff-twin { background: var(--ff-paper-2); border-bottom: 1px solid var(--ff-rule); }
+.ff-twin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(18px, 2.4vw, 30px);
+  align-items: stretch;
+}
+.ff-twin-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--ff-rule);
+  border-top: 4px solid var(--ff-red);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 26px rgba(18,53,75,.07);
+}
+.ff-twin-card--gold { border-top-color: var(--ff-gold, #d9a520); }
+.ff-twin-media { aspect-ratio: 16 / 9; background: var(--ff-navy); }
+.ff-twin-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The portrait is a face, not a scene: hold it high in the crop. */
+.ff-twin-card--red .ff-twin-media img { object-position: center 28%; }
+.ff-twin-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: clamp(20px, 2.2vw, 28px);
+}
+.ff-twin-eyebrow {
+  font-family: var(--ff-cond);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ff-red);
+}
+.ff-twin-h {
+  margin: 8px 0 10px;
+  font-family: var(--ff-serif);
+  font-weight: 700;
+  line-height: 1.12;
+  font-size: clamp(24px, 2.6vw, 32px);
+  color: var(--ff-navy);
+}
+.ff-twin-lede { margin: 0 0 16px; font-size: 16px; line-height: 1.55; color: var(--ff-ink-2); }
+.ff-twin-facts { margin: 0 0 22px; padding: 0; list-style: none; }
+.ff-twin-facts li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 7px;
+  font-size: 15px;
+  color: var(--ff-ink);
+}
+.ff-twin-facts li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: .52em;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ff-red);
+}
+.ff-twin-card--gold .ff-twin-facts li::before { background: var(--ff-gold, #d9a520); }
+.ff-twin-card--gold .ff-twin-eyebrow { color: #9a7411; }
+/* Pin the action to the bottom so both cards' buttons line up whatever the
+   copy length. */
+.ff-twin-cta { margin-top: auto; align-self: flex-start; }
+
+@media (max-width: 820px) {
+  .ff-twin-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .ff-twin-cta { width: 100%; text-align: center; }
+}

@@ -1201,6 +1201,64 @@ function AskJessBand() {
 }
 
 // ---------- HomePage (the original homepage layout) ----------
+// ---------- Twin promo panels (homepage, directly under the hero) ----------
+// Two live campaigns, side by side, one action each: buy a ticket on the left,
+// demand justice on the right. Deliberately no secondary links. A panel with
+// two exits splits the click it was built to win.
+function TwinPromos() {
+  const panels = [
+    {
+      key: "fundraiser",
+      eyebrow: "Saturday 29 August",
+      title: "The Farmers Fightback FUNdraiser",
+      lede: "A night to fight for the future of farming. Two-course meal included, drinks at the bar, and Pauline Hanson joining us at Marnoo Cricket Ground.",
+      facts: ["Marnoo Cricket Ground, Marnoo VIC", "Gates from 6:00pm", "$50 a ticket, meal included"],
+      cta: "Get your tickets",
+      href: "/fun",
+      img: "assets/uploads/fundraiser-share.jpg",
+      alt: "Farmers Fightback FUNdraiser, Saturday 29 August at Marnoo Cricket Ground",
+      tone: "gold",
+    },
+    {
+      key: "demand",
+      eyebrow: "The Intimidation Files",
+      title: "Demand D'Ambrosio apologise",
+      lede: "She wrote the laws and built the system that intimidated farming families on their own land. She has never apologised. Read what farmers went through, then put your name to the demand.",
+      facts: ["Ten first-hand accounts", "Your name on a letter to the Minister", "Takes 10 seconds"],
+      cta: "Demand justice",
+      href: "/demand",
+      img: "assets/uploads/dambrosio-hero.jpg",
+      alt: "Lily D'Ambrosio",
+      tone: "red",
+    },
+  ];
+
+  return (
+    <section className="ff-section ff-twin">
+      <div className="ff-wrap ff-twin-grid">
+        {panels.map(p => (
+          <article className={`ff-twin-card ff-twin-card--${p.tone}`} key={p.key}>
+            <div className="ff-twin-media">
+              <img src={p.img} alt={p.alt} loading="lazy" width="640" height="360" />
+            </div>
+            <div className="ff-twin-body">
+              <span className="ff-twin-eyebrow">{p.eyebrow}</span>
+              <h2 className="ff-twin-h">{p.title}</h2>
+              <p className="ff-twin-lede">{p.lede}</p>
+              <ul className="ff-twin-facts">
+                {p.facts.map((f, i) => <li key={i}>{f}</li>)}
+              </ul>
+              <a className="ff-btn ff-btn--red ff-btn--lg ff-twin-cta" href={p.href}>
+                {p.cta} <span aria-hidden="true">&rsaquo;</span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function HomePage() {
   const [modal, setModal] = useState(false);
   return (
@@ -1210,6 +1268,7 @@ function HomePage() {
       <SocialProofPopup />
       <main>
         <Hero onWatch={() => setModal(true)} />
+        <TwinPromos />
         <IntroVideo />
         <Summary />
         <Petition />
