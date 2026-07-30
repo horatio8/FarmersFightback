@@ -30,6 +30,7 @@
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
     { "source": "/demand",      "destination": "/demanddambrosio",      "permanent": false },
+    { "source": "/finish",      "destination": "/won",                  "permanent": false },
     { "source": "/fun",         "destination": "/fundraiser",           "permanent": false },
     { "source": "/baldwin",     "destination": "/take-action/baldwins", "permanent": false },
     { "source": "/baldwins",    "destination": "/take-action/baldwins", "permanent": false },
