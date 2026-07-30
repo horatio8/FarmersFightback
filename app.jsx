@@ -4038,6 +4038,30 @@ function SendEmailPage({ campaign }) {
     }
   };
 
+  // One donate block, rendered both under the story rail and on the
+  // confirmation screen — same amounts, same handler, same Stripe path.
+  const donateBlock = donorTiers.length > 0 ? (
+    <div className="ff-email-donate ff-email-donate--lg">
+      <h2 className="ff-email-donate-h">{camp.donateHeading}</h2>
+      <p className="ff-email-donate-lede">{camp.donateLede}</p>
+      <div className="ff-email-donate-chips">
+        {donorTiers.map(t => (
+          <button
+            key={t.amount}
+            type="button"
+            className="ff-email-donate-chip"
+            disabled={donateBusy != null}
+            aria-busy={donateBusy === t.amount}
+            onClick={() => goDonate(Number(t.amount))}
+          >
+            {donateBusy === t.amount ? "One moment…" : `$${t.amount}`}
+          </button>
+        ))}
+        <a className="ff-email-donate-chip ff-email-donate-chip--other" href="/donate">Other</a>
+      </div>
+    </div>
+  ) : null;
+
   if (sent) {
     return (
       <PageShell hideTopBanner hideNav={sent} bodyClass={`ff-emailpage ff-emailpage--${camp.id}`}>
@@ -4056,27 +4080,7 @@ function SendEmailPage({ campaign }) {
         </section>
         <section className="ff-section ff-email-success">
           <div className="ff-wrap ff-email-narrow">
-            {donorTiers.length > 0 && (
-              <div className="ff-email-donate ff-email-donate--lg">
-                <h2 className="ff-email-donate-h">{camp.donateHeading}</h2>
-                <p className="ff-email-donate-lede">{camp.donateLede}</p>
-                <div className="ff-email-donate-chips">
-                  {donorTiers.map(t => (
-                    <button
-                      key={t.amount}
-                      type="button"
-                      className="ff-email-donate-chip"
-                      disabled={donateBusy != null}
-                      aria-busy={donateBusy === t.amount}
-                      onClick={() => goDonate(Number(t.amount))}
-                    >
-                      {donateBusy === t.amount ? "One moment…" : `$${t.amount}`}
-                    </button>
-                  ))}
-                  <a className="ff-email-donate-chip ff-email-donate-chip--other" href="/donate">Other</a>
-                </div>
-              </div>
-            )}
+            {donateBlock}
 
             <div className="ff-email-share">
               <a className="ff-btn ff-btn--red" href={fbShareUrl} target="_blank" rel="noopener noreferrer" onClick={() => track("fallback_used")}>Share on Facebook</a>
@@ -4245,6 +4249,15 @@ function SendEmailPage({ campaign }) {
 
       {camp.storiesUrl && (
         <StoryRail src={camp.storiesUrl} ctaLabel={camp.storiesCta || camp.heroCta} onCta={goToForm} />
+      )}
+
+      {/* Having just read what these families went through is the moment the
+          ask lands hardest, so the same block from the confirmation screen
+          sits here too. */}
+      {camp.storiesUrl && donateBlock && (
+        <section className="ff-section ff-stories-donate">
+          <div className="ff-wrap ff-email-narrow">{donateBlock}</div>
+        </section>
       )}
     </PageShell>
   );

@@ -2578,6 +2578,15 @@ img { max-width: 100%; display: block; }
   .ff-stories-rail { scroll-behavior: auto; }
 }
 
+/* The donate ask under the stories continues the same cream band, so the two
+   read as one section rather than a new one starting. */
+.ff-stories-donate {
+  background: var(--ff-paper-2);
+  padding-top: 0;
+  border-bottom: 1px solid var(--ff-rule);
+}
+.ff-stories-donate .ff-email-donate { margin-bottom: 0; background: #fff; }
+
 /* Confirmation screen: portrait band up top, content below. */
 .ff-emailpage--dambrosio .ff-email-success-top { padding-bottom: clamp(30px, 3.6vw, 46px); }
 .ff-emailpage--dambrosio .ff-email-success-top .ff-lede { margin-bottom: 0; }
