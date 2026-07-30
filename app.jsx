@@ -3626,6 +3626,14 @@ function StoryRail({ src, ctaLabel, onCta }) {
 
   if (!data || !(data.stories || []).length) return null;
 
+  // The same action is offered before and after the panels, so it's in reach
+  // whether someone acts on the framing or on the stories themselves.
+  const cta = (
+    <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={onCta}>
+      {ctaLabel} <span aria-hidden="true">&rsaquo;</span>
+    </button>
+  );
+
   return (
     <section className="ff-section ff-stories" id="ff-stories">
       <div className="ff-wrap">
@@ -3634,8 +3642,11 @@ function StoryRail({ src, ctaLabel, onCta }) {
         <p className="ff-lede ff-stories-lede">{data.lede}</p>
 
         <div className="ff-stories-ctl">
-          <button type="button" className="ff-stories-arw" onClick={() => nudge(-1)} disabled={atStart} aria-label="Previous stories">&lsaquo;</button>
-          <button type="button" className="ff-stories-arw" onClick={() => nudge(1)} disabled={atEnd} aria-label="More stories">&rsaquo;</button>
+          {cta}
+          <div className="ff-stories-arws">
+            <button type="button" className="ff-stories-arw" onClick={() => nudge(-1)} disabled={atStart} aria-label="Previous stories">&lsaquo;</button>
+            <button type="button" className="ff-stories-arw" onClick={() => nudge(1)} disabled={atEnd} aria-label="More stories">&rsaquo;</button>
+          </div>
         </div>
       </div>
 
@@ -3661,9 +3672,7 @@ function StoryRail({ src, ctaLabel, onCta }) {
           someone is swiping through panels — they never have to hunt back up
           the page to act on what they've just read. */}
       <div className="ff-wrap ff-stories-act">
-        <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={onCta}>
-          {ctaLabel} <span aria-hidden="true">&rsaquo;</span>
-        </button>
+        {cta}
         <p className="ff-stories-foot">Every story was told to us on camera. No names are used.</p>
       </div>
     </section>

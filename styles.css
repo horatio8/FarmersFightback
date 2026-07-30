@@ -2498,7 +2498,11 @@ img { max-width: 100%; display: block; }
 /* ---- The Intimidation Files: horizontally scrolled story panels ---- */
 .ff-stories { background: var(--ff-paper-2); border-top: 1px solid var(--ff-rule); }
 .ff-stories-lede { max-width: 68ch; }
-.ff-stories-ctl { display: flex; gap: 10px; margin-top: 18px; }
+.ff-stories-ctl {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 14px 20px; margin-top: 20px;
+}
+.ff-stories-arws { display: flex; gap: 10px; }
 .ff-stories-arw {
   width: 44px; height: 44px; border-radius: 50%;
   border: 1.5px solid var(--ff-navy); background: #fff; color: var(--ff-navy);
@@ -2567,7 +2571,8 @@ img { max-width: 100%; display: block; }
   .ff-stories-rail { scroll-padding-left: var(--ff-pad); padding-left: var(--ff-pad); padding-right: var(--ff-pad); }
   .ff-story { width: 84vw; }
   .ff-email-hero-ctas .ff-btn { width: 100%; }
-  .ff-stories-act .ff-btn { width: 100%; }
+  .ff-stories-act .ff-btn,
+  .ff-stories-ctl > .ff-btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ff-stories-rail { scroll-behavior: auto; }
