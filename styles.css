@@ -3156,13 +3156,19 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============ Twin promo panels (homepage, under the hero) ============
-   Two live campaigns side by side, one action each. Equal-height cards on a
-   two-column grid; stacks to one column before the copy gets cramped. */
-.ff-twin { background: var(--ff-paper-2); border-bottom: 1px solid var(--ff-rule); }
+   Two live campaigns side by side, one action each. Kept deliberately short:
+   this sits between the hero and the rest of the page, so it has to read at a
+   glance without pushing everything else below the fold. */
+.ff-twin {
+  background: var(--ff-paper-2);
+  border-bottom: 1px solid var(--ff-rule);
+  padding-top: clamp(26px, 3vw, 40px);
+  padding-bottom: clamp(26px, 3vw, 40px);
+}
 .ff-twin-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: clamp(18px, 2.4vw, 30px);
+  gap: clamp(16px, 2vw, 24px);
   align-items: stretch;
 }
 .ff-twin-card {
@@ -3171,62 +3177,70 @@ img { max-width: 100%; display: block; }
   background: #fff;
   border: 1px solid var(--ff-rule);
   border-top: 4px solid var(--ff-red);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 8px 26px rgba(18,53,75,.07);
 }
 .ff-twin-card--gold { border-top-color: var(--ff-gold, #d9a520); }
-.ff-twin-media { aspect-ratio: 16 / 9; background: var(--ff-navy); }
+/* A letterbox band rather than a 16:9 block. It still sets the scene and costs
+   a third of the height. */
+/* Explicit height, not aspect-ratio: the img is height:100% of this box, so
+   an auto-height container resolves against the image's own ratio instead and
+   the letterbox never happens. */
+.ff-twin-media { height: clamp(112px, 11vw, 150px); flex: 0 0 auto; background: var(--ff-navy); overflow: hidden; }
 .ff-twin-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* The portrait is a face, not a scene: hold it high in the crop. */
-.ff-twin-card--red .ff-twin-media img { object-position: center 28%; }
+.ff-twin-card--red .ff-twin-media img { object-position: center 22%; }
+/* The event image is a designed poster, not a photograph. Cropping it to the
+   letterbox lopped off the wordmark and the date band, so it is fitted whole
+   against its own cream instead. */
+.ff-twin-card--gold .ff-twin-media { background: #faecc7; }
+.ff-twin-card--gold .ff-twin-media img { object-fit: contain; }
 .ff-twin-body {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  padding: clamp(20px, 2.2vw, 28px);
+  padding: 16px clamp(16px, 1.8vw, 22px) 18px;
 }
 .ff-twin-eyebrow {
   font-family: var(--ff-cond);
   text-transform: uppercase;
   letter-spacing: .08em;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ff-red);
 }
 .ff-twin-h {
-  margin: 8px 0 10px;
+  margin: 5px 0 7px;
   font-family: var(--ff-serif);
   font-weight: 700;
-  line-height: 1.12;
-  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.1;
+  font-size: clamp(21px, 2.1vw, 26px);
   color: var(--ff-navy);
 }
-.ff-twin-lede { margin: 0 0 16px; font-size: 16px; line-height: 1.55; color: var(--ff-ink-2); }
-.ff-twin-facts { margin: 0 0 22px; padding: 0; list-style: none; }
-.ff-twin-facts li {
-  position: relative;
-  padding-left: 22px;
-  margin-bottom: 7px;
-  font-size: 15px;
-  color: var(--ff-ink);
+.ff-twin-lede { margin: 0 0 10px; font-size: 15px; line-height: 1.45; color: var(--ff-ink-2); }
+/* Facts run inline on one line, dot-separated, instead of a stacked list. */
+.ff-twin-facts {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 4px 10px;
+  margin: 0 0 14px; padding: 0; list-style: none;
+  font-size: 13.5px; color: var(--ff-ink);
 }
-.ff-twin-facts li::before {
+.ff-twin-facts li { display: flex; align-items: center; gap: 10px; }
+.ff-twin-facts li + li::before {
   content: "";
-  position: absolute;
-  left: 0; top: .52em;
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--ff-red);
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--ff-red); flex: 0 0 auto;
 }
-.ff-twin-card--gold .ff-twin-facts li::before { background: var(--ff-gold, #d9a520); }
+.ff-twin-card--gold .ff-twin-facts li + li::before { background: var(--ff-gold, #d9a520); }
 .ff-twin-card--gold .ff-twin-eyebrow { color: #9a7411; }
 /* Pin the action to the bottom so both cards' buttons line up whatever the
    copy length. */
-.ff-twin-cta { margin-top: auto; align-self: flex-start; }
+.ff-twin-cta { margin-top: auto; align-self: flex-start; padding: 12px 20px; font-size: 15px; }
 
 @media (max-width: 820px) {
   .ff-twin-grid { grid-template-columns: 1fr; }
+  .ff-twin-media { height: 132px; }
 }
 @media (max-width: 560px) {
   .ff-twin-cta { width: 100%; text-align: center; }
