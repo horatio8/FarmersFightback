@@ -2827,7 +2827,7 @@ function DonateThanksPanel({ session }) {
 // restate the framing while inheriting the amount ladder, Stripe links and
 // checkout behaviour — one donation implementation, several narratives.
 // `variant` scopes the branding; `storiesUrl` bolts the story rail on.
-function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTopBanner }) {
+function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTopBanner, whereFirst = true }) {
   const base = useContent().donorPage;
   const c = override ? { ...base, ...override } : base;
   const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
@@ -2951,6 +2951,22 @@ function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTop
     );
   }
 
+  const whereItGoes = (c.amounts && c.amounts.some(a => a.tag)) ? (
+    <section className="ff-section ff-give-where">
+      <div className="ff-wrap">
+        <h2 className="ff-h2 ff-give-where-h">Where it goes.</h2>
+        <ul className="ff-give-where-list">
+          {c.amounts.filter(a => a.tag).map(a => (
+            <li key={a.amount} className="ff-give-where-row">
+              <span className="ff-give-where-amt">${a.amount}</span>
+              <span className="ff-give-where-tag">{a.tag}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ) : null;
+
   return (
     <PageShell hideNav={focusMode || !!hideNav} hideTopBanner={!!hideTopBanner} bodyClass={variant ? `ff-givepage ff-givepage--${variant}` : undefined}>
       <section className={`ff-section ff-give-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
@@ -3007,22 +3023,11 @@ function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTop
           )}
         </div>
       </section>
-      {c.amounts && c.amounts.some(a => a.tag) && (
-        <section className="ff-section ff-give-where">
-          <div className="ff-wrap">
-            <h2 className="ff-h2 ff-give-where-h">Where it goes.</h2>
-            <ul className="ff-give-where-list">
-              {c.amounts.filter(a => a.tag).map(a => (
-                <li key={a.amount} className="ff-give-where-row">
-                  <span className="ff-give-where-amt">${a.amount}</span>
-                  <span className="ff-give-where-tag">{a.tag}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
+      {/* whereFirst keeps /donate's original order (breakdown, then wins).
+          /won leads with the case for giving and puts the breakdown after it. */}
+      {whereFirst && whereItGoes}
       {c.achievements && <DonorAchievements cfg={c.achievements} />}
+      {!whereFirst && whereItGoes}
       {storiesUrl && (
         <StoryRail
           src={storiesUrl}
@@ -4974,6 +4979,7 @@ function App() {
       variant="won"
       hideNav
       hideTopBanner
+      whereFirst={false}
       storiesUrl="content/dambrosio-stories.json"
       storiesCta="Chip in and finish the job"
     />
