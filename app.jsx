@@ -2827,7 +2827,7 @@ function DonateThanksPanel({ session }) {
 // restate the framing while inheriting the amount ladder, Stripe links and
 // checkout behaviour — one donation implementation, several narratives.
 // `variant` scopes the branding; `storiesUrl` bolts the story rail on.
-function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTopBanner, whereFirst = true }) {
+function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTopBanner, whereFirst = true, autoScrollToWidget = true }) {
   const base = useContent().donorPage;
   const c = override ? { ...base, ...override } : base;
   const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
@@ -2874,7 +2874,12 @@ function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTop
       .catch(() => {});
   }, []);
 
+  // /donate jumps straight to the widget — people arrive there to give and the
+  // copy is secondary. A page that opens with an argument must not scroll past
+  // it: on mobile the hero stacks above the widget, so auto-scrolling lands the
+  // visitor below the headline and lede having read neither.
   useEffect(() => {
+    if (!autoScrollToWidget) return;
     const el = document.getElementById("donate");
     if (!el) return;
     const t = setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
@@ -3027,7 +3032,6 @@ function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTop
           /won leads with the case for giving and puts the breakdown after it. */}
       {whereFirst && whereItGoes}
       {c.achievements && <DonorAchievements cfg={c.achievements} />}
-      {!whereFirst && whereItGoes}
       {storiesUrl && (
         <StoryRail
           src={storiesUrl}
@@ -3038,6 +3042,7 @@ function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTop
           }}
         />
       )}
+      {!whereFirst && whereItGoes}
     </PageShell>
   );
 }
@@ -4980,6 +4985,7 @@ function App() {
       hideNav
       hideTopBanner
       whereFirst={false}
+      autoScrollToWidget={false}
       storiesUrl="content/dambrosio-stories.json"
       storiesCta="Chip in and finish the job"
     />

@@ -2590,9 +2590,8 @@ img { max-width: 100%; display: block; }
     linear-gradient(to right, rgba(10,30,48,.94) 0%, rgba(10,30,48,.90) 40%, rgba(10,30,48,.66) 62%, rgba(10,30,48,.42) 100%);
 }
 .ff-givepage--won .ff-give-h1 { text-wrap: balance; }
-/* The rail already carries its own top rule; the achievements block above it
-   shouldn't add a second one. */
-.ff-givepage--won .ff-stories { border-top: 0; }
+/* The rail sits straight after the wins block and both use the same cream, so
+   the rule between them is what keeps them from reading as one slab. */
 @media (max-width: 860px) {
   /* Portrait viewport: the copy crosses her face, so drop the whole frame. */
   .ff-givepage--won .ff-give-hero .ff-imghero-scrim {
