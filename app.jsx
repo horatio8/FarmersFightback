@@ -2823,8 +2823,13 @@ function DonateThanksPanel({ session }) {
   );
 }
 
-function DonorPage() {
-  const c = useContent().donorPage;
+// `override` shallow-merges over the site donorPage config, so a variant can
+// restate the framing while inheriting the amount ladder, Stripe links and
+// checkout behaviour — one donation implementation, several narratives.
+// `variant` scopes the branding; `storiesUrl` bolts the story rail on.
+function DonorPage({ override, variant, storiesUrl, storiesCta, hideNav, hideTopBanner }) {
+  const base = useContent().donorPage;
+  const c = override ? { ...base, ...override } : base;
   const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
   const [monthly, setMonthly] = useState(false);
   const [custom, setCustom] = useState("");
@@ -2947,7 +2952,7 @@ function DonorPage() {
   }
 
   return (
-    <PageShell hideNav={focusMode}>
+    <PageShell hideNav={focusMode || !!hideNav} hideTopBanner={!!hideTopBanner} bodyClass={variant ? `ff-givepage ff-givepage--${variant}` : undefined}>
       <section className={`ff-section ff-give-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
         {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
         <div className="ff-wrap ff-give-hero-inner">
@@ -3018,9 +3023,43 @@ function DonorPage() {
         </section>
       )}
       {c.achievements && <DonorAchievements cfg={c.achievements} />}
+      {storiesUrl && (
+        <StoryRail
+          src={storiesUrl}
+          ctaLabel={storiesCta || "Chip in now"}
+          onCta={() => {
+            const el = document.getElementById("donate");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
+        />
+      )}
     </PageShell>
   );
 }
+
+// ---------- /won ----------
+// The donation page again, reframed around the resignation. Everything not
+// listed here (the amount ladder, Stripe links, monthly mapping, fine print)
+// is inherited from donorPage, so the two pages can't drift on money.
+const WON_PAGE = {
+  heroImage: "/assets/uploads/dambrosio-hero.jpg",
+  eyebrow: "WE DID IT",
+  heading: "D'Ambrosio's gone. Now help finish the job.",
+  lede: "Australia's longest-serving energy minister — the woman who wrote the laws and built the system that intimidated farming families on their own land — has resigned. She never recognised the problem. She never apologised. But she is gone. That happened because more than 100,000 Australians refused to let it go.",
+  achievements: {
+    heading: "The job isn't finished.",
+    image: "/assets/uploads/stories/story-5.jpg",
+    imageAlt: "A farmer stands with his back to camera in a paddock, facing a line of transmission towers.",
+    imageFallback: "/assets/uploads/parliament-house-group.jpg",
+    bullets: [
+      "The laws are still in place. The forced-access powers she legislated didn't resign with her.",
+      "Her department is still running the same playbook on the same families.",
+      "The apology farming families are owed has never been given. Whoever inherits her portfolio inherits that debt.",
+      "Every politician in Australia is watching what happens next. When you come after the people who feed this country, your career ends — that's the lesson, and we intend to keep teaching it.",
+    ],
+    kicker: "They have billions. We have you.",
+  },
+};
 
 function DonorAchievements({ cfg }) {
   const [imgSrc, setImgSrc] = useState(cfg.image);
@@ -4929,6 +4968,16 @@ function App() {
   else if (page === "contact") view = <ContactPage />;
   else if (page === "media") view = <MediaPage />;
   else if (page === "donate") view = <DonorPage />;
+  else if (page === "won") view = (
+    <DonorPage
+      override={WON_PAGE}
+      variant="won"
+      hideNav
+      hideTopBanner
+      storiesUrl="content/dambrosio-stories.json"
+      storiesCta="Chip in and finish the job"
+    />
+  );
   else if (page === "volunteer") view = <VolunteerPage />;
   else if (page === "share") view = <ShareThanksPage />;
   else if (page === "send-email") view = <SendEmailPage campaign={FFB_CAMPAIGNS.askjess} />;

@@ -2578,6 +2578,28 @@ img { max-width: 100%; display: block; }
   .ff-stories-rail { scroll-behavior: auto; }
 }
 
+/* ---- /win: the donation page in the /demand campaign's clothes ----
+   Same widget and checkout as /donate; this is framing only. */
+.ff-givepage--won { --ff-section-y: clamp(34px, 4vw, 54px); }
+/* The portrait is the point here, so the scrim is weighted to the left over
+   the copy and cleared on the right where she sits — same treatment as the
+   /demand hero rather than the flat top-to-bottom wash /donate uses. */
+.ff-givepage--won .ff-give-hero { background-position: 62% center; }
+.ff-givepage--won .ff-give-hero .ff-imghero-scrim {
+  background:
+    linear-gradient(to right, rgba(10,30,48,.94) 0%, rgba(10,30,48,.90) 40%, rgba(10,30,48,.66) 62%, rgba(10,30,48,.42) 100%);
+}
+.ff-givepage--won .ff-give-h1 { text-wrap: balance; }
+/* The rail already carries its own top rule; the achievements block above it
+   shouldn't add a second one. */
+.ff-givepage--won .ff-stories { border-top: 0; }
+@media (max-width: 860px) {
+  /* Portrait viewport: the copy crosses her face, so drop the whole frame. */
+  .ff-givepage--won .ff-give-hero .ff-imghero-scrim {
+    background: linear-gradient(rgba(10,30,48,.88), rgba(10,30,48,.92));
+  }
+}
+
 /* The donate ask under the stories continues the same cream band, so the two
    read as one section rather than a new one starting. */
 .ff-stories-donate {
