@@ -2445,12 +2445,12 @@ img { max-width: 100%; display: block; }
    per section), which stacked to roughly 3.3 screens of scroll. Scoped to this
    campaign so /askjess keeps the spacing it was signed off with. Column widths
    and the 760px measure are untouched — this is padding only. */
-.ff-emailpage--dambrosio { --ff-section-y: clamp(30px, 3.6vw, 46px); }
+.ff-emailpage--dambrosio, .ff-emailpage--carroll { --ff-section-y: clamp(30px, 3.6vw, 46px); }
 /* The art comes in as --ff-hero-img (set per campaign in the config) so the
    scrim stays in CSS and can differ by breakpoint: on desktop the copy sits
    left of the subject and only needs cover on that side; on a phone the copy
    crosses her face, so the whole frame has to go down. */
-.ff-emailpage--dambrosio .ff-email-hero {
+.ff-emailpage--dambrosio .ff-email-hero, .ff-emailpage--carroll .ff-email-hero {
   padding-top: clamp(40px, 5vw, 66px);
   background-image:
     linear-gradient(to right, rgba(10,30,48,.93) 0%, rgba(10,30,48,.88) 38%, rgba(10,30,48,.55) 60%, rgba(10,30,48,.18) 82%, rgba(10,30,48,.08) 100%),
@@ -2462,26 +2462,32 @@ img { max-width: 100%; display: block; }
 }
 /* Details and editor read as one continuous panel: drop the doubled padding
    where they meet so the two headed blocks sit a paragraph apart. */
-.ff-emailpage--dambrosio .ff-email-form-sec { padding-bottom: clamp(20px, 2.4vw, 30px); }
-.ff-emailpage--dambrosio .ff-email-editor { padding-top: clamp(20px, 2.4vw, 30px); }
+.ff-emailpage--dambrosio .ff-email-form-sec, .ff-emailpage--carroll .ff-email-form-sec { padding-bottom: clamp(20px, 2.4vw, 30px); }
+.ff-emailpage--dambrosio .ff-email-editor, .ff-emailpage--carroll .ff-email-editor { padding-top: clamp(20px, 2.4vw, 30px); }
 /* rows={14} sets the textarea height, so min-height alone can't shrink it. */
-.ff-emailpage--dambrosio .ff-email-body { height: 250px; min-height: 0; }
+.ff-emailpage--dambrosio .ff-email-body, .ff-emailpage--carroll .ff-email-body { height: 250px; min-height: 0; }
 /* Hold the hero copy to the left of the portrait so lines never run across her
    face. Full width again once the image is a backdrop rather than a subject. */
-.ff-emailpage--dambrosio .ff-email-hero .ff-lede { margin-bottom: 0; max-width: 46ch; }
+.ff-emailpage--dambrosio .ff-email-hero .ff-lede, .ff-emailpage--carroll .ff-email-hero .ff-lede { margin-bottom: 0; max-width: 46ch; }
 .ff-emailpage--dambrosio .ff-email-hero .ff-h2,
-.ff-emailpage--dambrosio .ff-email-demands { max-width: 46ch; }
+.ff-emailpage--carroll .ff-email-hero .ff-h2,
+.ff-emailpage--dambrosio .ff-email-demands, .ff-emailpage--carroll .ff-email-demands { max-width: 46ch; }
 @media (max-width: 860px) {
   .ff-emailpage--dambrosio .ff-email-hero .ff-lede,
+  .ff-emailpage--carroll .ff-email-hero .ff-lede,
   .ff-emailpage--dambrosio .ff-email-hero .ff-h2,
-  .ff-emailpage--dambrosio .ff-email-demands { max-width: none; }
+  .ff-emailpage--carroll .ff-email-hero .ff-h2,
+  .ff-emailpage--dambrosio .ff-email-demands,
+  .ff-emailpage--carroll .ff-email-demands { max-width: none; }
 }
 /* The section headings run to 58px site-wide, which is display size for a
    landing page and far too loud above a four-field form. */
 .ff-emailpage--dambrosio .ff-email-form-sec .ff-h2,
-.ff-emailpage--dambrosio .ff-email-editor .ff-h2 { font-size: clamp(26px, 2.8vw, 34px); }
+.ff-emailpage--carroll .ff-email-form-sec .ff-h2,
+.ff-emailpage--dambrosio .ff-email-editor .ff-h2, .ff-emailpage--carroll .ff-email-editor .ff-h2 { font-size: clamp(26px, 2.8vw, 34px); }
 .ff-emailpage--dambrosio .ff-email-form-sec .ff-lede,
-.ff-emailpage--dambrosio .ff-email-editor .ff-lede { margin-bottom: 18px; }
+.ff-emailpage--carroll .ff-email-form-sec .ff-lede,
+.ff-emailpage--dambrosio .ff-email-editor .ff-lede, .ff-emailpage--carroll .ff-email-editor .ff-lede { margin-bottom: 18px; }
 
 /* Hero CTAs sit side by side, wrapping on narrow screens. */
 .ff-email-hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
@@ -2609,44 +2615,46 @@ img { max-width: 100%; display: block; }
 .ff-stories-donate .ff-email-donate { margin-bottom: 0; background: #fff; }
 
 /* Confirmation screen: portrait band up top, content below. */
-.ff-emailpage--dambrosio .ff-email-success-top { padding-bottom: clamp(30px, 3.6vw, 46px); }
-.ff-emailpage--dambrosio .ff-email-success-top .ff-lede { margin-bottom: 0; }
-.ff-emailpage--dambrosio .ff-email-success { padding-top: clamp(26px, 3vw, 38px); }
+.ff-emailpage--dambrosio .ff-email-success-top, .ff-emailpage--carroll .ff-email-success-top { padding-bottom: clamp(30px, 3.6vw, 46px); }
+.ff-emailpage--dambrosio .ff-email-success-top .ff-lede, .ff-emailpage--carroll .ff-email-success-top .ff-lede { margin-bottom: 0; }
+.ff-emailpage--dambrosio .ff-email-success, .ff-emailpage--carroll .ff-email-success { padding-top: clamp(26px, 3vw, 38px); }
 
 /* Amount buttons on an even grid so every tier is the same size, with Other as
    a peer rather than a text link hanging off the bottom. flex with `1 1 auto`
    sized the last row's buttons to fill the row, so $550 and $1500 came out
    twice the width of the rest. */
-.ff-emailpage--dambrosio .ff-email-donate-chips {
+.ff-emailpage--dambrosio .ff-email-donate-chips, .ff-emailpage--carroll .ff-email-donate-chips {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
-.ff-emailpage--dambrosio .ff-email-donate-chip {
+.ff-emailpage--dambrosio .ff-email-donate-chip, .ff-emailpage--carroll .ff-email-donate-chip {
   flex: none;
   min-width: 0;
   display: grid;
   place-items: center;
   text-decoration: none;
 }
-.ff-emailpage--dambrosio .ff-email-donate-chip--other {
+.ff-emailpage--dambrosio .ff-email-donate-chip--other, .ff-emailpage--carroll .ff-email-donate-chip--other {
   background: transparent;
   color: var(--ff-navy);
   border: 2px solid var(--ff-navy);
   box-shadow: none;
 }
-.ff-emailpage--dambrosio .ff-email-donate-chip--other:hover {
+.ff-emailpage--dambrosio .ff-email-donate-chip--other:hover, .ff-emailpage--carroll .ff-email-donate-chip--other:hover {
   background: var(--ff-navy);
   color: #fff;
 }
 @media (max-width: 560px) {
-  .ff-emailpage--dambrosio .ff-email-donate-chips { grid-template-columns: repeat(2, 1fr); }
+  .ff-emailpage--dambrosio .ff-email-donate-chips,
+  .ff-emailpage--carroll .ff-email-donate-chips { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* Keep the Minister in frame on narrow screens, where the crop would otherwise
    push her out of the viewport entirely and leave a flat navy block. */
 @media (max-width: 860px) {
-  .ff-emailpage--dambrosio .ff-email-hero {
+  .ff-emailpage--dambrosio .ff-email-hero,
+  .ff-emailpage--carroll .ff-email-hero {
     /* A phone's hero is taller than it is wide; stretching a 2:1 photo into
        that would distort her badly, so this breakpoint crops instead. */
     background-size: cover;
@@ -2816,9 +2824,11 @@ img { max-width: 100%; display: block; }
      HEIGHT, not width — 240px of dead space under the rewrite button. Scoped
      to this campaign; /askjess carries the same bug and is deliberately
      untouched. */
-  .ff-emailpage--dambrosio .ff-email-rewrite-help { flex: 0 0 auto; }
+  .ff-emailpage--dambrosio .ff-email-rewrite-help,
+  .ff-emailpage--carroll .ff-email-rewrite-help { flex: 0 0 auto; }
   /* Long recipient names overflow a nowrap button at phone widths. */
-  .ff-emailpage--dambrosio .ff-email-send .ff-btn {
+  .ff-emailpage--dambrosio .ff-email-send .ff-btn,
+  .ff-emailpage--carroll .ff-email-send .ff-btn {
     white-space: normal;
     line-height: 1.25;
     padding-top: 14px;
@@ -3189,8 +3199,10 @@ img { max-width: 100%; display: block; }
    the letterbox never happens. */
 .ff-twin-media { height: clamp(112px, 11vw, 150px); flex: 0 0 auto; background: var(--ff-navy); overflow: hidden; }
 .ff-twin-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* The portrait is a face, not a scene: hold it high in the crop. */
-.ff-twin-card--red .ff-twin-media img { object-position: center 22%; }
+/* The campaign panel's image is a scene (farmer at his gate), so the default
+   centred crop is right. When a portrait goes back in, hold it high again
+   with object-position: center 22%. */
+.ff-twin-card--red .ff-twin-media img { object-position: center 45%; }
 /* The event image is a designed poster, not a photograph. Cropping it to the
    letterbox lopped off the wordmark and the date band, so it is fitted whole
    against its own cream instead. */

@@ -1222,13 +1222,13 @@ function TwinPromos() {
     {
       key: "demand",
       eyebrow: "The Intimidation Files",
-      title: "Demand D'Ambrosio apologise",
-      lede: "She wrote the laws that put farming families through it, and has never apologised.",
+      title: "Demand the Premier apologise",
+      lede: "D'Ambrosio resigned. The system that targeted farmers didn't. Premier Ben Carroll owes farming families an apology and an investigation.",
       facts: ["Ten first-hand accounts", "Takes 10 seconds"],
       cta: "Demand justice",
       href: "/demand",
-      img: "assets/uploads/dambrosio-hero.jpg",
-      alt: "Lily D'Ambrosio",
+      img: "assets/uploads/stories/story-1.jpg",
+      alt: "A farmer at his gate at dusk, police lights on the road beyond",
       tone: "red",
     },
   ];
@@ -3691,6 +3691,41 @@ const FFB_CAMPAIGNS = {
     donateHeading: "They have billions. We need you.",
     donateLede: "Emails put it on the record. Financial support keeps the pressure on until she apologises. Every dollar goes to giving Aussie farmers a voice and building our movement.",
   },
+  // D'Ambrosio resigned (30 July 2026) without apologising, so the campaign
+  // moves up the chain to the Premier. The resignation is framed as a blip:
+  // the laws, the department and its conduct all remain. The ask is a pincer
+  // Carroll can't slide between: apologise and order an independent
+  // investigation, or deny the targeting on the record over his own name.
+  carroll: {
+    id: "carroll",
+    sessionKey: "ffb_session_id_carroll",
+    recipientsUrl: "content/carroll-recipients.json",
+    variationsUrl: "content/carroll-variations.json",
+    utmCampaign: "demand-carroll",
+    hideNav: true,
+    campaignCopy: "correspondence@farmersfightback.com",
+    campaignCopyMode: "cc",
+    storiesUrl: "content/dambrosio-stories.json",
+    storiesCta: "Demand justice",
+    // Interim art until the Premier's photo arrives; same hero treatment
+    // takes over the moment assets/uploads/carroll-hero.jpg replaces this.
+    heroImage: "assets/uploads/fight-police-farmers.jpg",
+    heroEyebrow: "D'AMBROSIO RESIGNED. HER SYSTEM DIDN'T.",
+    heroHeading: "Premier Carroll: apologise to Aussie farmers, and investigate.",
+    heroLede: <>Lily D'Ambrosio resigned rather than answer for what was done to farming families. Nothing else changed. Her laws are still in force, her department is still using the same tactics on the same families, and nobody has apologised. The Premier owns it now.</>,
+    heroDemands: ["Apologise to every farming family his government targeted.", "Order an independent investigation into the targeting of farmers.", "Or deny it on the record: tell Victorians farmers were never targeted."],
+    heroNudge: "A resignation is not justice. Put your name to it. It takes 10 seconds.",
+    heroCta: "Demand justice",
+    editorLede: "Firm, direct and on the record: take a moment to review your email. You can generate a new version by clicking 'Say it my way'",
+    recipientsLabel: (n) => (n === 1
+      ? <>This email goes straight to the Premier:</>
+      : <>This email goes to {n} recipients:</>),
+    sendLabel: "Send your demand to Premier Carroll",
+    successHeading: "Sent. Now the Premier has to choose.",
+    successLede: "Premiers count correspondence. One email is a letter; thousands are a problem he cannot file away. Your name is now on the record: apologise and investigate, or deny it over his own signature. Pass this page to a mate and make it impossible to ignore.",
+    donateHeading: "They have billions. We need you.",
+    donateLede: "Emails put it on the record. Financial support keeps the pressure on until farmers get the apology and the investigation. Every dollar goes to giving Aussie farmers a voice and building our movement.",
+  },
 };
 
 // Horizontally scrolled story panels. The scroller itself is a plain
@@ -5053,6 +5088,7 @@ function App() {
   else if (page === "share") view = <ShareThanksPage />;
   else if (page === "send-email") view = <SendEmailPage campaign={FFB_CAMPAIGNS.askjess} />;
   else if (page === "demand-dambrosio") view = <SendEmailPage campaign={FFB_CAMPAIGNS.dambrosio} />;
+  else if (page === "demand-carroll") view = <SendEmailPage campaign={FFB_CAMPAIGNS.carroll} />;
   else if (page === "webinar") view = <WebinarPage />;
   else if (page === "question") view = <QuestionPage />;
   else view = <HomePage />;

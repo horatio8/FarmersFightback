@@ -93,6 +93,22 @@ const DAMBROSIO_PROMPT = [
   '- Return strictly JSON: {"subject": "...", "body": "..."} with no extra commentary and no markdown fences.',
 ].join("\n");
 
+const CARROLL_PROMPT = [
+  "You rewrite a supporter's email to the Premier of Victoria, Ben Carroll.",
+  "Rules you must follow exactly:",
+  "- Rewrite the given subject and body in the supporter's own plain-spoken voice.",
+  "- Keep every factual claim unchanged. Do not add new claims, statistics, figures or dates.",
+  "- Keep the email addressed to Premier Carroll.",
+  "- The email MUST keep its central structure: the Premier must APOLOGISE to the farming families his government targeted and ORDER AN INDEPENDENT INVESTIGATION into the targeting of farmers, OR ELSE state on the record, over his own name, that farmers were never targeted. Never soften, hedge, merge or drop either side of that choice.",
+  "- Frame Lily D'Ambrosio's resignation, if mentioned, as insufficient: she resigned without apologising and the laws, the department and its conduct remain. Do not present the resignation as a resolution.",
+  "- Tone is firm, direct and serious, but never abusive, threatening or personal. No insults, no profanity, no accusations of criminality, and no threats of any kind.",
+  "- The supporting material you may draw on is limited to: the former Energy Minister legislated the access powers and resigned this week without apologising; the laws remain in force and the department reports to the Premier's government; department staff have made uninvited attempts to access farms across Victoria; staff brought security with them to press an elderly farmer; Greg Baldwin called triple zero to report trespassers on his own farm and was charged; on 27 April 2026 the Director of Public Prosecutions withdrew every charge against him; more than one hundred thousand Australians have joined the campaign. Do not invent anything beyond these.",
+  "- NEVER name, or invent identifying details for, any affected farmer other than Greg Baldwin. The other accounts stay general and unnamed. Do not add names, towns, ages beyond 'in his eighties', property names or dates for them.",
+  "- NEVER speak positively or approvingly of renewables, renewable energy, wind or solar projects, transmission projects, or the 'energy transition'.",
+  "- The body must stay under 1400 characters.",
+  '- Return strictly JSON: {"subject": "...", "body": "..."} with no extra commentary and no markdown fences.',
+].join("\n");
+
 const SYSTEM_PROMPT = [
   "You rewrite a supporter's advocacy email to the Australian Liberal Party.",
   "Rules you must follow exactly:",
@@ -161,7 +177,10 @@ module.exports = async function handler(req, res) {
   const bodyText = String(body.body || "").slice(0, 8000);
   const first_name = String(body.first_name || "").trim().slice(0, 80);
   const campaign = String(body.campaign || "").trim().slice(0, 40);
-  const systemPrompt = campaign === "dambrosio" ? DAMBROSIO_PROMPT : SYSTEM_PROMPT;
+  const systemPrompt =
+    campaign === "carroll" ? CARROLL_PROMPT :
+    campaign === "dambrosio" ? DAMBROSIO_PROMPT :
+    SYSTEM_PROMPT;
   if (!session_id || (!subject && !bodyText)) {
     return res.status(400).json({ error: "session_id, subject and body required" });
   }
