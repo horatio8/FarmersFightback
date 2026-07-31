@@ -3710,10 +3710,10 @@ const FFB_CAMPAIGNS = {
     // Interim art until the Premier's photo arrives; same hero treatment
     // takes over the moment assets/uploads/carroll-hero.jpg replaces this.
     heroImage: "assets/uploads/fight-police-farmers.jpg",
-    heroEyebrow: "D'AMBROSIO RESIGNED. HER SYSTEM DIDN'T.",
-    heroHeading: "Premier Carroll: apologise to Aussie farmers, and investigate.",
-    heroLede: <>Lily D'Ambrosio resigned rather than answer for what was done to farming families. Nothing else changed. Her laws are still in force, her department is still using the same tactics on the same families, and nobody has apologised. The Premier owns it now.</>,
-    heroDemands: ["Apologise to every farming family his government targeted.", "Order an independent investigation into the targeting of farmers.", "Or deny it on the record: tell Victorians farmers were never targeted."],
+    heroEyebrow: "D'AMBROSIO RESIGNED. HER SYSTEM STILL TARGETS FARMERS.",
+    heroHeading: "Premier Carroll: apologise for targeting Aussie farmers, and investigate.",
+    heroLede: <>Lily D'Ambrosio resigned rather than answer for what was done to farming families, and she will not be used as a scapegoat. This was an attempt by the Government of Victoria to target farmers, and nothing will wash that clean. Her laws are still in force, her department is still using the same tactics, and nobody has apologised. The Premier owns it now.</>,
+    heroDemands: ["Apologise to every farming family his government targeted.", "Order an independent investigation into the targeting of farmers."],
     heroNudge: "A resignation is not justice. Put your name to it. It takes 10 seconds.",
     heroCta: "Demand justice",
     editorLede: "Firm, direct and on the record: take a moment to review your email. You can generate a new version by clicking 'Say it my way'",
@@ -3721,8 +3721,8 @@ const FFB_CAMPAIGNS = {
       ? <>This email goes straight to the Premier:</>
       : <>This email goes to {n} recipients:</>),
     sendLabel: "Send your demand to Premier Carroll",
-    successHeading: "Sent. Now the Premier has to choose.",
-    successLede: "Premiers count correspondence. One email is a letter; thousands are a problem he cannot file away. Your name is now on the record: apologise and investigate, or deny it over his own signature. Pass this page to a mate and make it impossible to ignore.",
+    successHeading: "Sent. Now the Premier has to answer.",
+    successLede: "Premiers count correspondence. One email is a letter; thousands are a problem he cannot file away. Your name is now on the record demanding the Premier apologise and investigate. Pass this page to a mate and make it impossible to ignore.",
     donateHeading: "They have billions. We need you.",
     donateLede: "Emails put it on the record. Financial support keeps the pressure on until farmers get the apology and the investigation. Every dollar goes to giving Aussie farmers a voice and building our movement.",
   },
