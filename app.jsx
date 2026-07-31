@@ -3700,7 +3700,8 @@ const FFB_CAMPAIGNS = {
     id: "carroll",
     sessionKey: "ffb_session_id_carroll",
     recipientsUrl: "content/carroll-recipients.json",
-    variationsUrl: "content/carroll-variations.json",
+    // ?v= busts browser caches when the approved email set changes.
+    variationsUrl: "content/carroll-variations.json?v=2",
     utmCampaign: "demand-carroll",
     hideNav: true,
     campaignCopy: "correspondence@farmersfightback.com",
