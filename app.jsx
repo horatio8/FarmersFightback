@@ -4192,8 +4192,11 @@ function SendEmailPage({ campaign }) {
   // "Other" opens a custom amount inline and goes to Stripe from here. It used
   // to link to /donate, which threw the supporter out of the page mid-action
   // and made them start the donation over on a different layout.
+  // Same $2..$50,000 window /api/checkout enforces. Without the ceiling the
+  // button stays live, Stripe rejects the session, and goDonate's catch quietly
+  // drops the donor on the generic payment link instead of telling them why.
   const customAmt = Number(donateCustom) || 0;
-  const customReady = customAmt >= 2 && donateBusy == null;
+  const customReady = customAmt >= 2 && customAmt <= 50000 && donateBusy == null;
   const goCustom = () => { if (customReady) goDonate(customAmt); };
 
   // One donate block, rendered both under the story rail and on the
@@ -4229,7 +4232,7 @@ function SendEmailPage({ campaign }) {
           <div className="ff-email-donate-field">
             <span className="ff-email-donate-dollar" aria-hidden="true">$</span>
             <input
-              type="number" min="2" step="1" inputMode="decimal" placeholder="Amount"
+              type="number" min="2" max="50000" step="1" inputMode="decimal" placeholder="Amount"
               aria-label="Enter your own donation amount in dollars"
               value={donateCustom} autoFocus
               onChange={(e) => setDonateCustom(e.target.value)}
