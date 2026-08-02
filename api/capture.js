@@ -215,8 +215,17 @@ module.exports = async function handler(req, res) {
     const mSendClicked = patch.send_clicked !== undefined ? patch.send_clicked : cur.send_clicked === true;
     const transitionedToSent = mSendClicked === true && cur.send_clicked !== true;
 
+    // matchOrCreateContact has no empty-input guard: with no identity it falls
+    // through to the create branch and writes a Contact with nothing but a
+    // generated id. Before the send path existed the only caller condition was
+    // transitionedToComplete, which requires first + last + email, so that
+    // could never happen. send_clicked can arrive without identity (a replayed
+    // or malformed POST to this public beacon), so the completeness check has
+    // to be explicit rather than implied by the trigger.
+    const identityKnown = !!(mFirst && mLast && mEmail);
+
     let contactRecordId = null;
-    if (transitionedToComplete || transitionedToSent) {
+    if ((transitionedToComplete || transitionedToSent) && identityKnown) {
       try {
         const { record } = await matchOrCreateContact({
           first_name: mFirst,
