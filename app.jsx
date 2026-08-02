@@ -3705,7 +3705,7 @@ const FFB_CAMPAIGNS = {
     utmCampaign: "demand-carroll",
     hideNav: true,
     campaignCopy: "correspondence@farmersfightback.com",
-    campaignCopyMode: "cc",
+    campaignCopyMode: "bcc",
     storiesUrl: "content/dambrosio-stories.json",
     storiesCta: "Demand justice",
     // Interim art until the Premier's photo arrives; same hero treatment
@@ -3836,12 +3836,15 @@ function SendEmailPage({ campaign }) {
   const camp = campaign || FFB_CAMPAIGNS.askjess;
   // Address that receives a copy of every supporter email, so we can see what
   // is actually being sent. campaignCopyMode decides how it rides along:
-  //   "to" — appended to the To line (askjess's original behaviour)
-  //   "cc" — a real cc= parameter, leaving one address in To
+  //   "to"  — appended to the To line (askjess's original behaviour)
+  //   "cc"  — a real cc= parameter, leaving one address in To
+  //   "bcc" — a bcc= parameter, so the recipient never sees the campaign
+  //           address and the email reads as one person writing alone
   // Two comma-joined addresses in a mailto To line is a known failure mode in
   // several desktop mail clients, which silently do nothing on click.
   const CAMPAIGN_COPY = camp.campaignCopy || "correspondence@mail.farmersfightback.com";
-  const COPY_AS_CC = camp.campaignCopyMode === "cc";
+  const COPY_MODE = camp.campaignCopyMode || "to";
+  const COPY_OFF_TO = COPY_MODE === "cc" || COPY_MODE === "bcc";
   const sessionId = React.useRef(null);
   if (!sessionId.current) {
     let s = "";
@@ -3932,11 +3935,11 @@ function SendEmailPage({ campaign }) {
     scheduleCapture();
   };
 
-  // The To line. In cc mode the campaign copy is kept out of it and passed as
-  // cc= instead, so the Minister is the single visible addressee.
+  // The To line. In cc/bcc mode the campaign copy is kept out of it and passed
+  // as its own parameter, so the recipient is the single visible addressee.
   const recipientEmails = () => {
     const to = recipients.map(r => r.email).filter(Boolean);
-    return (COPY_AS_CC ? to : to.concat(CAMPAIGN_COPY)).join(",");
+    return (COPY_OFF_TO ? to : to.concat(CAMPAIGN_COPY)).join(",");
   };
 
   // Build a FULL snapshot of the current form (no seq). Invalid/partial values
@@ -4122,8 +4125,8 @@ function SendEmailPage({ campaign }) {
 
     const fb = composeBody();
     const emails = recipientEmails();
-    const ccParam = COPY_AS_CC ? `cc=${encodeURIComponent(CAMPAIGN_COPY)}&` : "";
-    const mailto = `mailto:${emails}?${ccParam}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
+    const copyParam = COPY_OFF_TO ? `${COPY_MODE}=${encodeURIComponent(CAMPAIGN_COPY)}&` : "";
+    const mailto = `mailto:${emails}?${copyParam}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fb)}`;
 
     // Fire-and-forget: flag the send without blocking the mail client. Full
     // snapshot + seq via the coalescing sender, keepalive so it survives the
@@ -4149,11 +4152,12 @@ function SendEmailPage({ campaign }) {
 
   const pageUrl = (typeof window !== "undefined")
     ? `${window.location.origin}${window.location.pathname}` : "";
-  // The webmail fallbacks need the cc spelled out too, or the campaign copy is
-  // silently dropped for anyone who composes that way.
-  const ccQs = COPY_AS_CC ? `&cc=${encodeURIComponent(CAMPAIGN_COPY)}` : "";
-  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}${ccQs}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
-  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}${ccQs}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  // The webmail fallbacks need the copy spelled out too, or the campaign
+  // address is silently dropped for anyone who composes that way. Gmail and
+  // Outlook both accept bcc= on their compose deeplinks.
+  const copyQs = COPY_OFF_TO ? `&${COPY_MODE}=${encodeURIComponent(CAMPAIGN_COPY)}` : "";
+  const gmailUrl = () => `https://mail.google.com/mail/?view=cm&fs=1&to=${sentData.recipients}${copyQs}&su=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
+  const outlookUrl = () => `https://outlook.office.com/mail/deeplink/compose?to=${sentData.recipients}${copyQs}&subject=${encodeURIComponent(sentData.subject)}&body=${encodeURIComponent(sentData.body)}`;
   const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
 
   const recipientCount = recipients.length;

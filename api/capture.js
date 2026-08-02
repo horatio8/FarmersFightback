@@ -15,15 +15,23 @@
 // pushes them to Campaign Nucleus (tagged email_action_vni). Both are
 // best-effort and never fail the request.
 //
+// On the transition to `send_clicked` (once per session) it writes an
+// "Email Action Sent" row to the Events table, linked to that Contact, so an
+// email action appears on the same timeline as their petition signature and
+// donations. Signups stays the campaign ledger; Events is the cross-funnel
+// record. Also best-effort.
+//
 // Env: AIRTABLE_API_KEY, AIRTABLE_BASE_ID (via ./_airtable), CN_API_KEY (via
 // ./_cn). Honeypot + a small per-instance per-IP rate limit guard the route.
 
 const {
-  findOne, createRow, updateRow, nowIso, normEmail, normPhone, matchOrCreateContact,
+  findOne, createRow, updateRow, nowIso, normEmail, normPhone, matchOrCreateContact, logEvent,
 } = require("./_airtable");
 const { cnProfileMatch } = require("./_cn");
 
 const SIGNUPS_TABLE = process.env.AIRTABLE_SIGNUPS_TABLE || "Signups";
+// Written with typecast on, so Airtable creates the select option on first use.
+const EMAIL_ACTION_EVENT = "Email Action Sent";
 
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",
@@ -196,20 +204,61 @@ module.exports = async function handler(req, res) {
     if (existing) await updateRow(SIGNUPS_TABLE, existing.id, patch);
     else await createRow(SIGNUPS_TABLE, { session_id, ...patch });
 
-    // Once per session, on the transition to complete, drop the supporter into
-    // the Contacts identity ladder. Dedupes on the ladder and only bumps the
-    // public signature counter for genuinely new contacts. Never fails the req.
-    if (transitionedToComplete) {
+    // On the transition to complete, drop the supporter into the Contacts
+    // identity ladder. Dedupes on the ladder and only bumps the public
+    // signature counter for genuinely new contacts. Never fails the request.
+    //
+    // The same block runs on the send transition, because the contact record
+    // id is what links the Events row below. Send and complete usually land in
+    // the same request (the client flushes identity and send_clicked together)
+    // so the ladder is normally hit once, and it is idempotent regardless.
+    const mSendClicked = patch.send_clicked !== undefined ? patch.send_clicked : cur.send_clicked === true;
+    const transitionedToSent = mSendClicked === true && cur.send_clicked !== true;
+
+    let contactRecordId = null;
+    if (transitionedToComplete || transitionedToSent) {
       try {
-        await matchOrCreateContact({
+        const { record } = await matchOrCreateContact({
           first_name: mFirst,
           last_name: mLast,
           email: mEmail,
           mobile: patch.mobile !== undefined ? patch.mobile : cur.mobile,
           source_channel: "Other",
         });
+        contactRecordId = record && record.id;
       } catch (e) {
         console.error("capture matchOrCreateContact failed:", e.message);
+      }
+    }
+
+    // Once per session, when the supporter actually fires their email, write it
+    // to the Events timeline so an email action sits alongside that contact's
+    // petition signature and donations. Signups remains the campaign ledger;
+    // this is the cross-funnel record.
+    //
+    // fanout: false because there is no typed projection table for email
+    // actions. Without it every one of these would be flagged "No Typed Table",
+    // which is the marker for events that failed to project when they should
+    // have, and the flag would stop being a useful signal.
+    if (transitionedToSent && contactRecordId) {
+      try {
+        await logEvent({
+          contactRecordId,
+          event_type: EMAIL_ACTION_EVENT,
+          source_channel: "Other",
+          payload: {
+            source: "email_action",
+            campaign: utm_campaign !== undefined ? utm_campaign : (cur.utm_campaign || ""),
+            session_id,
+            variation_shown: patch.variation_shown !== undefined ? patch.variation_shown : (cur.variation_shown || null),
+            subject: patch.sent_subject !== undefined ? patch.sent_subject : (cur.sent_subject || ""),
+            ai_rewrite_used: patch.ai_rewrite_used !== undefined ? patch.ai_rewrite_used : (cur.ai_rewrite_used === true),
+            contact: { first_name: mFirst, last_name: mLast, email: mEmail },
+          },
+          fanout: false,
+        });
+      } catch (e) {
+        console.error("capture logEvent failed:", e.message);
       }
     }
 
