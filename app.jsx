@@ -3875,6 +3875,9 @@ function SendEmailPage({ campaign }) {
   // only the tapped chip shows its busy state.
   const donor = useContent().donorPage || {};
   const [donateBusy, setDonateBusy] = useState(null);
+  // "Other" amount, entered inline rather than by bouncing out to /donate.
+  const [donateOther, setDonateOther] = useState(false);
+  const [donateCustom, setDonateCustom] = useState("");
   // Back from Stripe (bfcache restore) must clear the stuck chip.
   useBfcacheReset(() => setDonateBusy(null));
 
@@ -4186,6 +4189,13 @@ function SendEmailPage({ campaign }) {
     }
   };
 
+  // "Other" opens a custom amount inline and goes to Stripe from here. It used
+  // to link to /donate, which threw the supporter out of the page mid-action
+  // and made them start the donation over on a different layout.
+  const customAmt = Number(donateCustom) || 0;
+  const customReady = customAmt >= 2 && donateBusy == null;
+  const goCustom = () => { if (customReady) goDonate(customAmt); };
+
   // One donate block, rendered both under the story rail and on the
   // confirmation screen — same amounts, same handler, same Stripe path.
   const donateBlock = donorTiers.length > 0 ? (
@@ -4205,8 +4215,38 @@ function SendEmailPage({ campaign }) {
             {donateBusy === t.amount ? "One moment…" : `$${t.amount}`}
           </button>
         ))}
-        <a className="ff-email-donate-chip ff-email-donate-chip--other" href="/donate">Other</a>
+        <button
+          type="button"
+          className={"ff-email-donate-chip ff-email-donate-chip--other" + (donateOther ? " is-on" : "")}
+          aria-expanded={donateOther}
+          onClick={() => setDonateOther(v => !v)}
+        >
+          Other
+        </button>
       </div>
+      {donateOther && (
+        <div className="ff-email-donate-custom">
+          <div className="ff-email-donate-field">
+            <span className="ff-email-donate-dollar" aria-hidden="true">$</span>
+            <input
+              type="number" min="2" step="1" inputMode="decimal" placeholder="Amount"
+              aria-label="Enter your own donation amount in dollars"
+              value={donateCustom} autoFocus
+              onChange={(e) => setDonateCustom(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); goCustom(); } }}
+            />
+          </div>
+          <button
+            type="button"
+            className="ff-email-donate-chip ff-email-donate-go"
+            disabled={!customReady}
+            aria-busy={donateBusy === customAmt && customAmt > 0}
+            onClick={goCustom}
+          >
+            {donateBusy != null && donateBusy === customAmt ? "One moment…" : "Donate"}
+          </button>
+        </div>
+      )}
     </div>
   ) : null;
 

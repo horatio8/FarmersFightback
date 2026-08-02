@@ -2645,6 +2645,64 @@ img { max-width: 100%; display: block; }
   background: var(--ff-navy);
   color: #fff;
 }
+/* Selected state, so it is obvious which chip opened the field below. */
+.ff-emailpage--dambrosio .ff-email-donate-chip--other.is-on, .ff-emailpage--carroll .ff-email-donate-chip--other.is-on {
+  background: var(--ff-navy);
+  color: #fff;
+}
+
+/* Custom amount: entered here and sent to Stripe from here, rather than
+   bouncing the supporter out to /donate mid-action. */
+.ff-email-donate-custom {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+.ff-email-donate-field {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ff-email-donate-dollar {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  /* Match the input exactly, or the prefix and the typed figure sit on
+     different baselines. */
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--ff-navy);
+  pointer-events: none;
+}
+.ff-email-donate-field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px 10px 28px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ff-navy);
+  background: #fff;
+  border: 1.5px solid var(--ff-rule-2);
+  border-radius: 10px;
+}
+.ff-email-donate-field input:focus {
+  outline: 0;
+  border-color: var(--ff-navy);
+  box-shadow: 0 0 0 3px rgba(18,53,75,.12);
+}
+/* Strip the spinner: it implies stepping through amounts one dollar at a
+   time, and it crowds the field on small screens. */
+.ff-email-donate-field input::-webkit-outer-spin-button,
+.ff-email-donate-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ff-email-donate-field input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.ff-email-donate-go { flex: 0 0 auto; min-width: 120px; }
+.ff-email-donate-go:disabled { opacity: .45; cursor: default; }
+@media (max-width: 420px) {
+  .ff-email-donate-custom { flex-wrap: wrap; }
+  .ff-email-donate-go { width: 100%; }
+}
 @media (max-width: 560px) {
   .ff-emailpage--dambrosio .ff-email-donate-chips,
   .ff-emailpage--carroll .ff-email-donate-chips { grid-template-columns: repeat(2, 1fr); }
