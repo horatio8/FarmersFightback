@@ -68,7 +68,13 @@ module.exports = async function handler(req, res) {
     }
 
     // Hit — resume or start the response.
-    let response = await S.findResponse(uid, survey.slug);
+    //
+    // Look up by the contact's OWN uid, not the string from the URL. Responses
+    // link to contacts by their primary field, so a referral code arriving in
+    // lower case would miss every existing response and open a second one for
+    // the same person on every visit.
+    const contactUid = (contact.fields && contact.fields.uid) || uid;
+    let response = await S.findResponse(contactUid, survey.slug);
     if (!response) {
       response = await S.createResponse({
         contactRecordId: contact.id,
