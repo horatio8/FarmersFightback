@@ -257,6 +257,28 @@ function trueKnownFrom(contactFields) {
 // an opt-in they never gave. Anything where the two differ is skipped from the
 // flow but left unanswered, which is what the client did before this moved
 // server-side.
+// The inverse, applied on the way out. seedKnownAnswers writes the real value
+// into the stored response, and bootstrapPayload echoes stored answers back so
+// a supporter can resume — which would hand the browser the exact value the
+// masking exists to hide, one visit later.
+//
+// Safe to strip because these questions are skipped from the flow entirely:
+// the client never renders them, so it never needs their value. Only fields we
+// actually know are removed. If the contact record has no postcode, the
+// question IS asked, and whatever the supporter typed is echoed normally so
+// resume still works.
+function stripKnownAnswers(survey, contactFields, answered) {
+  const truth = trueKnownFrom(contactFields);
+  const out = { ...(answered || {}) };
+  (survey.screens || []).forEach((s) => {
+    const key = s.skip_if_known;
+    if (!key || !s.field || s.field !== key) return;
+    if (truth[key] == null) return;
+    delete out[s.field];
+  });
+  return out;
+}
+
 function seedKnownAnswers(survey, contactFields, answered) {
   const truth = trueKnownFrom(contactFields);
   const out = { ...(answered || {}) };
@@ -277,11 +299,11 @@ function bootstrapPayload({ survey, client, contactRecord, response }) {
   let answered = {};
   const raw = (response && response.fields && response.fields.raw_json) || "";
   if (raw) { try { answered = JSON.parse(raw) || {}; } catch { answered = {}; } }
-  // Deliberately NOT seeding skipped-but-known answers here. `answered` is
-  // echoed to the browser for resume, so seeding at bootstrap would hand back
-  // the real postcode and undo the masking two lines below. Seeding happens in
-  // complete.js instead, at write time, where the value goes to Airtable and
-  // nowhere else.
+  // Skipped-but-known answers are seeded in complete.js, at write time, so the
+  // real value reaches Airtable without passing through the browser. They then
+  // live in raw_json, and this payload echoes raw_json for resume — so strip
+  // them back out on the way to the client.
+  answered = stripKnownAnswers(survey, cf, answered);
 
   return {
     ok: true,
@@ -308,6 +330,7 @@ module.exports = {
   knownFrom,
   trueKnownFrom,
   seedKnownAnswers,
+  stripKnownAnswers,
   bootstrapPayload,
   getSurvey,
   getClient,
