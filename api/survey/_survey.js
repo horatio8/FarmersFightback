@@ -254,10 +254,11 @@ function bootstrapPayload({ survey, client, contactRecord, response }) {
   let answered = {};
   const raw = (response && response.fields && response.fields.raw_json) || "";
   if (raw) { try { answered = JSON.parse(raw) || {}; } catch { answered = {}; } }
-  // Skipped-but-known answers are filled here, from the record, before the
-  // client ever sees the response. It used to do this itself from `known`,
-  // which now holds masks.
-  answered = seedKnownAnswers(survey, cf, answered);
+  // Deliberately NOT seeding skipped-but-known answers here. `answered` is
+  // echoed to the browser for resume, so seeding at bootstrap would hand back
+  // the real postcode and undo the masking two lines below. Seeding happens in
+  // complete.js instead, at write time, where the value goes to Airtable and
+  // nowhere else.
 
   return {
     ok: true,

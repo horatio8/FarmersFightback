@@ -32,23 +32,32 @@ module.exports = async function handler(req, res) {
     if (rf.raw_json) { try { stored = JSON.parse(rf.raw_json) || {}; } catch { stored = {}; } }
     const merged = { ...stored, ...answers };
 
-    // uid lives on the contact, not the response; pull it for UTM/variant tagging.
+    // uid lives on the contact, not the response; pull it for UTM/variant
+    // tagging, and for the real field values we skipped asking for.
     let contactUid = "";
+    let contactFields = {};
     const contactId = Array.isArray(rf.contact) ? rf.contact[0] : null;
     if (contactId) {
       try {
         const c = await S.findOne(S.SURVEY_CONTACTS, `RECORD_ID()='${S.esc(contactId)}'`);
-        contactUid = (c && c.fields && c.fields.uid) || "";
+        contactFields = (c && c.fields) || {};
+        contactUid = contactFields.uid || "";
       } catch (e) { console.error("complete uid lookup:", e.message); }
     }
 
-    const ctx = { uid: contactUid, src: rf.src || "web", campaign: rf.campaign_code || "survey" };
-    const outcome = evaluateAsk(survey, merged, ctx);
+    // Fill answers for questions we skipped because the record already had
+    // them. Done here rather than at bootstrap so the real value reaches
+    // Airtable without passing through the browser, which only ever holds
+    // masks. A real answer from the supporter always wins.
+    const withKnown = S.seedKnownAnswers(survey, contactFields, merged);
 
-    const columns = S.answersToColumns(survey, merged);
+    const ctx = { uid: contactUid, src: rf.src || "web", campaign: rf.campaign_code || "survey" };
+    const outcome = evaluateAsk(survey, withKnown, ctx);
+
+    const columns = S.answersToColumns(survey, withKnown);
     const patch = {
       ...columns,
-      raw_json: JSON.stringify(merged).slice(0, 95000),
+      raw_json: JSON.stringify(withKnown).slice(0, 95000),
       ask_variant_shown: outcome.id,
     };
     // Only flip to complete the first time.
