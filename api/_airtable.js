@@ -66,27 +66,63 @@ function escapeFormula(s) {
   return String(s).replace(/'/g, "\\'");
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Airtable allows 5 requests per second per base. A burst of supporters
+// clicking the same emailed link at the same moment blows straight through
+// that, and every one of them got a 500. Measured against production: 20
+// concurrent requests produced 4 rate-limit failures.
+//
+// Backoff is short and jittered because the limit is per SECOND — the window
+// has usually reopened by the first retry. Jitter matters: without it, every
+// rejected request retries in lockstep and rebuilds the same spike.
+//
+// What is safe to retry:
+//   429      always. The request was rejected before Airtable processed it,
+//            so there is nothing to duplicate.
+//   5xx      GET only. A write that 500s may have partly applied, and
+//            replaying it could create a second contact or a second event.
+const RETRY_DELAYS_MS = [200, 600, 1400];
+
+function jitter(ms) {
+  return ms + Math.floor(Math.random() * (ms / 2));
+}
+
 async function atFetch(path, opts = {}) {
   if (!BASE || !KEY) {
     const err = new Error("AIRTABLE_BASE_ID or AIRTABLE_API_KEY not set");
     err.code = "MISCONFIGURED";
     throw err;
   }
-  const r = await fetch(`${API}/${BASE}/${path}`, {
-    ...opts,
-    headers: {
-      Authorization: `Bearer ${KEY}`,
-      "Content-Type": "application/json",
-      ...(opts.headers || {}),
-    },
-  });
-  if (!r.ok) {
+  const method = (opts.method || "GET").toUpperCase();
+  const idempotent = method === "GET";
+
+  for (let attempt = 0; ; attempt++) {
+    // eslint-disable-next-line no-await-in-loop
+    const r = await fetch(`${API}/${BASE}/${path}`, {
+      ...opts,
+      headers: {
+        Authorization: `Bearer ${KEY}`,
+        "Content-Type": "application/json",
+        ...(opts.headers || {}),
+      },
+    });
+    if (r.ok) return r.json();
+
+    const retryable = r.status === 429 || (idempotent && r.status >= 500);
+    if (retryable && attempt < RETRY_DELAYS_MS.length) {
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(jitter(RETRY_DELAYS_MS[attempt]));
+      continue;
+    }
+
+    // eslint-disable-next-line no-await-in-loop
     const body = await r.text().catch(() => "");
     const err = new Error(`Airtable ${r.status}: ${body.slice(0, 500)}`);
     err.status = r.status;
+    if (attempt > 0) err.attempts = attempt + 1;
     throw err;
   }
-  return r.json();
 }
 
 async function findOne(tableName, formula) {
