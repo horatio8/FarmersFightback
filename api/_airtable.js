@@ -540,6 +540,30 @@ async function listRows(tableName, { formula, fields, maxRecords, sort } = {}) {
   return out;
 }
 
+// One page, with Airtable's cursor handed back to the caller.
+//
+// listRows() above collapses pagination and returns everything, which is what
+// almost every caller wants. A long-running job that has to survive a
+// serverless execution limit needs the opposite: take a page, do the slow work,
+// come back later with the cursor. Passing `offset` to listRows does nothing —
+// it seeds its own loop — so this exists rather than a flag that silently
+// changes that function's return shape.
+//
+// → { records, offset } where offset is undefined on the last page.
+async function listPage(tableName, { formula, fields, pageSize = 100, sort, offset } = {}) {
+  const params = new URLSearchParams();
+  if (formula) params.set("filterByFormula", formula);
+  params.set("pageSize", String(Math.min(100, Math.max(1, pageSize))));
+  (fields || []).forEach((f) => params.append("fields[]", f));
+  (sort || []).forEach((s, i) => {
+    params.set(`sort[${i}][field]`, s.field);
+    params.set(`sort[${i}][direction]`, s.direction || "asc");
+  });
+  if (offset) params.set("offset", offset);
+  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`);
+  return { records: r.records || [], offset: r.offset };
+}
+
 async function createRow(tableName, fields) {
   const r = await atFetch(encodeURIComponent(tableName), {
     method: "POST",
@@ -572,6 +596,7 @@ module.exports = {
   nowIso,
   findOne,
   listRows,
+  listPage,
   createRow,
   updateRow,
 };

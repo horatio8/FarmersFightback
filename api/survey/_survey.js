@@ -8,7 +8,9 @@
 // Adding a survey = one line in SURVEYS; adding a client = one line in CLIENTS.
 
 const crypto = require("crypto");
-const { findOne, listRows, createRow, updateRow, uuid, nowIso, normEmail, normPhone } = require("../_airtable");
+const { findOne, listRows, createRow, updateRow, uuid, nowIso, normEmail, normPhone,
+  findContactByReferralCode } = require("../_airtable");
+const { maskRecord } = require("../_mask");
 
 const SURVEY_CONTACTS = process.env.SURVEY_CONTACTS_TABLE || "Survey Contacts";
 const SURVEY_RESPONSES = process.env.SURVEY_RESPONSES_TABLE || "Survey Responses";
@@ -89,6 +91,39 @@ async function findContactByUid(uid) {
   if (!u) return null;
   return findOne(SURVEY_CONTACTS, `{uid}='${esc(u)}'`);
 }
+
+// Adopt a uid that is really a CRM referral code.
+//
+// The tokenised link carries whatever sits in the CN profile's
+// FarmersFightback_UID field, which we populate with the contact's
+// referral_code. The first time such a link is opened there is no Survey
+// Contact yet, so mirror the CRM record into one keyed by that same code. From
+// then on findContactByUid() hits directly and this never runs again.
+//
+// Returns null when the code matches nobody, which the caller treats exactly
+// like a bad token: the neutral capture screen, no enumeration signal.
+async function adoptContactByReferralCode(code) {
+  const c = String(code || "").trim();
+  if (!c) return null;
+  const crm = await findContactByReferralCode(c);
+  if (!crm) return null;
+
+  const f = crm.fields || {};
+  // Store the code as the uid so the link keeps working and one link serves
+  // both survey identity and referral attribution.
+  return createSurveyContact({
+    uid: c.toUpperCase(),
+    first_name: f.first_name || undefined,
+    last_name: f.last_name || undefined,
+    email: f.email || undefined,
+    mobile: f.mobile || undefined,
+    postcode: f.postcode || undefined,
+    token_source: "crm",
+    cn_profile_ref: f.contact_id || undefined,
+    created_at: nowIso(),
+    last_seen_at: nowIso(),
+  });
+}
 async function findSurveyContactByEmail(email) {
   const e = normEmail(email);
   if (!e) return null;
@@ -157,14 +192,59 @@ function answersToColumns(survey, answers) {
   return out;
 }
 
-// Known contact data used for greeting + skip_if_known. Only non-empty values.
+const KNOWN_FIELDS = ["first_name", "last_name", "email", "mobile", "postcode"];
+
+// Known contact data used for the greeting and for skip_if_known. Values are
+// MASKED — the browser never receives the real ones.
+//
+// The token in the link is a bearer credential, and a referral code is one that
+// supporters post publicly, so anyone holding a link is treated as its owner.
+// Masking is what keeps that from being worth exploiting: a guessed or forwarded
+// link yields "J***s" and "*******882", not a supporter record.
+//
+// Presence still carries the meaning it always did. A masked value is non-empty
+// exactly when the real one was, so the client's isKnown() check is unchanged
+// and skip_if_known keeps working without ever seeing a real value.
 function knownFrom(contactFields) {
+  return maskRecord(contactFields || {}, KNOWN_FIELDS);
+}
+
+// The real values, server-side only. Used to seed answers for questions we skip
+// because we already know them — the client cannot do this any more, since all
+// it holds is the mask, and writing "3***" into someone's postcode answer would
+// corrupt the response.
+function trueKnownFrom(contactFields) {
   const cf = contactFields || {};
-  const known = {};
-  ["first_name", "last_name", "email", "mobile", "postcode"].forEach((k) => {
-    if (cf[k] != null && String(cf[k]).trim() !== "") known[k] = String(cf[k]).trim();
+  const out = {};
+  KNOWN_FIELDS.forEach((k) => {
+    if (cf[k] != null && String(cf[k]).trim() !== "") out[k] = String(cf[k]).trim();
   });
-  return known;
+  return out;
+}
+
+// Answers for skipped-but-known questions, merged server-side into whatever the
+// response already holds. Only fills gaps: a real answer the supporter gave
+// always wins over the value on their contact record.
+//
+// Seeding is deliberately limited to screens whose answer field IS the known
+// field (B1: field "postcode", skip_if_known "postcode"). B3 skips on
+// skip_if_known "mobile" but answers into "mobile_optin", an SMS consent
+// flag — knowing someone's number is not consent to text them, and writing
+// their number in as the answer would both mistype the field and manufacture
+// an opt-in they never gave. Anything where the two differ is skipped from the
+// flow but left unanswered, which is what the client did before this moved
+// server-side.
+function seedKnownAnswers(survey, contactFields, answered) {
+  const truth = trueKnownFrom(contactFields);
+  const out = { ...(answered || {}) };
+  (survey.screens || []).forEach((s) => {
+    const key = s.skip_if_known;
+    if (!key || !s.field || s.field !== key) return;
+    if (truth[key] == null) return;
+    if (out[s.field] != null && String(out[s.field]).trim() !== "") return;
+    out[s.field] = truth[key];
+  });
+  return out;
 }
 
 // The one bootstrap object resolve.js and capture.js both return, so a
@@ -174,6 +254,11 @@ function bootstrapPayload({ survey, client, contactRecord, response }) {
   let answered = {};
   const raw = (response && response.fields && response.fields.raw_json) || "";
   if (raw) { try { answered = JSON.parse(raw) || {}; } catch { answered = {}; } }
+  // Skipped-but-known answers are filled here, from the record, before the
+  // client ever sees the response. It used to do this itself from `known`,
+  // which now holds masks.
+  answered = seedKnownAnswers(survey, cf, answered);
+
   return {
     ok: true,
     slug: survey.slug,
@@ -183,7 +268,8 @@ function bootstrapPayload({ survey, client, contactRecord, response }) {
     copy: client.copy,
     cap: client.donation,
     needs_capture: false,
-    contact: { name: cf.first_name || "", known: knownFrom(cf) },
+    // `name` greets them and is masked like everything else: "G'day J***s."
+    contact: { name: knownFrom(cf).first_name || "", known: knownFrom(cf) },
     response_id: (response && response.fields && response.fields.response_id) || null,
     status: (response && response.fields && response.fields.status) || "in_progress",
     answered,
@@ -196,6 +282,8 @@ module.exports = {
   SURVEY_CONTACTS,
   SURVEY_RESPONSES,
   knownFrom,
+  trueKnownFrom,
+  seedKnownAnswers,
   bootstrapPayload,
   getSurvey,
   getClient,
@@ -206,6 +294,7 @@ module.exports = {
   applyCors,
   readBody,
   findContactByUid,
+  adoptContactByReferralCode,
   findSurveyContactByEmail,
   createSurveyContact,
   touchContact,

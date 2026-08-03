@@ -86,9 +86,12 @@ function App() {
 
   function startFrom(b) {
     responseId.current = b.response_id;
+    // `known` holds MASKED values ("J***s", "3***"). It is display and
+    // presence only — never seed an answer from it, or the mask gets saved as
+    // the supporter's real answer. The server fills skipped-but-known answers
+    // into b.answered from the contact record before we get here.
     const kn = (b.contact && b.contact.known) || {};
     const seeded = { ...(b.answered || {}) };
-    if (kn.postcode && !seeded.postcode) seeded.postcode = kn.postcode; // skipped-but-known
     setBoot(b); setKnown(kn); setAnswers(seeded);
     const fl = buildFlow(b.survey, kn);
     setFlow(fl);

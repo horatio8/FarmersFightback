@@ -44,8 +44,20 @@ async function cnFetch(path, body, method = "POST") {
   }
 }
 
+// The CRM custom field (Settings > CRM) whose alias backs the email merge tag
+// %recipient.FarmersFightback_UID%. We populate it with the contact's
+// referral_code so one value serves as both the survey link token and the
+// referral attribution code.
+//
+// Probed against production: custom fields are set as a TOP-LEVEL key on the
+// profile body, not nested under `fields` — sending `fields: {…}` is accepted
+// with a 200 but silently leaves the column null. They come back on read under
+// the same top-level key. /profiles/match both matches and updates it.
+const CN_UID_FIELD = "FarmersFightback_UID";
+
 // Match-or-create a CN profile. `profile` uses CN's field names:
-// first_name, last_name, email, mobile/phone, zip, tags[], custom1..10.
+// first_name, last_name, email, mobile/phone, zip, tags[], custom1..10, plus
+// any CRM custom field alias as a top-level key.
 // POST per the documented contract; PUT fallback in case a tenant router
 // answers 405 (the internal web API does).
 async function cnProfileMatch(profile) {
@@ -54,10 +66,25 @@ async function cnProfileMatch(profile) {
   return out;
 }
 
+// Set (or refresh) a contact's survey/referral UID on their CN profile.
+// Best-effort like everything else here: never throws, returns the raw result.
+function cnSetUid({ first_name, last_name, email, mobile, uid }) {
+  if (!uid || (!email && !mobile)) {
+    return Promise.resolve({ skipped: true, reason: "uid and an email or mobile required" });
+  }
+  return cnProfileMatch({
+    first_name: first_name || undefined,
+    last_name: last_name || undefined,
+    email: email || undefined,
+    mobile: mobile || undefined,
+    [CN_UID_FIELD]: String(uid).toUpperCase(),
+  });
+}
+
 // Drop a profile into a CN automation (fires its email sequence).
 function cnAutomationAdd(automationId, profile) {
   if (!automationId) return Promise.resolve({ skipped: true, reason: "no automation id" });
   return cnFetch(`/automations/${encodeURIComponent(automationId)}/profiles`, profile);
 }
 
-module.exports = { cnFetch, cnProfileMatch, cnAutomationAdd };
+module.exports = { cnFetch, cnProfileMatch, cnAutomationAdd, cnSetUid, CN_UID_FIELD };

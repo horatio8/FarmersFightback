@@ -11,10 +11,18 @@
 // is misconfigured.
 
 const S = require("./_survey");
+const rateLimit = require("./_ratelimit");
 
 module.exports = async function handler(req, res) {
   if (!S.applyCors(req, res)) return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
+
+  // Token resolution is the one endpoint worth grinding, so cap it.
+  const rl = rateLimit.check(req);
+  if (!rl.ok) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
+    return res.status(429).json({ error: "Too many requests" });
+  }
 
   const body = S.readBody(req);
   const survey = S.getSurvey(body.slug);
@@ -32,6 +40,10 @@ module.exports = async function handler(req, res) {
     // Guard against absurd inputs before hitting Airtable; treat as a miss.
     if (hadUid && uid.length <= 64 && /^[A-Za-z0-9_-]+$/.test(uid)) {
       contact = await S.findContactByUid(uid);
+      // Miss: the uid may be a CRM referral code arriving from a CN email's
+      // %recipient.FarmersFightback_UID% merge tag, on its first ever click.
+      // Mirror the CRM record into a Survey Contact and carry on as a hit.
+      if (!contact) contact = await S.adoptContactByReferralCode(uid);
     }
 
     if (!contact) {
