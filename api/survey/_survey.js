@@ -102,9 +102,23 @@ async function findContactByUid(uid) {
 //
 // Returns null when the code matches nobody, which the caller treats exactly
 // like a bad token: the neutral capture screen, no enumeration signal.
+// Referral codes are 6 characters (8 on the rare collision fallback) from the
+// unambiguous alphabet in _airtable.js — no 0/1/I/L/O. Legacy survey uids are
+// 14 character base64url, so the two shapes never collide.
+//
+// Checking the shape first means a junk or legacy uid costs one Airtable
+// lookup, not two. That matters under burst load: the base is rate limited, and
+// doubling reads on every miss is exactly the wrong thing to do on the endpoint
+// most worth grinding.
+const REFERRAL_SHAPE = /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6,8}$/i;
+
+function looksLikeReferralCode(s) {
+  return REFERRAL_SHAPE.test(String(s || "").trim());
+}
+
 async function adoptContactByReferralCode(code) {
   const c = String(code || "").trim();
-  if (!c) return null;
+  if (!c || !looksLikeReferralCode(c)) return null;
   const crm = await findContactByReferralCode(c);
   if (!crm) return null;
 
@@ -305,6 +319,7 @@ module.exports = {
   readBody,
   findContactByUid,
   adoptContactByReferralCode,
+  looksLikeReferralCode,
   findSurveyContactByEmail,
   createSurveyContact,
   touchContact,
