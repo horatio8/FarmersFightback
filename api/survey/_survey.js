@@ -108,11 +108,20 @@ async function adoptContactByReferralCode(code) {
   const crm = await findContactByReferralCode(c);
   if (!crm) return null;
 
+  // Referral codes are case-insensitive (findContactByReferralCode uppercases)
+  // but the Survey Contacts uid lookup is exact, because legacy uids are
+  // case-sensitive base64url. So "zztst7" misses the row stored as "ZZTST7"
+  // and lands here. Without this check it would mint a duplicate contact and a
+  // duplicate response every time a link arrived in different case.
+  const upper = c.toUpperCase();
+  const existing = await findContactByUid(upper);
+  if (existing) return existing;
+
   const f = crm.fields || {};
   // Store the code as the uid so the link keeps working and one link serves
   // both survey identity and referral attribution.
   return createSurveyContact({
-    uid: c.toUpperCase(),
+    uid: upper,
     first_name: f.first_name || undefined,
     last_name: f.last_name || undefined,
     email: f.email || undefined,
