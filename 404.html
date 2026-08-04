@@ -4,56 +4,165 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
-  <!-- Redirect runs before anything paints, so a mistyped URL lands on the
-       petition rather than a dead end. replace() rather than href: the broken
-       URL never enters history, so Back returns where they came from instead
-       of bouncing them through here again. -->
-  <script>
-    (function () {
-      var to = "/take-action/hold-the-gate#sign";
-      try { window.location.replace(to); }
-      catch (e) { window.location.href = to; }
-    })();
-  </script>
-  <!-- Fallback for no-JS. Longer than the script path so the text is readable. -->
-  <meta http-equiv="refresh" content="3;url=/take-action/hold-the-gate#sign"/>
-
   <title>Page not found — Farmers Fightback</title>
-  <meta name="description" content="That page could not be found. Taking you to the Hold the Gate petition."/>
+  <meta name="description" content="That page could not be found. Head to the Hold the Gate petition, or tell us about the broken link."/>
   <meta name="robots" content="noindex"/>
   <meta name="theme-color" content="#12354B"/>
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
   <link rel="alternate icon" href="/assets/logo.png"/>
 
-  <!-- Styles inlined and paths absolute: this page answers for URLs at any
-       depth, where a relative stylesheet link would resolve to nothing. -->
+  <!-- Styles inlined and asset paths absolute: this page answers for URLs at
+       any depth, where a relative stylesheet link resolves to nothing. -->
   <style>
-    :root { --navy:#12354B; --red:#C62828; --paper:#fdfcf8; --ink:#1a1f24; --muted:#6b7580; }
+    :root { --navy:#12354B; --red:#C62828; --paper:#fdfcf8; --ink:#1a1f24; --muted:#6b7580; --rule:#e6e6e3; }
     * { box-sizing:border-box; }
     html,body { margin:0; padding:0; }
     body {
-      min-height:100vh; display:flex; align-items:center; justify-content:center;
-      background:var(--paper); color:var(--ink); text-align:center; padding:2rem 1.25rem;
+      min-height:100vh; background:var(--paper); color:var(--ink);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
       line-height:1.5;
     }
-    .wrap { max-width:32rem; }
+
+    /* Reporting bar. Shows the visitor exactly which address failed, so a
+       mistyped or truncated link is self-evident before they do anything. */
+    .bar { background:var(--navy); color:#e8eef3; padding:.9rem 1.25rem; }
+    .bar-in { max-width:56rem; margin:0 auto; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem 1rem; }
+    .bar-txt { margin:0; font-size:.9rem; min-width:0; flex:1 1 22rem; }
+    .bar-lbl { display:block; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; opacity:.72; margin-bottom:.15rem; }
+    /* The dead path can be arbitrarily long; wrap it rather than let it force
+       the page into a horizontal scroll on a phone. */
+    .bar-url {
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.85rem;
+      word-break:break-all; overflow-wrap:anywhere; color:#fff;
+    }
+    .bar-act { flex:0 0 auto; }
+    .report {
+      background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5);
+      font:inherit; font-size:.85rem; font-weight:600; padding:.5rem 1rem;
+      border-radius:.3rem; cursor:pointer;
+    }
+    .report:hover:not(:disabled), .report:focus-visible { background:rgba(255,255,255,.14); }
+    .report:disabled { cursor:default; opacity:.85; border-style:solid; }
+    .report[data-state="sent"] { border-color:rgba(255,255,255,.28); }
+
+    .main { display:flex; align-items:center; justify-content:center; padding:3.5rem 1.25rem; text-align:center; }
+    .wrap { max-width:34rem; }
     .code { font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 .75rem; }
-    h1 { font-size:1.5rem; line-height:1.25; margin:0 0 .75rem; color:var(--navy); }
-    p { margin:0 0 1.5rem; color:var(--muted); }
+    h1 { font-size:1.6rem; line-height:1.25; margin:0 0 .75rem; color:var(--navy); }
+    .lede { margin:0 0 1.75rem; color:var(--muted); }
     a.btn {
       display:inline-block; background:var(--red); color:#fff; text-decoration:none;
-      font-weight:700; padding:.8rem 1.5rem; border-radius:.35rem;
+      font-weight:700; padding:.85rem 1.6rem; border-radius:.35rem;
     }
     a.btn:hover, a.btn:focus { background:var(--navy); }
+    .meta { margin:1.5rem 0 0; font-size:.85rem; color:var(--muted); min-height:1.5em; }
+    .meta button {
+      background:none; border:0; padding:0; font:inherit; color:var(--muted);
+      text-decoration:underline; cursor:pointer;
+    }
+    @media (max-width:36rem) { .bar-act { width:100%; } .report { width:100%; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <p class="code">Page not found</p>
-    <h1>That page has moved or never existed.</h1>
-    <p>Taking you to the Hold the Gate petition.</p>
-    <a class="btn" href="/take-action/hold-the-gate#sign">Go to the petition</a>
+  <div class="bar">
+    <div class="bar-in">
+      <p class="bar-txt">
+        <span class="bar-lbl">This link is broken</span>
+        <span class="bar-url" id="dead-url">&nbsp;</span>
+      </p>
+      <div class="bar-act">
+        <button type="button" class="report" id="report-btn" data-state="idle">Let us know</button>
+      </div>
+    </div>
   </div>
+
+  <div class="main">
+    <div class="wrap">
+      <p class="code">Page not found</p>
+      <h1>That page has moved or never existed.</h1>
+      <p class="lede">Nothing was lost. The petition is still open, and it takes ten seconds.</p>
+      <a class="btn" href="/take-action/hold-the-gate#sign">Go to the petition</a>
+      <p class="meta" id="meta"></p>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var DEST = "/take-action/hold-the-gate#sign";
+    var DELAY = 15;
+
+    // Show the address that failed. textContent, never innerHTML: the path is
+    // attacker-controlled, and echoing it as markup would make this page a
+    // reflected-XSS sink on every unmatched URL on the site.
+    var dead = location.pathname + location.search;
+    document.getElementById("dead-url").textContent = dead;
+
+    var metaEl = document.getElementById("meta");
+    var btn = document.getElementById("report-btn");
+    var timer = null, left = DELAY, cancelled = false;
+
+    function stop(msg) {
+      if (cancelled) return;
+      cancelled = true;
+      if (timer) { clearInterval(timer); timer = null; }
+      metaEl.textContent = msg || "";
+    }
+
+    // Auto-forward is a convenience, not a trap. Any sign the visitor is
+    // actually reading or acting cancels it, so nobody gets yanked off the
+    // page mid-click. Without this the report button would be unusable.
+    ["pointerdown", "keydown", "wheel", "touchstart"].forEach(function (ev) {
+      window.addEventListener(ev, function () { stop("Staying put. Use the button above when you're ready."); }, { once: true, passive: true });
+    });
+
+    function tick() {
+      if (cancelled) return;
+      if (left <= 0) {
+        clearInterval(timer);
+        // replace(), not href: the dead URL never enters history, so Back
+        // returns where they came from instead of bouncing them through here.
+        location.replace(DEST);
+        return;
+      }
+      metaEl.innerHTML = "";
+      metaEl.appendChild(document.createTextNode("Taking you to the petition in " + left + "s. "));
+      var c = document.createElement("button");
+      c.type = "button";
+      c.textContent = "Stay here";
+      c.onclick = function () { stop(""); };
+      metaEl.appendChild(c);
+      left--;
+    }
+    tick();
+    timer = setInterval(tick, 1000);
+
+    btn.addEventListener("click", function () {
+      if (btn.dataset.state !== "idle") return;
+      stop("");
+      btn.dataset.state = "sending";
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+
+      // keepalive so the report still goes out if they navigate away mid-flight.
+      fetch("/api/report-broken-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: dead, referrer: document.referrer || null }),
+        keepalive: true
+      }).then(function (r) {
+        if (!r.ok) throw new Error("bad status " + r.status);
+        btn.dataset.state = "sent";
+        btn.textContent = "Thanks — reported";
+        metaEl.textContent = "We'll chase it up. Thanks for flagging it.";
+      }).catch(function () {
+        // Never leave them stuck on "Sending…" — re-arm so they can retry.
+        btn.dataset.state = "idle";
+        btn.disabled = false;
+        btn.textContent = "Let us know";
+        metaEl.textContent = "That didn't send. Please try again.";
+      });
+    });
+  })();
+  </script>
 </body>
 </html>
