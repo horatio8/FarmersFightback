@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <!-- Redirect runs before anything paints, so a mistyped URL lands on the
+       petition rather than a dead end. replace() rather than href: the broken
+       URL never enters history, so Back returns where they came from instead
+       of bouncing them through here again. -->
+  <script>
+    (function () {
+      var to = "/take-action/hold-the-gate#sign";
+      try { window.location.replace(to); }
+      catch (e) { window.location.href = to; }
+    })();
+  </script>
+  <!-- Fallback for no-JS. Longer than the script path so the text is readable. -->
+  <meta http-equiv="refresh" content="3;url=/take-action/hold-the-gate#sign"/>
+
+  <title>Page not found — Farmers Fightback</title>
+  <meta name="description" content="That page could not be found. Taking you to the Hold the Gate petition."/>
+  <meta name="robots" content="noindex"/>
+  <meta name="theme-color" content="#12354B"/>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="alternate icon" href="/assets/logo.png"/>
+
+  <!-- Styles inlined and paths absolute: this page answers for URLs at any
+       depth, where a relative stylesheet link would resolve to nothing. -->
+  <style>
+    :root { --navy:#12354B; --red:#C62828; --paper:#fdfcf8; --ink:#1a1f24; --muted:#6b7580; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; padding:0; }
+    body {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background:var(--paper); color:var(--ink); text-align:center; padding:2rem 1.25rem;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      line-height:1.5;
+    }
+    .wrap { max-width:32rem; }
+    .code { font-size:.75rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 .75rem; }
+    h1 { font-size:1.5rem; line-height:1.25; margin:0 0 .75rem; color:var(--navy); }
+    p { margin:0 0 1.5rem; color:var(--muted); }
+    a.btn {
+      display:inline-block; background:var(--red); color:#fff; text-decoration:none;
+      font-weight:700; padding:.8rem 1.5rem; border-radius:.35rem;
+    }
+    a.btn:hover, a.btn:focus { background:var(--navy); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="code">Page not found</p>
+    <h1>That page has moved or never existed.</h1>
+    <p>Taking you to the Hold the Gate petition.</p>
+    <a class="btn" href="/take-action/hold-the-gate#sign">Go to the petition</a>
+  </div>
+</body>
+</html>
