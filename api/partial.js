@@ -82,13 +82,24 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, closed: open.length });
     }
 
-    // CN gets the partial immediately (tagged); custom1 carries the ts.
+    // CN gets the partial immediately, marked by the tag alone.
+    //
+    // This used to also write `custom1: partial_ts:<iso>`. It must not: in this
+    // tenant the CRM custom field aliased FarmersFightback_UID *is* the custom1
+    // slot, and that field backs the %recipient.FarmersFightback_UID% merge tag
+    // the tokenised survey link is built from. Every partial capture was
+    // overwriting the supporter's survey token with a timestamp, so the link
+    // resolved to nothing and dropped them on the identity capture screen.
+    //
+    // Nothing read the timestamp back. The 30-minute lapse clock runs off the
+    // Lapse Queue row created below (its own created_at), not off CN, and the
+    // `${form}_partial` tag is what CN-side automations key on.
+    //
     // Concurrent with the Airtable write below, awaited before we respond.
     const cnp = cnProfileMatch({
       email: email || undefined, mobile: mobile || undefined,
       first_name, last_name, zip: postcode,
       tags: [`${form}_partial`],
-      custom1: `partial_ts:${nowIso()}`,
     }).catch(() => {});
 
     // One pending lapse row per identity+form (client also gates per
