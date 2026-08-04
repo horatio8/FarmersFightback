@@ -2875,6 +2875,22 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 8px 24px rgba(0,0,0,.25);
 }
 
+/* "Demand Premier Carroll stops targeting farmers" is far longer than the
+   labels .ff-btn's white-space:nowrap was written for. On a phone the text ran
+   straight out of both sides of the button and was clipped mid-word.
+   Unset at every width rather than only at the phone breakpoint: the label
+   also outgrows the button on a narrow tablet, and where there is room it
+   stays on one line anyway. */
+.ff-emailpage--carroll .ff-email-hero .ff-btn,
+.ff-emailpage--carroll .ff-stories-act .ff-btn,
+.ff-emailpage--carroll .ff-stories-ctl > .ff-btn {
+  white-space: normal;
+  line-height: 1.25;
+  /* nowrap buttons never needed a limit; a wrapping one does, or a long word
+     still pushes the box wider than its column. */
+  max-width: 100%;
+}
+
 @media (max-width: 560px) {
   .ff-email-rewrite { flex-direction: column; align-items: stretch; }
   .ff-email-rewrite .ff-btn { width: 100%; min-height: 48px; }
@@ -2891,6 +2907,14 @@ img { max-width: 100%; display: block; }
     line-height: 1.25;
     padding-top: 14px;
     padding-bottom: 14px;
+  }
+  /* Two lines inside .ff-btn--lg's 17px padding reads cramped, and the tighter
+     side padding buys back room so the label needs fewer lines. */
+  .ff-emailpage--carroll .ff-email-hero .ff-btn,
+  .ff-emailpage--carroll .ff-stories-act .ff-btn,
+  .ff-emailpage--carroll .ff-stories-ctl > .ff-btn {
+    padding: 14px 16px;
+    font-size: 15px;
   }
   .ff-email-fallback-btns .ff-btn, .ff-email-share .ff-btn { flex: 1 1 100%; min-height: 48px; }
   /* Hero CTA + nudge */
@@ -3306,7 +3330,13 @@ img { max-width: 100%; display: block; }
 .ff-twin-card--gold .ff-twin-eyebrow { color: #9a7411; }
 /* Pin the action to the bottom so both cards' buttons line up whatever the
    copy length. */
-.ff-twin-cta { margin-top: auto; align-self: flex-start; padding: 12px 20px; font-size: 15px; }
+/* align-self:flex-start sizes this to its label, so with .ff-btn's nowrap a
+   long CTA runs straight out of the card. Wrap instead, and cap it at the
+   card width. */
+.ff-twin-cta {
+  margin-top: auto; align-self: flex-start; padding: 12px 20px; font-size: 15px;
+  white-space: normal; line-height: 1.25; max-width: 100%; text-align: center;
+}
 
 @media (max-width: 820px) {
   .ff-twin-grid { grid-template-columns: 1fr; }
