@@ -1222,10 +1222,10 @@ function TwinPromos() {
     {
       key: "demand",
       eyebrow: "The Intimidation Files",
-      title: "Demand the Premier apologise",
-      lede: "D'Ambrosio resigned. The system that targeted farmers didn't. Premier Ben Carroll owes farming families an apology and an investigation.",
+      title: "Demand the Premier stops targeting farmers",
+      lede: "A farmer fined for refusing entry during lambing. D'Ambrosio resigned; the targeting didn't stop. Premier Ben Carroll can end it, apologise, and open an investigation.",
       facts: ["Ten first-hand accounts", "Takes 10 seconds"],
-      cta: "Demand justice",
+      cta: "Demand he stops",
       href: "/demand",
       img: "assets/uploads/stories/story-1.jpg",
       alt: "A farmer at his gate at dusk, police lights on the road beyond",
@@ -3693,39 +3693,44 @@ const FFB_CAMPAIGNS = {
   },
   // D'Ambrosio resigned (30 July 2026) without apologising, so the campaign
   // moves up the chain to the Premier. The resignation is framed as a blip:
-  // the laws, the department and its conduct all remain. The ask is a pincer
-  // Carroll can't slide between: apologise and order an independent
-  // investigation, or deny the targeting on the record over his own name.
+  // the laws, the department and its conduct all remain, and the fine issued
+  // during lambing is the proof it is still happening under a new Minister.
+  //
+  // The lead ask is STOP, not sorry. An apology is about the past and is easy
+  // to wait out; "stop" is about conduct that is still going on, so silence
+  // reads as a refusal rather than as a delay. Sorry and the investigation
+  // follow it — a pincer Carroll can't slide between without either acting or
+  // denying the targeting on the record over his own name.
   carroll: {
     id: "carroll",
     sessionKey: "ffb_session_id_carroll",
     recipientsUrl: "content/carroll-recipients.json",
     // ?v= busts browser caches when the approved email set changes.
-    variationsUrl: "content/carroll-variations.json?v=2",
+    variationsUrl: "content/carroll-variations.json?v=3",
     utmCampaign: "demand-carroll",
     hideNav: true,
     campaignCopy: "correspondence@farmersfightback.com",
     campaignCopyMode: "bcc",
     storiesUrl: "content/dambrosio-stories.json",
-    storiesCta: "Demand justice",
+    storiesCta: "Demand he stops",
     // Interim art until the Premier's photo arrives; same hero treatment
     // takes over the moment assets/uploads/carroll-hero.jpg replaces this.
     heroImage: "assets/uploads/fight-police-farmers.jpg",
-    heroEyebrow: "D'AMBROSIO RESIGNED. HER SYSTEM STILL TARGETS FARMERS.",
-    heroHeading: "Premier Carroll: apologise for targeting Aussie farmers, and investigate.",
-    heroLede: <>Lily D'Ambrosio resigned rather than answer for what was done to farming families, and she will not be used as a scapegoat. This was an attempt by the Government of Victoria to target farmers, and nothing will wash that clean. Her laws are still in force, her department is still using the same tactics, and nobody has apologised. The Premier owns it now.</>,
-    heroDemands: ["Apologise to every farming family his government targeted.", "Order an independent investigation into the targeting of farmers."],
-    heroNudge: "A resignation is not justice. Put your name to it. It takes 10 seconds.",
-    heroCta: "Demand justice",
+    heroEyebrow: "D'AMBROSIO RESIGNED. THE TARGETING DIDN'T STOP.",
+    heroHeading: "Premier Carroll: stop targeting Aussie farmers.",
+    heroLede: <>A farmer has just been fined for refusing to let department staff onto his land in the middle of lambing. That is where this Government's priorities sit. Lily D'Ambrosio is gone, and not one thing has changed: her laws are still in force, her department still answers to this Government, and the new Energy Minister Jaclyn Symes has carried on exactly where D'Ambrosio left off. A resignation changed the name on the door. It did not stop the targeting. The Premier owns this now.</>,
+    heroDemands: ["Stop targeting farming families. Now.", "Apologise to every family his government has put through it.", "Order an independent investigation, and make the findings public."],
+    heroNudge: "One Minister went. The targeting didn't. Put your name to it — it takes 10 seconds.",
+    heroCta: "Demand he stops",
     editorLede: "Firm, direct and on the record: take a moment to review your email. You can generate a new version by clicking 'Say it my way'",
     recipientsLabel: (n) => (n === 1
       ? <>This email goes straight to the Premier:</>
       : <>This email goes to {n} recipients:</>),
     sendLabel: "Send your demand to Premier Carroll",
     successHeading: "Sent. Now the Premier has to answer.",
-    successLede: "Premiers count correspondence. One email is a letter; thousands are a problem he cannot file away. Your name is now on the record demanding the Premier apologise and investigate. Pass this page to a mate and make it impossible to ignore.",
+    successLede: "Premiers count correspondence. One email is a letter; thousands are a problem he cannot file away. Your name is now on the record telling the Premier to stop targeting farmers, apologise, and open an independent investigation. Pass this page to a mate and make it impossible to ignore.",
     donateHeading: "They have billions. We need you.",
-    donateLede: "Emails put it on the record. Financial support keeps the pressure on until farmers get the apology and the investigation. Every dollar goes to giving Aussie farmers a voice and building our movement.",
+    donateLede: "Emails put it on the record. Financial support keeps the pressure on until the targeting stops and farmers get the apology and the investigation. Every dollar goes to giving Aussie farmers a voice and building our movement.",
   },
 };
 
