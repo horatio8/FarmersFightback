@@ -29,7 +29,7 @@
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
-    { "source": "/demand",      "destination": "/demandcarroll",        "permanent": false },
+    { "source": "/demand",      "destination": "/demandcarroll#ff-email-form", "permanent": false },
     { "source": "/demanddambrosio", "destination": "/demandcarroll",    "permanent": false },
     { "source": "/demandvid",   "destination": "/demandcarroll#video",  "permanent": false },
     { "source": "/finish",      "destination": "/won",                  "permanent": false },
