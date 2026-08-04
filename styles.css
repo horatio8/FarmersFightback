@@ -2875,9 +2875,10 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 8px 24px rgba(0,0,0,.25);
 }
 
-/* Facebook's plugin iframe reports a fixed size, so the ratio is held by the
-   wrapper and the iframe is stretched to fill it. Without this the embed
-   renders at its own 560x314 and overflows the column on a phone. */
+/* The embed carries fixed width/height attributes, so the ratio is held by the
+   wrapper and the iframe stretched to fill it. Without this it renders at its
+   own 560x315 and overflows the column on a phone. 16:9 at every width, which
+   is the source aspect, so the player letterboxes at no size. */
 .ff-video { background: var(--ff-navy); color: #fff; }
 .ff-video .ff-h2 { color: #fff; }
 .ff-video .ff-lede { color: rgba(255,255,255,.82); }
@@ -2895,8 +2896,6 @@ img { max-width: 100%; display: block; }
 .ff-video-fallback a { color: #fff; text-decoration: underline; }
 .ff-video-act { margin-top: 22px; }
 @media (max-width: 560px) {
-  /* Portrait phone: a 16:9 box is a letterbox strip, so give it more height. */
-  .ff-video-frame { aspect-ratio: 4 / 3; }
   .ff-video-act .ff-btn { width: 100%; white-space: normal; line-height: 1.25; max-width: 100%; padding: 14px 16px; }
 }
 

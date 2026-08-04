@@ -3715,12 +3715,14 @@ const FFB_CAMPAIGNS = {
     storiesCta: "Demand Premier Carroll stops targeting farmers",
     // Sits at the foot of the page; /demandvid redirects to #video and the
     // hash effect below scrolls to it once React has mounted the node.
-    // Facebook's own plugin iframe, so no FB SDK and no third-party script on
-    // the page. The fallback link matters: the plugin renders nothing for a
-    // visitor whose browser or extensions block facebook.com, and without it
-    // they would just see an empty box.
+    //
+    // The id is stored on its own so the player and the "watch on YouTube"
+    // fallback are built from one value and cannot drift apart. That fallback
+    // is not decoration: the iframe renders nothing for a visitor whose
+    // network or extensions block youtube.com, and an empty box reads as a
+    // broken page.
     video: {
-      href: "https://www.facebook.com/share/v/1D3MehG1VG/",
+      youtubeId: "tRzqhDqvPiw",
       eyebrow: "WATCH",
       heading: "See it for yourself.",
       lede: "Then tell the Premier to stop.",
@@ -4528,19 +4530,21 @@ function SendEmailPage({ campaign }) {
             <h2 className="ff-h2">{camp.video.heading}</h2>
             {camp.video.lede && <p className="ff-lede">{camp.video.lede}</p>}
             <div className="ff-video-frame">
+              {/* youtube-nocookie serves the identical player but sets no
+                  tracking cookie unless the visitor actually presses play. */}
               <iframe
-                src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(camp.video.href)}&show_text=false&width=560&height=314`}
+                src={`https://www.youtube-nocookie.com/embed/${camp.video.youtubeId}`}
                 title={camp.video.heading}
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
                 loading="lazy"
                 frameBorder="0"
-                scrolling="no"
               />
             </div>
             <p className="ff-video-fallback">
               Can&rsquo;t see the video?{" "}
-              <a href={camp.video.href} target="_blank" rel="noopener noreferrer">Watch it on Facebook</a>.
+              <a href={`https://www.youtube.com/watch?v=${camp.video.youtubeId}`} target="_blank" rel="noopener noreferrer">Watch it on YouTube</a>.
             </p>
             <div className="ff-video-act">
               <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={goToForm}>
