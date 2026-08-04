@@ -31,6 +31,7 @@
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
     { "source": "/demand",      "destination": "/demandcarroll",        "permanent": false },
     { "source": "/demanddambrosio", "destination": "/demandcarroll",    "permanent": false },
+    { "source": "/demandvid",   "destination": "/demandcarroll#video",  "permanent": false },
     { "source": "/finish",      "destination": "/won",                  "permanent": false },
     { "source": "/fun",         "destination": "/fundraiser",           "permanent": false },
     { "source": "/baldwin",     "destination": "/take-action/baldwins", "permanent": false },

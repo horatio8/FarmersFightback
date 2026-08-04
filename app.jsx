@@ -3713,6 +3713,18 @@ const FFB_CAMPAIGNS = {
     campaignCopyMode: "bcc",
     storiesUrl: "content/dambrosio-stories.json",
     storiesCta: "Demand Premier Carroll stops targeting farmers",
+    // Sits at the foot of the page; /demandvid redirects to #video and the
+    // hash effect below scrolls to it once React has mounted the node.
+    // Facebook's own plugin iframe, so no FB SDK and no third-party script on
+    // the page. The fallback link matters: the plugin renders nothing for a
+    // visitor whose browser or extensions block facebook.com, and without it
+    // they would just see an empty box.
+    video: {
+      href: "https://www.facebook.com/share/v/1D3MehG1VG/",
+      eyebrow: "WATCH",
+      heading: "See it for yourself.",
+      lede: "Then tell the Premier to stop.",
+    },
     // Interim art until the Premier's photo arrives; same hero treatment
     // takes over the moment assets/uploads/carroll-hero.jpg replaces this.
     heroImage: "assets/uploads/fight-police-farmers.jpg",
@@ -3892,6 +3904,47 @@ function SendEmailPage({ campaign }) {
   const [donateCustom, setDonateCustom] = useState("");
   // Back from Stripe (bfcache restore) must clear the stuck chip.
   useBfcacheReset(() => setDonateBusy(null));
+
+  // Honour a URL hash (/demandvid redirects here as #video) once React has
+  // mounted the target. Browsers can't scroll to a hash target that doesn't
+  // exist yet on a JS-rendered page, so retry until it appears.
+  //
+  // Then keep re-aligning until the page stops growing. Scrolling once is not
+  // enough here: the story rail fetches its panels after mount and its images
+  // load later still, so everything above the target keeps getting taller and
+  // a single scroll lands well short of it. Re-align until the document
+  // height holds steady across a few frames.
+  //
+  // Instant rather than smooth, because repeated smooth scrolls fight each
+  // other, and someone arriving on a deep link expects to be there already.
+  useEffect(() => {
+    const id = (window.location.hash || "").replace(/^#/, "");
+    if (!id) return;
+    let tries = 0, steady = 0, lastH = -1, cancelled = false;
+    // A deliberate scroll by the visitor always wins over our re-alignment.
+    const stop = () => { cancelled = true; };
+    const opts = { once: true, passive: true };
+    window.addEventListener("wheel", stop, opts);
+    window.addEventListener("touchstart", stop, opts);
+    window.addEventListener("keydown", stop, { once: true });
+
+    const tick = () => {
+      if (cancelled || ++tries > 60) return;
+      const el = document.getElementById(id);
+      if (!el) { setTimeout(tick, 75); return; }
+      el.scrollIntoView({ behavior: "auto", block: "start" });
+      const h = document.documentElement.scrollHeight;
+      if (h === lastH) { if (++steady >= 3) return; } else { steady = 0; lastH = h; }
+      setTimeout(tick, 150);
+    };
+    tick();
+    return () => {
+      cancelled = true;
+      window.removeEventListener("wheel", stop);
+      window.removeEventListener("touchstart", stop);
+      window.removeEventListener("keydown", stop);
+    };
+  }, []);
 
   const formRef = React.useRef(form);
   useEffect(() => { formRef.current = form; }, [form]);
@@ -4465,6 +4518,36 @@ function SendEmailPage({ campaign }) {
       {camp.storiesUrl && donateBlock && (
         <section className="ff-section ff-stories-donate">
           <div className="ff-wrap ff-email-narrow">{donateBlock}</div>
+        </section>
+      )}
+
+      {camp.video && (
+        <section className="ff-section ff-video" id="video">
+          <div className="ff-wrap ff-email-narrow">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {camp.video.eyebrow}</span>
+            <h2 className="ff-h2">{camp.video.heading}</h2>
+            {camp.video.lede && <p className="ff-lede">{camp.video.lede}</p>}
+            <div className="ff-video-frame">
+              <iframe
+                src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(camp.video.href)}&show_text=false&width=560&height=314`}
+                title={camp.video.heading}
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                frameBorder="0"
+                scrolling="no"
+              />
+            </div>
+            <p className="ff-video-fallback">
+              Can&rsquo;t see the video?{" "}
+              <a href={camp.video.href} target="_blank" rel="noopener noreferrer">Watch it on Facebook</a>.
+            </p>
+            <div className="ff-video-act">
+              <button type="button" className="ff-btn ff-btn--red ff-btn--lg" onClick={goToForm}>
+                {camp.storiesCta || camp.heroCta} <span aria-hidden="true">&rsaquo;</span>
+              </button>
+            </div>
+          </div>
         </section>
       )}
     </PageShell>
