@@ -3716,6 +3716,10 @@ const FFB_CAMPAIGNS = {
     // Interim art until the Premier's photo arrives; same hero treatment
     // takes over the moment assets/uploads/carroll-hero.jpg replaces this.
     heroImage: "assets/uploads/fight-police-farmers.jpg",
+    // Mobile is optional here. This page's job is volume of correspondence
+    // into the Premier's office, and a required phone number is the field
+    // people abandon on. The other campaigns keep it required.
+    mobileRequired: false,
     heroEyebrow: "NEW VICTORIAN PREMIER CARROLL DECLARES WAR ON FARMERS.",
     heroHeading: "Stop targeting Aussie farmers. Fight now.",
     heroLede: <>A farmer has just been fined for refusing to let department staff onto his land in the middle of lambing. Lily D'Ambrosio is gone, and only days in, the new Premier Ben Carroll and Energy Minister Jaclyn Symes have carried on exactly where D'Ambrosio left off. Her laws are still in force, her department still answers to this Government, and the fines are still landing. A resignation changed the name on the door. It did not stop the targeting. The Premier owns this now.</>,
@@ -3850,6 +3854,9 @@ function SendEmailPage({ campaign }) {
   const CAMPAIGN_COPY = camp.campaignCopy || "correspondence@mail.farmersfightback.com";
   const COPY_MODE = camp.campaignCopyMode || "to";
   const COPY_OFF_TO = COPY_MODE === "cc" || COPY_MODE === "bcc";
+  // Defaults to required, so a campaign that says nothing keeps the old
+  // behaviour. Only an explicit false opts out.
+  const mobileRequired = camp.mobileRequired !== false;
   const sessionId = React.useRef(null);
   if (!sessionId.current) {
     let s = "";
@@ -4123,7 +4130,12 @@ function SendEmailPage({ campaign }) {
     if (!f.first.trim()) e.first = "Required";
     if (!f.last.trim()) e.last = "Required";
     if (!ffbEmailValid(f.email)) e.email = "Please check that email address";
-    if (!ffbNormMobile(f.mobile)) e.mobile = "Please enter an Australian mobile, e.g. 04XX XXX XXX";
+    // When the campaign makes mobile optional, a blank field passes but a
+    // half-typed one still fails: silently discarding a number someone
+    // believed they had given us is worse than asking them to fix it.
+    if (mobileRequired || f.mobile.trim()) {
+      if (!ffbNormMobile(f.mobile)) e.mobile = "Please enter an Australian mobile, e.g. 04XX XXX XXX";
+    }
     setErrors(e);
     if (Object.keys(e).length) {
       const el = document.getElementById("ff-email-form");
@@ -4395,7 +4407,7 @@ function SendEmailPage({ campaign }) {
             <Field label={<>Email <span className="ff-req">*</span></>} error={errors.email}>
               <input type="email" value={form.email} onChange={update("email")} onBlur={onFieldBlur} autoComplete="email" placeholder="Your email address" />
             </Field>
-            <Field label={<>Mobile <span className="ff-req">*</span></>} error={errors.mobile}>
+            <Field label={mobileRequired ? <>Mobile <span className="ff-req">*</span></> : "Mobile (optional)"} error={errors.mobile}>
               <input type="tel" value={form.mobile} onChange={update("mobile")} onBlur={onFieldBlur} autoComplete="tel" placeholder="Your mobile" />
             </Field>
           </form>
