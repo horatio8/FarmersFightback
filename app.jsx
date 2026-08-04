@@ -1222,10 +1222,10 @@ function TwinPromos() {
     {
       key: "demand",
       eyebrow: "The Intimidation Files",
-      title: "Demand the Premier stops targeting farmers",
-      lede: "A farmer fined for refusing entry during lambing. D'Ambrosio resigned; the targeting didn't stop. Premier Ben Carroll can end it, apologise, and open an investigation.",
+      title: "New Premier Carroll declares war on farmers",
+      lede: "A farmer fined for refusing entry during lambing. Only days in, Ben Carroll and Jaclyn Symes have carried on exactly where D'Ambrosio left off.",
       facts: ["Ten first-hand accounts", "Takes 10 seconds"],
-      cta: "Demand he stops",
+      cta: "Demand Premier Carroll stops targeting farmers",
       href: "/demand",
       img: "assets/uploads/stories/story-1.jpg",
       alt: "A farmer at his gate at dusk, police lights on the road beyond",
@@ -3712,16 +3712,16 @@ const FFB_CAMPAIGNS = {
     campaignCopy: "correspondence@farmersfightback.com",
     campaignCopyMode: "bcc",
     storiesUrl: "content/dambrosio-stories.json",
-    storiesCta: "Demand he stops",
+    storiesCta: "Demand Premier Carroll stops targeting farmers",
     // Interim art until the Premier's photo arrives; same hero treatment
     // takes over the moment assets/uploads/carroll-hero.jpg replaces this.
     heroImage: "assets/uploads/fight-police-farmers.jpg",
-    heroEyebrow: "D'AMBROSIO RESIGNED. THE TARGETING DIDN'T STOP.",
-    heroHeading: "Premier Carroll: stop targeting Aussie farmers.",
-    heroLede: <>A farmer has just been fined for refusing to let department staff onto his land in the middle of lambing. That is where this Government's priorities sit. Lily D'Ambrosio is gone, and not one thing has changed: her laws are still in force, her department still answers to this Government, and the new Energy Minister Jaclyn Symes has carried on exactly where D'Ambrosio left off. A resignation changed the name on the door. It did not stop the targeting. The Premier owns this now.</>,
+    heroEyebrow: "NEW VICTORIAN PREMIER CARROLL DECLARES WAR ON FARMERS.",
+    heroHeading: "Stop targeting Aussie farmers. Fight now.",
+    heroLede: <>A farmer has just been fined for refusing to let department staff onto his land in the middle of lambing. Lily D'Ambrosio is gone, and only days in, the new Premier Ben Carroll and Energy Minister Jaclyn Symes have carried on exactly where D'Ambrosio left off. Her laws are still in force, her department still answers to this Government, and the fines are still landing. A resignation changed the name on the door. It did not stop the targeting. The Premier owns this now.</>,
     heroDemands: ["Stop targeting farming families. Now.", "Apologise to every family his government has put through it.", "Order an independent investigation, and make the findings public."],
-    heroNudge: "One Minister went. The targeting didn't. Put your name to it — it takes 10 seconds.",
-    heroCta: "Demand he stops",
+    heroNudge: "One Minister went. The targeting didn't. Put your name to it. It takes 10 seconds.",
+    heroCta: "Demand Premier Carroll stops targeting farmers",
     editorLede: "Firm, direct and on the record: take a moment to review your email. You can generate a new version by clicking 'Say it my way'",
     recipientsLabel: (n) => (n === 1
       ? <>This email goes straight to the Premier:</>
