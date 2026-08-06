@@ -17,7 +17,8 @@
   "crons": [
     { "path": "/api/cron/sms-inbound-poll", "schedule": "10 * * * *" },
     { "path": "/api/cron/lapse-sweep", "schedule": "*/5 * * * *" },
-    { "path": "/api/cron/nightly-rollup", "schedule": "15 18 * * *" }
+    { "path": "/api/cron/nightly-rollup", "schedule": "15 18 * * *" },
+    { "path": "/api/cron/identity-resolver", "schedule": "20 16 * * *" }
   ],
   "functions": {
     "api/cron/sms-queue.js": { "maxDuration": 120 },
@@ -25,7 +26,11 @@
     "api/cron/lapse-sweep.js": { "maxDuration": 120 },
     "api/cron/refresh-signature-count.js": { "maxDuration": 120 },
     "api/cron/nightly-rollup.js": { "maxDuration": 300 },
-    "api/admin/stripe-backfill.js": { "maxDuration": 300 }
+    "api/admin/stripe-backfill.js": { "maxDuration": 300 },
+    "api/zernio-webhook.js": { "maxDuration": 30 },
+    "api/admin/seed-identities.js": { "maxDuration": 60 },
+    "api/admin/backfill-conversations.js": { "maxDuration": 60 },
+    "api/cron/identity-resolver.js": { "maxDuration": 60 }
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
