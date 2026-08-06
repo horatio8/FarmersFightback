@@ -19,17 +19,20 @@ const {
   appendEvent,
 } = require('../lib/social/identity');
 const { fesc, select } = require('../lib/social/airtable');
-const { TABLES, isOurAccount } = require('../lib/social/config');
+const { TABLES, ORG_BY_ACCOUNT } = require('../lib/social/config');
 
-// A Zernio webhook subscription is workspace-wide: there is no profile or
-// account scope on POST /v1/webhooks/settings, so this endpoint is offered
-// every comment, DM and lead across all four organisations sharing the
-// workspace. Writing another client's people into this base is a Privacy Act
-// problem, not a tidiness one, so foreign events are dropped before any
-// Airtable write. See isOurAccount for why an absent accountId is kept.
-function accountIdOf(evt) {
+// A Zernio webhook subscription is workspace-wide, and that suits the intent:
+// the pipeline captures comments, DMs and leads from ALL four organisations
+// sharing the workspace into one pooled identity graph (owner decision,
+// 2026-08-06). Every event payload is stamped with the account and
+// organisation it came from, so per-organisation segmentation stays possible.
+function attribution(evt) {
   const o = evt.comment || evt.message || evt.conversation || evt.lead || {};
-  return o.accountId || o.socialAccountId || evt.accountId || null;
+  const accountId = o.accountId || o.socialAccountId || evt.accountId || null;
+  return {
+    account_id: accountId,
+    org: (accountId && ORG_BY_ACCOUNT[String(accountId)]) || null,
+  };
 }
 
 module.exports.config = { api: { bodyParser: false } };
@@ -102,6 +105,7 @@ async function handleComment(evt) {
     'Social Comment',
     {
       identity_key: key,
+      ...attribution(evt),
       platform: c.platform,
       author: { id: author.id, name: author.name, username: author.username },
       text: c.text,
@@ -173,6 +177,7 @@ async function handleMessage(evt) {
     'Social DM',
     {
       identity_key: key,
+      ...attribution(evt),
       platform: m.platform,
       conversation_id: m.conversationId,
       message_id: m.id,
@@ -206,6 +211,7 @@ async function handleConversationStarted(evt) {
 
   await appendEvent(`zrn_${evt.id}`, 'Conversation Started', {
     identity_key: key,
+    ...attribution(evt),
     platform: c.platform,
     conversation_id: c.id,
     ad_attribution: c.metadata || null,
@@ -238,6 +244,7 @@ async function handleLead(evt) {
     'Meta Lead (Zernio)',
     {
       identity_key: key,
+      ...attribution(evt),
       leadgen_id: lead.leadgenId,
       form_id: lead.formId,
       form_name: lead.formName,
@@ -272,14 +279,6 @@ module.exports = async (req, res) => {
     evt = JSON.parse(rawBody.toString('utf8'));
   } catch (e) {
     res.status(400).json({ error: 'invalid json' });
-    return;
-  }
-
-  const acct = accountIdOf(evt);
-  if (!isOurAccount(acct)) {
-    // 200, not 4xx: the delivery was valid, we just don't want the data.
-    // A non-2xx here counts toward Zernio's 10-failure auto-disable.
-    res.status(200).json({ ok: true, skipped: 'other organisation' });
     return;
   }
 

@@ -17,8 +17,32 @@
 const { requireBasicAuth } = require('../_util');
 const { TABLES } = require('../../lib/social/config');
 const { listPage, select, fesc } = require('../../lib/social/airtable');
+const { zernio } = require('../../lib/social/zernio');
 
 const DAILY_TABLE = process.env.AIRTABLE_SOCIAL_DAILY_TABLE || 'Social Daily';
+
+// X (Twitter) is the one platform Zernio meters per API call, passed through
+// at X's own rates. Analytics + inbox sync were switched on 2026-08-06, so the
+// owner wants running visibility of what that costs. Best-effort: the
+// dashboard must still render if the usage endpoint is down.
+async function xSpend() {
+  try {
+    const out = await zernio('GET', '/usage', null, { range: 'cycle', granularity: 'day' });
+    if (!out || out.supported === false || !Array.isArray(out.days)) return null;
+    const total = (out.totals && out.totals.xApi) || 0;
+    const last = out.days.length ? out.days[out.days.length - 1] : null;
+    return {
+      cycle_total_usd: Math.round(total * 100) / 100,
+      avg_per_day_usd: out.days.length ? Math.round((total / out.days.length) * 1000) / 1000 : 0,
+      latest_day_usd: last ? Math.round((last.xApi || 0) * 1000) / 1000 : 0,
+      cycle_days: out.days.length,
+      period_start: (out.period && out.period.start) || null,
+    };
+  } catch (e) {
+    console.error('social-dashboard x-spend fetch failed:', e.message);
+    return null;
+  }
+}
 
 function esc(v) {
   return String(v == null ? '' : v)
@@ -107,6 +131,8 @@ module.exports = async (req, res) => {
     });
     const engaged = (engagedPage.records || []).slice(0, 25);
 
+    const x = await xSpend();
+
     if (url.searchParams.get('json')) {
       return res.status(200).json({
         window_days: days,
@@ -115,6 +141,7 @@ module.exports = async (req, res) => {
         topics: topicTally,
         needs_attention: flagged.map((r) => r.fields),
         most_engaged: engaged.map((r) => r.fields),
+        x_api_spend: x,
       });
     }
 
@@ -170,6 +197,7 @@ module.exports = async (req, res) => {
  .cards{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px}
  .card{flex:1 1 150px;border:1px solid #e6e6e3;border-radius:8px;padding:12px 14px;background:#fff}
  .card .v{font-size:24px;font-weight:700;line-height:1.2} .card .l{font-size:12px;color:#6b7580;text-transform:uppercase;letter-spacing:.06em}
+ .card .s{font-size:11px;color:#6b7580;margin-top:2px}
  table{border-collapse:collapse;width:100%;max-width:1000px;background:#fff;border:1px solid #e6e6e3;border-radius:8px;overflow:hidden}
  th,td{padding:7px 10px;text-align:left;border-bottom:1px solid #f0f0ee;font-size:13px}
  th{background:#12354B;color:#fff;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
@@ -192,6 +220,8 @@ module.exports = async (req, res) => {
   <div class="card"><div class="l">Positive</div><div class="v pos">${tot.positive.toLocaleString()}</div></div>
   <div class="card"><div class="l">Negative</div><div class="v neg">${tot.negative.toLocaleString()}</div></div>
   <div class="card"><div class="l">Needs a human</div><div class="v">${flagged.length}</div></div>
+  ${x ? `<div class="card"><div class="l">X API spend</div><div class="v">$${x.cycle_total_usd.toFixed(2)}</div>
+  <div class="s">avg $${x.avg_per_day_usd.toFixed(3)}/day over ${x.cycle_days}d · latest day $${x.latest_day_usd.toFixed(3)}</div></div>` : ''}
 </div>
 
 <h2>Stance mix</h2>
