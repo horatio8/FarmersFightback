@@ -4,7 +4,7 @@
 // connected, which fires no webhooks) and upserts an Identity per
 // participant. Resumable via Sync State, same pattern as seed-identities.
 
-const { TABLES } = require('../../lib/social/config');
+const { TABLES, ZERNIO_PROFILE_ID, isOurAccount } = require('../../lib/social/config');
 const { zernio } = require('../../lib/social/zernio');
 const { select, update, create } = require('../../lib/social/airtable');
 const { upsertIdentity } = require('../../lib/social/identity');
@@ -45,8 +45,13 @@ module.exports = async (req, res) => {
 
   try {
     while (Date.now() - started < TIME_BUDGET_MS) {
+      // profileId scopes the read to Farmers Fightback's own accounts. Without
+      // it the endpoint walks every account the workspace key can see — nine
+      // DM-capable accounts across four different organisations — and their
+      // participants land in this base. That happened on the first run.
       const out = await zernio('GET', '/inbox/conversations', null, {
         limit: 50,
+        profileId: ZERNIO_PROFILE_ID,
         ...(state.cursor ? { cursor: state.cursor } : {}),
       });
       const rows = out.data || [];
@@ -59,6 +64,8 @@ module.exports = async (req, res) => {
       const byKey = new Map();
       for (const c of rows) {
         state.processed += 1;
+        // Second line of defence, in case profileId is ever ignored or dropped.
+        if (!isOurAccount(c.accountId)) { state.foreign = (state.foreign || 0) + 1; continue; }
         if (!c.participantId) continue;
         const key = `${c.platform}|${c.participantId}`;
         const prev = byKey.get(key) || {};
@@ -108,6 +115,7 @@ module.exports = async (req, res) => {
     res.status(200).json({
       done: state.done,
       processed: state.processed,
+      foreign_skipped: state.foreign || 0,
       note: state.done ? 'conversation backfill complete' : 'call again to continue',
     });
   } catch (e) {

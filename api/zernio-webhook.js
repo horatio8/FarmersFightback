@@ -19,7 +19,18 @@ const {
   appendEvent,
 } = require('../lib/social/identity');
 const { fesc, select } = require('../lib/social/airtable');
-const { TABLES } = require('../lib/social/config');
+const { TABLES, isOurAccount } = require('../lib/social/config');
+
+// A Zernio webhook subscription is workspace-wide: there is no profile or
+// account scope on POST /v1/webhooks/settings, so this endpoint is offered
+// every comment, DM and lead across all four organisations sharing the
+// workspace. Writing another client's people into this base is a Privacy Act
+// problem, not a tidiness one, so foreign events are dropped before any
+// Airtable write. See isOurAccount for why an absent accountId is kept.
+function accountIdOf(evt) {
+  const o = evt.comment || evt.message || evt.conversation || evt.lead || {};
+  return o.accountId || o.socialAccountId || evt.accountId || null;
+}
 
 module.exports.config = { api: { bodyParser: false } };
 
@@ -261,6 +272,14 @@ module.exports = async (req, res) => {
     evt = JSON.parse(rawBody.toString('utf8'));
   } catch (e) {
     res.status(400).json({ error: 'invalid json' });
+    return;
+  }
+
+  const acct = accountIdOf(evt);
+  if (!isOurAccount(acct)) {
+    // 200, not 4xx: the delivery was valid, we just don't want the data.
+    // A non-2xx here counts toward Zernio's 10-failure auto-disable.
+    res.status(200).json({ ok: true, skipped: 'other organisation' });
     return;
   }
 
