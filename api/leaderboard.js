@@ -30,8 +30,14 @@ module.exports = async function handler(req, res) {
     const url = new URL(req.url, "https://x");
     if (url.searchParams.get("json")) return res.status(200).json({ board });
 
+    // referrer_name is first+last from Contacts, i.e. attacker-controlled: any
+    // petition signer picks their own name. Escape before it lands in HTML or a
+    // hostile "name" runs as script in the admin's authenticated session.
+    const esc = (v) => String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     const trs = board.map((b, i) =>
-      `<tr><td>${i + 1}</td><td>${b.code}</td><td>${b.referrer_name || ""}</td><td>${b.signups || 0}</td><td>${b.donations || 0}</td><td>$${(b.dollars || 0).toFixed(2)}</td></tr>`).join("");
+      `<tr><td>${i + 1}</td><td>${esc(b.code)}</td><td>${esc(b.referrer_name || "")}</td><td>${b.signups || 0}</td><td>${b.donations || 0}</td><td>$${(b.dollars || 0).toFixed(2)}</td></tr>`).join("");
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>FF referrer leaderboard</title>
 <style>body{font:14px/1.5 system-ui;margin:24px;color:#12354B}table{border-collapse:collapse;width:100%;max-width:760px}th,td{border:1px solid #ddd;padding:6px 10px;text-align:right}td:nth-child(2),td:nth-child(3){text-align:left}th{background:#12354B;color:#fff}</style>
