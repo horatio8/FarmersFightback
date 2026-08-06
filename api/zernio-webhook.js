@@ -10,7 +10,7 @@
 //   - dedupe on the stable webhook event id (payload.id)
 
 const crypto = require('crypto');
-const { getConversationParticipant } = require('../lib/social/zernio');
+const { zernio, getConversationParticipant } = require('../lib/social/zernio');
 const {
   emailKey,
   phoneKey,
@@ -19,20 +19,83 @@ const {
   appendEvent,
 } = require('../lib/social/identity');
 const { fesc, select } = require('../lib/social/airtable');
-const { TABLES, ORG_BY_ACCOUNT } = require('../lib/social/config');
+const { TABLES, ORG_BY_ACCOUNT, FB_PAGE_TO_ACCOUNT } = require('../lib/social/config');
 
 // A Zernio webhook subscription is workspace-wide, and that suits the intent:
 // the pipeline captures comments, DMs and leads from ALL four organisations
 // sharing the workspace into one pooled identity graph (owner decision,
 // 2026-08-06). Every event payload is stamped with the account and
 // organisation it came from, so per-organisation segmentation stays possible.
-function attribution(evt) {
+//
+// Zernio's payloads carry NO account attribution (verified live: the first
+// post-deploy comment events all resolved null), so the owning account is
+// worked out here, best-effort and never blocking capture:
+//   1. any accountId-shaped field on the event, should Zernio ever add one
+//   2. facebook comments: the page-id prefix of platformPostId (no API call)
+//   3. other comments: the Zernio post they landed on — posts know their
+//      accounts, and the response is deep-searched for any known account id
+//      so this survives whatever shape the post object takes
+//   4. DMs / conversation.started: the conversation record's accountId
+function directAccountId(evt) {
   const o = evt.comment || evt.message || evt.conversation || evt.lead || {};
-  const accountId = o.accountId || o.socialAccountId || evt.accountId || null;
-  return {
-    account_id: accountId,
-    org: (accountId && ORG_BY_ACCOUNT[String(accountId)]) || null,
-  };
+  return o.accountId || o.socialAccountId || evt.accountId || null;
+}
+
+// Deep-search a response for any value that is a known account id. Cross-posts
+// carry several accounts, but always of the same organisation, so the first
+// hit identifies the org either way.
+function findKnownAccountId(node, depth = 0) {
+  if (node == null || depth > 10) return null;
+  if (typeof node === 'string') return ORG_BY_ACCOUNT[node] ? node : null;
+  if (Array.isArray(node) || typeof node === 'object') {
+    for (const v of Object.values(node)) {
+      const hit = findKnownAccountId(v, depth + 1);
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
+async function resolveAccountId(evt) {
+  const direct = directAccountId(evt);
+  if (direct) return direct;
+
+  if (evt.event === 'comment.received') {
+    const c = evt.comment || {};
+    if (c.platform === 'facebook' && typeof c.platformPostId === 'string') {
+      const page = c.platformPostId.split('_')[0];
+      if (FB_PAGE_TO_ACCOUNT[page]) return FB_PAGE_TO_ACCOUNT[page];
+    }
+    if (c.postId) {
+      try {
+        const post = await zernio('GET', `/posts/${encodeURIComponent(c.postId)}`);
+        return findKnownAccountId(post);
+      } catch (e) { /* attribution is optional */ }
+    }
+    return null;
+  }
+
+  const convId =
+    (evt.message && evt.message.conversationId) ||
+    (evt.conversation && evt.conversation.id) ||
+    null;
+  if (convId) {
+    const p = await getConversationParticipant(convId);
+    if (p && p.accountId) return p.accountId;
+  }
+  return null;
+}
+
+async function attribution(evt) {
+  try {
+    const accountId = await resolveAccountId(evt);
+    return {
+      account_id: accountId,
+      org: (accountId && ORG_BY_ACCOUNT[String(accountId)]) || null,
+    };
+  } catch (e) {
+    return { account_id: null, org: null };
+  }
 }
 
 module.exports.config = { api: { bodyParser: false } };
@@ -105,7 +168,7 @@ async function handleComment(evt) {
     'Social Comment',
     {
       identity_key: key,
-      ...attribution(evt),
+      ...(await attribution(evt)),
       platform: c.platform,
       author: { id: author.id, name: author.name, username: author.username },
       text: c.text,
@@ -177,7 +240,7 @@ async function handleMessage(evt) {
     'Social DM',
     {
       identity_key: key,
-      ...attribution(evt),
+      ...(await attribution(evt)),
       platform: m.platform,
       conversation_id: m.conversationId,
       message_id: m.id,
@@ -211,7 +274,7 @@ async function handleConversationStarted(evt) {
 
   await appendEvent(`zrn_${evt.id}`, 'Conversation Started', {
     identity_key: key,
-    ...attribution(evt),
+    ...(await attribution(evt)),
     platform: c.platform,
     conversation_id: c.id,
     ad_attribution: c.metadata || null,
@@ -244,7 +307,7 @@ async function handleLead(evt) {
     'Meta Lead (Zernio)',
     {
       identity_key: key,
-      ...attribution(evt),
+      ...(await attribution(evt)),
       leadgen_id: lead.leadgenId,
       form_id: lead.formId,
       form_name: lead.formName,
