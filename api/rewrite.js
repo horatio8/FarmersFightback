@@ -196,9 +196,31 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: "Rewrite isn't configured yet." });
   }
 
-  // 1) Per-IP hourly limit (in-memory, cheapest check).
+  // 1) Per-IP hourly limit — fast in-memory pre-check.
   if (ipLimited(ip_hash)) {
     return res.status(429).json({ error: "Rewrite limit reached for now.", reason: "ip_limit" });
+  }
+
+  // 1b) Durable per-IP hourly limit. The in-memory counter resets on cold start
+  // and doesn't span instances, and the per-session cap is defeated by sending a
+  // fresh random session_id each call (no Signups row ⇒ count 0 ⇒ never trips).
+  // Counting this ip_hash's logged AI Usage rows in the last hour closes both:
+  // every successful rewrite is logged with ip_hash, so a session-rotating actor
+  // on one IP still hits this wall. (Rotating IP too needs a proxy pool, and the
+  // daily cap still backstops that.)
+  try {
+    const hourAgoIso = new Date(Date.now() - IP_WINDOW_MS).toISOString();
+    const recent = await listRows(USAGE_TABLE, {
+      formula: `AND({ip_hash}='${esc(ip_hash)}', IS_AFTER({timestamp}, '${hourAgoIso}'))`,
+      fields: ["timestamp"],
+    });
+    if (recent.length >= IP_HOURLY_LIMIT) {
+      return res.status(429).json({ error: "Rewrite limit reached for now.", reason: "ip_limit" });
+    }
+  } catch (e) {
+    // A blip here shouldn't block a legit supporter — the in-memory check above
+    // and the daily cap below still apply.
+    console.error("rewrite durable ip check failed:", e.message);
   }
 
   // 2) Per-session limit via ai_rewrite_count on the Signups row.
