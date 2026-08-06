@@ -25,7 +25,18 @@ const {
   identityKeyFromPayload,
 } = require('../../lib/social/analyse');
 
-const TIME_BUDGET_MS = 50 * 1000;
+// Two budgets against a 60s function limit, because there are two phases and
+// the second one used to overrun: scoring stopped at 50s and rollups were then
+// allowed a further 8s, so the last in-flight Airtable call pushed past 60s and
+// the function was killed (FUNCTION_INVOCATION_TIMEOUT, seen twice on the first
+// live backfill). Work already committed survived — every record is stamped as
+// it is written, so a kill loses nothing and the next run resumes — but a cron
+// that dies every 10 minutes is not acceptable.
+//
+// Scoring now yields at 32s, rollups finish by 48s, leaving ~12s of headroom
+// for whichever call is in flight plus the response.
+const SCORE_BUDGET_MS = 32 * 1000;
+const ROLLUP_DEADLINE_MS = 48 * 1000;
 const USAGE_TABLE = process.env.AIRTABLE_AI_USAGE_TABLE || 'AI Usage';
 const ANALYSED_TYPES = ['Social Comment', 'Social DM'];
 
@@ -100,7 +111,7 @@ module.exports = async (req, res) => {
   if (!authed(req) && !requireCron(req, res)) return;
 
   const started = Date.now();
-  const limit = Math.min(Number((req.query && req.query.limit) || 0) || 500, 2000);
+  const limit = Math.min(Number((req.query && req.query.limit) || 0) || 200, 1000);
 
   let analysed = 0;
   let failed = 0;
@@ -123,7 +134,7 @@ module.exports = async (req, res) => {
       offset = page.offset;
 
       for (const rec of records) {
-        if (Date.now() - started > TIME_BUDGET_MS) { offset = null; break; }
+        if (Date.now() - started > SCORE_BUDGET_MS) { offset = null; break; }
         if (analysed >= limit) { offset = null; break; }
 
         const f = rec.fields || {};
@@ -175,13 +186,13 @@ module.exports = async (req, res) => {
 
         await sleep(120); // stay well under Airtable's 5 req/s
       }
-    } while (offset && Date.now() - started < TIME_BUDGET_MS && analysed < limit);
+    } while (offset && Date.now() - started < SCORE_BUDGET_MS && analysed < limit);
 
     // Roll up each person we touched, budget permitting. Anything missed is
     // picked up on the next run because rollups recompute from scratch.
     let rolled = 0;
     for (const key of touchedIdentities) {
-      if (Date.now() - started > TIME_BUDGET_MS + 8000) break;
+      if (Date.now() - started > ROLLUP_DEADLINE_MS) break;
       try { await rollupIdentity(key); rolled += 1; } catch (e) {
         console.error('rollup failed', key, e.message);
       }
