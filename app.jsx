@@ -932,32 +932,6 @@ function DonateBand() {
 }
 
 // ---------- Newsletter ----------
-function Newsletter() {
-  const c = useContent().newsletter;
-  const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
-  return (
-    <section className="ff-section ff-news">
-      <div className="ff-wrap ff-news-inner">
-        <div>
-          <h3 className="ff-h3">{c.heading}</h3>
-          <p>{c.lede}</p>
-        </div>
-        <form className="ff-news-form" onSubmit={(e) => { e.preventDefault(); if(email) setDone(true); }}>
-          {done ? (
-            <div className="ff-news-done">{c.doneText}</div>
-          ) : (
-            <>
-              <input type="email" required placeholder={c.placeholder} value={email} onChange={e=>setEmail(e.target.value)}/>
-              <button className="ff-btn ff-btn--red">{c.ctaLabel}</button>
-            </>
-          )}
-        </form>
-      </div>
-    </section>
-  );
-}
-
 // ---------- Footer ----------
 function Footer() {
   const c = useContent().footer;
@@ -1276,7 +1250,6 @@ function HomePage() {
         <ActionCards />
         <Quote />
         <DonateBand />
-        <Newsletter />
       </main>
       <Footer />
       <VideoModal open={modal} onClose={() => setModal(false)} />
