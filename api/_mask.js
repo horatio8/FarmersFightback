@@ -16,9 +16,9 @@
 // mask, hides it but reads as a placeholder rather than as their details. Length
 // alone is weak enough to be worth trading for the recognition.
 //
-//   maskName("James")                 → "J***s"
-//   maskName("Flynn")                 → "F***n"
-//   maskMobile("61412060882")         → "*******882"
+//   maskName("James")                 → "J****"
+//   maskName("Flynn")                 → "F****"
+//   maskMobile("61412060882")         → "04*****882"
 //   maskEmail("janninesc@gmail.com")  → "j*******c@g****.com"
 //   maskPostcode("3400")              → "3***"
 //
@@ -52,12 +52,19 @@ function maskCore(s) {
   return v[0] + stars(v.length - 2) + v[v.length - 1];
 }
 
+// Names show the first letter only, the rest starred: "James" → "J****".
+// (maskCore, first+last, still backs email local-parts and the unknown-field
+// fallback — a name is hidden one character harder than those.)
 function maskName(s) {
-  return maskCore(s);
+  const v = clean(s);
+  if (!v) return "";
+  if (v.length === 1) return STAR;
+  return v[0] + stars(v.length - 1);
 }
 
-// Last 3 digits visible, which is the convention people are used to from banks
-// and couriers and is enough to confirm "yes, that's my number".
+// First 2 and last 3 digits visible: "0412 060 882" → "04*****882". The leading
+// "04" is common to every AU mobile so it discloses nothing, and the last 3 are
+// the bank/courier convention for "yes, that's my number".
 //
 // Australian mobiles are stored E.164 (61412060882) but read back as 04...,
 // so normalise before masking or the mask lands on the wrong digits.
@@ -69,7 +76,9 @@ function maskMobile(s) {
   else if (local.length === 9 && local.startsWith("4")) local = "0" + local;
   // Too short to spare 3 digits without revealing most of it.
   if (local.length <= 4) return stars(local.length);
-  return stars(local.length - 3) + local.slice(-3);
+  // Not long enough to also show the prefix without leaving too little masked.
+  if (local.length <= 7) return stars(local.length - 3) + local.slice(-3);
+  return local.slice(0, 2) + stars(local.length - 5) + local.slice(-3);
 }
 
 // Local part masked like a name. Domain label reduced to its first letter, TLD

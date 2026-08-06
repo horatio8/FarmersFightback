@@ -223,7 +223,7 @@ const KNOWN_FIELDS = ["first_name", "last_name", "email", "mobile", "postcode"];
 // The token in the link is a bearer credential, and a referral code is one that
 // supporters post publicly, so anyone holding a link is treated as its owner.
 // Masking is what keeps that from being worth exploiting: a guessed or forwarded
-// link yields "J***s" and "*******882", not a supporter record.
+// link yields "J****" and "04*****882", not a supporter record.
 //
 // Presence still carries the meaning it always did. A masked value is non-empty
 // exactly when the real one was, so the client's isKnown() check is unchanged
@@ -279,6 +279,29 @@ function stripKnownAnswers(survey, contactFields, answered) {
   return out;
 }
 
+// Answer fields that carry PII must never be echoed to the browser. The token
+// is a bearer credential — a referral code is one supporters post publicly — so
+// a masked value here would not do: the client sends `answered` back cumulatively
+// (answer.js overwrites raw_json with it), so a mask would round-trip and destroy
+// the real stored answer. So these are STRIPPED, not masked. The real values
+// stay in raw_json server-side, and complete.js merges from there, so nothing is
+// lost; the only cost is a resumed survey re-asks these screens. Identity for the
+// greeting/display is masked separately via knownFrom() -> _mask.
+//
+// `mobile_optin` is the sharp one: its value is "yes:<e164>", the supporter's own
+// number in cleartext. It is not a KNOWN_FIELD and its screen field differs from
+// its skip_if_known, so stripKnownAnswers never touched it — this does.
+const PII_ANSWER_FIELDS = new Set([
+  "first_name", "last_name", "name", "email", "mobile", "phone", "postcode", "zip", "mobile_optin",
+]);
+function stripPiiAnswers(answered) {
+  const out = { ...(answered || {}) };
+  Object.keys(out).forEach((k) => {
+    if (PII_ANSWER_FIELDS.has(k)) delete out[k];
+  });
+  return out;
+}
+
 function seedKnownAnswers(survey, contactFields, answered) {
   const truth = trueKnownFrom(contactFields);
   const out = { ...(answered || {}) };
@@ -304,6 +327,9 @@ function bootstrapPayload({ survey, client, contactRecord, response }) {
   // live in raw_json, and this payload echoes raw_json for resume — so strip
   // them back out on the way to the client.
   answered = stripKnownAnswers(survey, cf, answered);
+  // Belt and braces: whatever survived the known-answer strip, remove any answer
+  // that carries PII before it reaches the browser (see stripPiiAnswers).
+  answered = stripPiiAnswers(answered);
 
   return {
     ok: true,
