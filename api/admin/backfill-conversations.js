@@ -6,7 +6,8 @@
 
 const { TABLES } = require('../../lib/social/config');
 const { zernio } = require('../../lib/social/zernio');
-const { select, update, create, upsert } = require('../../lib/social/airtable');
+const { select, update, create } = require('../../lib/social/airtable');
+const { upsertIdentity } = require('../../lib/social/identity');
 
 const STATE_KEY = 'backfill_conversations';
 const TIME_BUDGET_MS = 50 * 1000;
@@ -73,9 +74,26 @@ module.exports = async (req, res) => {
         });
       }
       const upserts = Array.from(byKey.values());
+      // Write one record at a time via the same primitive the live webhook
+      // uses (select-then-create-or-update). Airtable's batch performUpsert
+      // throws "Cannot update more than one record for fields to merge on"
+      // whenever the merge key is ambiguous — either duplicated inside the
+      // batch or matching more than one existing row — and it rejects the
+      // WHOLE batch when it does, which killed this backfill on live data.
+      // Per-record is slower but cannot hit that class of failure, and the
+      // 50s cursor budget makes the extra calls a non-issue.
+      for (const u of upserts) {
+        await upsertIdentity(u.identity_key, {
+          platform: u.platform,
+          platform_user_id: u.platform_user_id,
+          display_name: u.display_name,
+          profile_picture: u.profile_picture,
+          conversation_id: u.conversation_id,
+          source: 'dm_backfill',
+        });
+      }
       // strip undefineds
       upserts.forEach((u) => Object.keys(u).forEach((k) => u[k] === undefined && delete u[k]));
-      if (upserts.length) await upsert(TABLES.IDENTITIES, upserts, ['identity_key']);
 
       const next =
         (out.pagination && out.pagination.nextCursor) || out.nextCursor || null;
