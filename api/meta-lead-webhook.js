@@ -275,6 +275,19 @@ module.exports = async function handler(req, res) {
 
   try {
     const results = await Promise.all(tasks);
+    // Each task's .catch swallows its error into a resolved {error} object, so
+    // Promise.all never rejects — the old code therefore always 200'd and the
+    // 500 branch was dead, meaning a transiently-failed lead (Graph blip,
+    // Airtable down) was ACKed to Meta and never retried, i.e. lost. Any lead
+    // that errored must produce a non-2xx so Meta redelivers. Re-processing the
+    // ones that already succeeded is safe: processOneLead is idempotent on the
+    // lead's meta_event_id (logEventIdempotent), and matchOrCreateContact
+    // re-matches the existing contact, so retries don't duplicate.
+    const failed = results.filter((r) => r && r.error);
+    if (failed.length) {
+      console.error(`meta-lead-webhook: ${failed.length}/${results.length} leads failed, returning 500 for retry`, failed);
+      return res.status(500).json({ error: "partial failure", failed: failed.length, total: results.length });
+    }
     return res.status(200).json({ received: true, processed: results });
   } catch (err) {
     console.error("meta-lead-webhook error:", err);
