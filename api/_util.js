@@ -28,9 +28,14 @@ function cellcastToE164(raw) {
 // endpoints still work before James sets the secret, just not locked down).
 function requireCron(req, res) {
   const secret = process.env.CRON_SECRET;
+  // Fail CLOSED when unset. These endpoints send SMS and sweep donations; an
+  // empty secret must block, not wave everyone through (Vercel injects
+  // `Authorization: Bearer <CRON_SECRET>` into its own scheduled invocations,
+  // so the real crons still authenticate). Matches requireBasicAuth's 503.
   if (!secret) {
-    console.warn("CRON_SECRET not set — cron endpoint is unauthenticated");
-    return true;
+    console.error("CRON_SECRET not set — refusing cron request");
+    res.status(503).json({ error: "CRON_SECRET not configured" });
+    return false;
   }
   if ((req.headers.authorization || "") === `Bearer ${secret}`) return true;
   res.status(401).json({ error: "unauthorized" });
