@@ -50,20 +50,29 @@ module.exports = async (req, res) => {
       });
       const rows = out.data || [];
 
-      const upserts = [];
+      // One row per PERSON, not per conversation. Airtable's performUpsert
+      // rejects the whole batch ("Cannot update more than one record for
+      // fields to merge on") if two records in it share the merge key, and a
+      // person with several threads produces exactly that. Collapse on
+      // identity_key, keeping the last conversation seen for them in this page.
+      const byKey = new Map();
       for (const c of rows) {
         state.processed += 1;
         if (!c.participantId) continue;
-        upserts.push({
-          identity_key: `${c.platform}|${c.participantId}`,
+        const key = `${c.platform}|${c.participantId}`;
+        const prev = byKey.get(key) || {};
+        byKey.set(key, {
+          identity_key: key,
           platform: c.platform,
           platform_user_id: c.participantId,
-          display_name: c.participantName || undefined,
-          profile_picture: c.participantPicture || undefined,
+          // Keep whichever thread actually carried a name/picture.
+          display_name: c.participantName || prev.display_name || undefined,
+          profile_picture: c.participantPicture || prev.profile_picture || undefined,
           conversation_id: c.id,
           source: 'dm_backfill',
         });
       }
+      const upserts = Array.from(byKey.values());
       // strip undefineds
       upserts.forEach((u) => Object.keys(u).forEach((k) => u[k] === undefined && delete u[k]));
       if (upserts.length) await upsert(TABLES.IDENTITIES, upserts, ['identity_key']);
