@@ -41,6 +41,40 @@ async function sumDonations(sinceIso) {
   return { total: Math.round(total * 100) / 100, count };
 }
 
+// Meta's own conversion tallies for today, account level, split by action
+// type. This is what makes the Ads Manager number reconcilable: "Results" is
+// a SUM of distinct action types (on-Facebook lead forms, website pixel
+// Leads), and the API hands them to us separately. Best-effort — the
+// dashboard renders without it.
+async function metaToday() {
+  try {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: econ.ADVERTISER_TZ });
+    const qs = new URLSearchParams({
+      access_token: econ.adsToken(),
+      level: 'account',
+      fields: 'spend,actions',
+      time_range: JSON.stringify({ since: today, until: today }),
+    });
+    const r = await fetch(`${econ.GRAPH}/${econ.adAccountId()}/insights?${qs}`);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.data || !j.data.length) return null;
+    const row = j.data[0];
+    const actions = {};
+    for (const a of row.actions || []) actions[a.action_type] = Number(a.value) || 0;
+    return {
+      spend: Number(row.spend) || 0,
+      // 'lead' is Meta's grouped total; the split shows where they came from.
+      results_lead_total: actions.lead ?? null,
+      on_facebook_lead_forms: actions.leadgen_grouped ?? actions['onsite_conversion.lead_grouped'] ?? null,
+      website_pixel_leads: actions['offsite_conversion.fb_pixel_lead'] ?? null,
+      actions,
+    };
+  } catch (e) {
+    console.error('econ-dashboard metaToday failed:', e.message);
+    return null;
+  }
+}
+
 // The UTC instant of local midnight in the advertiser timezone, so "today's"
 // signup counts line up with Ads Manager's "today" rather than a trailing 24h.
 function tzMidnightUtcIso(tz) {
@@ -59,35 +93,53 @@ function tzMidnightUtcIso(tz) {
 async function countSignatures(sinceIso) {
   const midnight = tzMidnightUtcIso(econ.ADVERTISER_TZ);
   let cursor = null, count = 0, paidToday = 0;
+  // Today's signatures bucketed by the strongest Meta evidence each carries,
+  // so the totals can be laid against Meta's own action-type split.
+  const buckets = {
+    lead_ad_form: 0,       // Meta lead ad (meta_ad_id from the leadgen payload)
+    web_with_ad_id: 0,     // clicked an ad; link carried the ad id (utm_content)
+    web_campaign_only: 0,  // clicked an ad; link carried only the campaign id
+    fb_click_no_utm: 0,    // fbclid present but no ad UTMs — a Facebook click,
+                           // could be an ad or an organic share
+    no_meta_marker: 0,     // nothing tying it to Meta at all
+  };
   do {
     const page = await listPage(T.SIGNATURES, {
       pageSize: 100,
       filterByFormula: `IS_AFTER({timestamp}, '${sinceIso < midnight ? sinceIso : midnight}')`,
-      fields: ['timestamp', 'meta_ad_id', 'utm_content', 'utm_campaign'],
+      fields: ['timestamp', 'meta_ad_id', 'utm_content', 'utm_campaign', 'fbclid'],
       ...(cursor ? { offset: cursor } : {}),
     });
     for (const r of page.records || []) {
       const f = r.fields || {};
       if (f.timestamp >= sinceIso) count += 1;
-      const paid = f.meta_ad_id || /^\d{15,}$/.test(f.utm_content || '') || /^\d{15,}$/.test(f.utm_campaign || '');
-      if (paid && f.timestamp >= midnight) paidToday += 1;
+      if (f.timestamp < midnight) continue;
+      const adId = /^\d{15,}$/.test(f.utm_content || '');
+      const campId = /^\d{15,}$/.test(f.utm_campaign || '');
+      if (f.meta_ad_id) buckets.lead_ad_form += 1;
+      else if (adId) buckets.web_with_ad_id += 1;
+      else if (campId) buckets.web_campaign_only += 1;
+      else if (f.fbclid) buckets.fb_click_no_utm += 1;
+      else buckets.no_meta_marker += 1;
+      if (f.meta_ad_id || adId || campId) paidToday += 1;
     }
     cursor = page.offset || null;
   } while (cursor);
-  return { count, paidToday };
+  return { count, paidToday, buckets };
 }
 
 module.exports = async (req, res) => {
   if (!authed(req)) return res.status(401).json({ error: 'bad token' });
 
   try {
-    const [d24, d7, sigsToday, statRows, alertRows, settings] = await Promise.all([
+    const [d24, d7, sigsToday, statRows, alertRows, settings, meta] = await Promise.all([
       sumDonations(isoDaysAgo(1)),
       sumDonations(isoDaysAgo(7)),
       countSignatures(isoDaysAgo(1)),
       select(T.SITE_STATS, `OR({key} = 'signature_count', {key} = 'econ_summary')`, null, 5),
       select(T.SYNC_STATE, `AND(FIND('cpa_alert|', {key}) = 1, IS_AFTER({updated_at}, '${isoDaysAgo(2)}'))`, null, 20),
       econ.loadSettings(select),
+      metaToday(),
     ]);
 
     const stats = {};
@@ -132,6 +184,16 @@ module.exports = async (req, res) => {
         new_signatures_24h: sigsToday.count,
       },
       econ: liveEcon,
+      // Both sides of the Ads Manager reconciliation: Meta's action-type
+      // split for today vs our signatures bucketed by the evidence they carry.
+      reconciliation: {
+        meta,
+        ours: sigsToday.buckets,
+        note: 'Meta lead form counts should tie to lead_ad_form within a few. '
+          + 'Meta website pixel Leads cover our web buckets PLUS view-through, '
+          + 'cross-device and modelled conversions — that remainder is Meta '
+          + 'crediting itself for signups our links could not label.',
+      },
       ads_today: ads,
       settings,
       alerts: alertRows
