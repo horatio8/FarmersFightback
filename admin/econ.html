@@ -36,6 +36,10 @@
   <table id="ads"><thead><tr>
     <th>Ad</th><th>Spend</th><th>Clicks</th><th>Signups</th><th>CPA</th><th>Revenue (all-time)</th><th>ROAS</th>
   </tr></thead><tbody></tbody></table>
+
+  <h2>Reconciling to Ads Manager (today)</h2>
+  <table id="recon"><thead><tr><th>Line</th><th>Meta says</th><th>Our base</th></tr></thead><tbody></tbody></table>
+  <p class="muted" style="font-size:12px" id="reconnote"></p>
 </div>
 <footer>Auto-refreshes every 60s. Pop-up alerts: allow notifications when asked. Thresholds are edited in Airtable, Site Stats row "econ_settings". CPA = today's spend / today's signups in our base. ROAS = all-time donations from contacts this ad acquired / all-time spend.</footer>
 <script>
@@ -108,6 +112,23 @@ async function load() {
         <td>${money(a.revenue_attributed)}</td>
         <td class="${roasCls}">${a.roas != null ? a.roas.toFixed(2) : '—'}</td></tr>`;
     }).join('') || '<tr><td colspan="7">No ad rows yet today. The poller runs every 30 minutes.</td></tr>';
+
+    // Reconciliation panel: Meta's own action-type split vs our buckets.
+    const rc = j.reconciliation || {};
+    const m = rc.meta || {}, o = rc.ours || {};
+    const oursPaid = (o.lead_ad_form || 0) + (o.web_with_ad_id || 0) + (o.web_campaign_only || 0);
+    const rows = [
+      ['Results ("Multiple conversions")', m.results_lead_total, oursPaid + ' with an ad marker'],
+      ['&nbsp;&nbsp;of which: lead forms on Facebook', m.on_facebook_lead_forms, (o.lead_ad_form || 0) + ' lead-ad signatures'],
+      ['&nbsp;&nbsp;of which: website pixel Leads', m.website_pixel_leads,
+        `${(o.web_with_ad_id || 0) + (o.web_campaign_only || 0)} web signups with ad UTMs`],
+      ['Facebook click, no ad UTMs (ad or organic)', '—', o.fb_click_no_utm],
+      ['No Meta marker at all', '—', o.no_meta_marker],
+      ['Spend today', m.spend != null ? money(m.spend) : '—', '—'],
+    ];
+    document.querySelector('#recon tbody').innerHTML = rows.map(([l, a, b]) =>
+      `<tr><td>${l}</td><td>${a ?? '—'}</td><td>${b ?? '—'}</td></tr>`).join('');
+    document.getElementById('reconnote').textContent = rc.note || '';
   } catch (err) {
     const el = document.getElementById('err');
     el.textContent = 'Load failed: ' + err.message;
