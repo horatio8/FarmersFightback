@@ -75,11 +75,13 @@ module.exports = async (req, res) => {
     let econSummary = null;
     try { econSummary = JSON.parse(stats.econ_summary?.text_value || 'null'); } catch {}
 
-    // Today's per-ad daily rows.
+    // Today's per-ad daily rows. IS_SAME, not '=': an Airtable date FIELD
+    // never string-equals 'YYYY-MM-DD', so the plain comparison silently
+    // returned zero rows and the ads table rendered empty (seen live).
     const today = new Date().toLocaleDateString('en-CA', { timeZone: econ.ADVERTISER_TZ });
     const adRows = await select(
       T.AD_PERFORMANCE,
-      `AND({date} = '${today}', {hour} = BLANK())`,
+      `AND(IS_SAME({date}, '${today}', 'day'), {hour} = BLANK())`,
       ['ad_id', 'ad_name', 'campaign_name', 'spend', 'impressions', 'clicks', 'signups', 'cpa', 'revenue_attributed', 'roas']
     );
     const ads = adRows
