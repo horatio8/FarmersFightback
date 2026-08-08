@@ -70,13 +70,16 @@ module.exports = async (req, res) => {
     do {
       const page = await listPage(T.SIGNATURES, {
         pageSize: 100,
-        filterByFormula: `AND(IS_AFTER({timestamp}, '${isoDaysAgo(7)}'), OR({meta_ad_id} != '', {utm_campaign} != ''))`,
-        fields: ['meta_ad_id', 'utm_campaign', 'timestamp', 'contact'],
+        filterByFormula: `AND(IS_AFTER({timestamp}, '${isoDaysAgo(7)}'), OR({meta_ad_id} != '', {utm_content} != ''))`,
+        fields: ['meta_ad_id', 'utm_content', 'timestamp', 'contact'],
         ...(cursor ? { offset: cursor } : {}),
       });
       for (const r of page.records || []) {
         const f = r.fields || {};
-        const ad = f.meta_ad_id || (/^\d{15,}$/.test(f.utm_campaign || '') ? f.utm_campaign : null);
+        // AD id only: meta_ad_id (lead ads) or a numeric utm_content (web —
+        // this account's links carry {{ad.id}} there). utm_campaign holds the
+        // CAMPAIGN id and must not be written into acquisition_ad_id.
+        const ad = f.meta_ad_id || (/^\d{15,}$/.test(f.utm_content || '') ? f.utm_content : null);
         const cid = Array.isArray(f.contact) && f.contact.length ? f.contact[0].id || f.contact[0] : null;
         if (!ad || !cid || !f.timestamp) continue;
         const day = tzDate(f.timestamp);
