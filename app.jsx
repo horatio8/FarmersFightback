@@ -337,6 +337,12 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
         utm_source: attr.utm_source,
         utm_medium: attr.utm_medium,
         utm_campaign: attr.utm_campaign,
+        // utm_content carries the Meta AD id in this account's link
+        // convention (campaign id sits in utm_campaign) — without it the
+        // economics pipeline can't tie a web signup back to the ad that
+        // bought it.
+        utm_content: attr.utm_content,
+        utm_term: attr.utm_term,
       }),
       keepalive: true,
     });

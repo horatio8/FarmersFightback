@@ -56,6 +56,18 @@ function rowFromInsight(i) {
   };
 }
 
+// The AD id for a signature. Lead ads carry it directly as meta_ad_id; web
+// signups carry it in utm_content — this account's ad links put {{ad.id}} in
+// utm_content, the ADSET id in utm_medium and the CAMPAIGN id in utm_campaign.
+// utm_campaign is deliberately NOT used here: matching a campaign id against
+// ad ids is how the first live run counted only the 93 lead-ad signups and
+// reported CPA $8.14 on a day Ads Manager showed $1.22.
+function adIdOf(f) {
+  if (f.meta_ad_id) return f.meta_ad_id;
+  if (/^\d{15,}$/.test(f.utm_content || '')) return f.utm_content;
+  return null;
+}
+
 // Count signups per (ad_id, date) from Petition Signatures over the window.
 async function signupCounts(sinceDate) {
   const counts = {}; // `${date}|${ad}` -> n
@@ -64,12 +76,12 @@ async function signupCounts(sinceDate) {
     const page = await listPage(T.SIGNATURES, {
       pageSize: 100,
       filterByFormula: `IS_AFTER({timestamp}, '${sinceDate}T00:00:00.000Z')`,
-      fields: ['meta_ad_id', 'utm_campaign', 'timestamp'],
+      fields: ['meta_ad_id', 'utm_content', 'timestamp'],
       ...(cursor ? { offset: cursor } : {}),
     });
     for (const r of page.records || []) {
       const f = r.fields || {};
-      const ad = f.meta_ad_id || (/^\d{15,}$/.test(f.utm_campaign || '') ? f.utm_campaign : null);
+      const ad = adIdOf(f);
       if (!ad || !f.timestamp) continue;
       const d = new Date(f.timestamp).toLocaleDateString('en-CA', { timeZone: econ.ADVERTISER_TZ });
       counts[`${d}|${ad}`] = (counts[`${d}|${ad}`] || 0) + 1;

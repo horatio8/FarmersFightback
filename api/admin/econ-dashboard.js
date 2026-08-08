@@ -41,19 +41,40 @@ async function sumDonations(sinceIso) {
   return { total: Math.round(total * 100) / 100, count };
 }
 
+// The UTC instant of local midnight in the advertiser timezone, so "today's"
+// signup counts line up with Ads Manager's "today" rather than a trailing 24h.
+function tzMidnightUtcIso(tz) {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  for (let m = -14 * 60; m <= 12 * 60; m += 30) {
+    const d = new Date(Date.parse(`${today}T00:00:00Z`) + m * 60000);
+    if (d.toLocaleString('sv-SE', { timeZone: tz }).startsWith(`${today} 00:00`)) return d.toISOString();
+  }
+  return `${today}T00:00:00.000Z`;
+}
+
+// One walk over recent signatures: total in the window, plus how many since
+// local midnight came from a Meta ad at all. "Paid" is deliberately broad —
+// lead-ad id, ad id in utm_content, or campaign id in utm_campaign — because
+// the topline question is "how many signups did paid buy today", not which ad.
 async function countSignatures(sinceIso) {
-  let cursor = null, count = 0;
+  const midnight = tzMidnightUtcIso(econ.ADVERTISER_TZ);
+  let cursor = null, count = 0, paidToday = 0;
   do {
     const page = await listPage(T.SIGNATURES, {
       pageSize: 100,
-      filterByFormula: `IS_AFTER({timestamp}, '${sinceIso}')`,
-      fields: ['signature_id'],
+      filterByFormula: `IS_AFTER({timestamp}, '${sinceIso < midnight ? sinceIso : midnight}')`,
+      fields: ['timestamp', 'meta_ad_id', 'utm_content', 'utm_campaign'],
       ...(cursor ? { offset: cursor } : {}),
     });
-    count += (page.records || []).length;
+    for (const r of page.records || []) {
+      const f = r.fields || {};
+      if (f.timestamp >= sinceIso) count += 1;
+      const paid = f.meta_ad_id || /^\d{15,}$/.test(f.utm_content || '') || /^\d{15,}$/.test(f.utm_campaign || '');
+      if (paid && f.timestamp >= midnight) paidToday += 1;
+    }
     cursor = page.offset || null;
   } while (cursor);
-  return count;
+  return { count, paidToday };
 }
 
 module.exports = async (req, res) => {
@@ -88,15 +109,29 @@ module.exports = async (req, res) => {
       .map(r => r.fields)
       .sort((a, b) => (b.spend || 0) - (a.spend || 0));
 
+    // Live topline: spend from the freshest per-ad rows (≤30 min old), paid
+    // signups counted directly from today's signatures. This supersedes the
+    // nightly econ_summary snapshot, which only knew per-AD attribution and
+    // so undercounted web signups until utm_content data accrues.
+    const spendToday = Math.round(ads.reduce((s, a) => s + (a.spend || 0), 0) * 100) / 100;
+    const liveEcon = {
+      ...(econSummary || {}),
+      spend_today: spendToday,
+      paid_signups_today: sigsToday.paidToday,
+      cpa_today: sigsToday.paidToday > 0 ? Math.round((spendToday / sigsToday.paidToday) * 100) / 100 : null,
+      ads_tracked: ads.length,
+      as_at: new Date().toISOString(),
+    };
+
     res.setHeader('Cache-Control', 'no-store');
     res.status(200).json({
       as_at: new Date().toISOString(),
       donations: { last_24h: d24, last_7d: d7 },
       database: {
         signature_count_raw: stats.signature_count?.num_value ?? null,
-        new_signatures_24h: sigsToday,
+        new_signatures_24h: sigsToday.count,
       },
-      econ: econSummary,
+      econ: liveEcon,
       ads_today: ads,
       settings,
       alerts: alertRows
