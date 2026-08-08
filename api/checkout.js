@@ -60,7 +60,24 @@ function cleanParams(src) {
     utm_campaign: pick("utm_campaign"),
     utm_content: pick("utm_content"),
     utm_term: pick("utm_term"),
+    fbclid: pick("fbclid"),
+    fbp: pick("fbp"),
+    source_url: cleanSourceUrl(src.source_url),
   };
+}
+
+// Only trust our own pages as a source_url, and keep it inside Stripe's
+// 500-char metadata value limit.
+function cleanSourceUrl(v) {
+  if (!v) return undefined;
+  try {
+    const u = new URL(String(v));
+    const host = u.hostname.replace(/^www\./, "");
+    if (u.protocol !== "https:" || !host.endsWith("farmersfightback.com")) return undefined;
+    return u.toString().slice(0, 450);
+  } catch {
+    return undefined;
+  }
 }
 
 async function createSession(p, req) {
@@ -78,7 +95,9 @@ async function createSession(p, req) {
     org: "ff",
     frequency: p.frequency,
     content_name: monthly ? "Monthly Donation" : "One-off Donation",
-    source_url: `${base}`,
+    source_url: p.source_url || `${base}`,
+    ...(p.fbclid ? { fbclid: p.fbclid } : {}),
+    ...(p.fbp ? { fbp: p.fbp } : {}),
     ...(p.ref ? { ref: p.ref } : {}),
     ...(p.contact_id ? { contact_id: p.contact_id } : {}),
     ...(p.sms_variant ? { sms_variant: p.sms_variant } : {}),

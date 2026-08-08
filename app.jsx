@@ -174,6 +174,11 @@ async function createDonationCheckout({ amount, frequency, email, slug }) {
     sms_variant: attr.utm_source === "sms" ? (attr.utm_content === "issue" ? "B" : "A") : undefined,
     utm_source: attr.utm_source, utm_medium: attr.utm_medium,
     utm_campaign: attr.utm_campaign, utm_content: attr.utm_content, utm_term: attr.utm_term,
+    // Meta click id + browser id so the CAPI Purchase event can be matched,
+    // and the real landing URL (query string intact) instead of a bare /donate.
+    fbclid: attr.fbclid || undefined,
+    fbp: getCookie("_fbp") || undefined,
+    source_url: attr.landing_url || window.location.href,
   };
   const r = await fetch("/api/checkout", {
     method: "POST",
