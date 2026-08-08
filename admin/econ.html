@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>FF Campaign Economics</title>
+<style>
+  :root { --navy:#12354B; --red:#990000; --ok:#1a7f37; --bad:#b42318; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#f4f4f4; color:#222; }
+  header { background:var(--navy); color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:baseline; }
+  header h1 { font-size:17px; margin:0; } header span { font-size:12px; opacity:.8; }
+  .wrap { max-width:1100px; margin:0 auto; padding:16px; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+  .tile { background:#fff; border-radius:10px; padding:14px 16px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .tile .k { font-size:12px; color:#667; text-transform:uppercase; letter-spacing:.04em; }
+  .tile .v { font-size:26px; font-weight:700; margin-top:4px; }
+  .tile .s { font-size:12px; color:#667; margin-top:2px; }
+  h2 { font-size:14px; margin:22px 0 8px; color:var(--navy); }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); font-size:13px; }
+  th, td { text-align:right; padding:8px 10px; border-bottom:1px solid #eee; }
+  th { background:#fafafa; color:#556; font-weight:600; }
+  th:first-child, td:first-child { text-align:left; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .good { color:var(--ok); font-weight:700; } .warn { color:var(--bad); font-weight:700; }
+  #err { color:var(--bad); padding:8px 0; display:none; }
+  footer { padding:14px; font-size:11px; color:#889; text-align:center; }
+</style>
+</head>
+<body>
+<header><h1>Farmers Fightback — Campaign Economics</h1><span id="asat">loading…</span></header>
+<div class="wrap">
+  <div id="err"></div>
+  <div id="alerts"></div>
+  <div class="tiles" id="tiles"></div>
+  <h2>Today's ads (Melbourne time) — spend vs what we got</h2>
+  <table id="ads"><thead><tr>
+    <th>Ad</th><th>Spend</th><th>Clicks</th><th>Signups</th><th>CPA</th><th>Revenue (all-time)</th><th>ROAS</th>
+  </tr></thead><tbody></tbody></table>
+</div>
+<footer>Auto-refreshes every 60s. Pop-up alerts: allow notifications when asked. Thresholds are edited in Airtable, Site Stats row "econ_settings". CPA = today's spend / today's signups in our base. ROAS = all-time donations from contacts this ad acquired / all-time spend.</footer>
+<script>
+const qs = new URLSearchParams(location.search);
+const token = qs.get('token') || '';
+const money = (v) => v == null ? '—' : '$' + Number(v).toLocaleString('en-AU', {maximumFractionDigits: v >= 100 ? 0 : 2});
+// Ad names and alert text originate outside this page (Meta ad manager) —
+// escape everything interpolated into markup, same as every other admin page.
+const esc = (v) => String(v == null ? '' : v)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+// Pop-up alerts: ask permission once, then notify on any alert we have not
+// shown before (tracked in this browser via localStorage).
+if ('Notification' in window && Notification.permission === 'default') {
+  setTimeout(() => Notification.requestPermission(), 2500);
+}
+function popNewAlerts(alerts) {
+  let seen = [];
+  try { seen = JSON.parse(localStorage.getItem('ff_seen_alerts') || '[]'); } catch {}
+  const fresh = (alerts || []).filter(a => !seen.includes(a.key));
+  for (const a of fresh.slice(0, 3)) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('FF ad alert', { body: a.message, tag: a.key });
+    }
+  }
+  if (fresh.length) {
+    try { localStorage.setItem('ff_seen_alerts', JSON.stringify([...seen, ...fresh.map(a => a.key)].slice(-100))); } catch {}
+  }
+  document.getElementById('alerts').innerHTML = (alerts || []).slice(0, 5).map(a =>
+    `<div class="tile" style="border-left:4px solid var(--bad); margin-bottom:10px;"><div class="k">${esc(new Date(a.at).toLocaleString())}</div><div class="s" style="font-size:13px;color:#222;">${esc(a.message)}</div></div>`
+  ).join('');
+}
+
+function tile(k, v, s) {
+  return `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+}
+
+async function load() {
+  try {
+    const r = await fetch(`/api/admin/econ-dashboard?token=${encodeURIComponent(token)}`);
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    document.getElementById('err').style.display = 'none';
+    document.getElementById('asat').textContent = 'updated ' + new Date(j.as_at).toLocaleTimeString()
+      + (j.settings ? ` · alert line $${j.settings.cpa_threshold}` : '');
+    popNewAlerts(j.alerts);
+
+    const e = j.econ || {};
+    const cpa = e.cpa_today;
+    const surplus = (cpa != null && j.donations.last_24h.count > 0)
+      ? (j.donations.last_24h.total / Math.max(1, j.database.new_signatures_24h)) - cpa : null;
+    document.getElementById('tiles').innerHTML =
+      tile('Donations 24h', money(j.donations.last_24h.total), j.donations.last_24h.count + ' gifts') +
+      tile('Donations 7d', money(j.donations.last_7d.total), j.donations.last_7d.count + ' gifts') +
+      tile('Database', (j.database.signature_count_raw ?? 0).toLocaleString(), 'signatures (raw)') +
+      tile('New signups 24h', j.database.new_signatures_24h.toLocaleString(), '') +
+      tile('Ad spend today', money(e.spend_today), (e.ads_tracked || 0) + ' ads live') +
+      tile('CPA today', cpa != null ? money(cpa) : '—', e.paid_signups_today != null ? e.paid_signups_today + ' paid signups' : '') +
+      tile('Per-supporter surplus 24h', surplus != null ? money(surplus) : '—', 'value in minus cost out');
+
+    const tb = document.querySelector('#ads tbody');
+    tb.innerHTML = (j.ads_today || []).map(a => {
+      const roasCls = a.roas == null ? '' : (a.roas >= 1 ? 'good' : 'warn');
+      const line = (j.settings && j.settings.cpa_threshold) || 3;
+      const cpaCls = a.cpa == null ? '' : (a.cpa <= line ? 'good' : 'warn');
+      return `<tr><td title="${esc(a.ad_id || '')}">${esc(a.ad_name || a.ad_id || '?')}</td>
+        <td>${money(a.spend)}</td><td>${a.clicks ?? '—'}</td><td>${a.signups ?? 0}</td>
+        <td class="${cpaCls}">${a.cpa != null ? money(a.cpa) : '—'}</td>
+        <td>${money(a.revenue_attributed)}</td>
+        <td class="${roasCls}">${a.roas != null ? a.roas.toFixed(2) : '—'}</td></tr>`;
+    }).join('') || '<tr><td colspan="7">No ad rows yet today. The poller runs every 30 minutes.</td></tr>';
+  } catch (err) {
+    const el = document.getElementById('err');
+    el.textContent = 'Load failed: ' + err.message;
+    el.style.display = 'block';
+  }
+}
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
