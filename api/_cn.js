@@ -18,8 +18,14 @@
 const CN_BASE = (process.env.CN_API_BASE || "https://api.campaignnucleus.com/v1").replace(/\/$/, "");
 const CN_KEY = process.env.CN_API_KEY;
 
-async function cnFetch(path, body, method = "POST") {
+async function cnFetch(path, body, method = "POST", opts = {}) {
   if (!CN_KEY) return { skipped: true, reason: "CN_API_KEY not set" };
+  // CN's gateway (nginx) 504s long requests at roughly three minutes, and a
+  // hung request otherwise blocks until then — cut our side first so callers
+  // fail fast and their budget survives.
+  const timeoutMs = opts.timeoutMs || 170000;
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
   try {
     const r = await fetch(`${CN_BASE}${path}`, {
       method,
@@ -29,6 +35,7 @@ async function cnFetch(path, body, method = "POST") {
         Accept: "application/json",
       },
       body: JSON.stringify(body),
+      signal: ctl.signal,
     });
     const text = await r.text().catch(() => "");
     if (!r.ok) {
@@ -39,8 +46,11 @@ async function cnFetch(path, body, method = "POST") {
     try { json = JSON.parse(text); } catch {}
     return { ok: true, status: r.status, json };
   } catch (e) {
-    console.error(`CN ${method} ${path} failed:`, e.message);
-    return { ok: false, error: e.message };
+    const msg = e.name === "AbortError" ? `client timeout after ${timeoutMs}ms` : e.message;
+    console.error(`CN ${method} ${path} failed:`, msg);
+    return { ok: false, error: msg };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -120,26 +130,35 @@ async function cnSetUidBulk(rows, opts = {}) {
 }
 
 // Bulk push with split-retry: a failed batch is halved and retried so one bad
-// row cannot sink 250 good ones; small remnants fall back to per-row
-// cnProfileMatch, isolating the genuinely broken rows. Returns
-// { pushed, skipped, failed, calls, err } with err = first failure detail.
+// row cannot sink the good ones; small remnants fall back to per-row
+// cnProfileMatch, isolating the genuinely broken rows. The whole cascade runs
+// against a deadline — when CN itself is failing (gateway 504s), retries stop
+// and the remainder reports failed fast instead of eating the caller's budget.
+// Returns { pushed, skipped, failed, calls, err } with err = first failure.
 async function cnSetUidBulkSafe(rows, opts = {}) {
   const body = (rows || []).map((r) => bulkRow(r, opts.slim)).filter(Boolean);
   const skippedUpfront = (rows || []).length - body.length;
-  const out = await pushSplit(body);
+  const deadline = Date.now() + (opts.deadlineMs || 200000);
+  const out = await pushSplit(body, deadline);
   return { ...out, skipped: out.skipped + skippedUpfront };
 }
 
-async function pushSplit(body) {
+async function pushSplit(body, deadline) {
   if (!body.length) return { pushed: 0, skipped: 0, failed: 0, calls: 0 };
-  const out = await cnSetUidBulk0(body);
+  if (Date.now() > deadline) {
+    return { pushed: 0, skipped: 0, failed: body.length, calls: 0, err: { error: "retry deadline exhausted" } };
+  }
+  // A row costs CN ~1-1.5s; leave slack but never outlive the gateway.
+  const bulkTimeout = Math.min(165000, Math.max(30000, body.length * 2500));
+  const out = await cnFetch("/profiles/match/bulk", body, "POST", { timeoutMs: bulkTimeout });
   if (out.skipped) return { pushed: 0, skipped: body.length, failed: 0, calls: 0 };
   if (out.ok) return { pushed: body.length, skipped: 0, failed: 0, calls: 1 };
-  if (body.length <= 25) {
+  if (body.length <= 10) {
     let pushed = 0, failed = 0, calls = 1, err;
     for (const p of body) {
+      if (Date.now() > deadline) { failed += 1; err = err || { error: "retry deadline exhausted" }; continue; }
       // eslint-disable-next-line no-await-in-loop
-      const one = await cnProfileMatch(p);
+      const one = await cnFetch("/profiles/match", p, "POST", { timeoutMs: 20000 });
       calls += 1;
       if (one && one.ok) pushed += 1;
       else { failed += 1; err = err || { status: one && one.status, body: one && one.body, error: one && one.error }; }
@@ -147,8 +166,8 @@ async function pushSplit(body) {
     return { pushed, skipped: 0, failed, calls, err };
   }
   const mid = Math.ceil(body.length / 2);
-  const a = await pushSplit(body.slice(0, mid));
-  const b = await pushSplit(body.slice(mid));
+  const a = await pushSplit(body.slice(0, mid), deadline);
+  const b = await pushSplit(body.slice(mid), deadline);
   return {
     pushed: a.pushed + b.pushed,
     skipped: a.skipped + b.skipped,
@@ -156,10 +175,6 @@ async function pushSplit(body) {
     calls: a.calls + b.calls + 1,
     err: a.err || b.err,
   };
-}
-
-function cnSetUidBulk0(body) {
-  return cnFetch("/profiles/match/bulk", body, "POST");
 }
 
 // Drop a profile into a CN automation (fires its email sequence).
