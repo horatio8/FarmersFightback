@@ -46,6 +46,23 @@ function contactRecId(f) {
   return Array.isArray(c) && c.length ? (c[0].id || c[0]) : null;
 }
 
+// First-touch acquisition channel from a signature's markers, strongest
+// evidence first. "Meta ad" is any PAID marker; a Facebook click without one
+// is organic reach (a share, a page post), which is exactly the split the
+// campaign wants to see.
+const META_ORGANIC_SOURCES = new Set(['ig', 'fb', 'facebook', 'instagram', 'meta', 'social']);
+function channelOf(f) {
+  const paid = f.meta_ad_id
+    || /^\d{15,}$/.test(f.utm_content || '')
+    || /^\d{15,}$/.test(f.utm_campaign || '')
+    || String(f.utm_source || '').toLowerCase() === 'fb_ads';
+  if (paid) return 'Meta ad';
+  if (f.fbclid || META_ORGANIC_SOURCES.has(String(f.utm_source || '').toLowerCase())) return 'Meta organic';
+  if (f.ref_used) return 'Referral';
+  if (f.utm_source) return 'Other';
+  return 'Direct';
+}
+
 module.exports = async (req, res) => {
   if (!authed(req) && !requireCron(req, res)) return;
   const started = Date.now();
@@ -127,6 +144,70 @@ module.exports = async (req, res) => {
       stats.attributed += batch.length;
     }
 
+    // ---- Channel classification: first-touch, watermark-resumable ----
+    // Walks signatures oldest-first from a Sync State watermark, classifying
+    // each contact's channel from the FIRST signature seen for them. Only
+    // blanks are written (checked in batched reads), so re-runs converge as a
+    // backfill and the nightly run just processes the day's new signatures.
+    stats.classified = 0;
+    const wmKey = 'contact_channel_watermark';
+    const wmRows = await select(T.SYNC_STATE, `{key} = '${wmKey}'`, null, 1);
+    let watermark = wmRows.length ? (wmRows[0].fields.value || '2000-01-01T00:00:00.000Z') : '2000-01-01T00:00:00.000Z';
+    const chanPending = new Map(); // contact rec id -> channel
+    cursor = null;
+    let lastTs = watermark;
+    do {
+      const page = await listPage(T.SIGNATURES, {
+        pageSize: 100,
+        filterByFormula: `IS_AFTER({timestamp}, '${watermark}')`,
+        fields: ['timestamp', 'contact', 'meta_ad_id', 'utm_content', 'utm_campaign', 'utm_source', 'fbclid', 'ref_used'],
+        'sort[0][field]': 'timestamp',
+        'sort[0][direction]': 'asc',
+        ...(cursor ? { offset: cursor } : {}),
+      });
+      for (const r of page.records || []) {
+        const f = r.fields || {};
+        const cid = contactRecId(f);
+        if (f.timestamp) lastTs = f.timestamp;
+        if (!cid || chanPending.has(cid)) continue;
+        chanPending.set(cid, channelOf(f));
+      }
+      cursor = page.offset || null;
+    } while (cursor && Date.now() - started < BUDGET_MS * 0.6);
+
+    // Write blanks only: read current channel in batches of 50, then batch
+    // update the ones still empty.
+    const chanIds = Array.from(chanPending.keys());
+    const chanItems = [];
+    for (let i = 0; i < chanIds.length; i += 50) {
+      if (Date.now() - started > BUDGET_MS * 0.65) break;
+      const slice = chanIds.slice(i, i + 50);
+      const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
+      const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
+      const have = new Map(rows.map((r) => [r.id, (r.fields || {}).acquisition_channel]));
+      for (const id of slice) {
+        const cur = have.get(id);
+        if (!cur) chanItems.push({ id, fields: { acquisition_channel: chanPending.get(id) } });
+      }
+    }
+    let chanWritten = 0;
+    for (let i = 0; i < chanItems.length; i += 10) {
+      if (Date.now() - started > BUDGET_MS * 0.7) break;
+      await update(T.CONTACTS, chanItems.slice(i, i + 10));
+      chanWritten += Math.min(10, chanItems.length - i);
+    }
+    stats.classified = chanWritten;
+    // Advance the watermark only when this run drained everything it walked;
+    // otherwise resume from the same point next run (rewrites are blanks-only,
+    // so reprocessing is safe).
+    const drained = !cursor && chanWritten >= chanItems.length;
+    if (drained && lastTs > watermark) {
+      const fieldsWm = { key: wmKey, value: lastTs, updated_at: new Date().toISOString() };
+      if (wmRows.length) await update(T.SYNC_STATE, [{ id: wmRows[0].id, fields: fieldsWm }]);
+      else await create(T.SYNC_STATE, [fieldsWm]);
+    }
+    stats.classify_done = drained;
+
     // ---- One pass over ALL donations, aggregated by contact ----
     const donationsByContact = new Map(); // contact rec id -> cents
     cursor = null;
@@ -143,7 +224,7 @@ module.exports = async (req, res) => {
         donationsByContact.set(cid, (donationsByContact.get(cid) || 0) + (f.amount_cents || 0));
       }
       cursor = page.offset || null;
-    } while (cursor && Date.now() - started < BUDGET_MS * 0.7);
+    } while (cursor && Date.now() - started < BUDGET_MS * 0.8);
 
     // ---- Phase B: refresh contact LTV fields for recently active donors ----
     const recent = new Set();
@@ -168,7 +249,7 @@ module.exports = async (req, res) => {
       ltvItems.push({ id: cid, fields: { lifetime_donations: ltv } });
     }
     for (let i = 0; i < ltvItems.length; i += 10) {
-      if (Date.now() - started > BUDGET_MS * 0.8) break;
+      if (Date.now() - started > BUDGET_MS * 0.85) break;
       await update(T.CONTACTS, ltvItems.slice(i, i + 10));
       stats.ltv_updates += Math.min(10, ltvItems.length - i);
     }
@@ -193,6 +274,30 @@ module.exports = async (req, res) => {
       stats.ads_rolled += 1;
     }
 
+    // ---- Revenue by acquisition channel: every donor's all-time giving,
+    // grouped by how we first acquired them. Donor channels read in batches
+    // of 50, so cost scales with donors, not the whole contact base. ----
+    const revByChannel = {}; // channel -> {donors, cents}
+    const donorIds = Array.from(donationsByContact.keys());
+    for (let i = 0; i < donorIds.length; i += 50) {
+      if (Date.now() - started > BUDGET_MS * 0.92) break;
+      const slice = donorIds.slice(i, i + 50);
+      const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
+      const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
+      const chanById = new Map(rows.map((r) => {
+        const c = (r.fields || {}).acquisition_channel;
+        return [r.id, (c && c.name) || c || 'Unclassified'];
+      }));
+      for (const id of slice) {
+        const ch = chanById.get(id) || 'Unclassified';
+        const b = revByChannel[ch] || { donors: 0, total: 0 };
+        b.donors += 1;
+        b.total += (donationsByContact.get(id) || 0);
+        revByChannel[ch] = b;
+      }
+    }
+    for (const b of Object.values(revByChannel)) b.total = Math.round(b.total) / 100;
+
     // ---- Phase D: topline snapshot ----
     const today = tzDate(Date.now());
     let spendToday = 0, signupsToday = 0;
@@ -206,6 +311,7 @@ module.exports = async (req, res) => {
       cpa_today: signupsToday > 0 ? Math.round((spendToday / signupsToday) * 100) / 100 : null,
       ads_tracked: Object.keys(adMeta).length,
       attributed_contacts: acquiredBy.size,
+      revenue_by_channel: revByChannel,
     };
     const existing = await select(T.SITE_STATS, `{key} = 'econ_summary'`, null, 1);
     const fields = { key: 'econ_summary', text_value: JSON.stringify(summary), updated_at: new Date().toISOString() };
