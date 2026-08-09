@@ -40,7 +40,8 @@
     "api/admin/social-dashboard.js": { "maxDuration": 30 },
     "api/cron/ad-insights.js": { "maxDuration": 60 },
     "api/cron/unit-economics.js": { "maxDuration": 300 },
-    "api/admin/econ-dashboard.js": { "maxDuration": 30 }
+    "api/admin/econ-dashboard.js": { "maxDuration": 30 },
+    "api/admin/stripe-import-donations.js": { "maxDuration": 300 }
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
