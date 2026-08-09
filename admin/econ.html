@@ -118,9 +118,9 @@ async function load() {
     const m = rc.meta || {}, o = rc.ours || {};
     const oursPaid = (o.lead_ad_form || 0) + (o.web_with_ad_id || 0) + (o.web_campaign_only || 0);
     const rows = [
-      ['Results ("Multiple conversions")', m.results_lead_total, oursPaid + ' with an ad marker'],
+      [`Results ("Multiple conversions"${m.results_metric ? ': ' + esc(m.results_metric) : ''})`, m.results_total, oursPaid + ' with an ad marker'],
       ['&nbsp;&nbsp;of which: lead forms on Facebook', m.on_facebook_lead_forms, (o.lead_ad_form || 0) + ' lead-ad signatures'],
-      ['&nbsp;&nbsp;of which: website pixel Leads', m.website_pixel_leads,
+      ['&nbsp;&nbsp;of which: website conversions', m.website_conversions,
         `${(o.web_with_ad_id || 0) + (o.web_campaign_only || 0)} web signups with ad UTMs`],
       ['Facebook click, no ad UTMs (ad or organic)', '—', o.fb_click_no_utm],
       ['No Meta marker at all', '—', o.no_meta_marker],
