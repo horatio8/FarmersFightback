@@ -204,8 +204,10 @@ module.exports = async function handler(req, res) {
         const parts = [];
         for (let i = 0; i < waveItems.length; i += chunk) parts.push(waveItems.slice(i, i + chunk));
         const t0 = Date.now();
+        // Each wave's retry cascade dies before the invocation budget does.
+        const waveDeadline = Math.max(30000, budget - (Date.now() - started) - 15000);
         // eslint-disable-next-line no-await-in-loop
-        const outs = await Promise.all(parts.map((part) => cnSetUidBulkSafe(part.map((w) => w.row), { slim })));
+        const outs = await Promise.all(parts.map((part) => cnSetUidBulkSafe(part.map((w) => w.row), { slim, deadlineMs: waveDeadline })));
         lastWaveMs = Date.now() - t0;
         waves += 1;
         for (const out of outs) {
@@ -217,12 +219,17 @@ module.exports = async function handler(req, res) {
         qi += waveItems.length;
       }
 
+      // A mostly-failed run means CN itself is down, not that those contacts
+      // are bad — void the run so the cursor stays put and they retry whole.
+      const attempted = pushed + failed;
+      const voidRun = failed >= 20 && failed >= attempted * 0.5;
+
       // Resume point: the first page still holding an unflushed row; if all
       // flushed, the cursor after the last gathered page (null when drained).
       const firstUnflushed = pages.find((p) => p.unflushed > 0);
-      const nextCursor = firstUnflushed
-        ? firstUnflushed.startCursor
-        : (drained ? null : pageCursor);
+      const nextCursor = voidRun
+        ? (cursorVal || START_SENTINEL)
+        : (firstUnflushed ? firstUnflushed.startCursor : (drained ? null : pageCursor));
       const complete = nextCursor === null;
 
       if (useState && stateRec) {
@@ -232,9 +239,10 @@ module.exports = async function handler(req, res) {
           done: complete,
           lock_until: 0,
           total_pushed: ((stateVal && stateVal.total_pushed) || 0) + pushed,
-          total_failed: ((stateVal && stateVal.total_failed) || 0) + failed,
-          total_skipped: ((stateVal && stateVal.total_skipped) || 0) + skipped,
+          total_failed: ((stateVal && stateVal.total_failed) || 0) + (voidRun ? 0 : failed),
+          total_skipped: ((stateVal && stateVal.total_skipped) || 0) + (voidRun ? 0 : skipped),
           runs: ((stateVal && stateVal.runs) || 0) + 1,
+          void_runs: ((stateVal && stateVal.void_runs) || 0) + (voidRun ? 1 : 0),
           last_run: nowIso,
         };
         await update(TABLES.SYNC_STATE, [{ id: stateRec.id, fields: { key: STATE_KEY, value: JSON.stringify(newVal), updated_at: nowIso } }]);
@@ -252,6 +260,7 @@ module.exports = async function handler(req, res) {
         chunk,
         p: P,
         slim,
+        ...(voidRun ? { void_run: true } : {}),
         elapsed_ms: Date.now() - started,
         last_wave_ms: lastWaveMs,
         ...(firstErr ? { first_error: firstErr } : {}),
