@@ -67,6 +67,11 @@ module.exports = async (req, res) => {
   if (!authed(req) && !requireCron(req, res)) return;
   const started = Date.now();
   const days = Math.min(Number((req.query && req.query.days) || 0) || 7, 1000);
+  // ?boost=classify devotes nearly the whole run to channel classification
+  // and returns after it — for driving the historical backfill at ~10x the
+  // nightly pace. The cron runs the full pipeline (no boost).
+  const boost = ((req.query && req.query.boost) || '') === 'classify';
+  const CB = boost ? [0.45, 0.6, 0.96] : [0.6, 0.65, 0.7];
   const stats = { attributed: 0, skipped_attributed: 0, ltv_updates: 0, ads_rolled: 0 };
 
   try {
@@ -87,7 +92,7 @@ module.exports = async (req, res) => {
         if (!adMeta[f.ad_id] || f.date > adMeta[f.ad_id].date) adMeta[f.ad_id] = { date: f.date, recId: r.id };
       }
       cursor = page.offset || null;
-    } while (cursor);
+    } while (cursor && !boost);
 
     // ---- Who is already attributed (also reused by Phase C) ----
     const acquiredBy = new Map(); // contact rec id -> ad id
@@ -101,7 +106,7 @@ module.exports = async (req, res) => {
       });
       for (const r of page.records || []) acquiredBy.set(r.id, (r.fields || {}).acquisition_ad_id);
       cursor = page.offset || null;
-    } while (cursor && Date.now() - started < BUDGET_MS * 0.2);
+    } while (cursor && !boost && Date.now() - started < BUDGET_MS * 0.2);
 
     // ---- Phase A: attribute un-attributed contacts from their signatures ----
     cursor = null;
@@ -127,7 +132,7 @@ module.exports = async (req, res) => {
         pending.set(cid, { ad, cost });
       }
       cursor = page.offset || null;
-    } while (cursor && Date.now() - started < BUDGET_MS * 0.35);
+    } while (cursor && !boost && Date.now() - started < BUDGET_MS * 0.35);
 
     // Batched writes (update() batches 10 per request internally). Budgeted:
     // whatever doesn't fit is picked up by the next run, because the
@@ -173,14 +178,14 @@ module.exports = async (req, res) => {
         chanPending.set(cid, channelOf(f));
       }
       cursor = page.offset || null;
-    } while (cursor && Date.now() - started < BUDGET_MS * 0.6);
+    } while (cursor && Date.now() - started < BUDGET_MS * CB[0]);
 
     // Write blanks only: read current channel in batches of 50, then batch
     // update the ones still empty.
     const chanIds = Array.from(chanPending.keys());
     const chanItems = [];
     for (let i = 0; i < chanIds.length; i += 50) {
-      if (Date.now() - started > BUDGET_MS * 0.65) break;
+      if (Date.now() - started > BUDGET_MS * CB[1]) break;
       const slice = chanIds.slice(i, i + 50);
       const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
       const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
@@ -192,7 +197,7 @@ module.exports = async (req, res) => {
     }
     let chanWritten = 0;
     for (let i = 0; i < chanItems.length; i += 10) {
-      if (Date.now() - started > BUDGET_MS * 0.7) break;
+      if (Date.now() - started > BUDGET_MS * CB[2]) break;
       await update(T.CONTACTS, chanItems.slice(i, i + 10));
       chanWritten += Math.min(10, chanItems.length - i);
     }
@@ -207,6 +212,16 @@ module.exports = async (req, res) => {
       else await create(T.SYNC_STATE, [fieldsWm]);
     }
     stats.classify_done = drained;
+
+    if (boost) {
+      return res.status(200).json({
+        ok: true,
+        boost: 'classify',
+        classified: stats.classified,
+        classify_done: drained,
+        walked_to: lastTs,
+      });
+    }
 
     // ---- One pass over ALL donations, aggregated by contact ----
     const donationsByContact = new Map(); // contact rec id -> cents
