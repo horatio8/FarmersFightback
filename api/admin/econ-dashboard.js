@@ -26,19 +26,38 @@ function isoDaysAgo(n) {
   return new Date(Date.now() - n * 86400 * 1000).toISOString();
 }
 
-async function sumDonations(sinceIso) {
-  let cursor = null, total = 0, count = 0;
+// Our direct revenue-attribution lane: the checkout carries the landing
+// UTMs into Stripe metadata, so a donation whose payload holds a numeric
+// utm_content was a click-through from that ad in the same session.
+function adUtmFromDonationPayload(str) {
+  try {
+    const p = JSON.parse(str || '{}');
+    const md = (p.raw && p.raw.metadata) || {};
+    let c = md.utm_content;
+    if (!c && p.source_url) c = (String(p.source_url).match(/utm_content=(\d{15,})/) || [])[1];
+    return /^\d{15,}$/.test(String(c || '')) ? String(c) : null;
+  } catch { return null; }
+}
+
+async function sumDonations(sinceIso, withDirect = false) {
+  let cursor = null, total = 0, count = 0, directCount = 0, directTotal = 0;
   do {
     const page = await listPage(T.DONATIONS, {
       pageSize: 100,
       filterByFormula: `IS_AFTER({timestamp}, '${sinceIso}')`,
-      fields: ['amount_cents'],
+      fields: withDirect ? ['amount_cents', 'payload'] : ['amount_cents'],
       ...(cursor ? { offset: cursor } : {}),
     });
-    for (const r of page.records || []) { total += (r.fields.amount_cents || 0) / 100; count += 1; }
+    for (const r of page.records || []) {
+      const amt = (r.fields.amount_cents || 0) / 100;
+      total += amt; count += 1;
+      if (withDirect && adUtmFromDonationPayload(r.fields.payload)) { directCount += 1; directTotal += amt; }
+    }
     cursor = page.offset || null;
   } while (cursor);
-  return { total: Math.round(total * 100) / 100, count };
+  const out = { total: Math.round(total * 100) / 100, count };
+  if (withDirect) out.direct = { count: directCount, total: Math.round(directTotal * 100) / 100 };
+  return out;
 }
 
 // Meta's own conversion tallies for today, account level, split by action
@@ -52,7 +71,7 @@ async function metaToday() {
     const qs = new URLSearchParams({
       access_token: econ.adsToken(),
       level: 'account',
-      fields: 'spend,actions',
+      fields: 'spend,actions,action_values',
       time_range: JSON.stringify({ since: today, until: today }),
     });
     const r = await fetch(`${econ.GRAPH}/${econ.adAccountId()}/insights?${qs}`);
@@ -71,7 +90,13 @@ async function metaToday() {
     const composite = actions['offsite_complete_registration_add_meta_leads'];
     const resultsTotal = composite ?? actions.lead ?? null;
     const leadForms = actions.leadgen_grouped ?? actions['onsite_conversion.lead_grouped'] ?? null;
+    // Meta's own revenue attribution: purchases it credits to ads today, and
+    // the dollar value it attaches to them (action_values).
+    const values = {};
+    for (const a of row.action_values || []) values[a.action_type] = Number(a.value) || 0;
     return {
+      purchases: actions.omni_purchase ?? actions['offsite_conversion.fb_pixel_purchase'] ?? null,
+      purchase_value: values.omni_purchase ?? values['offsite_conversion.fb_pixel_purchase'] ?? null,
       spend: Number(row.spend) || 0,
       results_total: resultsTotal,
       results_metric: composite != null ? 'complete_registration + lead forms' : 'lead',
@@ -148,7 +173,7 @@ module.exports = async (req, res) => {
 
   try {
     const [d24, d7, sigsToday, statRows, alertRows, settings, meta] = await Promise.all([
-      sumDonations(isoDaysAgo(1)),
+      sumDonations(isoDaysAgo(1), true),
       sumDonations(isoDaysAgo(7)),
       countSignatures(isoDaysAgo(1)),
       select(T.SITE_STATS, `OR({key} = 'signature_count', {key} = 'econ_summary')`, null, 5),
@@ -175,6 +200,30 @@ module.exports = async (req, res) => {
     const ads = adRows
       .map(r => r.fields)
       .sort((a, b) => (b.spend || 0) - (a.spend || 0));
+
+    // Revenue/ROAS live on whichever daily row the nightly rollup last wrote
+    // — usually YESTERDAY's, which today's fresh rows don't carry. Pull each
+    // ad's most recent revenue-bearing row and merge it in, so the columns
+    // don't blank out every midnight.
+    try {
+      const revRows = await select(
+        T.AD_PERFORMANCE,
+        `{revenue_attributed} > 0`,
+        ['ad_id', 'date', 'revenue_attributed', 'roas']
+      );
+      const latestRev = {};
+      for (const r of revRows) {
+        const f = r.fields || {};
+        if (!f.ad_id) continue;
+        if (!latestRev[f.ad_id] || String(f.date) > String(latestRev[f.ad_id].date)) latestRev[f.ad_id] = f;
+      }
+      for (const a of ads) {
+        if (a.revenue_attributed == null && latestRev[a.ad_id]) {
+          a.revenue_attributed = latestRev[a.ad_id].revenue_attributed;
+          a.roas = latestRev[a.ad_id].roas;
+        }
+      }
+    } catch (e) { console.error('revenue merge failed:', e.message); }
 
     // Live topline: spend straight from Meta when reachable (real-time, and
     // what Ads Manager shows) rather than the per-ad rows, which are up to 30
@@ -204,7 +253,7 @@ module.exports = async (req, res) => {
       // split for today vs our signatures bucketed by the evidence they carry.
       reconciliation: {
         meta,
-        ours: sigsToday.buckets,
+        ours: { ...sigsToday.buckets, direct_donations_24h: d24.direct || null },
         note: 'Meta lead form counts should tie to lead_ad_form within a few. '
           + 'Meta website pixel Leads cover our web buckets PLUS view-through, '
           + 'cross-device and modelled conversions — that remainder is Meta '
