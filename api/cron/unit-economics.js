@@ -199,20 +199,47 @@ module.exports = async (req, res) => {
       cursor = page.offset || null;
     } while (cursor && Date.now() - started < BUDGET_MS * CB[0]);
 
-    // Write blanks only: read current channel in batches of 50, then batch
-    // update the ones still empty.
+    // Write blanks only. Two strategies:
+    //  - Small pending (nightly incremental): read current channels in
+    //    batches of 50 and write the empties.
+    //  - Large pending (the backfill): prefetch the ENTIRE classified set
+    //    once and subtract. The batched-read path deadlocks at scale — it
+    //    always re-checks pending in walk order from the same watermark, so
+    //    once the head of the queue is classified, every run burns its check
+    //    budget re-verifying old work and progresses zero (seen live: 24
+    //    runs, 650 written). The prefetch is the same skip-set pattern that
+    //    converged Phase A.
     const chanIds = Array.from(chanPending.keys());
     const chanItems = [];
     let checkedAll = true;
-    for (let i = 0; i < chanIds.length; i += 50) {
-      if (Date.now() - started > BUDGET_MS * CB[1]) { checkedAll = false; break; }
-      const slice = chanIds.slice(i, i + 50);
-      const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
-      const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
-      const have = new Map(rows.map((r) => [r.id, (r.fields || {}).acquisition_channel]));
-      for (const id of slice) {
-        const cur = have.get(id);
-        if (!cur) chanItems.push({ id, fields: { acquisition_channel: chanPending.get(id) } });
+    if (chanIds.length > 3000) {
+      const classifiedSet = new Set();
+      let c3 = null;
+      do {
+        const page = await listPage(T.CONTACTS, {
+          pageSize: 100,
+          filterByFormula: `{acquisition_channel} != ''`,
+          fields: [],
+          ...(c3 ? { offset: c3 } : {}),
+        });
+        for (const r of page.records || []) classifiedSet.add(r.id);
+        c3 = page.offset || null;
+      } while (c3 && Date.now() - started < BUDGET_MS * CB[1]);
+      if (c3) checkedAll = false; // prefetch itself ran out of budget
+      for (const id of chanIds) {
+        if (!classifiedSet.has(id)) chanItems.push({ id, fields: { acquisition_channel: chanPending.get(id) } });
+      }
+    } else {
+      for (let i = 0; i < chanIds.length; i += 50) {
+        if (Date.now() - started > BUDGET_MS * CB[1]) { checkedAll = false; break; }
+        const slice = chanIds.slice(i, i + 50);
+        const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
+        const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
+        const have = new Map(rows.map((r) => [r.id, (r.fields || {}).acquisition_channel]));
+        for (const id of slice) {
+          const cur = have.get(id);
+          if (!cur) chanItems.push({ id, fields: { acquisition_channel: chanPending.get(id) } });
+        }
       }
     }
     let chanWritten = 0;
