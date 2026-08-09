@@ -21,17 +21,25 @@
 //       execution limit — keep calling with the returned nextCursor until it
 //       comes back null. Use this to top up new contacts after the backfill.
 //
-//   &email=x@y.com  → single contact, either mode, for spot checks.
+//   GET /api/admin/survey-uids?mode=bulk&cursor=<c>
+//     → JSON { seen, pushed, skipped, failed, chunks, nextCursor }
+//       The backfill workhorse: same walk as push but batched through CN's
+//       /profiles/match/bulk (~250 profiles a call, split-retry on failure),
+//       so tens of thousands of contacts land in a handful of invocations.
+//       Time-boxed; keep calling with nextCursor until it comes back null.
+//
+//   &email=x@y.com  → single contact, csv/push modes, for spot checks.
 //
 // Contacts without a referral_code are skipped rather than issued one: minting
 // here would write codes for people who may never be emailed. They pick one up
 // through the normal paths (petition-signup, event-log, share-context).
 //
-// Guarded by ADMIN_BASIC_AUTH, same as /api/ab-report and /api/admin/webinar-tokens.
+// Guarded by ADMIN_BASIC_AUTH (same as /api/ab-report), or ?token=ADMIN_TOKEN
+// so the bulk backfill can be driven without the basic-auth password.
 
 const { listRows, listPage, normEmail } = require("../_airtable");
 const { requireBasicAuth, hostBase } = require("../_util");
-const { cnSetUid, CN_UID_FIELD } = require("../_cn");
+const { cnSetUid, cnSetUidBulkSafe, CN_UID_FIELD } = require("../_cn");
 
 const CONTACTS_TABLE = process.env.AIRTABLE_CONTACTS_TABLE || "Contacts";
 const PUBLIC_BASE = "https://www.farmersfightback.com";
@@ -42,6 +50,9 @@ const FIELDS = ["contact_id", "email", "mobile", "first_name", "last_name", "ref
 // CN round trip, so this is the knob to turn if pushes start timing out.
 const PUSH_BATCH = 200;
 const CSV_LIMIT = 50000;
+// Bulk mode: profiles per CN bulk call, and a time box under the 300s limit.
+const BULK_CHUNK = 250;
+const BULK_BUDGET_MS = 265 * 1000;
 
 function csvCell(s) {
   const v = String(s == null ? "" : s);
@@ -57,10 +68,12 @@ function escFormula(s) {
 }
 
 module.exports = async function handler(req, res) {
-  if (!requireBasicAuth(req, res)) return;
+  const url = new URL(req.url, hostBase(req));
+  const token = url.searchParams.get("token") || req.headers["x-admin-token"];
+  const tokenOk = Boolean(process.env.ADMIN_TOKEN) && token === process.env.ADMIN_TOKEN;
+  if (!tokenOk && !requireBasicAuth(req, res)) return;
   if (req.method !== "GET") return res.status(405).json({ error: "GET only" });
 
-  const url = new URL(req.url, hostBase(req));
   const mode = (url.searchParams.get("mode") || "csv").toLowerCase();
   const email = normEmail(url.searchParams.get("email"));
   const cursor = url.searchParams.get("cursor") || undefined;
@@ -69,8 +82,8 @@ module.exports = async function handler(req, res) {
     Math.max(1, Number(url.searchParams.get("limit")) || (mode === "push" ? PUSH_BATCH : CSV_LIMIT))
   );
 
-  if (mode !== "csv" && mode !== "push") {
-    return res.status(400).json({ error: "mode must be csv or push" });
+  if (mode !== "csv" && mode !== "push" && mode !== "bulk") {
+    return res.status(400).json({ error: "mode must be csv, push or bulk" });
   }
 
   try {
@@ -78,6 +91,61 @@ module.exports = async function handler(req, res) {
     const formula = email
       ? `AND(LOWER({email})='${escFormula(email)}',{referral_code}!='')`
       : `AND({referral_code}!='',OR({email}!='',{mobile}!=''))`;
+
+    // Bulk: walk pages, buffer, flush to CN in chunk-sized bulk calls until
+    // the walk drains or the time box runs out. Resumable via nextCursor.
+    if (mode === "bulk") {
+      const chunk = Math.min(500, Math.max(10, Number(url.searchParams.get("chunk")) || BULK_CHUNK));
+      const started = Date.now();
+      let pageCursor = cursor;
+      let seen = 0, pushed = 0, skipped = 0, failed = 0, chunks = 0;
+      let buf = [];
+      let firstErr = null;
+      const flush = async () => {
+        if (!buf.length) return;
+        const out = await cnSetUidBulkSafe(buf);
+        chunks += 1;
+        pushed += out.pushed; skipped += out.skipped; failed += out.failed;
+        if (out.err && !firstErr) firstErr = out.err;
+        buf = [];
+      };
+      do {
+        // eslint-disable-next-line no-await-in-loop
+        const page = await listPage(CONTACTS_TABLE, {
+          formula,
+          fields: FIELDS,
+          pageSize: 100,
+          offset: pageCursor,
+        });
+        for (const r of page.records) {
+          const f = r.fields || {};
+          seen += 1;
+          if (!f.referral_code || (!f.email && !f.mobile)) { skipped += 1; continue; }
+          buf.push({
+            first_name: f.first_name,
+            last_name: f.last_name,
+            email: f.email,
+            mobile: f.mobile,
+            uid: f.referral_code,
+          });
+          // eslint-disable-next-line no-await-in-loop
+          if (buf.length >= chunk) await flush();
+        }
+        pageCursor = page.offset || null;
+      } while (pageCursor && Date.now() - started < BULK_BUDGET_MS);
+      await flush();
+      return res.status(200).json({
+        ok: true,
+        mode,
+        seen,
+        pushed,
+        skipped,
+        failed,
+        chunks,
+        ...(firstErr ? { first_error: firstErr } : {}),
+        nextCursor: pageCursor,
+      });
+    }
 
     // CSV wants the lot in one go; push walks it a page at a time so a batch
     // fits inside the function's execution limit and can resume.

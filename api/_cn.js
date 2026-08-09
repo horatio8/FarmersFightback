@@ -81,10 +81,82 @@ function cnSetUid({ first_name, last_name, email, mobile, uid }) {
   });
 }
 
+// Bulk variant of cnSetUid: one POST /profiles/match/bulk for a whole batch.
+// Probed against production: custom1 is the column backing the
+// FarmersFightback_UID CRM alias — the bulk endpoint matches existing
+// profiles (names and tags intact) and sets it, echoing the alias back.
+// Rows use the same shape cnSetUid takes: {first_name,last_name,email,mobile,uid}.
+function looksLikeEmail(s) {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(s || ""));
+}
+
+function bulkRow(r) {
+  // A malformed email (double-@ typos exist in the base) risks failing the
+  // whole batch, so drop the bad address and match on mobile if there is one.
+  const email = looksLikeEmail(r.email) ? r.email : undefined;
+  if (!r.uid || (!email && !r.mobile)) return null;
+  return {
+    first_name: r.first_name || undefined,
+    last_name: r.last_name || undefined,
+    email,
+    mobile: r.mobile || undefined,
+    custom1: String(r.uid).toUpperCase(),
+  };
+}
+
+async function cnSetUidBulk(rows) {
+  const body = (rows || []).map(bulkRow).filter(Boolean);
+  if (!body.length) return { skipped: true, reason: "no pushable rows" };
+  return cnFetch("/profiles/match/bulk", body, "POST");
+}
+
+// Bulk push with split-retry: a failed batch is halved and retried so one bad
+// row cannot sink 250 good ones; small remnants fall back to per-row
+// cnProfileMatch, isolating the genuinely broken rows. Returns
+// { pushed, skipped, failed, calls, err } with err = first failure detail.
+async function cnSetUidBulkSafe(rows) {
+  const body = (rows || []).map(bulkRow).filter(Boolean);
+  const skippedUpfront = (rows || []).length - body.length;
+  const out = await pushSplit(body);
+  return { ...out, skipped: out.skipped + skippedUpfront };
+}
+
+async function pushSplit(body) {
+  if (!body.length) return { pushed: 0, skipped: 0, failed: 0, calls: 0 };
+  const out = await cnSetUidBulk0(body);
+  if (out.skipped) return { pushed: 0, skipped: body.length, failed: 0, calls: 0 };
+  if (out.ok) return { pushed: body.length, skipped: 0, failed: 0, calls: 1 };
+  if (body.length <= 25) {
+    let pushed = 0, failed = 0, calls = 1, err;
+    for (const p of body) {
+      // eslint-disable-next-line no-await-in-loop
+      const one = await cnProfileMatch(p);
+      calls += 1;
+      if (one && one.ok) pushed += 1;
+      else { failed += 1; err = err || { status: one && one.status, body: one && one.body, error: one && one.error }; }
+    }
+    return { pushed, skipped: 0, failed, calls, err };
+  }
+  const mid = Math.ceil(body.length / 2);
+  const a = await pushSplit(body.slice(0, mid));
+  const b = await pushSplit(body.slice(mid));
+  return {
+    pushed: a.pushed + b.pushed,
+    skipped: a.skipped + b.skipped,
+    failed: a.failed + b.failed,
+    calls: a.calls + b.calls + 1,
+    err: a.err || b.err,
+  };
+}
+
+function cnSetUidBulk0(body) {
+  return cnFetch("/profiles/match/bulk", body, "POST");
+}
+
 // Drop a profile into a CN automation (fires its email sequence).
 function cnAutomationAdd(automationId, profile) {
   if (!automationId) return Promise.resolve({ skipped: true, reason: "no automation id" });
   return cnFetch(`/automations/${encodeURIComponent(automationId)}/profiles`, profile);
 }
 
-module.exports = { cnFetch, cnProfileMatch, cnAutomationAdd, cnSetUid, CN_UID_FIELD };
+module.exports = { cnFetch, cnProfileMatch, cnAutomationAdd, cnSetUid, cnSetUidBulk, cnSetUidBulkSafe, CN_UID_FIELD };
