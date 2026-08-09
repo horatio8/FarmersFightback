@@ -86,7 +86,17 @@ module.exports = async function handler(req, res) {
         if (!ch.paid || ch.refunded || ch.currency !== "aud" || !isFF(ch)) continue;
         stats.ff += 1;
         stats.total_usd_seen += ch.amount / 100;
-        if (existing.has(ch.id) || (ch.payment_intent && existing.has(ch.payment_intent))) {
+        // Three identities a recorded gift may carry: the webhook stores
+        // checkout sessions under stripe_object_id=cs_..., subscription
+        // rebills under the INVOICE id (in_...), and both keep the payment
+        // intent. A rebill charge only links to its row via ch.invoice —
+        // without that check the dry run offered every rebill as "new",
+        // which would have double-counted the whole subscription program.
+        if (
+          existing.has(ch.id)
+          || (ch.payment_intent && existing.has(ch.payment_intent))
+          || (ch.invoice && existing.has(ch.invoice))
+        ) {
           stats.already += 1;
           continue;
         }
