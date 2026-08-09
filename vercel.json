@@ -39,7 +39,7 @@
     "api/cron/social-rollup.js": { "maxDuration": 60 },
     "api/admin/social-dashboard.js": { "maxDuration": 30 },
     "api/cron/ad-insights.js": { "maxDuration": 60 },
-    "api/cron/unit-economics.js": { "maxDuration": 60 },
+    "api/cron/unit-economics.js": { "maxDuration": 300 },
     "api/admin/econ-dashboard.js": { "maxDuration": 30 }
   },
   "redirects": [

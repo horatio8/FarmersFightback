@@ -1,29 +1,32 @@
 // Unit economics: acquisition cost per contact, lifetime value, per-ad ROAS,
 // and the topline numbers the dashboard reads.
 //
-// GET /api/cron/unit-economics   (nightly + on demand; CRON_SECRET or ?token=)
+// GET /api/cron/unit-economics            (nightly + on demand)
+//     ?days=N     Phase A attribution lookback (default 7; use a large value
+//                 to backfill historical lead-ad signatures, which carry
+//                 meta_ad_id all the way back)
+//   Auth: CRON_SECRET or ?token=ADMIN_TOKEN.
 //
-// Phase A  Acquisition attribution. For contacts whose acquisition fields are
-//          blank and whose signature (last 7 days) carries a Meta ad id:
-//          acquisition_cost = that ad's spend that day / that ad's signups
-//          that day (from Ad Performance daily rows). Organic contacts are
-//          left blank, meaning $0.
-// Phase B  LTV. For every donation in the last 3 days, recompute the
-//          contact's lifetime_donations and net_value.
-// Phase C  Per-ad rollup. revenue_attributed = sum of lifetime_donations of
-//          contacts acquired by the ad; roas = revenue / all-time spend.
-//          Written onto the ad's most recent daily row.
+// Phase A  Acquisition attribution. Contacts whose signature carries a Meta
+//          AD id (meta_ad_id from lead ads, or utm_content on web signups)
+//          get acquisition_ad_id + acquisition_cost. Only blanks are filled;
+//          already-attributed contacts are skipped via one cheap prefetch, so
+//          repeated runs converge on a big backfill without cursors.
+// Phase B  LTV contact fields. For donors active in the last 3 days,
+//          recompute lifetime_donations and net_value on the contact.
+// Phase C  Per-ad revenue + ROAS, derived FROM SOURCE each run: one pass over
+//          all Donations aggregated by contact, joined to attributed
+//          contacts. Deliberately does NOT read lifetime_donations — that
+//          field is only maintained incrementally, and revenue must not
+//          depend on a backfill having happened.
 // Phase D  Topline snapshot into Site Stats key "econ_summary".
-//
-// Everything is idempotent and time-boxed; a re-run redoes no work it has
-// already committed except cheap rollups.
 
 const { requireCron } = require('../_util');
 const econ = require('../../lib/econ/config');
-const { select, create, update, upsert, listPage, fesc } = require('../../lib/social/airtable');
+const { select, create, update, listPage, fesc } = require('../../lib/social/airtable');
 
 const T = econ.TABLES;
-const BUDGET_MS = 50 * 1000;
+const BUDGET_MS = 280 * 1000; // maxDuration 300 in vercel.json
 
 function authed(req) {
   const token = (req.query && req.query.token) || req.headers['x-admin-token'];
@@ -38,16 +41,21 @@ function tzDate(ts) {
   return new Date(ts).toLocaleDateString('en-CA', { timeZone: econ.ADVERTISER_TZ });
 }
 
+function contactRecId(f) {
+  const c = f.contact;
+  return Array.isArray(c) && c.length ? (c[0].id || c[0]) : null;
+}
+
 module.exports = async (req, res) => {
   if (!authed(req) && !requireCron(req, res)) return;
   const started = Date.now();
-  const stats = { attributed: 0, ltv_updates: 0, ads_rolled: 0 };
+  const days = Math.min(Number((req.query && req.query.days) || 0) || 7, 1000);
+  const stats = { attributed: 0, skipped_attributed: 0, ltv_updates: 0, ads_rolled: 0 };
 
   try {
-    // ---- Phase A: acquisition attribution ----
-    // Daily spend/signup grid from Ad Performance.
+    // ---- Ad Performance daily grid (spend + signups per ad per day) ----
     const grid = {}; // `${date}|${ad}` -> {spend, signups}
-    const adMeta = {}; // ad -> latest daily perf_id
+    const adMeta = {}; // ad -> latest daily row
     let cursor = null;
     do {
       const page = await listPage(T.AD_PERFORMANCE, {
@@ -64,45 +72,81 @@ module.exports = async (req, res) => {
       cursor = page.offset || null;
     } while (cursor);
 
-    // Recent ad-attributed signatures -> their contacts.
+    // ---- Who is already attributed (also reused by Phase C) ----
+    const acquiredBy = new Map(); // contact rec id -> ad id
     cursor = null;
-    const contactUpdates = [];
+    do {
+      const page = await listPage(T.CONTACTS, {
+        pageSize: 100,
+        filterByFormula: `{acquisition_ad_id} != ''`,
+        fields: ['acquisition_ad_id'],
+        ...(cursor ? { offset: cursor } : {}),
+      });
+      for (const r of page.records || []) acquiredBy.set(r.id, (r.fields || {}).acquisition_ad_id);
+      cursor = page.offset || null;
+    } while (cursor && Date.now() - started < BUDGET_MS * 0.2);
+
+    // ---- Phase A: attribute un-attributed contacts from their signatures ----
+    cursor = null;
+    const pending = new Map(); // contact rec id -> {ad, cost}
     do {
       const page = await listPage(T.SIGNATURES, {
         pageSize: 100,
-        filterByFormula: `AND(IS_AFTER({timestamp}, '${isoDaysAgo(7)}'), OR({meta_ad_id} != '', {utm_content} != ''))`,
+        filterByFormula: `AND(IS_AFTER({timestamp}, '${isoDaysAgo(days)}'), OR({meta_ad_id} != '', {utm_content} != ''))`,
         fields: ['meta_ad_id', 'utm_content', 'timestamp', 'contact'],
         ...(cursor ? { offset: cursor } : {}),
       });
       for (const r of page.records || []) {
         const f = r.fields || {};
-        // AD id only: meta_ad_id (lead ads) or a numeric utm_content (web —
-        // this account's links carry {{ad.id}} there). utm_campaign holds the
-        // CAMPAIGN id and must not be written into acquisition_ad_id.
+        // AD id only: meta_ad_id (lead ads) or a numeric utm_content (web).
+        // utm_campaign holds the CAMPAIGN id and must never land here.
         const ad = f.meta_ad_id || (/^\d{15,}$/.test(f.utm_content || '') ? f.utm_content : null);
-        const cid = Array.isArray(f.contact) && f.contact.length ? f.contact[0].id || f.contact[0] : null;
+        const cid = contactRecId(f);
         if (!ad || !cid || !f.timestamp) continue;
-        const day = tzDate(f.timestamp);
-        const cell = grid[`${day}|${ad}`];
+        if (acquiredBy.has(cid)) { stats.skipped_attributed += 1; continue; }
+        if (pending.has(cid)) continue; // first signature seen wins
+        const cell = grid[`${tzDate(f.timestamp)}|${ad}`];
         const cost = cell && cell.signups > 0 ? Math.round((cell.spend / cell.signups) * 100) / 100 : undefined;
-        contactUpdates.push({ cid, ad, day, cost });
+        pending.set(cid, { ad, cost });
       }
       cursor = page.offset || null;
-    } while (cursor && Date.now() - started < BUDGET_MS * 0.4);
+    } while (cursor && Date.now() - started < BUDGET_MS * 0.35);
 
-    // Only fill blanks: fetch in chunks and skip contacts already attributed.
-    for (const u of contactUpdates) {
-      if (Date.now() - started > BUDGET_MS * 0.5) break;
-      const rows = await select(T.CONTACTS, `RECORD_ID() = '${u.cid}'`, ['acquisition_ad_id'], 1);
-      if (!rows.length || rows[0].fields.acquisition_ad_id) continue;
-      const fields = { acquisition_ad_id: u.ad };
-      if (u.cost !== undefined) fields.acquisition_cost = u.cost;
-      await update(T.CONTACTS, [{ id: u.cid, fields }]);
-      stats.attributed += 1;
+    // Batched writes (update() batches 10 per request internally). Budgeted:
+    // whatever doesn't fit is picked up by the next run, because the
+    // attributed prefetch will skip everything written here.
+    const items = Array.from(pending.entries()).map(([id, u]) => ({
+      id,
+      fields: { acquisition_ad_id: u.ad, ...(u.cost !== undefined ? { acquisition_cost: u.cost } : {}) },
+    }));
+    for (let i = 0; i < items.length; i += 10) {
+      if (Date.now() - started > BUDGET_MS * 0.55) break;
+      const batch = items.slice(i, i + 10);
+      await update(T.CONTACTS, batch);
+      for (const b of batch) acquiredBy.set(b.id, b.fields.acquisition_ad_id);
+      stats.attributed += batch.length;
     }
 
-    // ---- Phase B: LTV for recently active donors ----
-    const recentDonors = new Map(); // contact rec id -> true
+    // ---- One pass over ALL donations, aggregated by contact ----
+    const donationsByContact = new Map(); // contact rec id -> cents
+    cursor = null;
+    do {
+      const page = await listPage(T.DONATIONS, {
+        pageSize: 100,
+        fields: ['contact', 'amount_cents'],
+        ...(cursor ? { offset: cursor } : {}),
+      });
+      for (const r of page.records || []) {
+        const f = r.fields || {};
+        const cid = contactRecId(f);
+        if (!cid) continue;
+        donationsByContact.set(cid, (donationsByContact.get(cid) || 0) + (f.amount_cents || 0));
+      }
+      cursor = page.offset || null;
+    } while (cursor && Date.now() - started < BUDGET_MS * 0.7);
+
+    // ---- Phase B: refresh contact LTV fields for recently active donors ----
+    const recent = new Set();
     cursor = null;
     do {
       const page = await listPage(T.DONATIONS, {
@@ -112,30 +156,29 @@ module.exports = async (req, res) => {
         ...(cursor ? { offset: cursor } : {}),
       });
       for (const r of page.records || []) {
-        const c = (r.fields || {}).contact;
-        if (Array.isArray(c) && c.length) recentDonors.set(c[0].id || c[0], true);
+        const cid = contactRecId(r.fields || {});
+        if (cid) recent.add(cid);
       }
       cursor = page.offset || null;
     } while (cursor);
 
-    for (const cid of recentDonors.keys()) {
-      if (Date.now() - started > BUDGET_MS * 0.75) break;
-      const contact = await select(T.CONTACTS, `RECORD_ID() = '${cid}'`, ['contact_id', 'acquisition_cost'], 1);
-      if (!contact.length) continue;
-      const uuid = contact[0].fields.contact_id;
-      if (!uuid) continue;
-      const gifts = await select(
-        T.DONATIONS,
-        `FIND('${fesc(uuid)}', ARRAYJOIN({contact})) > 0`,
-        ['amount_cents']
-      );
-      const ltv = Math.round(gifts.reduce((s, g) => s + (g.fields.amount_cents || 0), 0)) / 100;
-      const net = Math.round((ltv - (contact[0].fields.acquisition_cost || 0)) * 100) / 100;
-      await update(T.CONTACTS, [{ id: cid, fields: { lifetime_donations: ltv, net_value: net } }]);
-      stats.ltv_updates += 1;
+    const ltvItems = [];
+    for (const cid of recent) {
+      const ltv = Math.round(donationsByContact.get(cid) || 0) / 100;
+      ltvItems.push({ id: cid, fields: { lifetime_donations: ltv } });
+    }
+    for (let i = 0; i < ltvItems.length; i += 10) {
+      if (Date.now() - started > BUDGET_MS * 0.8) break;
+      await update(T.CONTACTS, ltvItems.slice(i, i + 10));
+      stats.ltv_updates += Math.min(10, ltvItems.length - i);
     }
 
-    // ---- Phase C: per-ad revenue + ROAS ----
+    // ---- Phase C: per-ad revenue + ROAS, from source ----
+    const revenueByAd = {};
+    for (const [cid, ad] of acquiredBy) {
+      const cents = donationsByContact.get(cid);
+      if (cents) revenueByAd[ad] = (revenueByAd[ad] || 0) + cents;
+    }
     const adSpendTotal = {};
     for (const [key, cell] of Object.entries(grid)) {
       const ad = key.split('|')[1];
@@ -143,22 +186,7 @@ module.exports = async (req, res) => {
     }
     for (const [ad, meta] of Object.entries(adMeta)) {
       if (Date.now() - started > BUDGET_MS * 0.95) break;
-      // Paged, not select(): an ad that acquired more than 100 contacts would
-      // otherwise have its revenue truncated at the first page and its ROAS
-      // silently understated.
-      let revenue = 0;
-      let c2 = null;
-      do {
-        const page = await listPage(T.CONTACTS, {
-          pageSize: 100,
-          filterByFormula: `{acquisition_ad_id} = '${fesc(ad)}'`,
-          fields: ['lifetime_donations'],
-          ...(c2 ? { offset: c2 } : {}),
-        });
-        for (const c of page.records || []) revenue += (c.fields.lifetime_donations || 0);
-        c2 = page.offset || null;
-      } while (c2);
-      revenue = Math.round(revenue * 100) / 100;
+      const revenue = Math.round(revenueByAd[ad] || 0) / 100;
       const spendAll = adSpendTotal[ad] || 0;
       const roas = spendAll > 0 ? Math.round((revenue / spendAll) * 100) / 100 : 0;
       await update(T.AD_PERFORMANCE, [{ id: meta.recId, fields: { revenue_attributed: revenue, roas } }]);
@@ -177,13 +205,14 @@ module.exports = async (req, res) => {
       paid_signups_today: signupsToday,
       cpa_today: signupsToday > 0 ? Math.round((spendToday / signupsToday) * 100) / 100 : null,
       ads_tracked: Object.keys(adMeta).length,
+      attributed_contacts: acquiredBy.size,
     };
     const existing = await select(T.SITE_STATS, `{key} = 'econ_summary'`, null, 1);
     const fields = { key: 'econ_summary', text_value: JSON.stringify(summary), updated_at: new Date().toISOString() };
     if (existing.length) await update(T.SITE_STATS, [{ id: existing[0].id, fields }]);
     else await create(T.SITE_STATS, [fields]);
 
-    res.status(200).json({ ok: true, ...stats, summary });
+    res.status(200).json({ ok: true, ...stats, pending_unwritten: Math.max(0, items.length - stats.attributed), summary });
   } catch (e) {
     console.error('unit-economics error:', e);
     res.status(500).json({ ok: false, error: String(e && e.message), ...stats });

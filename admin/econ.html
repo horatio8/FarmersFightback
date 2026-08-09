@@ -124,6 +124,9 @@ async function load() {
         `${(o.web_with_ad_id || 0) + (o.web_campaign_only || 0)} web signups with ad UTMs`],
       ['Facebook click, no ad UTMs (ad or organic)', '—', o.fb_click_no_utm],
       ['No Meta marker at all', '—', o.no_meta_marker],
+      ['Purchases / donation revenue',
+        m.purchases != null ? `${m.purchases} (${money(m.purchase_value)})` : '—',
+        o.direct_donations_24h ? `${o.direct_donations_24h.count} gifts (${money(o.direct_donations_24h.total)}) with ad UTMs, 24h` : '—'],
       ['Spend today', m.spend != null ? money(m.spend) : '—', '—'],
     ];
     document.querySelector('#recon tbody').innerHTML = rows.map(([l, a, b]) =>
