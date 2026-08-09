@@ -65,6 +65,34 @@ function channelFromDonationPayload(str) {
   } catch { return 'Direct'; }
 }
 
+// Donor journey: how a donor's FIRST gift was raised. A second dimension
+// beside acquisition_channel (which says how the PERSON was recruited).
+//   Donated at signup  signed the petition, then gave within the window
+//   Unsolicited        no signature and no contact record before the gift —
+//                      the donation is what created them
+//   SMS appeal         existing contact, gift carries SMS markers
+//   Ad appeal          existing contact, gift carries paid ad markers
+//   Social click       existing contact, Facebook/Instagram click, unpaid
+//   Email appeal       existing contact, gift carries NO markers. CN email
+//                      links are untagged, so untagged later gifts belong to
+//                      the email programme — the residual is deliberate.
+const SIGNUP_WINDOW_MS = Number(process.env.JOURNEY_SIGNUP_WINDOW_HOURS || 24) * 3600 * 1000;
+function journeyOf({ firstGiftTs, firstGiftPayload, earliestSigTs, firstSeenTs }) {
+  const gift = Date.parse(firstGiftTs || '') || 0;
+  const sig = Date.parse(earliestSigTs || '') || null;
+  if (sig && sig <= gift + 15 * 60 * 1000 && gift - sig <= SIGNUP_WINDOW_MS) return 'Donated at signup';
+  const seen = Date.parse(firstSeenTs || '') || null;
+  const existedBefore = (sig && sig < gift) || (seen && gift - seen > 3600 * 1000);
+  if (!existedBefore) return 'Unsolicited';
+  let md = {}, p = {};
+  try { p = JSON.parse(firstGiftPayload || '{}'); md = (p.raw && p.raw.metadata) || {}; } catch { /* unmarked */ }
+  if (String(md.utm_source || '').toLowerCase() === 'sms' || md.sms_variant || p.sms_variant) return 'SMS appeal';
+  if (/^\d{15,}$/.test(String(md.utm_content || '')) || /^\d{15,}$/.test(String(md.utm_campaign || ''))
+    || String(md.utm_source || '').toLowerCase() === 'fb_ads') return 'Ad appeal';
+  if (p.fbclid || md.fbclid || META_ORGANIC_SOURCES.has(String(md.utm_source || '').toLowerCase())) return 'Social click';
+  return 'Email appeal';
+}
+
 // First-touch acquisition channel from a signature's markers, strongest
 // evidence first. "Meta ad" is any PAID marker; a Facebook click without one
 // is organic reach (a share, a page post), which is exactly the split the
@@ -338,7 +366,7 @@ module.exports = async (req, res) => {
       adSpendTotal[ad] = (adSpendTotal[ad] || 0) + (cell.spend || 0);
     }
     for (const [ad, meta] of Object.entries(adMeta)) {
-      if (Date.now() - started > BUDGET_MS * 0.95) break;
+      if (Date.now() - started > BUDGET_MS * 0.97) break;
       const revenue = Math.round(revenueByAd[ad] || 0) / 100;
       const spendAll = adSpendTotal[ad] || 0;
       const roas = spendAll > 0 ? Math.round((revenue / spendAll) * 100) / 100 : 0;
@@ -350,39 +378,85 @@ module.exports = async (req, res) => {
     // grouped by how we first acquired them. Donor channels read in batches
     // of 50, so cost scales with donors, not the whole contact base. ----
     const revByChannel = {}; // channel -> {donors, cents}
-    const donorChanWrites = [];
+    const revByJourney = {}; // journey -> {donors, cents}
+    const donorWrites = new Map(); // contact rec id -> fields patch (merged)
+    const journeyCandidates = []; // {id, sigIds, firstSeen}
+    stats.journey_classified = 0;
     const donorIds = Array.from(donationsByContact.keys());
+    const tally = (bucket, key, id) => {
+      const b = bucket[key] || { donors: 0, total: 0 };
+      b.donors += 1;
+      b.total += (donationsByContact.get(id) || 0);
+      bucket[key] = b;
+    };
     for (let i = 0; i < donorIds.length; i += 50) {
-      if (Date.now() - started > BUDGET_MS * 0.92) break;
+      if (Date.now() - started > BUDGET_MS * 0.88) break;
       const slice = donorIds.slice(i, i + 50);
       const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
-      const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
-      const chanById = new Map(rows.map((r) => {
-        const c = (r.fields || {}).acquisition_channel;
-        return [r.id, (c && c.name) || c || null];
-      }));
+      const rows = await select(T.CONTACTS, formula,
+        ['acquisition_channel', 'donor_journey', 'date_first_seen', 'Petition Signatures'], 50);
+      const byId = new Map(rows.map((r) => [r.id, r.fields || {}]));
       for (const id of slice) {
-        let ch = chanById.get(id) || null;
+        const f = byId.get(id) || {};
+        let ch = f.acquisition_channel && (f.acquisition_channel.name || f.acquisition_channel);
         // Donation-only contact: no signature ever classified them. Take the
         // channel from their earliest donation's checkout payload and persist
         // it, so this lane also converges to zero over time.
         if (!ch) {
           const ed = earliestDonation.get(id);
           ch = ed ? channelFromDonationPayload(ed.payload) : 'Unclassified';
-          if (ed) donorChanWrites.push({ id, fields: { acquisition_channel: ch } });
+          if (ed) donorWrites.set(id, { ...(donorWrites.get(id) || {}), acquisition_channel: ch });
         }
-        const b = revByChannel[ch] || { donors: 0, total: 0 };
-        b.donors += 1;
-        b.total += (donationsByContact.get(id) || 0);
-        revByChannel[ch] = b;
+        tally(revByChannel, ch, id);
+
+        const j = f.donor_journey && (f.donor_journey.name || f.donor_journey);
+        if (j) tally(revByJourney, j, id);
+        else journeyCandidates.push({
+          id,
+          sigIds: (f['Petition Signatures'] || []).map((v) => (v && v.id) || v).slice(0, 10),
+          firstSeen: f.date_first_seen || null,
+        });
       }
     }
-    for (const b of Object.values(revByChannel)) b.total = Math.round(b.total) / 100;
-    for (let i = 0; i < donorChanWrites.length; i += 10) {
-      if (Date.now() - started > BUDGET_MS * 0.94) break;
-      await update(T.CONTACTS, donorChanWrites.slice(i, i + 10));
-      stats.classified += Math.min(10, donorChanWrites.length - i);
+
+    // Journey classification needs each candidate's earliest signature time —
+    // fetch the linked signature rows in batches, then classify and tally.
+    const sigTs = new Map(); // signature rec id -> timestamp
+    const allSigIds = journeyCandidates.flatMap((c) => c.sigIds);
+    for (let i = 0; i < allSigIds.length; i += 50) {
+      if (Date.now() - started > BUDGET_MS * 0.92) break;
+      const slice = allSigIds.slice(i, i + 50);
+      const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
+      const rows = await select(T.SIGNATURES, formula, ['timestamp'], 50);
+      for (const r of rows) sigTs.set(r.id, (r.fields || {}).timestamp || null);
     }
+    for (const c of journeyCandidates) {
+      const ed = earliestDonation.get(c.id);
+      if (!ed) { tally(revByJourney, 'Unclassified', c.id); continue; }
+      const earliestSig = c.sigIds.map((s) => sigTs.get(s)).filter(Boolean).sort()[0] || null;
+      // Signature timestamps not fetched yet (budget) — leave for next run.
+      if (c.sigIds.length && !earliestSig) { tally(revByJourney, 'Unclassified', c.id); continue; }
+      const j = journeyOf({
+        firstGiftTs: ed.ts,
+        firstGiftPayload: ed.payload,
+        earliestSigTs: earliestSig,
+        firstSeenTs: c.firstSeen,
+      });
+      donorWrites.set(c.id, { ...(donorWrites.get(c.id) || {}), donor_journey: j });
+      stats.journey_classified += 1;
+      tally(revByJourney, j, c.id);
+    }
+
+    for (const b of Object.values(revByChannel)) b.total = Math.round(b.total) / 100;
+    for (const b of Object.values(revByJourney)) b.total = Math.round(b.total) / 100;
+    const donorItems = Array.from(donorWrites.entries()).map(([id, fields]) => ({ id, fields }));
+    let donorWritten = 0;
+    for (let i = 0; i < donorItems.length; i += 10) {
+      if (Date.now() - started > BUDGET_MS * 0.95) break;
+      await update(T.CONTACTS, donorItems.slice(i, i + 10));
+      donorWritten += Math.min(10, donorItems.length - i);
+    }
+    stats.classified += donorWritten;
 
     // ---- Phase D: topline snapshot ----
     const today = tzDate(Date.now());
@@ -398,6 +472,7 @@ module.exports = async (req, res) => {
       ads_tracked: Object.keys(adMeta).length,
       attributed_contacts: acquiredBy.size,
       revenue_by_channel: revByChannel,
+      revenue_by_journey: revByJourney,
     };
     const existing = await select(T.SITE_STATS, `{key} = 'econ_summary'`, null, 1);
     const fields = { key: 'econ_summary', text_value: JSON.stringify(summary), updated_at: new Date().toISOString() };

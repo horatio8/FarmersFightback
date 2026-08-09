@@ -44,6 +44,10 @@
   <h2>Donation revenue by how we acquired the donor (all-time)</h2>
   <table id="chanrev"><thead><tr><th>Acquisition channel</th><th>Donors</th><th>Revenue</th><th>Share</th></tr></thead><tbody></tbody></table>
   <p class="muted" style="font-size:12px">First-touch: the channel that originally brought each donor into the database, from their earliest signature. Recomputed nightly. "Unclassified" shrinks as the channel backfill completes.</p>
+
+  <h2>Donation revenue by how the gift was raised (all-time)</h2>
+  <table id="jrnrev"><thead><tr><th>Donor journey</th><th>Donors</th><th>Revenue</th><th>Share</th></tr></thead><tbody></tbody></table>
+  <p class="muted" style="font-size:12px">Classified on each donor's FIRST gift. Donated at signup = gave within 24h of signing. Unsolicited = didn't exist in the database before the gift. SMS / Ad / Social = the gift session carried those markers. Email appeal = existing contact, no markers — CN email links are untagged, so the untagged remainder is the email programme.</p>
 </div>
 <footer>Auto-refreshes every 60s. Pop-up alerts: allow notifications when asked. Thresholds are edited in Airtable, Site Stats row "econ_settings". CPA = today's spend / today's signups in our base. ROAS = all-time donations from contacts this ad acquired / all-time spend.</footer>
 <script>
@@ -149,6 +153,19 @@ async function load() {
          <td>${totalRev > 0 ? Math.round((b.total / totalRev) * 100) + '%' : '—'}</td></tr>`);
     document.querySelector('#chanrev tbody').innerHTML = chanRows.join('')
       || '<tr><td colspan="4">No channel data yet — runs with the nightly job.</td></tr>';
+
+    // Revenue by donor journey — how each donor's first gift was raised.
+    const rbj = (j.econ && j.econ.revenue_by_journey) || {};
+    const jTotal = Object.values(rbj).reduce((s, b) => s + (b.total || 0), 0);
+    const jOrder = ['Donated at signup', 'Unsolicited', 'Email appeal', 'SMS appeal', 'Ad appeal', 'Social click', 'Unclassified'];
+    const jRows = Object.entries(rbj)
+      .sort((a, b) => (jOrder.indexOf(a[0]) + 1 || 99) - (jOrder.indexOf(b[0]) + 1 || 99))
+      .map(([ch, b]) =>
+        `<tr><td>${esc(ch)}</td><td>${(b.donors || 0).toLocaleString()}</td>
+         <td>${money(b.total)}</td>
+         <td>${jTotal > 0 ? Math.round((b.total / jTotal) * 100) + '%' : '—'}</td></tr>`);
+    document.querySelector('#jrnrev tbody').innerHTML = jRows.join('')
+      || '<tr><td colspan="4">No journey data yet — runs with the nightly job.</td></tr>';
   } catch (err) {
     const el = document.getElementById('err');
     el.textContent = 'Load failed: ' + err.message;
