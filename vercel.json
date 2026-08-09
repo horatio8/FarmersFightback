@@ -22,7 +22,8 @@
     { "path": "/api/cron/social-analyse", "schedule": "*/10 * * * *" },
     { "path": "/api/cron/social-rollup", "schedule": "40 16 * * *" },
     { "path": "/api/cron/ad-insights", "schedule": "*/30 * * * *" },
-    { "path": "/api/cron/unit-economics", "schedule": "50 16 * * *" }
+    { "path": "/api/cron/unit-economics", "schedule": "50 16 * * *" },
+    { "path": "/api/cron/survey-uid-push", "schedule": "20 17 * * *" }
   ],
   "functions": {
     "api/cron/sms-queue.js": { "maxDuration": 120 },
@@ -41,7 +42,9 @@
     "api/cron/ad-insights.js": { "maxDuration": 60 },
     "api/cron/unit-economics.js": { "maxDuration": 300 },
     "api/admin/econ-dashboard.js": { "maxDuration": 30 },
-    "api/admin/stripe-import-donations.js": { "maxDuration": 300 }
+    "api/admin/stripe-import-donations.js": { "maxDuration": 300 },
+    "api/admin/survey-uids.js": { "maxDuration": 300 },
+    "api/cron/survey-uid-push.js": { "maxDuration": 120 }
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
