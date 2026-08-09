@@ -46,6 +46,25 @@ function contactRecId(f) {
   return Array.isArray(c) && c.length ? (c[0].id || c[0]) : null;
 }
 
+// Acquisition channel for a donation-only contact, from their earliest
+// donation's Stripe payload — checkout has always carried the landing UTMs in
+// metadata, so this reaches the ~2,000 donors who never signed a petition and
+// therefore have no signature to classify from.
+function channelFromDonationPayload(str) {
+  try {
+    const p = JSON.parse(str || '{}');
+    const md = (p.raw && p.raw.metadata) || {};
+    const paid = /^\d{15,}$/.test(String(md.utm_content || ''))
+      || /^\d{15,}$/.test(String(md.utm_campaign || ''))
+      || String(md.utm_source || '').toLowerCase() === 'fb_ads';
+    if (paid) return 'Meta ad';
+    if (p.fbclid || md.fbclid) return 'Meta organic';
+    if (md.ref || p.ref) return 'Referral';
+    if (md.utm_source) return 'Other';
+    return 'Direct';
+  } catch { return 'Direct'; }
+}
+
 // First-touch acquisition channel from a signature's markers, strongest
 // evidence first. "Meta ad" is any PAID marker; a Facebook click without one
 // is organic reach (a share, a page post), which is exactly the split the
@@ -184,8 +203,9 @@ module.exports = async (req, res) => {
     // update the ones still empty.
     const chanIds = Array.from(chanPending.keys());
     const chanItems = [];
+    let checkedAll = true;
     for (let i = 0; i < chanIds.length; i += 50) {
-      if (Date.now() - started > BUDGET_MS * CB[1]) break;
+      if (Date.now() - started > BUDGET_MS * CB[1]) { checkedAll = false; break; }
       const slice = chanIds.slice(i, i + 50);
       const formula = `OR(${slice.map((id) => `RECORD_ID() = '${id}'`).join(',')})`;
       const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
@@ -202,10 +222,13 @@ module.exports = async (req, res) => {
       chanWritten += Math.min(10, chanItems.length - i);
     }
     stats.classified = chanWritten;
-    // Advance the watermark only when this run drained everything it walked;
-    // otherwise resume from the same point next run (rewrites are blanks-only,
-    // so reprocessing is safe).
-    const drained = !cursor && chanWritten >= chanItems.length;
+    // Advance the watermark only when this run drained everything it walked —
+    // including having CHECKED every pending contact, not just written the
+    // checked ones. Without the checkedAll guard, a run that walked to the end
+    // but ran out of check budget advanced the watermark past tens of
+    // thousands of contacts, permanently skipping them (seen on the first
+    // live backfill). Rewrites are blanks-only, so reprocessing is safe.
+    const drained = !cursor && checkedAll && chanWritten >= chanItems.length;
     if (drained && lastTs > watermark) {
       const fieldsWm = { key: wmKey, value: lastTs, updated_at: new Date().toISOString() };
       if (wmRows.length) await update(T.SYNC_STATE, [{ id: wmRows[0].id, fields: fieldsWm }]);
@@ -224,12 +247,15 @@ module.exports = async (req, res) => {
     }
 
     // ---- One pass over ALL donations, aggregated by contact ----
+    // Also keeps each donor's EARLIEST donation payload, so donation-only
+    // contacts (no signature) can still be channel-classified below.
     const donationsByContact = new Map(); // contact rec id -> cents
+    const earliestDonation = new Map(); // contact rec id -> {ts, payload}
     cursor = null;
     do {
       const page = await listPage(T.DONATIONS, {
         pageSize: 100,
-        fields: ['contact', 'amount_cents'],
+        fields: ['contact', 'amount_cents', 'timestamp', 'payload'],
         ...(cursor ? { offset: cursor } : {}),
       });
       for (const r of page.records || []) {
@@ -237,6 +263,10 @@ module.exports = async (req, res) => {
         const cid = contactRecId(f);
         if (!cid) continue;
         donationsByContact.set(cid, (donationsByContact.get(cid) || 0) + (f.amount_cents || 0));
+        const prev = earliestDonation.get(cid);
+        if (!prev || String(f.timestamp || '') < prev.ts) {
+          earliestDonation.set(cid, { ts: String(f.timestamp || ''), payload: f.payload });
+        }
       }
       cursor = page.offset || null;
     } while (cursor && Date.now() - started < BUDGET_MS * 0.8);
@@ -293,6 +323,7 @@ module.exports = async (req, res) => {
     // grouped by how we first acquired them. Donor channels read in batches
     // of 50, so cost scales with donors, not the whole contact base. ----
     const revByChannel = {}; // channel -> {donors, cents}
+    const donorChanWrites = [];
     const donorIds = Array.from(donationsByContact.keys());
     for (let i = 0; i < donorIds.length; i += 50) {
       if (Date.now() - started > BUDGET_MS * 0.92) break;
@@ -301,10 +332,18 @@ module.exports = async (req, res) => {
       const rows = await select(T.CONTACTS, formula, ['acquisition_channel'], 50);
       const chanById = new Map(rows.map((r) => {
         const c = (r.fields || {}).acquisition_channel;
-        return [r.id, (c && c.name) || c || 'Unclassified'];
+        return [r.id, (c && c.name) || c || null];
       }));
       for (const id of slice) {
-        const ch = chanById.get(id) || 'Unclassified';
+        let ch = chanById.get(id) || null;
+        // Donation-only contact: no signature ever classified them. Take the
+        // channel from their earliest donation's checkout payload and persist
+        // it, so this lane also converges to zero over time.
+        if (!ch) {
+          const ed = earliestDonation.get(id);
+          ch = ed ? channelFromDonationPayload(ed.payload) : 'Unclassified';
+          if (ed) donorChanWrites.push({ id, fields: { acquisition_channel: ch } });
+        }
         const b = revByChannel[ch] || { donors: 0, total: 0 };
         b.donors += 1;
         b.total += (donationsByContact.get(id) || 0);
@@ -312,6 +351,11 @@ module.exports = async (req, res) => {
       }
     }
     for (const b of Object.values(revByChannel)) b.total = Math.round(b.total) / 100;
+    for (let i = 0; i < donorChanWrites.length; i += 10) {
+      if (Date.now() - started > BUDGET_MS * 0.94) break;
+      await update(T.CONTACTS, donorChanWrites.slice(i, i + 10));
+      stats.classified += Math.min(10, donorChanWrites.length - i);
+    }
 
     // ---- Phase D: topline snapshot ----
     const today = tzDate(Date.now());
