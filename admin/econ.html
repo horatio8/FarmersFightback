@@ -40,6 +40,10 @@
   <h2>Reconciling to Ads Manager (today)</h2>
   <table id="recon"><thead><tr><th>Line</th><th>Meta says</th><th>Our base</th></tr></thead><tbody></tbody></table>
   <p class="muted" style="font-size:12px" id="reconnote"></p>
+
+  <h2>Donation revenue by how we acquired the donor (all-time)</h2>
+  <table id="chanrev"><thead><tr><th>Acquisition channel</th><th>Donors</th><th>Revenue</th><th>Share</th></tr></thead><tbody></tbody></table>
+  <p class="muted" style="font-size:12px">First-touch: the channel that originally brought each donor into the database, from their earliest signature. Recomputed nightly. "Unclassified" shrinks as the channel backfill completes.</p>
 </div>
 <footer>Auto-refreshes every 60s. Pop-up alerts: allow notifications when asked. Thresholds are edited in Airtable, Site Stats row "econ_settings". CPA = today's spend / today's signups in our base. ROAS = all-time donations from contacts this ad acquired / all-time spend.</footer>
 <script>
@@ -132,6 +136,19 @@ async function load() {
     document.querySelector('#recon tbody').innerHTML = rows.map(([l, a, b]) =>
       `<tr><td>${l}</td><td>${a ?? '—'}</td><td>${b ?? '—'}</td></tr>`).join('');
     document.getElementById('reconnote').textContent = rc.note || '';
+
+    // Revenue by acquisition channel (from the nightly econ_summary).
+    const rbc = (j.econ && j.econ.revenue_by_channel) || {};
+    const totalRev = Object.values(rbc).reduce((s, b) => s + (b.total || 0), 0);
+    const order = ['Meta ad', 'Meta organic', 'Referral', 'Other', 'Direct', 'Unclassified'];
+    const chanRows = Object.entries(rbc)
+      .sort((a, b) => (order.indexOf(a[0]) + 1 || 99) - (order.indexOf(b[0]) + 1 || 99))
+      .map(([ch, b]) =>
+        `<tr><td>${esc(ch)}</td><td>${(b.donors || 0).toLocaleString()}</td>
+         <td>${money(b.total)}</td>
+         <td>${totalRev > 0 ? Math.round((b.total / totalRev) * 100) + '%' : '—'}</td></tr>`);
+    document.querySelector('#chanrev tbody').innerHTML = chanRows.join('')
+      || '<tr><td colspan="4">No channel data yet — runs with the nightly job.</td></tr>';
   } catch (err) {
     const el = document.getElementById('err');
     el.textContent = 'Load failed: ' + err.message;
