@@ -90,11 +90,20 @@ function looksLikeEmail(s) {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(s || ""));
 }
 
-function bulkRow(r) {
+function bulkRow(r, slim) {
   // A malformed email (double-@ typos exist in the base) risks failing the
   // whole batch, so drop the bad address and match on mobile if there is one.
   const email = looksLikeEmail(r.email) ? r.email : undefined;
   if (!r.uid || (!email && !r.mobile)) return null;
+  if (slim) {
+    // Minimal payload: identity + the UID, nothing for CN to update beyond
+    // the custom field. Used to probe/reduce CN's per-profile match cost.
+    return {
+      email,
+      mobile: email ? undefined : r.mobile,
+      custom1: String(r.uid).toUpperCase(),
+    };
+  }
   return {
     first_name: r.first_name || undefined,
     last_name: r.last_name || undefined,
@@ -104,8 +113,8 @@ function bulkRow(r) {
   };
 }
 
-async function cnSetUidBulk(rows) {
-  const body = (rows || []).map(bulkRow).filter(Boolean);
+async function cnSetUidBulk(rows, opts = {}) {
+  const body = (rows || []).map((r) => bulkRow(r, opts.slim)).filter(Boolean);
   if (!body.length) return { skipped: true, reason: "no pushable rows" };
   return cnFetch("/profiles/match/bulk", body, "POST");
 }
@@ -114,8 +123,8 @@ async function cnSetUidBulk(rows) {
 // row cannot sink 250 good ones; small remnants fall back to per-row
 // cnProfileMatch, isolating the genuinely broken rows. Returns
 // { pushed, skipped, failed, calls, err } with err = first failure detail.
-async function cnSetUidBulkSafe(rows) {
-  const body = (rows || []).map(bulkRow).filter(Boolean);
+async function cnSetUidBulkSafe(rows, opts = {}) {
+  const body = (rows || []).map((r) => bulkRow(r, opts.slim)).filter(Boolean);
   const skippedUpfront = (rows || []).length - body.length;
   const out = await pushSplit(body);
   return { ...out, skipped: out.skipped + skippedUpfront };
