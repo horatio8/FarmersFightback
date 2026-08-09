@@ -51,8 +51,12 @@ const FIELDS = ["contact_id", "email", "mobile", "first_name", "last_name", "ref
 const PUSH_BATCH = 200;
 const CSV_LIMIT = 50000;
 // Bulk mode: profiles per CN bulk call, and a time box under the 300s limit.
-const BULK_CHUNK = 250;
+// CN processes a bulk batch synchronously (matching each profile), so a batch
+// can take tens of seconds — the walk stops well short of the budget to leave
+// headroom for the in-flight and final flushes.
+const BULK_CHUNK = 100;
 const BULK_BUDGET_MS = 265 * 1000;
+const BULK_WALK_FRACTION = 0.6;
 
 function csvCell(s) {
   const v = String(s == null ? "" : s);
@@ -96,18 +100,33 @@ module.exports = async function handler(req, res) {
     // the walk drains or the time box runs out. Resumable via nextCursor.
     if (mode === "bulk") {
       const chunk = Math.min(500, Math.max(10, Number(url.searchParams.get("chunk")) || BULK_CHUNK));
+      const budget = Math.min(
+        BULK_BUDGET_MS,
+        Math.max(20000, Number(url.searchParams.get("budget")) || BULK_BUDGET_MS)
+      );
       const started = Date.now();
+      // The walk stops at a fraction of the budget: a CN bulk call can run
+      // tens of seconds and cannot be interrupted, so the remainder is
+      // headroom for the flush that straddles the cutoff plus the final one.
+      const walkUntil = started + budget * BULK_WALK_FRACTION;
       let pageCursor = cursor;
       let seen = 0, pushed = 0, skipped = 0, failed = 0, chunks = 0;
       let buf = [];
       let firstErr = null;
+      let flushMsTotal = 0;
       const flush = async () => {
-        if (!buf.length) return;
-        const out = await cnSetUidBulkSafe(buf);
-        chunks += 1;
-        pushed += out.pushed; skipped += out.skipped; failed += out.failed;
-        if (out.err && !firstErr) firstErr = out.err;
-        buf = [];
+        // Slice, don't send buf wholesale: after the walk cutoff the buffer
+        // can hold up to two chunks, and every CN call must stay chunk-sized.
+        while (buf.length) {
+          const piece = buf.splice(0, chunk);
+          const t0 = Date.now();
+          // eslint-disable-next-line no-await-in-loop
+          const out = await cnSetUidBulkSafe(piece);
+          flushMsTotal += Date.now() - t0;
+          chunks += 1;
+          pushed += out.pushed; skipped += out.skipped; failed += out.failed;
+          if (out.err && !firstErr) firstErr = out.err;
+        }
       };
       do {
         // eslint-disable-next-line no-await-in-loop
@@ -129,10 +148,10 @@ module.exports = async function handler(req, res) {
             uid: f.referral_code,
           });
           // eslint-disable-next-line no-await-in-loop
-          if (buf.length >= chunk) await flush();
+          if (buf.length >= chunk && Date.now() < walkUntil) await flush();
         }
         pageCursor = page.offset || null;
-      } while (pageCursor && Date.now() - started < BULK_BUDGET_MS);
+      } while (pageCursor && Date.now() < walkUntil && buf.length < chunk * 2);
       await flush();
       return res.status(200).json({
         ok: true,
@@ -142,6 +161,9 @@ module.exports = async function handler(req, res) {
         skipped,
         failed,
         chunks,
+        elapsed_ms: Date.now() - started,
+        flush_ms: flushMsTotal,
+        avg_flush_ms: chunks ? Math.round(flushMsTotal / chunks) : 0,
         ...(firstErr ? { first_error: firstErr } : {}),
         nextCursor: pageCursor,
       });
