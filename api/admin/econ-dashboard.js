@@ -61,12 +61,27 @@ async function metaToday() {
     const row = j.data[0];
     const actions = {};
     for (const a of row.actions || []) actions[a.action_type] = Number(a.value) || 0;
+    // Ads Manager's "Results (Multiple conversions)" for this account is the
+    // composite action offsite_complete_registration_add_meta_leads — website
+    // CompleteRegistration pixel events PLUS on-Facebook lead forms — NOT the
+    // plain 'lead' total. Verified against the Ads Manager row (340 = 286
+    // registrations + 55 lead forms while 'lead' read 323). Use the same
+    // metric so the panel and Ads Manager quote the same number; fall back to
+    // 'lead' if the composite ever disappears.
+    const composite = actions['offsite_complete_registration_add_meta_leads'];
+    const resultsTotal = composite ?? actions.lead ?? null;
+    const leadForms = actions.leadgen_grouped ?? actions['onsite_conversion.lead_grouped'] ?? null;
     return {
       spend: Number(row.spend) || 0,
-      // 'lead' is Meta's grouped total; the split shows where they came from.
-      results_lead_total: actions.lead ?? null,
-      on_facebook_lead_forms: actions.leadgen_grouped ?? actions['onsite_conversion.lead_grouped'] ?? null,
-      website_pixel_leads: actions['offsite_conversion.fb_pixel_lead'] ?? null,
+      results_total: resultsTotal,
+      results_metric: composite != null ? 'complete_registration + lead forms' : 'lead',
+      on_facebook_lead_forms: leadForms,
+      // Derived by subtraction so the two split rows always sum to Results.
+      website_conversions:
+        resultsTotal != null && leadForms != null
+          ? resultsTotal - leadForms
+          : actions['offsite_conversion.fb_pixel_complete_registration']
+            ?? actions['offsite_conversion.fb_pixel_lead'] ?? null,
       actions,
     };
   } catch (e) {
@@ -161,11 +176,12 @@ module.exports = async (req, res) => {
       .map(r => r.fields)
       .sort((a, b) => (b.spend || 0) - (a.spend || 0));
 
-    // Live topline: spend from the freshest per-ad rows (≤30 min old), paid
-    // signups counted directly from today's signatures. This supersedes the
-    // nightly econ_summary snapshot, which only knew per-AD attribution and
-    // so undercounted web signups until utm_content data accrues.
-    const spendToday = Math.round(ads.reduce((s, a) => s + (a.spend || 0), 0) * 100) / 100;
+    // Live topline: spend straight from Meta when reachable (real-time, and
+    // what Ads Manager shows) rather than the per-ad rows, which are up to 30
+    // minutes stale and visibly lag Ads Manager while spend is ramping. Paid
+    // signups counted directly from today's signatures.
+    const adRowSpend = Math.round(ads.reduce((s, a) => s + (a.spend || 0), 0) * 100) / 100;
+    const spendToday = meta && meta.spend != null ? meta.spend : adRowSpend;
     const liveEcon = {
       ...(econSummary || {}),
       spend_today: spendToday,
