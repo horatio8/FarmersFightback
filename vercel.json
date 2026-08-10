@@ -23,8 +23,7 @@
     { "path": "/api/cron/social-rollup", "schedule": "40 16 * * *" },
     { "path": "/api/cron/ad-insights", "schedule": "*/30 * * * *" },
     { "path": "/api/cron/unit-economics", "schedule": "50 16 * * *" },
-    { "path": "/api/cron/survey-uid-push", "schedule": "20 17 * * *" },
-    { "path": "/api/admin/survey-uids?mode=bulk&state=1&chunk=35", "schedule": "*/5 * * * *" }
+    { "path": "/api/cron/survey-uid-push", "schedule": "20 17 * * *" }
   ],
   "functions": {
     "api/cron/sms-queue.js": { "maxDuration": 120 },
