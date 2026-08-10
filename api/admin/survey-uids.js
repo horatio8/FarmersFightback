@@ -158,13 +158,19 @@ module.exports = async function handler(req, res) {
       let queued = 0;
       const rowsTarget = chunk * P * BULK_WAVES_MAX;
       const gatherUntil = started + budget * 0.25;
+      // Page size tracks the chunk so a page is either fully flushed or fully
+      // pending. Airtable cursors are page-granular: with pages larger than a
+      // run can flush, the resume cursor points at the start of a partly-done
+      // page and re-pushes its flushed rows every run (~25% wasted CN time,
+      // measured — writes are idempotent, so it cost throughput, not data).
+      const pageSize = Math.min(100, Math.max(10, chunk));
       while (!drained && queued < rowsTarget && Date.now() < gatherUntil) {
         const startCursor = pageCursor || START_SENTINEL;
         // eslint-disable-next-line no-await-in-loop
         const page = await listPage(CONTACTS_TABLE, {
           formula,
           fields: FIELDS,
-          pageSize: 100,
+          pageSize,
           offset: pageCursor,
         });
         const rows = [];
