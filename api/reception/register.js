@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ ok: false, errors, error: "Please check the highlighted fields." });
     }
 
-    const existing = await R.findRegistrationForInvite(invite.id);
+    const existing = await R.findRegistrationForInvite(invite);
     const nowIso = new Date().toISOString();
     const fields = {
       reg_ref: (existing && existing.fields && existing.fields.reg_ref) || refFor(),
