@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
     const f = invite.fields || {};
     if (f.status === "Cancelled") return res.status(200).json(deny);
 
-    const existing = await R.findRegistrationForInvite(invite.id);
+    const existing = await R.findRegistrationForInvite(invite);
     const ef = (existing && existing.fields) || null;
 
     return res.status(200).json({

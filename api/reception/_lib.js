@@ -62,13 +62,16 @@ async function findInviteByToken(token) {
   return rec;
 }
 
-async function findRegistrationForInvite(inviteRecordId) {
-  const rows = await select(
-    REGISTRATIONS,
-    `FIND('${fesc(inviteRecordId)}', ARRAYJOIN({invite})) > 0`,
-    null,
-    1
-  );
+// Look up an existing RSVP for an invitation.
+//
+// Takes the invite RECORD, not its id: ARRAYJOIN over a linked-record field
+// renders each link's PRIMARY field, which here is invite_token — record ids
+// never appear, so filtering on one silently matches nothing. (Live traffic
+// found this; a mock that returns ids for ARRAYJOIN happily passes it.)
+async function findRegistrationForInvite(invite) {
+  const token = invite && invite.fields && invite.fields.invite_token;
+  if (!token) return null;
+  const rows = await select(REGISTRATIONS, `ARRAYJOIN({invite}) = '${fesc(token)}'`, null, 1);
   return rows[0] || null;
 }
 
