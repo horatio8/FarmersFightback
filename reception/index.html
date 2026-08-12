@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Landholders' Table — By Invitation, Sat 29 August</title>
+  <meta name="description" content="A private hour with the people carrying this fight. Saturday 29 August, 5–6pm, Marnoo. By invitation only."/>
+  <!-- Invitation links are private. Keep this page out of search results and
+       out of link previews: the URL carries the token that unlocks it. -->
+  <meta name="robots" content="noindex,nofollow,noarchive"/>
+  <meta name="referrer" content="no-referrer"/>
+  <meta name="theme-color" content="#12354B"/>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="alternate icon" href="/assets/logo.png"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Caveat:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --field-green:#1F6B3B; --field-deep:#175530; --sky-blue:#2C6E8F; --sun-gold:#F4B400;
+      --cream:#FBF7EC; --cream-dim:#F1E9D4; --ink:#25241F; --ink-soft:#5b574b;
+      --navy:#12354B; --barn:#AE3528;
+      --f-disp:"Oswald",sans-serif; --f-script:"Caveat",cursive; --f-body:"Source Sans 3",system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:#e7e3d7}
+    body{font-family:var(--f-body);color:var(--ink);
+      background-image:radial-gradient(circle at 50% -10%,#f2eee2,#dcd8cb 80%);min-height:100vh}
+
+    /* ---- masthead: cream + sunburst (shared with /fundraiser) ---- */
+    .ffx-app{background:var(--cream);color:var(--ink);min-height:100%;font-size:16px;line-height:1.5}
+    .ffx-mast{position:relative;overflow:hidden;text-align:center;padding:44px 24px 30px}
+    .ffx-rays{position:absolute;top:min(-220px,-30vw);left:50%;transform:translateX(-50%);
+      width:min(2600px,200vw);height:min(1400px,120vw);pointer-events:none;
+      background:repeating-conic-gradient(from 0deg at 50% 100%,rgba(244,180,0,0.15) 0deg 4deg,transparent 4deg 12deg)}
+    .ffx-sun{position:absolute;top:min(-160px,-18vw);left:50%;transform:translateX(-50%);
+      width:min(720px,68vw);height:min(720px,68vw);border-radius:50%;
+      background:radial-gradient(circle,rgba(244,180,0,0.42) 0 28%,rgba(244,180,0,0.16) 29% 50%,transparent 64%);pointer-events:none}
+    .ffx-mast-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+    .ffx-logo{height:56px;width:auto;display:block}
+    .ffx-kicker{font-family:var(--f-script);font-weight:700;color:var(--field-green);font-size:38px;line-height:0.9;
+      margin-top:20px;transform:rotate(-2deg)}
+    .ffx-title{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;color:var(--barn);
+      font-size:58px;line-height:0.84;letter-spacing:-0.01em;margin-top:2px;display:flex;flex-direction:column;align-items:center}
+    @media (max-width:520px){.ffx-title{font-size:44px}.ffx-kicker{font-size:32px}}
+    .ffx-sub{font-size:19px;line-height:1.35;color:var(--ink-soft);max-width:480px;margin-top:12px;text-wrap:pretty}
+    .ffx-sub strong{color:var(--field-green);font-weight:700}
+    .ffx-band{margin-top:20px;width:100%;max-width:520px;background:var(--navy);color:#fff;border-radius:18px;
+      padding:18px 22px;box-shadow:0 12px 26px rgba(18,53,75,0.24)}
+    .ffx-band-date{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:42px;line-height:0.98;letter-spacing:0.01em}
+    @media (max-width:520px){.ffx-band-date{font-size:34px}}
+    .ffx-band-time{font-family:var(--f-disp);font-weight:500;text-transform:uppercase;letter-spacing:0.14em;font-size:17px;color:var(--sun-gold);margin-top:2px}
+    .ffx-band-place{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:26px;line-height:1;letter-spacing:0.01em;margin-top:10px}
+    .ffx-band-place small{display:block;font-weight:500;font-size:14px;text-transform:none;letter-spacing:0;opacity:0.9;margin-top:3px}
+    .ffx-band-after{font-size:13px;opacity:0.78;margin-top:10px;border-top:1px solid rgba(255,255,255,0.18);padding-top:9px}
+
+    .ffx-wrap{max-width:600px;margin:0 auto;padding:6px 20px 44px}
+    .ffx-card{background:#fff;border-radius:22px;padding:32px 34px;box-shadow:0 18px 44px rgba(31,107,59,0.12);border:1px solid var(--cream-dim)}
+    @media (max-width:520px){.ffx-card{padding:24px 20px}}
+    .ffx-sec-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.02em;font-size:16px;
+      color:var(--navy);margin:24px 0 12px}
+    .ffx-sec-h:first-child{margin-top:0}
+    .ffx-sec-note{font-size:13px;color:var(--ink-soft);margin:-6px 0 12px;line-height:1.45}
+
+    /* ---- invitation banner ---- */
+    .ffx-vip{background:linear-gradient(135deg,#fff6dc,#fbe7b0);border:2px solid var(--sun-gold);border-radius:16px;padding:16px 18px;margin-bottom:20px}
+    .ffx-vip-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--field-green)}
+    .ffx-vip-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:22px;color:var(--barn);line-height:1.05;margin-top:6px}
+    .ffx-vip-p{font-size:14px;color:var(--ink-soft);margin-top:6px}
+    .ffx-vip-err{background:#fdf1ef;border-color:var(--barn)}
+    .ffx-vip-err .ffx-vip-tag,.ffx-vip-err .ffx-vip-h{color:var(--barn)}
+
+    /* ---- choice pills ---- */
+    .ffx-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .ffx-choice-b{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.03em;font-size:15px;
+      background:var(--cream);border:2px solid var(--cream-dim);border-radius:14px;padding:15px 12px;cursor:pointer;color:var(--ink-soft);
+      transition:border-color .12s,background .12s,color .12s;text-align:center;line-height:1.15}
+    .ffx-choice-b small{display:block;font-family:var(--f-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;margin-top:3px;opacity:0.85}
+    .ffx-choice-b:hover{border-color:#d9d0b6}
+    .ffx-choice-b.on{border-color:var(--field-green);background:#fff;color:var(--field-green);box-shadow:0 6px 16px rgba(31,107,59,0.14)}
+    .ffx-choice-b.on.no{border-color:var(--barn);color:var(--barn);box-shadow:0 6px 16px rgba(174,53,40,0.12)}
+
+    /* ---- fields ---- */
+    .ffx-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ffx-fields .wide{grid-column:1 / -1}
+    @media (max-width:520px){.ffx-fields{grid-template-columns:1fr}}
+    .ffx-field{display:flex;flex-direction:column;gap:5px}
+    .ffx-field-l{font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:8px}
+    .ffx-field-l em{font-style:normal;font-weight:500;color:#a49d8b;letter-spacing:0.02em}
+    .ffx-req{color:var(--barn);font-weight:700}
+    .ffx-input{font-family:var(--f-body);font-size:15px;color:var(--ink);background:var(--cream);
+      border:1.5px solid var(--cream-dim);border-radius:11px;padding:11px 13px;width:100%;transition:border-color .12s,box-shadow .12s}
+    textarea.ffx-input{resize:vertical;min-height:70px}
+    .ffx-input:focus{outline:0;border-color:var(--field-green);box-shadow:0 0 0 3px rgba(31,107,59,0.14);background:#fff}
+    .ffx-field.err .ffx-input{border-color:var(--barn);background:#fdf1ef}
+    .ffx-field-e{font-size:11.5px;color:var(--barn);font-weight:600}
+    .ffx-err-line{color:var(--barn);font-size:13px;font-weight:600;margin-top:12px}
+
+    /* ---- guest block ---- */
+    .ffx-guest{margin-top:14px;border-radius:16px;padding:18px;background:var(--cream);border:1.5px solid var(--cream-dim);border-left:4px solid var(--sun-gold)}
+    .ffx-guest-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:15px;color:var(--navy)}
+    .ffx-guest-p{font-size:13px;color:var(--ink-soft);margin:6px 0 14px;line-height:1.45}
+    .ffx-guest-p b{color:var(--barn);font-weight:700}
+
+    /* ---- cta ---- */
+    .ffx-btn{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:16px;
+      background:var(--field-green);color:#fff;border:0;border-radius:999px;padding:15px 26px;cursor:pointer;
+      transition:background .14s,transform .06s;box-shadow:0 8px 20px rgba(31,107,59,0.24);width:100%;margin-top:24px}
+    .ffx-btn:hover{background:var(--field-deep)}
+    .ffx-btn:active{transform:translateY(1px)}
+    .ffx-btn:disabled{background:var(--cream-dim);color:#b3ac99;cursor:not-allowed;box-shadow:none}
+    .ffx-fine{font-size:12.5px;color:var(--ink-soft);margin-top:12px;line-height:1.45;text-align:center}
+
+    /* ---- confirmation stub ---- */
+    .ffx-success{text-align:center;padding-bottom:4px}
+    .ffx-success-badge{width:66px;height:66px;border-radius:50%;background:var(--sun-gold);color:var(--field-green);
+      display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(244,180,0,0.4)}
+    .ffx-success-script{font-family:var(--f-script);font-weight:700;color:var(--field-green);font-size:52px;line-height:0.8;transform:rotate(-2deg);margin-top:12px}
+    .ffx-success-h{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:30px;color:var(--barn);line-height:1.02;margin-top:6px}
+    .ffx-stub{display:flex;background:var(--navy);color:#fff;border-radius:16px;overflow:hidden;margin:20px 0 6px;box-shadow:0 14px 30px rgba(18,53,75,0.3)}
+    .ffx-stub-main{flex:1;padding:18px 20px;min-width:0}
+    .ffx-stub-eb{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--sun-gold)}
+    .ffx-stub-date{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:22px;line-height:1.05;margin-top:6px}
+    .ffx-stub-rows{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+    .ffx-stub-rows>div{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;border-top:1px solid rgba(255,255,255,0.12);padding-top:7px}
+    .ffx-stub-rows span{color:rgba(255,255,255,0.6);font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;flex:none}
+    .ffx-stub-rows b{font-weight:700;text-align:right;overflow-wrap:anywhere}
+    .ffx-stub-tear{width:104px;flex:none;border-left:2px dashed rgba(255,255,255,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px 10px;background:rgba(255,255,255,0.04)}
+    .ffx-stub-ref{text-align:center}
+    .ffx-stub-ref span{display:block;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-size:9px;color:rgba(255,255,255,0.6)}
+    .ffx-stub-ref b{font-family:var(--f-disp);font-weight:700;font-size:14px;letter-spacing:0.04em}
+    @media (max-width:430px){.ffx-stub{flex-direction:column}.ffx-stub-tear{width:auto;border-left:0;border-top:2px dashed rgba(255,255,255,0.3);flex-direction:row;justify-content:space-around}}
+    .ffx-link{background:none;border:0;color:var(--field-green);font-family:var(--f-disp);font-weight:600;text-transform:uppercase;
+      letter-spacing:0.06em;font-size:13px;cursor:pointer;margin:18px auto 0;display:block}
+    .ffx-link:hover{color:var(--field-deep);text-decoration:underline}
+
+    .ffx-loading{text-align:center;padding:60px 20px}
+    .ffx-spinner{width:44px;height:44px;border-radius:50%;border:4px solid var(--cream-dim);border-top-color:var(--field-green);
+      margin:0 auto 18px;animation:ffx-spin 0.8s linear infinite}
+    @keyframes ffx-spin{to{transform:rotate(360deg)}}
+    .ffx-foot{text-align:center;padding:22px 20px 34px;font-size:12px;color:var(--ink-soft);line-height:1.5}
+  </style>
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+  <div id="root"><div class="ffx-app"><div class="ffx-loading"><div class="ffx-spinner"></div></div></div></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback } = React;
+
+/* The token lives only in the URL. Read it once, then strip it from the
+   address bar so a screenshot, a shoulder-surf or a shared link doesn't hand
+   the invitation to someone else. The value stays in memory for the POST. */
+const TOKEN = (() => {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const t = (q.get("t") || "").trim();
+    if (t) window.history.replaceState({}, "", window.location.pathname);
+    return t;
+  } catch (e) { return ""; }
+})();
+
+const I = {
+  star: (p) => <svg viewBox="0 0 24 24" fill="currentColor" width={p.w||13} height={p.w||13}><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>,
+  lock: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={p.w||13} height={p.w||13}><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>,
+  tick: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width={p.w||30} height={p.w||30}><path d="M4 12.5l5.5 5.5L20 7"/></svg>,
+};
+
+function Mast({ event, kicker }) {
+  return (
+    <div className="ffx-mast">
+      <div className="ffx-rays" /><div className="ffx-sun" />
+      <div className="ffx-mast-in">
+        <img className="ffx-logo" src="/assets/logo.png" alt="Farmers Fightback" />
+        <div className="ffx-kicker">{kicker || "You're invited to"}</div>
+        <div className="ffx-title"><span>The Landholders&rsquo;</span><span>Table</span></div>
+        <p className="ffx-sub">One hour, one room, before the doors open. <strong>By invitation only.</strong></p>
+        {event && (
+          <div className="ffx-band">
+            <div className="ffx-band-date">{event.date}</div>
+            <div className="ffx-band-time">{event.time}</div>
+            <div className="ffx-band-place">{event.venue}<small>{event.place}</small></div>
+            <div className="ffx-band-after">{event.after}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Field({ id, label, opt, value, onChange, err, type, placeholder, area, autoComplete }) {
+  return (
+    <div className={"ffx-field" + (err ? " err" : "") + (area ? " wide" : "")}>
+      <label className="ffx-field-l" htmlFor={id}>
+        <span>{label} {!opt && <span className="ffx-req">*</span>}</span>
+        {opt && <em>optional</em>}
+      </label>
+      {area ? (
+        <textarea id={id} className="ffx-input" value={value} placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)} maxLength={400} />
+      ) : (
+        <input id={id} className="ffx-input" type={type || "text"} value={value} placeholder={placeholder}
+          autoComplete={autoComplete} onChange={(e) => onChange(e.target.value)} maxLength={120} />
+      )}
+      {err && <div className="ffx-field-e">{err}</div>}
+    </div>
+  );
+}
+
+function App() {
+  const [state, setState] = useState("loading"); // loading | denied | form | done | error
+  const [info, setInfo] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [topError, setTopError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
+  const [f, setF] = useState({
+    attending: "Yes", first_name: "", last_name: "", email: "", mobile: "",
+    bringing_guest: "No", guest_first_name: "", guest_last_name: "",
+    guest_email: "", guest_mobile: "", guest_relationship: "", dietary: "",
+  });
+
+  const set = useCallback((k) => (v) => {
+    setF((cur) => ({ ...cur, [k]: v }));
+    setErrors((cur) => (cur[k] ? { ...cur, [k]: undefined } : cur));
+  }, []);
+
+  useEffect(() => {
+    if (!TOKEN) { setState("denied"); return; }
+    fetch("/api/reception/resolve?t=" + encodeURIComponent(TOKEN))
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d || !d.valid) { setState("denied"); return; }
+        setInfo(d);
+        const inv = d.invitee || {};
+        const reg = d.registration;
+        setF((cur) => ({
+          ...cur,
+          first_name: (reg && reg.first_name) || inv.first_name || "",
+          last_name: (reg && reg.last_name) || inv.last_name || "",
+          email: inv.email || "",
+          mobile: inv.mobile || "",
+          ...(reg ? {
+            attending: reg.attending || "Yes",
+            bringing_guest: reg.bringing_guest || "No",
+            guest_first_name: reg.guest_first_name || "",
+            guest_last_name: reg.guest_last_name || "",
+            guest_email: reg.guest_email || "",
+            guest_mobile: reg.guest_mobile || "",
+            guest_relationship: reg.guest_relationship || "",
+            dietary: reg.dietary || "",
+          } : {}),
+        }));
+        setState("form");
+      })
+      .catch(() => setState("error"));
+  }, []);
+
+  const submit = async () => {
+    setBusy(true); setTopError(""); setErrors({});
+    try {
+      const r = await fetch("/api/reception/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...f, t: TOKEN }),
+      });
+      const d = await r.json();
+      if (!r.ok || !d.ok) {
+        if (d && d.errors) setErrors(d.errors);
+        setTopError((d && d.error) || "Something went wrong. Try again.");
+        setBusy(false);
+        return;
+      }
+      setResult(d);
+      setState("done");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (e) {
+      setTopError("Couldn't reach us just then. Check your connection and try again.");
+      setBusy(false);
+    }
+  };
+
+  if (state === "loading") {
+    return <div className="ffx-app"><div className="ffx-loading"><div className="ffx-spinner" /></div></div>;
+  }
+
+  if (state === "denied" || state === "error") {
+    const isErr = state === "error";
+    return (
+      <div className="ffx-app">
+        <Mast kicker="Private gathering" />
+        <div className="ffx-wrap">
+          <div className="ffx-card">
+            <div className="ffx-vip ffx-vip-err">
+              <div className="ffx-vip-tag"><I.lock w={13} /> {isErr ? "Couldn't check that link" : "Invitation required"}</div>
+              <div className="ffx-vip-h">{isErr ? "Try again in a moment" : "This page opens only from your invitation"}</div>
+              <p className="ffx-vip-p">
+                {isErr
+                  ? "Something went wrong at our end, not yours. Refresh the page shortly."
+                  : "The Landholders' Table is a private hour for a small group, and each invitation link works only for the person it was sent to. Open the link straight from your email — copying part of it, or forwarding someone else's, won't get through."}
+              </p>
+            </div>
+            <p className="ffx-fine">
+              Think you should be on the list? Email <a href="mailto:support@farmersfightback.com" style={{color:"var(--field-green)",fontWeight:700}}>support@farmersfightback.com</a> and we'll sort it out.
+            </p>
+            <p className="ffx-fine" style={{marginTop:14}}>
+              Everyone is welcome at the main FUNdraiser from 6pm — <a href="/fundraiser" style={{color:"var(--field-green)",fontWeight:700}}>grab a ticket here</a>.
+            </p>
+          </div>
+        </div>
+        <div className="ffx-foot">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
+      </div>
+    );
+  }
+
+  const ev = info.event;
+
+  if (state === "done") {
+    const yes = result.attending === "Yes";
+    return (
+      <div className="ffx-app">
+        <Mast event={ev} kicker={yes ? "See you there" : "Thanks for letting us know"} />
+        <div className="ffx-wrap">
+          <div className="ffx-card">
+            <div className="ffx-success">
+              {yes && <div className="ffx-success-badge"><I.tick w={30} /></div>}
+              <div className="ffx-success-script">{yes ? "You're in" : "Noted"}</div>
+              <div className="ffx-success-h">
+                {yes
+                  ? (result.party_size > 1 ? "Two seats held at the table" : "Your seat is held")
+                  : "We'll miss you"}
+              </div>
+              <p className="ffx-fine" style={{marginTop:10}}>
+                {yes
+                  ? "We've got your details. There's nothing to print — your name is on the door."
+                  : "Your seat goes back to the list. If your plans change, come back to this page from your invitation email."}
+              </p>
+            </div>
+
+            {yes && (
+              <div className="ffx-stub">
+                <div className="ffx-stub-main">
+                  <div className="ffx-stub-eb"><I.star w={11} /> The Landholders&rsquo; Table</div>
+                  <div className="ffx-stub-date">{ev.date} · {ev.time}</div>
+                  <div className="ffx-stub-rows">
+                    <div><span>Where</span><b>{ev.venue}</b></div>
+                    <div><span>In the name of</span><b>{f.first_name} {f.last_name}</b></div>
+                    <div><span>Seats</span><b>{result.party_size}</b></div>
+                    {f.bringing_guest === "Yes" && (
+                      <div><span>Guest</span><b>{f.guest_first_name} {f.guest_last_name}</b></div>
+                    )}
+                  </div>
+                </div>
+                <div className="ffx-stub-tear">
+                  <div className="ffx-stub-ref"><span>Ref</span><b>{result.reg_ref}</b></div>
+                </div>
+              </div>
+            )}
+
+            <p className="ffx-fine">
+              The main FUNdraiser follows at 6pm. If you haven't got tickets for the night itself,{" "}
+              <a href="/fundraiser" style={{color:"var(--field-green)",fontWeight:700}}>book them here</a>.
+            </p>
+            <button className="ffx-link" onClick={() => { setState("form"); setBusy(false); }}>
+              Change my answer
+            </button>
+          </div>
+        </div>
+        <div className="ffx-foot">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
+      </div>
+    );
+  }
+
+  // ---- form ----
+  const yes = f.attending === "Yes";
+  const guest = yes && f.bringing_guest === "Yes";
+  const canBringGuest = (info.guests_allowed || 0) >= 1;
+  const name = (info.invitee && info.invitee.first_name) || "";
+
+  return (
+    <div className="ffx-app">
+      <Mast event={ev} />
+      <div className="ffx-wrap">
+        <div className="ffx-card">
+          <div className="ffx-vip">
+            <div className="ffx-vip-tag"><I.star w={13} /> Invitation {info.registration ? "· already replied" : "· personal to you"}</div>
+            <div className="ffx-vip-h">{name ? `${name}, you're invited to the table` : "You're invited to the table"}</div>
+            <p className="ffx-vip-p">
+              Before the doors open on the FUNdraiser, we're putting a small group in a room together —
+              the people who've carried this fight. An hour, a drink, and a straight conversation about
+              what comes next.
+              {info.registration ? " You've already replied; change anything below and send it again." : ""}
+            </p>
+          </div>
+
+          <div className="ffx-sec-h">Can you make it?</div>
+          <div className="ffx-choice">
+            <button type="button" className={"ffx-choice-b" + (yes ? " on" : "")}
+              onClick={() => set("attending")("Yes")}>
+              Yes, I'll be there<small>5:00pm, {ev.venue}</small>
+            </button>
+            <button type="button" className={"ffx-choice-b no" + (!yes ? " on" : "")}
+              onClick={() => set("attending")("No")}>
+              Sorry, can't make it<small>We'll give the seat away</small>
+            </button>
+          </div>
+
+          {yes && (
+            <React.Fragment>
+              <div className="ffx-sec-h">Your details</div>
+              <p className="ffx-sec-note">Check these are right — it's how we'll reach you about the night.</p>
+              <div className="ffx-fields">
+                <Field id="fn" label="First name" value={f.first_name} onChange={set("first_name")} err={errors.first_name} autoComplete="given-name" />
+                <Field id="ln" label="Last name" value={f.last_name} onChange={set("last_name")} err={errors.last_name} autoComplete="family-name" />
+                <Field id="em" label="Email" type="email" area value={f.email} onChange={set("email")} err={errors.email} autoComplete="email" />
+                <Field id="mb" label="Mobile" type="tel" area value={f.mobile} onChange={set("mobile")} err={errors.mobile} autoComplete="tel" />
+              </div>
+
+              {canBringGuest && (
+                <React.Fragment>
+                  <div className="ffx-sec-h">Bringing someone?</div>
+                  <p className="ffx-sec-note">
+                    Your invitation includes {info.guests_allowed === 1 ? "one guest" : `${info.guests_allowed} guests`}.
+                    It's a small room, so we need to know exactly who's coming.
+                  </p>
+                  <div className="ffx-choice">
+                    <button type="button" className={"ffx-choice-b" + (guest ? " on" : "")}
+                      onClick={() => set("bringing_guest")("Yes")}>
+                      Yes, bringing a guest
+                    </button>
+                    <button type="button" className={"ffx-choice-b" + (!guest ? " on" : "")}
+                      onClick={() => set("bringing_guest")("No")}>
+                      No, just me
+                    </button>
+                  </div>
+                </React.Fragment>
+              )}
+
+              {guest && (
+                <div className="ffx-guest">
+                  <div className="ffx-guest-h">Your guest&rsquo;s details</div>
+                  <p className="ffx-guest-p">
+                    <b>Every field here is required.</b> Security and catering both work off this list,
+                    and we can't put a name on the door without a way to reach the person.
+                  </p>
+                  <div className="ffx-fields">
+                    <Field id="gfn" label="Guest first name" value={f.guest_first_name} onChange={set("guest_first_name")} err={errors.guest_first_name} />
+                    <Field id="gln" label="Guest last name" value={f.guest_last_name} onChange={set("guest_last_name")} err={errors.guest_last_name} />
+                    <Field id="gem" label="Guest email" type="email" area value={f.guest_email} onChange={set("guest_email")} err={errors.guest_email} />
+                    <Field id="gmb" label="Guest mobile" type="tel" area value={f.guest_mobile} onChange={set("guest_mobile")} err={errors.guest_mobile} />
+                    <Field id="grl" label="Who are they to you?" area placeholder="Neighbour, wife, farm partner…"
+                      value={f.guest_relationship} onChange={set("guest_relationship")} err={errors.guest_relationship} />
+                  </div>
+                </div>
+              )}
+
+              <div className="ffx-sec-h">Anything we should know?</div>
+              <div className="ffx-fields">
+                <Field id="dt" label="Dietary needs or access requirements" opt area
+                  placeholder="Coeliac, vegetarian, wheelchair access…"
+                  value={f.dietary} onChange={set("dietary")} />
+              </div>
+            </React.Fragment>
+          )}
+
+          {topError && <div className="ffx-err-line">{topError}</div>}
+
+          <button className="ffx-btn" disabled={busy} onClick={submit}>
+            {busy ? "Sending…" : yes ? (guest ? "Confirm both seats" : "Confirm my seat") : "Send my apologies"}
+          </button>
+          <p className="ffx-fine">
+            Your details stay with Farmers Fightback and are used only for this event.
+          </p>
+        </div>
+      </div>
+      <div className="ffx-foot">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
