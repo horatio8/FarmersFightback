@@ -195,11 +195,14 @@ const ENTRY = (() => {
     const t = (q.get("t") || "").trim();
     // A passcode may also arrive in the link, so it can be shared as one.
     const code = (q.get("code") || q.get("passcode") || "").trim();
-    if (t || code) window.history.replaceState({}, "", window.location.pathname);
-    return { token: t, code };
-  } catch (e) { return { token: "", code: "" }; }
+    // Referral code from the invitation email's merge tag.
+    const uid = (q.get("uid") || "").trim();
+    if (t || code || uid) window.history.replaceState({}, "", window.location.pathname);
+    return { token: t, code, uid };
+  } catch (e) { return { token: "", code: "", uid: "" }; }
 })();
 const TOKEN = ENTRY.token;
+const UID = ENTRY.uid;
 
 const I = {
   star: (p) => <svg viewBox="0 0 24 24" fill="currentColor" width={p.w||13} height={p.w||13}><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>,
@@ -331,6 +334,12 @@ function App() {
       openWith("t=" + encodeURIComponent(TOKEN), () => setState("denied"));
       return;
     }
+    if (UID) {
+      openWith("uid=" + encodeURIComponent(UID), (d) => {
+        setState(d && d.used ? "used" : "denied");
+      });
+      return;
+    }
     if (ENTRY.code) {
       openWith("code=" + encodeURIComponent(ENTRY.code), () => setState("denied"));
       return;
@@ -355,10 +364,12 @@ function App() {
       const r = await fetch("/api/reception/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...f, t: TOKEN, code }),
+        body: JSON.stringify({ ...f, t: TOKEN, code, uid: UID }),
       });
       const d = await r.json();
       if (!r.ok || !d.ok) {
+        // Someone else got there first between opening the page and sending.
+        if (d && d.used) { setState("used"); setBusy(false); return; }
         if (d && d.errors) setErrors(d.errors);
         setTopError((d && d.error) || "Something went wrong. Try again.");
         setBusy(false);
@@ -384,6 +395,37 @@ function App() {
 
   if (state === "loading") {
     return <div className="ffx-app"><div className="ffx-loading"><div className="ffx-spinner" /></div></div>;
+  }
+
+  if (state === "used") {
+    const mailto = "mailto:support@farmersfightback.com"
+      + "?subject=" + encodeURIComponent("Farmers Muster - invitation already used")
+      + "&body=" + encodeURIComponent("My invitation link says it has already been used. Could you check my spot?\n\nName:\nMobile:\n");
+    return (
+      <div className="ffx-app">
+        <Mast kicker="Already claimed" />
+        <div className="ffx-wrap">
+          <div className="ffx-card">
+            <div className="ffx-vip ffx-vip-err">
+              <div className="ffx-vip-tag"><I.lock w={13} /> One spot per invitation</div>
+              <div className="ffx-vip-h">This invitation has already been used</div>
+              <p className="ffx-vip-p">
+                Each link works once, and this one has been claimed. If that was you,
+                you're already on the door list and there's nothing more to do. If it
+                wasn't, tell us and we'll sort it out.
+              </p>
+            </div>
+            <a className="ffx-btn" style={{display:"block",textAlign:"center",textDecoration:"none"}} href={mailto}>
+              Email us about my spot
+            </a>
+            <p className="ffx-fine">
+              Or write to <a href="mailto:support@farmersfightback.com" style={{color:"var(--field-green)",fontWeight:700}}>support@farmersfightback.com</a> and we'll check the list by hand.
+            </p>
+          </div>
+        </div>
+        <div className="ffx-foot">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
+      </div>
+    );
   }
 
   if (state === "denied" || state === "error") {
@@ -523,7 +565,7 @@ function App() {
   }
 
   // ---- form ----
-  const byCode = info.mode === "passcode";
+  const byCode = info.mode === "passcode" || info.mode === "code";
   const yes = byCode || f.attending === "Yes";
   const guest = yes && f.bringing_guest === "Yes";
   const canBringGuest = (info.guests_allowed || 0) >= 1;
@@ -535,8 +577,12 @@ function App() {
       <div className="ffx-wrap">
         <div className="ffx-card">
           <div className="ffx-vip">
-            <div className="ffx-vip-tag"><I.star w={13} /> {byCode ? "Passcode accepted" : `Invitation ${info.registration ? "· already replied" : "· personal to you"}`}</div>
-            <div className="ffx-vip-h">{byCode ? "You're in — we just need your details" : (name ? `${name}, you're called to the muster` : "You're called to the muster")}</div>
+            <div className="ffx-vip-tag"><I.star w={13} /> {info.mode === "passcode" ? "Passcode accepted" : `Invitation ${info.registration ? "· already replied" : "· personal to you"}`}</div>
+            <div className="ffx-vip-h">
+              {info.mode === "passcode"
+                ? "You're in — we just need your details"
+                : (name ? `${name}, you're called to the muster` : "You're called to the muster")}
+            </div>
             <p className="ffx-vip-p">
               Before the doors open on the FUNdraiser, we're putting a small group in a room together —
               the people who've carried this fight. An hour, a drink, and a straight conversation about
@@ -567,7 +613,7 @@ function App() {
             <React.Fragment>
               <div className="ffx-sec-h">Your details</div>
               <p className="ffx-sec-note">
-                {byCode
+                {info.mode === "passcode"
                   ? "All four are required — it's how we'll reach you about the night, and how the door list is checked."
                   : "Check these are right — it's how we'll reach you about the night."}
               </p>

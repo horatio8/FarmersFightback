@@ -40,25 +40,45 @@ module.exports = async function handler(req, res) {
   const body = readBody(req);
   const token = String(body.t || "").trim();
   const code = String(body.code || "").trim();
+  const uid = String(body.uid || "").trim();
 
   try {
-    // Two ways in. A personal invitation resolves to an existing row. The
-    // shared passcode has no row yet — the person is a stranger to us — so
-    // one is created below, but only AFTER their details validate, so a
-    // half-filled attempt never lands on the door list.
-    const viaPasscode = !token && R.passcodeOk(code);
+    // Three ways in. A personal invitation resolves to an existing row. The
+    // shared passcode and the referral code have no row yet — one is created
+    // below, but only AFTER their details validate, so a half-filled attempt
+    // never lands on the door list.
+    const viaPasscode = !token && !uid && R.passcodeOk(code);
+    let codeContact = null;
+    if (!token && uid) {
+      codeContact = await R.findContactByCode(uid);
+      if (!codeContact) {
+        return res.status(403).json({ ok: false, error: "This invitation link isn't valid." });
+      }
+      // One code, one spot. Checked here as well as on the way in, so a stale
+      // tab or a second submit can't quietly take a second place.
+      const already = await R.registrationFor((codeContact.fields || {}).email);
+      if (already) {
+        return res.status(409).json({
+          ok: false,
+          used: true,
+          error: "This invitation has already been used.",
+          contact_email: "support@farmersfightback.com",
+        });
+      }
+    }
+    const viaCode = Boolean(codeContact);
     let invite = token ? await R.findInviteByToken(token) : null;
-    if (!viaPasscode && (!invite || (invite.fields || {}).status === "Cancelled")) {
+    if (!viaPasscode && !viaCode && (!invite || (invite.fields || {}).status === "Cancelled")) {
       return res.status(403).json({ ok: false, error: "This invitation link isn't valid." });
     }
     const inv = (invite && invite.fields) || {};
-    const guestsAllowed = viaPasscode
+    const guestsAllowed = (viaPasscode || viaCode)
       ? 1
       : (Number.isFinite(Number(inv.guests_allowed)) ? Number(inv.guests_allowed) : 1);
 
     // Someone who typed a passcode is here to come. There is no "sorry, can't
     // make it" to record against an invitation that was never issued.
-    const attending = !viaPasscode && body.attending === "No" ? "No" : "Yes";
+    const attending = !viaPasscode && !viaCode && body.attending === "No" ? "No" : "Yes";
     const errors = {};
 
     // The invitee's own details: always required, pre-filled but editable
@@ -105,7 +125,7 @@ module.exports = async function handler(req, res) {
     // Passcode path: details are good, so now give this person a row. Reuse
     // one already carrying their email — someone who registers twice should
     // appear on the door list once, whichever way they came in.
-    if (viaPasscode) {
+    if (viaPasscode || viaCode) {
       invite = await R.findInviteByEmail(email);
       if (!invite) {
         const made = await R.create(R.INVITES, [{
@@ -117,7 +137,10 @@ module.exports = async function handler(req, res) {
           status: "Invited",
           guests_allowed: 1,
           issued_at: nowIso,
-          notes: "Self-registered with the shared passcode",
+          notes: viaCode
+            ? `Registered from the emailed link (referral code ${uid.toUpperCase()})`
+            : "Self-registered with the shared passcode",
+          ...(codeContact ? { contact: [codeContact.id] } : {}),
         }]);
         invite = made[0];
       }
