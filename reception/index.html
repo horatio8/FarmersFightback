@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Landholders' Table — By Invitation, Sat 29 August</title>
+  <title>Farmers Muster — By Invitation, Sat 29 August</title>
   <meta name="description" content="A private hour with the people carrying this fight. Saturday 29 August, 5–6pm, Marnoo. By invitation only."/>
   <!-- Invitation links are private. Keep this page out of search results and
        out of link previews: the URL carries the token that unlocks it. -->
@@ -222,7 +222,7 @@ const GIVE = [
    revenue rather than an unexplained direct donation. Amount 0 sends them to
    the full donate page for another amount or a monthly gift. */
 function giveHref(amount) {
-  const utm = "utm_source=reception&utm_medium=event&utm_campaign=landholders-table";
+  const utm = "utm_source=reception&utm_medium=event&utm_campaign=farmers-muster";
   if (!amount) return `/donate?${utm}`;
   return `/api/checkout?amount=${amount}&frequency=oneoff&${utm}`;
 }
@@ -234,7 +234,7 @@ function Mast({ event, kicker }) {
       <div className="ffx-mast-in">
         <img className="ffx-logo" src="/assets/logo.png" alt="Farmers Fightback" />
         <div className="ffx-kicker">{kicker || "You're invited to"}</div>
-        <div className="ffx-title"><span>The Landholders&rsquo;</span><span>Table</span></div>
+        <div className="ffx-title"><span>Farmers</span><span>Muster</span></div>
         <p className="ffx-sub">One hour, one room, before the doors open. <strong>By invitation only.</strong></p>
         {event && (
           <div className="ffx-band">
@@ -399,7 +399,7 @@ function App() {
               <p className="ffx-vip-p">
                 {isErr
                   ? "Something went wrong at our end, not yours. Refresh the page shortly."
-                  : "The Landholders' Table is a private hour for a small group, and each invitation link works only for the person it was sent to. Open the link straight from your email — copying part of it, or forwarding someone else's, won't get through."}
+                  : "The Farmers Muster is a private hour for a small group, and each invitation link works only for the person it was sent to. Open the link straight from your email — copying part of it, or forwarding someone else's, won't get through."}
               </p>
             </div>
             {!isErr && (
@@ -455,7 +455,7 @@ function App() {
               <div className="ffx-success-script">{yes ? "You're in" : "Noted"}</div>
               <div className="ffx-success-h">
                 {yes
-                  ? (result.party_size > 1 ? "Two seats held at the table" : "Your seat is held")
+                  ? (result.party_size > 1 ? "Two spots held for you" : "Your spot is held")
                   : "We'll miss you"}
               </div>
               <p className="ffx-fine" style={{marginTop:10}}>
@@ -468,7 +468,7 @@ function App() {
             {yes && (
               <div className="ffx-stub">
                 <div className="ffx-stub-main">
-                  <div className="ffx-stub-eb"><I.star w={11} /> The Landholders&rsquo; Table</div>
+                  <div className="ffx-stub-eb"><I.star w={11} /> Farmers Muster</div>
                   <div className="ffx-stub-date">{ev.date} · {ev.time}</div>
                   <div className="ffx-stub-rows">
                     <div><span>Where</span><b>{ev.venue}</b></div>
@@ -536,7 +536,7 @@ function App() {
         <div className="ffx-card">
           <div className="ffx-vip">
             <div className="ffx-vip-tag"><I.star w={13} /> {byCode ? "Passcode accepted" : `Invitation ${info.registration ? "· already replied" : "· personal to you"}`}</div>
-            <div className="ffx-vip-h">{byCode ? "You're in — we just need your details" : (name ? `${name}, you're invited to the table` : "You're invited to the table")}</div>
+            <div className="ffx-vip-h">{byCode ? "You're in — we just need your details" : (name ? `${name}, you're called to the muster` : "You're called to the muster")}</div>
             <p className="ffx-vip-p">
               Before the doors open on the FUNdraiser, we're putting a small group in a room together —
               the people who've carried this fight. An hour, a drink, and a straight conversation about

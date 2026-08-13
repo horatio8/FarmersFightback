@@ -14,7 +14,7 @@ const REGISTRATIONS = process.env.AIRTABLE_RECEPTION_REGS_TABLE || "tbleoZzh6jc5
 
 // Event facts, single source of truth for the API and the page copy.
 const EVENT = {
-  name: "The Landholders' Table",
+  name: "Farmers Muster",
   kicker: "By invitation only",
   date: "Saturday 29 August",
   time: "5:00pm – 6:00pm",
@@ -81,12 +81,6 @@ async function findInviteByToken(token) {
   return rec;
 }
 
-// Look up an existing RSVP for an invitation.
-//
-// Takes the invite RECORD, not its id: ARRAYJOIN over a linked-record field
-// renders each link's PRIMARY field, which here is invite_token — record ids
-// never appear, so filtering on one silently matches nothing. (Live traffic
-// found this; a mock that returns ids for ARRAYJOIN happily passes it.)
 // Used by the passcode path so a second visit from the same person updates
 // their row instead of adding another name to the door list.
 async function findInviteByEmail(email) {
@@ -96,6 +90,12 @@ async function findInviteByEmail(email) {
   return rows[0] || null;
 }
 
+// Look up an existing RSVP for an invitation.
+//
+// Takes the invite RECORD, not its id: ARRAYJOIN over a linked-record field
+// renders each link's PRIMARY field, which here is invite_token — record ids
+// never appear, so filtering on one silently matches nothing. (Live traffic
+// found this; a mock that returns ids for ARRAYJOIN happily passes it.)
 async function findRegistrationForInvite(invite) {
   const token = invite && invite.fields && invite.fields.invite_token;
   if (!token) return null;
