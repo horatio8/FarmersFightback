@@ -1,0 +1,62 @@
+# Runs the whole suite on every push and pull request.
+#
+# Deliberately hermetic. The pages are served from the checkout, our own API is
+# answered from fixtures, and third-party requests are fulfilled locally, so a
+# run needs no secrets, sends no production traffic, and consumes no Airtable,
+# Campaign Nucleus, Stripe or model quota. Nothing here can reach the live site.
+
+name: tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+# A new push supersedes an in-flight run on the same branch, so a busy day does
+# not queue up minutes of duplicated work.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: test/package-lock.json
+
+      - name: Install test dependencies
+        working-directory: test
+        run: npm ci --no-audit --no-fund
+
+      # playwright-core ships no browser, so fetch just Chromium rather than
+      # the whole browser set.
+
+      - name: Install Chromium
+        working-directory: test
+        run: npx --yes playwright@1.62.1 install --with-deps chromium
+
+      - name: Run the suite
+        working-directory: test
+        run: node run.js
+
+      # When the browser stage fails, the recorded impressions are the fastest
+      # way to see what moved.
+      - name: Upload impressions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: impressions
+          path: test/baselines/
+          if-no-files-found: ignore
+          retention-days: 14
