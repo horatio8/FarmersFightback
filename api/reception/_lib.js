@@ -43,6 +43,25 @@ function validTokenShape(t) {
   return typeof t === "string" && t.length >= 16 && t.length <= 64 && /^[A-Za-z0-9_-]+$/.test(t);
 }
 
+// Shared passcode — the second way in, for people we want in the room but
+// don't hold an email address for: handed out by phone, at the gate, or in a
+// group chat. It is a shared secret, so it buys far less than a personal
+// invitation: no prefill, and every field typed by hand.
+//
+// Matched case- and space-insensitively. It gets read off a text message and
+// retyped on a phone keyboard, and "farmersforever" being refused because of
+// an autocapitalised F is a support call, not security.
+function receptionPasscode() {
+  return String(process.env.RECEPTION_PASSCODE || "FarmersForever");
+}
+
+function passcodeOk(input) {
+  const given = String(input || "").trim().toLowerCase().replace(/\s+/g, "");
+  const want = receptionPasscode().trim().toLowerCase().replace(/\s+/g, "");
+  if (!given || !want || given.length !== want.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(given), Buffer.from(want));
+}
+
 // Constant-time compare so a timing side channel can't be used to grind out a
 // token character by character.
 function tokenEquals(a, b) {
@@ -68,6 +87,15 @@ async function findInviteByToken(token) {
 // renders each link's PRIMARY field, which here is invite_token — record ids
 // never appear, so filtering on one silently matches nothing. (Live traffic
 // found this; a mock that returns ids for ARRAYJOIN happily passes it.)
+// Used by the passcode path so a second visit from the same person updates
+// their row instead of adding another name to the door list.
+async function findInviteByEmail(email) {
+  const e = String(email || "").trim().toLowerCase();
+  if (!e) return null;
+  const rows = await select(INVITES, `LOWER({email}) = '${fesc(e)}'`, null, 1);
+  return rows[0] || null;
+}
+
 async function findRegistrationForInvite(invite) {
   const token = invite && invite.fields && invite.fields.invite_token;
   if (!token) return null;
@@ -106,6 +134,9 @@ module.exports = {
   mintToken,
   validTokenShape,
   tokenEquals,
+  receptionPasscode,
+  passcodeOk,
+  findInviteByEmail,
   findInviteByToken,
   findRegistrationForInvite,
   cleanStr,
