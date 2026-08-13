@@ -3901,6 +3901,26 @@ function SendEmailPage({ campaign }) {
       honeypot: "",
     };
   });
+  // The details are fetched from Campaign Nucleus by assets/prefill.js, which
+  // starts before this bundle parses but may land after it mounts. Fill any
+  // box the visitor hasn't already typed into — never overwrite their typing,
+  // however late the answer arrives.
+  useEffect(() => {
+    const apply = (p) => {
+      if (!p) return;
+      setForm((cur) => ({
+        ...cur,
+        first: cur.first || p.first || "",
+        last: cur.last || p.last || "",
+        email: cur.email || p.email || "",
+        mobile: cur.mobile || p.mobile || "",
+      }));
+    };
+    apply(ffbPrefill());
+    const onReady = (e) => apply(e && e.detail);
+    window.addEventListener("ff-prefill-ready", onReady);
+    return () => window.removeEventListener("ff-prefill-ready", onReady);
+  }, []);
   const [errors, setErrors] = useState({});
   const [subject, setSubject] = useState("");
   const [bodyText, setBodyText] = useState("");
