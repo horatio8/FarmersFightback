@@ -104,9 +104,19 @@ module.exports = async function handler(req, res) {
 
   try {
     // Only contacts that already have a code and something CN can match on.
+    // &since=<ISO> narrows to contacts changed after that moment — the way to
+    // push a freshly minted batch without re-walking the whole table. The
+    // integrity cron pushes what it mints, but a mass backfill mints far more
+    // than one invocation can push, and neither top-up cron would catch the
+    // remainder: survey-uid-push keys off CREATED_TIME, and to the integrity
+    // cron a contact that now has a code is no longer missing one.
+    const since = String(url.searchParams.get("since") || "").trim();
+    const sinceClause = since && !Number.isNaN(Date.parse(since))
+      ? `,IS_AFTER(LAST_MODIFIED_TIME(),'${escFormula(new Date(since).toISOString())}')`
+      : "";
     const formula = email
       ? `AND(LOWER({email})='${escFormula(email)}',{referral_code}!='')`
-      : `AND({referral_code}!='',OR({email}!='',{mobile}!=''))`;
+      : `AND({referral_code}!='',OR({email}!='',{mobile}!='')${sinceClause})`;
 
     // Bulk: walk pages, buffer, flush to CN in chunk-sized bulk calls until
     // the walk drains or the time box runs out. Resumable via nextCursor.
