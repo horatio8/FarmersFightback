@@ -81,6 +81,30 @@ async function findInviteByToken(token) {
   return rec;
 }
 
+// Referral-code entry. The emailed link carries the recipient's referral code
+// (CN merge tag %recipient.FarmersFightback_UID%), which resolves to their CRM
+// record so the form arrives filled in.
+//
+// Worth being clear about what this is: a referral code is NOT a secret. Every
+// share link on the site is /page?ref=CODE, posted publicly. Combined with a
+// passcode that also travels in the same email, this invitation is designed to
+// be easy to open rather than hard to forge. What protects the guest list is
+// the single-use rule below, not the code itself.
+async function findContactByCode(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!c || c.length > 12 || !/^[A-Z0-9]+$/.test(c)) return null;
+  const { findContactByReferralCode } = require("../_airtable");
+  return findContactByReferralCode(c);
+}
+
+// One code, one registration. Returns the registration that already consumed
+// this person's invitation, or null if their code is still unused.
+async function registrationFor(email) {
+  const invite = await findInviteByEmail(email);
+  if (!invite) return null;
+  return findRegistrationForInvite(invite);
+}
+
 // Used by the passcode path so a second visit from the same person updates
 // their row instead of adding another name to the door list.
 async function findInviteByEmail(email) {
@@ -138,6 +162,8 @@ module.exports = {
   passcodeOk,
   findInviteByEmail,
   findInviteByToken,
+  findContactByCode,
+  registrationFor,
   findRegistrationForInvite,
   cleanStr,
   validEmail,
