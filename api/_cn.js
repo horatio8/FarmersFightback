@@ -96,8 +96,24 @@ function cnSetUid({ first_name, last_name, email, mobile, uid }) {
 // FarmersFightback_UID CRM alias — the bulk endpoint matches existing
 // profiles (names and tags intact) and sets it, echoing the alias back.
 // Rows use the same shape cnSetUid takes: {first_name,last_name,email,mobile,uid}.
+// CN validates with PHP's filter_var, which is stricter than a loose
+// "something@something.something" test. Sending an address it rejects costs
+// far more than dropping it: the 422 fails the whole bulk call, and the
+// split-retry then burns minutes isolating one row. The imported cohort is
+// full of truncated addresses ("…@gmail.c", "…@optusnet.com.a", trailing
+// dots) — about 4% of it — so this check has to match CN's, not be generous.
+// A rejected address doesn't lose the contact: bulkRow falls back to matching
+// on mobile, and these addresses cannot receive email anyway.
+const EMAIL_RE = new RegExp(
+  "^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+  + "@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$"
+);
 function looksLikeEmail(s) {
-  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(s || ""));
+  const v = String(s || "").trim();
+  if (!v || v.length > 254) return false;
+  const at = v.indexOf("@");
+  if (at < 1 || at > 64) return false;
+  return EMAIL_RE.test(v);
 }
 
 function bulkRow(r, slim) {
