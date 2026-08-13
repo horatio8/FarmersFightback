@@ -24,9 +24,27 @@ module.exports = async function handler(req, res) {
 
   const url = new URL(req.url, "https://x");
   const token = String(url.searchParams.get("t") || "").trim();
+  const code = String(url.searchParams.get("code") || "").trim();
   const deny = { valid: false, error: "This invitation link isn't valid." };
 
   try {
+    // Passcode: opens the same form with nothing pre-filled. There is no
+    // profile behind a shared secret, so every field is typed by hand and
+    // one guest is allowed, same as a standard invitation.
+    if (!token && code) {
+      if (!R.passcodeOk(code)) {
+        return res.status(200).json({ valid: false, error: "That passcode isn't right." });
+      }
+      return res.status(200).json({
+        valid: true,
+        mode: "passcode",
+        event: R.EVENT,
+        invitee: { first_name: "", last_name: "", email: "", mobile: "" },
+        guests_allowed: 1,
+        registration: null,
+      });
+    }
+
     const invite = await R.findInviteByToken(token);
     if (!invite) return res.status(200).json(deny);
     const f = invite.fields || {};
@@ -37,6 +55,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       valid: true,
+      mode: "invite",
       event: R.EVENT,
       invitee: {
         first_name: f.first_name || "",

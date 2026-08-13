@@ -39,16 +39,26 @@ module.exports = async function handler(req, res) {
 
   const body = readBody(req);
   const token = String(body.t || "").trim();
+  const code = String(body.code || "").trim();
 
   try {
-    const invite = await R.findInviteByToken(token);
-    if (!invite || (invite.fields || {}).status === "Cancelled") {
+    // Two ways in. A personal invitation resolves to an existing row. The
+    // shared passcode has no row yet — the person is a stranger to us — so
+    // one is created below, but only AFTER their details validate, so a
+    // half-filled attempt never lands on the door list.
+    const viaPasscode = !token && R.passcodeOk(code);
+    let invite = token ? await R.findInviteByToken(token) : null;
+    if (!viaPasscode && (!invite || (invite.fields || {}).status === "Cancelled")) {
       return res.status(403).json({ ok: false, error: "This invitation link isn't valid." });
     }
-    const inv = invite.fields || {};
-    const guestsAllowed = Number.isFinite(Number(inv.guests_allowed)) ? Number(inv.guests_allowed) : 1;
+    const inv = (invite && invite.fields) || {};
+    const guestsAllowed = viaPasscode
+      ? 1
+      : (Number.isFinite(Number(inv.guests_allowed)) ? Number(inv.guests_allowed) : 1);
 
-    const attending = body.attending === "No" ? "No" : "Yes";
+    // Someone who typed a passcode is here to come. There is no "sorry, can't
+    // make it" to record against an invitation that was never issued.
+    const attending = !viaPasscode && body.attending === "No" ? "No" : "Yes";
     const errors = {};
 
     // The invitee's own details: always required, pre-filled but editable
@@ -90,8 +100,31 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ ok: false, errors, error: "Please check the highlighted fields." });
     }
 
-    const existing = await R.findRegistrationForInvite(invite);
     const nowIso = new Date().toISOString();
+
+    // Passcode path: details are good, so now give this person a row. Reuse
+    // one already carrying their email — someone who registers twice should
+    // appear on the door list once, whichever way they came in.
+    if (viaPasscode) {
+      invite = await R.findInviteByEmail(email);
+      if (!invite) {
+        const made = await R.create(R.INVITES, [{
+          invite_token: R.mintToken(),
+          first_name: first,
+          last_name: last,
+          email,
+          mobile: mobile || "",
+          status: "Invited",
+          guests_allowed: 1,
+          issued_at: nowIso,
+          notes: "Self-registered with the shared passcode",
+        }]);
+        invite = made[0];
+      }
+      if (!invite) return res.status(500).json({ ok: false, error: "Couldn't save your RSVP. Try again in a moment." });
+    }
+
+    const existing = await R.findRegistrationForInvite(invite);
     const fields = {
       reg_ref: (existing && existing.fields && existing.fields.reg_ref) || refFor(),
       invite: [invite.id],
