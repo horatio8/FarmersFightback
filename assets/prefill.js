@@ -25,23 +25,39 @@
   var KEY = "ff_prefill";
   try {
     var q = new URLSearchParams(window.location.search);
-    // Short param names keep these links inside the length that email
-    // clients and SMS gateways will render without wrapping.
-    var map = { fn: "first", ln: "last", em: "email", mb: "mobile", pc: "postcode", uid: "uid" };
+    // Several params can feed one field, because Campaign Nucleus's recipient
+    // variables don't follow the profile's own field names — its live sends
+    // use %recipient.first%, not %recipient.first_name% — and the names for
+    // last/email/mobile aren't in any campaign we've sent, so they can't be
+    // read off history. Rather than guess (or send a test blast to find out),
+    // the link carries every plausible tag for each field and the first one
+    // that actually resolved wins. Unresolved tags arrive as the literal
+    // "%recipient.x%" and are discarded below, so the wrong guesses cost
+    // nothing but URL length.
+    var map = {
+      first: ["fn", "fn2"],
+      last: ["ln", "ln2"],
+      email: ["em", "em2"],
+      mobile: ["mb", "mb2", "mb3"],
+      postcode: ["pc", "pc2"],
+      uid: ["uid"],
+    };
     var out = {};
     var found = false;
-    Object.keys(map).forEach(function (k) {
-      var v = q.get(k);
-      if (v == null) return;
-      v = String(v).trim();
-      // An unresolved merge tag ("%recipient.first_name%") means CN had no
-      // value for that field. Treat it as absent rather than typing a literal
-      // percent-string into someone's name box.
-      if (!v || v.indexOf("%recipient.") === 0 || v.charAt(0) === "%") return;
-      if (v.length > 200) return;
-      out[map[k]] = v;
-      found = true;
-      q.delete(k);
+    Object.keys(map).forEach(function (field) {
+      map[field].forEach(function (k) {
+        var v = q.get(k);
+        q.delete(k);
+        if (out[field] || v == null) return; // first resolved variant wins
+        v = String(v).trim();
+        // An unresolved merge tag means CN had no value under that name.
+        // Treat it as absent rather than typing a percent-string into
+        // someone's name box.
+        if (!v || v.charAt(0) === "%" || v.indexOf("%recipient") !== -1) return;
+        if (v.length > 200) return;
+        out[field] = v;
+        found = true;
+      });
     });
     if (!found) return;
     try { sessionStorage.setItem(KEY, JSON.stringify(out)); } catch (e) {}
