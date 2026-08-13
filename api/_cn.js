@@ -34,7 +34,10 @@ async function cnFetch(path, body, method = "POST", opts = {}) {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(body),
+      // fetch() throws outright on a GET carrying a body, and every call here
+      // used to pass one — JSON.stringify(null) is the string "null", not
+      // nothing. Reads have to omit it entirely.
+      ...(method === "GET" || method === "HEAD" ? {} : { body: JSON.stringify(body) }),
       signal: ctl.signal,
     });
     const text = await r.text().catch(() => "");
