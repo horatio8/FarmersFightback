@@ -170,6 +170,11 @@ function makeReferralCode(len = 6) {
   for (let i = 0; i < len; i++) out += REFERRAL_ALPHABET[bytes[i] % REFERRAL_ALPHABET.length];
   return out;
 }
+// Draw a code nobody holds. Airtable has no unique index, so uniqueness is
+// check-then-write: at 31^6 (~888M) against ~55k issued codes a first draw
+// collides about 0.006% of the time, and the loop absorbs that. Widening to
+// 8 characters after 8 straight collisions is a 1-in-10^33 branch — but it is
+// checked too, rather than trusted, so no path can return an unverified code.
 async function generateUniqueReferralCode(maxTries = 8) {
   for (let i = 0; i < maxTries; i++) {
     const code = makeReferralCode();
@@ -177,13 +182,32 @@ async function generateUniqueReferralCode(maxTries = 8) {
     const exists = await findContactByReferralCode(code);
     if (!exists) return code;
   }
-  return makeReferralCode(8);
+  for (let i = 0; i < 4; i++) {
+    const wide = makeReferralCode(8);
+    // eslint-disable-next-line no-await-in-loop
+    if (!(await findContactByReferralCode(wide))) return wide;
+  }
+  throw new Error("could not generate a unique referral code");
 }
 
+// Every contact gets a code at birth. Assigning it only on the signup paths
+// left ~10% of the table without one (donation imports, bulk loads), and a
+// contact with no code can't be sent a tokenised survey or invitation link.
+// A caller may pass its own referral_code; anything else is minted here.
+// Never fail a signup over this — the referral-code-integrity cron sweeps up
+// anything that slips through.
 async function createContact(fields) {
+  const withCode = { ...fields };
+  if (!withCode.referral_code) {
+    try {
+      withCode.referral_code = await generateUniqueReferralCode();
+    } catch (e) {
+      console.error("createContact referral code:", e.message);
+    }
+  }
   const r = await atFetch(encodeURIComponent(CONTACTS), {
     method: "POST",
-    body: JSON.stringify({ records: [{ fields }], typecast: true }),
+    body: JSON.stringify({ records: [{ fields: withCode }], typecast: true }),
   });
   return r.records[0];
 }
@@ -601,6 +625,10 @@ async function listPage(tableName, { formula, fields, pageSize = 100, sort, offs
 }
 
 async function createRow(tableName, fields) {
+  // Generic table create — but a Contacts row made this way (the Stripe
+  // donation import does exactly that, to avoid bumping the signature
+  // counter) must still get a referral code like any other contact.
+  if (tableName === CONTACTS) return createContact(fields);
   const r = await atFetch(encodeURIComponent(tableName), {
     method: "POST",
     body: JSON.stringify({ records: [{ fields }], typecast: true }),
