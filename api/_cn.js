@@ -164,8 +164,12 @@ async function pushSplit(body, deadline) {
   if (Date.now() > deadline) {
     return { pushed: 0, skipped: 0, failed: body.length, calls: 0, err: { error: "retry deadline exhausted" } };
   }
-  // A row costs CN ~1-1.5s; leave slack but never outlive the gateway.
-  const bulkTimeout = Math.min(165000, Math.max(30000, body.length * 2500));
+  // Per-row cost is not stable: ~1s during the first backfill, ~2.5s since.
+  // At 2500ms/row the timeout sat exactly on the measured cost, so healthy
+  // calls were being aborted and re-split — 48 "failures" in a batch of 65
+  // that had nothing wrong with it. Allow 5s a row (still inside CN's ~3min
+  // gateway limit at these chunk sizes) and let real errors surface as errors.
+  const bulkTimeout = Math.min(165000, Math.max(30000, body.length * 5000));
   const out = await cnFetch("/profiles/match/bulk", body, "POST", { timeoutMs: bulkTimeout });
   if (out.skipped) return { pushed: 0, skipped: body.length, failed: 0, calls: 0 };
   if (out.ok) return { pushed: body.length, skipped: 0, failed: 0, calls: 1 };
