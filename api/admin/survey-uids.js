@@ -213,8 +213,9 @@ module.exports = async function handler(req, res) {
       let lastWaveMs = null;
       while (qi < queue.length) {
         const remaining = budget - (Date.now() - started);
-        // Estimate: measured last wave, else ~1.7s a row a call under load.
-        const estWave = lastWaveMs ? lastWaveMs * 1.3 : chunk * 1700;
+        // Estimate: measured last wave, else ~3s a row a call under load
+        // (CN's per-profile cost has been seen anywhere from 1s to 2.5s).
+        const estWave = lastWaveMs ? lastWaveMs * 1.3 : chunk * 3000;
         if (remaining < estWave + 8000) break;
         const waveItems = queue.slice(qi, qi + chunk * P);
         const parts = [];
