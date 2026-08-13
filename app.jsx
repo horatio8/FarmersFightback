@@ -3831,6 +3831,21 @@ function StoryRail({ src, ctaLabel, onCta }) {
 }
 
 function ffbEmailValid(v) { return /^\S+@\S+\.\S+$/.test(String(v || "").trim()); }
+
+// Details lifted out of a tokenised email link by assets/prefill.js, which
+// ran before this bundle and stashed them in sessionStorage (the URL itself
+// is already scrubbed by now — see that file for why). Reading from storage
+// rather than the URL also means the prefill survives a reload or an
+// in-page navigation, so someone who lands, wanders off to read the story
+// rail and comes back still finds their details in place.
+function ffbPrefill() {
+  try {
+    const raw = sessionStorage.getItem("ff_prefill");
+    if (!raw) return {};
+    const p = JSON.parse(raw);
+    return p && typeof p === "object" ? p : {};
+  } catch { return {}; }
+}
 // AU mobile: accept 04xxxxxxxx or +614xxxxxxxx → normalize to +614xxxxxxxx.
 function ffbNormMobile(raw) {
   const t = String(raw || "").replace(/\s+/g, "");
@@ -3872,7 +3887,20 @@ function SendEmailPage({ campaign }) {
 
   const [variations, setVariations] = useState(null);
   const [recipients, setRecipients] = useState([]);
-  const [form, setForm] = useState({ first: "", last: "", email: "", mobile: "", honeypot: "" });
+  // Arrives pre-filled when they came from a tokenised email link; an
+  // ordinary visitor gets the same empty form as before. Every field stays
+  // editable — a stale address in the CRM is theirs to correct, and the
+  // email sends from their own mail client either way.
+  const [form, setForm] = useState(() => {
+    const p = ffbPrefill();
+    return {
+      first: p.first || "",
+      last: p.last || "",
+      email: p.email || "",
+      mobile: p.mobile || "",
+      honeypot: "",
+    };
+  });
   const [errors, setErrors] = useState({});
   const [subject, setSubject] = useState("");
   const [bodyText, setBodyText] = useState("");
