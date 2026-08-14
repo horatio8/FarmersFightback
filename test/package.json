@@ -1,0 +1,18 @@
+{
+  "name": "farmersfightback-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Impression, regression and unit tests for farmersfightback.com. Kept out of the repo root on purpose: the site itself has no dependencies, and a package.json at the root would change how Vercel builds it.",
+  "scripts": {
+    "test": "node run.js",
+    "test:unit": "node run.js --unit",
+    "test:fix": "node run.js --fix",
+    "test:update": "node run.js --update"
+  },
+  "devDependencies": {
+    "@babel/standalone": "7.29.0",
+    "playwright-core": "1.62.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}

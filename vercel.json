@@ -63,7 +63,7 @@
     { "source": "/about-us.html","destination": "/the-fight",           "permanent": false },
     { "source": "/volunteer",   "destination": "/take-action/volunteer#signup",   "permanent": false },
     { "source": "/petition",    "destination": "/take-action/hold-the-gate#sign", "permanent": false },
-    { "source": "/holdthegate", "destination": "/petition",                       "permanent": false },
+    { "source": "/holdthegate", "destination": "/take-action/hold-the-gate#sign", "permanent": false },
     { "source": "/helpholdthegate", "destination": "/take-action/hold-the-gate#sign", "permanent": true },
     { "source": "/send-your-email", "destination": "/askjess", "permanent": false }
   ],

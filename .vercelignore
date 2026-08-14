@@ -1,0 +1,7 @@
+# The test suite never ships. It is dev-only, it carries dependencies the site
+# itself does not have, and shipping it would put fixtures on a public origin.
+test
+node_modules
+
+# CI definitions are for GitHub, not for the CDN.
+.github

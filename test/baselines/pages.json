@@ -1,0 +1,493 @@
+{
+  "/": {
+    "title": "Farmers Fightback — Fighting for farmers, food & our future",
+    "words": 693,
+    "headings": [
+      "Fighting for farmers, food & our future.",
+      "The Farmers Fightback FUNdraiser",
+      "New Premier Carroll declares war on farmers",
+      "A farmer-led fight for every Aussie farmer.",
+      "Stop them devastating Aussie farmers & our national food bowl.",
+      "Add your name. Draw the line.",
+      "Ask Victorian Liberals & Nationals to stand with farmers",
+      "Three ways to hold the line.",
+      "Every dollar you chip in goes directly to the front line."
+    ],
+    "ctaCount": 32,
+    "forms": 1,
+    "inputs": 5,
+    "images": 8,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 29,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/404": {
+    "title": "Page not found — Farmers Fightback",
+    "words": 44,
+    "headings": [
+      "That page has moved or never existed."
+    ],
+    "ctaCount": 3,
+    "forms": 0,
+    "inputs": 0,
+    "images": 0,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 1,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/admin": {
+    "title": "Farmers Fightback — Admin",
+    "words": 0,
+    "headings": [],
+    "ctaCount": 0,
+    "forms": 0,
+    "inputs": 0,
+    "images": 0,
+    "imagesUnlabelled": 0,
+    "h1": 0,
+    "links": 0,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/admin/econ": {
+    "title": "FF Campaign Economics",
+    "words": 195,
+    "headings": [
+      "Farmers Fightback — Campaign Economics",
+      "Today's ads (Melbourne time) — spend vs what we got",
+      "Reconciling to Ads Manager (today)",
+      "Donation revenue by how we acquired the donor (all-time)",
+      "Donation revenue by how the gift was raised (all-time)"
+    ],
+    "ctaCount": 0,
+    "forms": 0,
+    "inputs": 0,
+    "images": 0,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 0,
+    "overflow": 0,
+    "mobileOverflow": 61
+  },
+  "/askjess": {
+    "title": "Email the Liberal Party | Farmers Fightback",
+    "words": 274,
+    "headings": [
+      "Tell the Victorian Coalition: There's still time to do the right thing.",
+      "Your details",
+      "Prepare your email below"
+    ],
+    "ctaCount": 19,
+    "forms": 1,
+    "inputs": 7,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 18,
+    "overflow": 38,
+    "mobileOverflow": 49
+  },
+  "/contact": {
+    "title": "Contact — Farmers Fightback",
+    "words": 130,
+    "headings": [
+      "GET IN TOUCH."
+    ],
+    "ctaCount": 18,
+    "forms": 1,
+    "inputs": 5,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 19,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/demandcarroll": {
+    "title": "New Premier Carroll Declares War on Farmers | Farmers Fightback",
+    "words": 1452,
+    "headings": [
+      "Stop targeting Aussie farmers. Fight now.",
+      "Your details",
+      "Prepare your email below",
+      "Hear their stories",
+      "They have billions. We need you.",
+      "See it for yourself."
+    ],
+    "ctaCount": 25,
+    "forms": 1,
+    "inputs": 7,
+    "images": 12,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 10,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/demanddambrosio": {
+    "title": "Demand D'Ambrosio Answers | Farmers Fightback",
+    "words": 1357,
+    "headings": [
+      "Demand Lily D'Ambrosio apologise for targeting Aussie farmers today.",
+      "Your details",
+      "Prepare your email below",
+      "Hear their stories",
+      "They have billions. We need you."
+    ],
+    "ctaCount": 23,
+    "forms": 1,
+    "inputs": 7,
+    "images": 12,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 9,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/donate": {
+    "title": "Donate — Farmers Fightback · They have billions. We have you.",
+    "words": 314,
+    "headings": [
+      "THEY HAVE BILLION$. WE NEED YOU.",
+      "Where it goes.",
+      "What your dollars have already paid for."
+    ],
+    "ctaCount": 26,
+    "forms": 0,
+    "inputs": 0,
+    "images": 3,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 19,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/first": {
+    "title": "Be first in line — Farmers Fightback",
+    "words": 77,
+    "headings": [
+      "BE FIRST in line"
+    ],
+    "ctaCount": 1,
+    "forms": 0,
+    "inputs": 5,
+    "images": 1,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 0,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/fundraiser": {
+    "title": "Farmers Fightback Fundraiser — Marnoo, Sat 29 August",
+    "words": 185,
+    "headings": [
+      "FARMERS FIGHTBACK FUNdraiser",
+      "SPEAKERS FROM 7PM — THEN FOOD & MUSIC",
+      "MARNOO CRICKET GROUND"
+    ],
+    "ctaCount": 7,
+    "forms": 0,
+    "inputs": 5,
+    "images": 3,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 2,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/funraiser": {
+    "title": "You're on the list — Farmers Fightback",
+    "words": 172,
+    "headings": [
+      "YOU’RE ON the list"
+    ],
+    "ctaCount": 17,
+    "forms": 0,
+    "inputs": 0,
+    "images": 1,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 16,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/funshare": {
+    "title": "Share the sign-up — Farmers Fightback",
+    "words": 171,
+    "headings": [
+      "SHARE THE sign-up"
+    ],
+    "ctaCount": 17,
+    "forms": 0,
+    "inputs": 0,
+    "images": 1,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 16,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/media": {
+    "title": "Media — Farmers Fightback",
+    "words": 244,
+    "headings": [
+      "MEDIA & PRESS ENQUIRIES.",
+      "Spokespeople.",
+      "Recent coverage",
+      "Press kit & assets."
+    ],
+    "ctaCount": 27,
+    "forms": 0,
+    "inputs": 0,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 30,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/news": {
+    "title": "News — Farmers Fightback",
+    "words": 217,
+    "headings": [
+      "NEWS FROM THE CORRIDOR."
+    ],
+    "ctaCount": 34,
+    "forms": 0,
+    "inputs": 0,
+    "images": 10,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 36,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/question": {
+    "title": "Ask a Question | Farmers Fightback Briefing",
+    "words": 68,
+    "headings": [
+      "Got a question for the briefing?",
+      "What would you like us to cover?"
+    ],
+    "ctaCount": 1,
+    "forms": 1,
+    "inputs": 3,
+    "images": 3,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 1,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/reception": {
+    "title": "Farmers Muster — By Invitation, Sat 29 August",
+    "words": 122,
+    "headings": [],
+    "ctaCount": 3,
+    "forms": 0,
+    "inputs": 1,
+    "images": 1,
+    "imagesUnlabelled": 0,
+    "h1": 0,
+    "links": 2,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/share": {
+    "title": "Thank you — Now share with 5 mates · Farmers Fightback",
+    "words": 89,
+    "headings": [
+      "Thanks for backing the fight."
+    ],
+    "ctaCount": 9,
+    "forms": 1,
+    "inputs": 5,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 9,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/survey": {
+    "title": "Farmers Fightback Supporter Survey",
+    "words": 18,
+    "headings": [
+      "Let's get you started."
+    ],
+    "ctaCount": 1,
+    "forms": 0,
+    "inputs": 3,
+    "images": 0,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 0,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/take-action": {
+    "title": "Take Action — Farmers Fightback",
+    "words": 257,
+    "headings": [
+      "PICK A FIGHT. STAND UP."
+    ],
+    "ctaCount": 17,
+    "forms": 0,
+    "inputs": 0,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 23,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/take-action/baldwins": {
+    "title": "Baldwin Defence — Charges Dropped. The Minister Must Resign.",
+    "words": 735,
+    "headings": [
+      "BASELESS CHARGES DROPPED. MINISTER MUST RESIGN.",
+      "RESIGN. INVESTIGATE. REPEAL.",
+      "REFUSAL CRIMINALISED.",
+      "FROM TRIPLE ZERO TO CHARGES DROPPED.",
+      "DEFEND AUSSIE FARMERS. PICK AN AMOUNT.",
+      "THREE MOVES. YOU CHOOSE."
+    ],
+    "ctaCount": 17,
+    "forms": 1,
+    "inputs": 5,
+    "images": 1,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 24,
+    "overflow": 0,
+    "mobileOverflow": 73
+  },
+  "/take-action/fuel-and-fertiliser": {
+    "title": "Fuel & Fertiliser Crisis — Farmers Fightback",
+    "words": 256,
+    "headings": [
+      "Plant at a loss, or don't plant at all."
+    ],
+    "ctaCount": 19,
+    "forms": 1,
+    "inputs": 7,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 20,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/take-action/hold-the-gate": {
+    "title": "Hold the Gate — Farmers Fightback",
+    "words": 491,
+    "headings": [
+      "Help our farmers, before it's too late.",
+      "Why this fight matters.",
+      "STAND WITH AUSSIE FARMERS."
+    ],
+    "ctaCount": 24,
+    "forms": 1,
+    "inputs": 5,
+    "images": 6,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 25,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/take-action/remove-us-from-the-rez": {
+    "title": "Remove Us From The REZ — Farmers Fightback",
+    "words": 780,
+    "headings": [
+      "Remove us from the REZ.",
+      "Why this matters",
+      "STAND WITH THE FARMERS."
+    ],
+    "ctaCount": 24,
+    "forms": 1,
+    "inputs": 5,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 25,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/take-action/volunteer": {
+    "title": "Volunteer — Farmers Fightback",
+    "words": 343,
+    "headings": [
+      "VOLUNTEER WITH US.",
+      "Volunteer roles.",
+      "Register as a volunteer.",
+      "Prefer another way to help?"
+    ],
+    "ctaCount": 20,
+    "forms": 1,
+    "inputs": 12,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 21,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/the-fight": {
+    "title": "The Fight — Farmers Fightback",
+    "words": 387,
+    "headings": [
+      "WHAT WE'RE FIGHTING",
+      "Pick a fight worth winning."
+    ],
+    "ctaCount": 19,
+    "forms": 0,
+    "inputs": 0,
+    "images": 6,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 25,
+    "overflow": 38,
+    "mobileOverflow": 36
+  },
+  "/webinar": {
+    "title": "Donor Briefing | Farmers Fightback",
+    "words": 54,
+    "headings": [
+      "This invitation is private."
+    ],
+    "ctaCount": 0,
+    "forms": 0,
+    "inputs": 0,
+    "images": 2,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 1,
+    "overflow": 0,
+    "mobileOverflow": 0
+  },
+  "/won": {
+    "title": "D'Ambrosio's gone. Now help finish the job. | Farmers Fightback",
+    "words": 1308,
+    "headings": [
+      "D'AMBROSIO'S GONE. NOW HELP FINISH THE JOB.",
+      "The job isn't finished.",
+      "Hear their stories",
+      "Where it goes."
+    ],
+    "ctaCount": 21,
+    "forms": 0,
+    "inputs": 0,
+    "images": 13,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 9,
+    "overflow": 0,
+    "mobileOverflow": 0
+  }
+}
