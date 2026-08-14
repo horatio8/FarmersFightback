@@ -702,6 +702,120 @@ async function run() {
     assert.empty(leaky, "private page is indexable");
   });
 
+  // ------------------------------------------------- capture across reloads
+  //
+  // The /demand form upserts on session_id, which lives in sessionStorage and
+  // survives a reload, and orders writes on a seq the client used to restart
+  // at zero on every page load. The result was that a supporter who began the
+  // form, came back and finished had every write rejected as a late duplicate
+  // — silently, with a 200. These tests pin the sequence that broke.
+  group("capture: a supporter who comes back to finish");
+  const captureHandler = R("api/capture.js");
+
+  function captureHarness() {
+    const rows = new Map();
+    let writes = 0;
+    const realFetch = global.fetch;
+    global.fetch = async (url, opts = {}) => {
+      const u = String(url);
+      const method = (opts.method || "GET").toUpperCase();
+      const reply = (b) => ({ ok: true, status: 200, json: async () => b, text: async () => JSON.stringify(b) });
+      if (method === "GET") {
+        const m = decodeURIComponent(u).match(/\{session_id\}='([^']+)'/);
+        const rec = m && rows.get(m[1]);
+        return reply({ records: rec ? [{ id: "rec" + m[1].slice(0, 12), fields: rec }] : [] });
+      }
+      if (method === "POST") {
+        const f = JSON.parse(opts.body).records[0].fields;
+        writes += 1; rows.set(f.session_id, { ...f });
+        return reply({ records: [{ id: "rec" + f.session_id.slice(0, 12), fields: f }] });
+      }
+      if (method === "PATCH") {
+        const f = JSON.parse(opts.body).fields;
+        writes += 1;
+        const sid = [...rows.keys()].find((k) => u.includes(k.slice(0, 12)));
+        rows.set(sid, { ...rows.get(sid), ...f });
+        return reply({ id: "x", fields: rows.get(sid) });
+      }
+      return reply({});
+    };
+    return {
+      rows,
+      writes: () => writes,
+      restore: () => { global.fetch = realFetch; },
+      async post(payload) {
+        const r = { code: 0, body: null };
+        r.setHeader = () => {}; r.status = (c) => { r.code = c; return r; };
+        r.json = (b) => { r.body = b; return r; }; r.end = () => r;
+        await captureHandler({
+          method: "POST",
+          headers: { "x-forwarded-for": `198.51.100.${Math.floor(Math.random() * 250)}` },
+          socket: {},
+          body: payload,
+        }, r);
+        return r.body;
+      },
+    };
+  }
+
+  await test("a supporter who fills the form in one sitting is captured", async () => {
+    const h = captureHarness();
+    try {
+      const s = "sess-one-sitting";
+      const base = Date.now();
+      await h.post({ session_id: s, seq: base + 1, first_name: "Jane" });
+      await h.post({ session_id: s, seq: base + 2, first_name: "Jane", last_name: "Farmer" });
+      const out = await h.post({ session_id: s, seq: base + 3, first_name: "Jane", last_name: "Farmer", email: "jane@example.com" });
+      assert.equal(out.status, "complete");
+      assert.equal(h.rows.get(s).email, "jane@example.com");
+    } finally { h.restore(); }
+  });
+
+  await test("a supporter who reloads and finishes later is still captured", async () => {
+    const h = captureHarness();
+    try {
+      const s = "sess-came-back";
+      // First visit: they get as far as a first name, then leave.
+      await h.post({ session_id: s, seq: Date.now() + 1, first_name: "Robert" });
+      const afterFirst = h.writes();
+
+      // Second visit in the same tab. session_id is unchanged; the counter is
+      // reseeded from the clock, so it must still be ahead of what was stored.
+      const later = Date.now() + 1000;
+      await h.post({ session_id: s, seq: later + 1, first_name: "Robert", last_name: "Grazier" });
+      const out = await h.post({ session_id: s, seq: later + 2, first_name: "Robert", last_name: "Grazier", email: "robert@example.com" });
+
+      assert.ok(h.writes() > afterFirst, "the second visit wrote nothing at all");
+      assert.notEqual(out.stale, true, "the completed form was rejected as a stale duplicate");
+      assert.equal(out.status, "complete", "status never reached complete, so no Contact and no CN sync");
+      assert.equal(h.rows.get(s).email, "robert@example.com", "their email address was thrown away");
+    } finally { h.restore(); }
+  });
+
+  await test("the seq the page sends is seeded from the clock, not from zero", () => {
+    // The regression itself: React.useRef(0) resets on every page load while
+    // session_id does not, so the counter must not start at a small integer.
+    const src = fsx.readFileSync(path.join(ROOT, "app.jsx"), "utf8");
+    assert.noMatch(src, /const seqRef = React\.useRef\(0\)/,
+      "seqRef seeded at 0 restarts on reload and every write is dropped as stale");
+    assert.match(src, /const seqRef = React\.useRef\(Date\.now\(\)\)/,
+      "seqRef must be seeded from the clock so it stays ahead across page loads");
+  });
+
+  await test("a genuinely out-of-order snapshot is still ignored", async () => {
+    // The guard has a real job: two captures in flight at once, the older one
+    // landing second. Fixing the reload case must not disarm that.
+    const h = captureHarness();
+    try {
+      const s = "sess-race";
+      const base = Date.now();
+      await h.post({ session_id: s, seq: base + 10, first_name: "Jane", last_name: "Farmer", email: "jane@example.com" });
+      const late = await h.post({ session_id: s, seq: base + 4, first_name: "Ja" });
+      assert.equal(late.stale, true, "an older in-flight snapshot must not overwrite newer data");
+      assert.equal(h.rows.get(s).first_name, "Jane", "the newer value was clobbered");
+    } finally { h.restore(); }
+  });
+
   // --------------------------------------------------------- the repair rules
   //
   // The autofix pass writes to source files, so its own rules need checking:

@@ -3990,7 +3990,22 @@ function SendEmailPage({ campaign }) {
   // the latest snapshot is sent when the in-flight completes. lastSentSnapRef
   // holds the signature of the last successfully-sent snapshot so the abandon
   // beacon only fires when something actually changed.
-  const seqRef = React.useRef(0);
+  //
+  // Seeded from the clock, NOT from zero. session_id lives in sessionStorage
+  // and survives a reload; this counter does not. Starting it at 0 meant that
+  // on any second load in the same tab the client resent seq 1, 2, 3… while
+  // the stored row already held a higher number, so the server read every
+  // snapshot as a late-arriving duplicate and discarded it — silently, with a
+  // 200. Anyone who began the form, came back, and finished had their name,
+  // email and send all thrown away, and never reached Contacts or Campaign
+  // Nucleus either.
+  //
+  // A clock seed is monotonic across loads by construction, and is always far
+  // above the small integers already stored, so sessions broken by the old
+  // build recover on their next load. Ordering within a load is unchanged: the
+  // counter still increments per dispatch, which is all the server's guard was
+  // ever meant to police.
+  const seqRef = React.useRef(Date.now());
   const captureInFlight = React.useRef(false);
   const captureDirty = React.useRef(false);
   const pendingExtraRef = React.useRef({});

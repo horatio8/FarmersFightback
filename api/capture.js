@@ -133,6 +133,14 @@ module.exports = async function handler(req, res) {
     const storedSeq = Number.isFinite(Number(cur.seq)) && cur.seq !== null && cur.seq !== ""
       ? Number(cur.seq) : undefined;
     if (incomingSeq !== undefined && storedSeq !== undefined && incomingSeq <= storedSeq) {
+      // Dropping a snapshot throws away whatever the supporter had typed, so
+      // say so. This was silent, and a client bug that reset the counter on
+      // every page load therefore discarded real submissions for weeks without
+      // leaving a single trace in the logs.
+      console.warn(
+        `capture stale drop: session=${session_id} incoming_seq=${incomingSeq} stored_seq=${storedSeq}`
+        + ` had_email=${body.email !== undefined} status=${cur.status || "none"}`
+      );
       return res.status(200).json({ ok: true, status: cur.status || "partial", stale: true });
     }
 
