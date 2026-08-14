@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "permissions": {
+    "allow": [
+      "mcp__Airtable__list_bases",
+      "mcp__Airtable__search_bases",
+      "mcp__Airtable__list_tables_for_base",
+      "mcp__Airtable__get_table_schema",
+      "mcp__Airtable__list_records_for_table",
+      "mcp__Airtable__search_records",
+      "mcp__Airtable__list_views_for_table"
+    ],
+    "deny": [
+      "mcp__Airtable__create_records_for_table",
+      "mcp__Airtable__update_records_for_table",
+      "mcp__Airtable__delete_records_for_table",
+      "mcp__Airtable__delete_table",
+      "mcp__Airtable__create_field",
+      "mcp__Airtable__update_field",
+      "mcp__Airtable__update_table"
+    ]
+  }
+}

@@ -5,3 +5,6 @@ node_modules
 
 # CI definitions are for GitHub, not for the CDN.
 .github
+
+# Editor/agent config is not part of the site.
+.claude
