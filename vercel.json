@@ -47,7 +47,8 @@
     "api/admin/stripe-import-donations.js": { "maxDuration": 300 },
     "api/admin/survey-uids.js": { "maxDuration": 300 },
     "api/cron/survey-uid-push.js": { "maxDuration": 120 },
-    "api/cron/referral-code-integrity.js": { "maxDuration": 300 }
+    "api/cron/referral-code-integrity.js": { "maxDuration": 300 },
+    "api/admin/import-demand-senders.js": { "maxDuration": 300 }
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
