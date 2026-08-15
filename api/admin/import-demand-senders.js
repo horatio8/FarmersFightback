@@ -29,7 +29,7 @@
 // duplicates of people already in the CRM.
 
 const {
-  findContactByEmail, createRow, logEventIdempotent, uuid, nowIso,
+  createRow, listPage, logEventIdempotent, uuid, nowIso,
 } = require("../_airtable");
 const { requireBasicAuth } = require("../_util");
 
@@ -62,6 +62,30 @@ function isoDate(v) {
   if (!s) return "";
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? "" : d.toISOString();
+}
+
+function esc(s) { return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+
+// Look every address in the batch up in one sweep instead of one request per
+// person. A serial lookup is ~5,000 Airtable reads for this import, which at
+// their rate limit runs well past any function timeout; 30 addresses per
+// OR() brings it under a couple of hundred requests.
+async function knownEmails(emails) {
+  const found = new Map();
+  const list = [...new Set(emails)];
+  for (let i = 0; i < list.length; i += 30) {
+    const slice = list.slice(i, i + 30);
+    const formula = `OR(${slice.map((e) => `LOWER({email})='${esc(e)}'`).join(",")})`;
+    // eslint-disable-next-line no-await-in-loop
+    const { records } = await listPage(CONTACTS, {
+      formula, fields: ["email"], pageSize: 100,
+    });
+    for (const rec of records) {
+      const e = String((rec.fields || {}).email || "").trim().toLowerCase();
+      if (e) found.set(e, rec);
+    }
+  }
+  return found;
 }
 
 function authed(req, res) {
@@ -100,6 +124,24 @@ module.exports = async function handler(req, res) {
   };
   const samples = { created: [], invalid: [], errors: [] };
 
+  // Resolve every address in the batch up front, in bulk.
+  const wanted = [];
+  for (const row of rows) {
+    const p = validEmail(row.email);
+    if (p) wanted.push(p);
+    for (const alt of Array.isArray(row.emails) ? row.emails : []) {
+      const e = validEmail(alt);
+      if (e) wanted.push(e);
+    }
+  }
+  let known;
+  try {
+    known = await knownEmails(wanted);
+  } catch (e) {
+    console.error("import-demand-senders lookup failed:", e.message);
+    return res.status(500).json({ error: "contact lookup failed", detail: e.message.slice(0, 200) });
+  }
+
   for (const row of rows) {
     // Every address this person used, primary first. Matching on all of them
     // is what stops a shared-inbox sender becoming a duplicate.
@@ -119,9 +161,7 @@ module.exports = async function handler(req, res) {
     try {
       let contact = null;
       for (const e of candidates) {
-        // eslint-disable-next-line no-await-in-loop
-        contact = await findContactByEmail(e);
-        if (contact) break;
+        if (known.has(e)) { contact = known.get(e); break; }
       }
 
       if (!contact) {
@@ -147,6 +187,10 @@ module.exports = async function handler(req, res) {
           // unique referral code like everybody else.
           // eslint-disable-next-line no-await-in-loop
           contact = await createRow(CONTACTS, fields);
+          // Two people in one batch can share an address (a couple using the
+          // same inbox). Register it so the second one matches instead of
+          // creating a duplicate.
+          for (const e of candidates) known.set(e, contact);
           stats.created += 1;
           if (samples.created.length < 10) samples.created.push(candidates[0]);
         }
