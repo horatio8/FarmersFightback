@@ -44,8 +44,14 @@ module.exports = async function handler(req, res) {
   const days = Number(url.searchParams.get("days")) || 0;
   const wantJson = url.searchParams.get("json") === "1";
 
+  // ?after=<ISO> pins the start of the test, so pre-launch verification
+  // clicks are excluded for good rather than subtracted by hand every time.
+  const after = (url.searchParams.get("after") || "").trim();
+
   let formula = `{event_type}='${EVENT_TYPE}'`;
-  if (days > 0) {
+  if (after && !Number.isNaN(new Date(after).getTime())) {
+    formula = `AND(${formula},IS_AFTER({timestamp},'${new Date(after).toISOString()}'))`;
+  } else if (days > 0) {
     formula = `AND(${formula},IS_AFTER({timestamp},DATEADD(TODAY(),-${days},'days')))`;
   }
 
@@ -108,7 +114,7 @@ module.exports = async function handler(req, res) {
         : `${leader} is ahead by ${lift || "a little"}, but this is still inside the noise`,
     by_day: Object.fromEntries(Object.entries(byDay).sort()),
     by_device: byUA,
-    window: days > 0 ? `last ${days} days` : "all time",
+    window: after ? `since ${after}` : days > 0 ? `last ${days} days` : "all time",
   };
 
   if (wantJson) return res.status(200).json({ ok: true, ...result });
