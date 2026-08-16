@@ -816,6 +816,124 @@ async function run() {
     } finally { h.restore(); }
   });
 
+  // ------------------------------------------------ whatsapp invite redirects
+  //
+  // /wa1 and /wa2 go into auto-replies that thousands of people will read, and
+  // the only thing they measure is which invite wording pulls better. A
+  // regression here is invisible: the link still works, the numbers just stop
+  // being true.
+  group("whatsapp invite redirects");
+  const wa = R("api/wa-redirect.js");
+
+  function waRes() {
+    const r = { code: 0, headers: {}, body: null };
+    r.setHeader = (k, v) => { r.headers[k.toLowerCase()] = v; };
+    r.status = (c) => { r.code = c; return r; };
+    r.json = (b) => { r.body = b; return r; };
+    r.end = () => r;
+    return r;
+  }
+  async function tapLink(path, ua) {
+    const logged = [];
+    const realFetch = global.fetch;
+    global.fetch = async (url, opts = {}) => {
+      logged.push(JSON.parse(opts.body || "{}"));
+      const body = { records: [{ id: "recX", fields: {} }] };
+      return {
+        ok: true, status: 200, headers: { get: () => "application/json" },
+        json: async () => body,
+        text: async () => JSON.stringify(body),
+      };
+    };
+    try {
+      const res = waRes();
+      await wa({ method: "GET", url: `/api/wa-redirect?v=${path}`, headers: { "user-agent": ua || "" } }, res);
+      const payloads = logged
+        .map((b) => (b.records && b.records[0] && b.records[0].fields) || {})
+        .map((f) => { try { return JSON.parse(f.payload || "{}"); } catch { return {}; } });
+      return { res, payloads };
+    } finally { global.fetch = realFetch; }
+  }
+
+  const IPHONE_IG = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 Instagram 330.0";
+
+  await test("both paths send the supporter to the WhatsApp channel", async () => {
+    for (const p of ["wa1", "wa2"]) {
+      const { res } = await tapLink(p, IPHONE_IG);
+      assert.equal(res.code, 307, `${p} must answer 307`);
+      assert.includes(res.headers.location, "whatsapp.com/channel/", `${p} destination`);
+    }
+  });
+
+  await test("the redirect is never cached, or repeat clicks stop being counted", async () => {
+    const { res } = await tapLink("wa1", IPHONE_IG);
+    assert.includes(res.headers["cache-control"], "no-store");
+    assert.notEqual(res.code, 301, "a permanent redirect would be cached by in-app webviews");
+    assert.notEqual(res.code, 308, "a permanent redirect would be cached by in-app webviews");
+  });
+
+  await test("each path records its own variant, so the test can be read", async () => {
+    const a = await tapLink("wa1", IPHONE_IG);
+    const b = await tapLink("wa2", IPHONE_IG);
+    assert.equal(a.payloads[0].variant, "A");
+    assert.equal(b.payloads[0].variant, "B");
+  });
+
+  await test("link-preview fetchers redirect but are not counted", async () => {
+    // Messenger and Instagram fetch the URL to build the preview card on every
+    // send. Counting those would measure messages sent, not people clicking.
+    for (const bot of ["facebookexternalhit/1.1", "WhatsApp/2.23", "Slackbot-LinkExpanding 1.0"]) {
+      const { res, payloads } = await tapLink("wa1", bot);
+      assert.equal(res.code, 307, "a preview fetcher must still get the redirect");
+      assert.empty(payloads, `${bot} was counted as a click`);
+    }
+  });
+
+  await test("a real in-app tap IS counted", async () => {
+    for (const real of [IPHONE_IG, "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 [FBAN/FB4A;FBAV/450.0]"]) {
+      const { payloads } = await tapLink("wa1", real);
+      assert.equal(payloads.length, 1, "a genuine supporter tap must be recorded");
+    }
+  });
+
+  await test("nothing identifying is stored", async () => {
+    const { payloads } = await tapLink("wa1", IPHONE_IG);
+    const p = payloads[0];
+    assert.equal(p.ua, "iOS/instagram", "the full user agent must be reduced to a coarse label");
+    assert.excludes(JSON.stringify(p), "AppleWebKit", "the raw UA string leaked into storage");
+    assert.excludes(Object.keys(p).join(","), "ip", "no IP may be stored");
+  });
+
+  await test("an unknown variant still reaches the channel", async () => {
+    const { res } = await tapLink("wa9", IPHONE_IG);
+    assert.equal(res.code, 307);
+    assert.includes(res.headers.location, "whatsapp.com/channel/");
+  });
+
+  await test("a storage failure never blocks the supporter", async () => {
+    const realFetch = global.fetch;
+    global.fetch = async () => { throw new Error("airtable down"); };
+    try {
+      const res = waRes();
+      await wa({ method: "GET", url: "/api/wa-redirect?v=wa1", headers: { "user-agent": IPHONE_IG } }, res);
+      assert.equal(res.code, 307, "a logging failure must not cost a supporter the link");
+      assert.includes(res.headers.location, "whatsapp.com/channel/");
+    } finally { global.fetch = realFetch; }
+  });
+
+  await test("both public paths are wired to the tracked function, not an edge redirect", () => {
+    // A vercel.json redirect would resolve before any function ran, giving a
+    // working link and zero data — the exact failure this build exists to avoid.
+    const rw = (vercel.rewrites || []);
+    for (const p of ["/wa1", "/wa2"]) {
+      const rule = rw.find((r) => r.source === p);
+      assert.ok(rule, `${p} has no rewrite`);
+      assert.includes(rule.destination, "/api/wa-redirect", `${p} must pass through the function`);
+    }
+    const redirects = (vercel.redirects || []).filter((r) => ["/wa1", "/wa2"].includes(r.source));
+    assert.empty(redirects.map((r) => r.source), "an edge redirect would bypass tracking");
+  });
+
   // --------------------------------------------------------- the repair rules
   //
   // The autofix pass writes to source files, so its own rules need checking:
