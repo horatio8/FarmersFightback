@@ -67,8 +67,10 @@ module.exports = async function handler(req, res) {
   try {
     let out;
     if (part === "contacts") {
-      const rows = await listRows(CONTACTS, { fields: ["status", "source_channel"] });
-      out = { total: rows.length, by_status: tally(rows, "status"), by_source: tally(rows, "source_channel") };
+      // Only fields the Contacts table is known to have — an unknown name in
+      // fields[] fails the whole scan with UNKNOWN_FIELD_NAME.
+      const rows = await listRows(CONTACTS, { fields: ["status"] });
+      out = { total: rows.length, by_status: tally(rows, "status") };
     } else if (part === "signatures") {
       const rows = await listRows(SIGNATURES, { fields: ["contact", "email", "lead_source"] });
       const emails = new Set(rows.map((r) => r.fields && r.fields.email).filter(Boolean));
