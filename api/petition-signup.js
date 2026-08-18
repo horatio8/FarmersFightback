@@ -123,6 +123,13 @@ module.exports = async function handler(req, res) {
 
     const metaEventId = `petition_${contactUuid}_${Date.now()}`;
 
+    // The Contact is already saved by this point, so a failure here loses the
+    // log entry, not the supporter — and must not be allowed to fail the
+    // request. It was allowed to once: on 17-18 Aug 2026 the Events table hit
+    // its record ceiling, this line threw, and every signup returned an error
+    // for 25 hours to people whose details were sitting safely in Airtable.
+    // The log has its own base now; this makes the next such failure a gap in
+    // the log rather than an outage.
     await logEvent({
       contactRecordId,
       event_type: "Petition Signed",
@@ -134,7 +141,7 @@ module.exports = async function handler(req, res) {
       referral_code_used: ref || undefined,
       source_channel: channel,
       meta_event_id: metaEventId,
-    });
+    }).catch((e) => console.error("Petition Signed log failed (contact saved):", e.message));
 
     try {
       await updateContactStatusFromEvent(

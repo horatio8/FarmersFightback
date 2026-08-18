@@ -17,7 +17,7 @@
 // it up. Better a gap than a wrong label.
 
 const { requireCron } = require('../_util');
-const { TABLES } = require('../../lib/social/config');
+const { TABLES, EVENTS_SPLIT } = require('../../lib/social/config');
 const { listPage, select, update, create, fesc, sleep } = require('../../lib/social/airtable');
 const {
   analyseMessage,
@@ -164,7 +164,12 @@ module.exports = async (req, res) => {
           sentiment_label: r.sentiment_label,
           stance: r.stance,
           topic: r.topic || undefined,
-          escalation_flags: r.escalation_flags.length ? r.escalation_flags : undefined,
+          // In the main base this is a multi-select; in the split Events base
+          // it is plain text, so send a joined string there. Both readers only
+          // test .length, which is truthy either way.
+          escalation_flags: r.escalation_flags.length
+            ? (EVENTS_SPLIT ? r.escalation_flags.join(', ') : r.escalation_flags)
+            : undefined,
           analysed_at: new Date().toISOString(),
         };
         if (r.sentiment_score !== null) fields.sentiment_score = r.sentiment_score;

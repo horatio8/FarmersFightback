@@ -46,6 +46,15 @@ const assert = {
       throw new Error(`${msg || "not equal"}\n  expected: ${JSON.stringify(expected)}\n  actual:   ${JSON.stringify(actual)}`);
     }
   },
+  // Structural comparison via JSON, which is what the values under test are:
+  // Airtable field payloads. Key order matters, so compare shapes you build.
+  deepEqual(actual, expected, msg) {
+    const a = JSON.stringify(actual);
+    const b = JSON.stringify(expected);
+    if (a !== b) {
+      throw new Error(`${msg || "not equal"}\n  expected: ${b}\n  actual:   ${a}`);
+    }
+  },
   notEqual(actual, unexpected, msg) {
     if (actual === unexpected) throw new Error(`${msg || "should not equal"} ${JSON.stringify(unexpected)}`);
   },

@@ -82,6 +82,26 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 //            so there is nothing to duplicate.
 //   5xx      GET only. A write that 500s may have partly applied, and
 //            replaying it could create a second contact or a second event.
+// The Events log lives in its own base.
+//
+// Airtable's record ceiling is per BASE, and on 17 Aug 2026 the main base hit
+// it: every petition signup failed for 25 hours because the "Petition Signed"
+// write was rejected with LIMIT_CHECK_TOO_MANY_RECORDS_IN_TABLE. Events is by
+// far the largest and least precious table -- every click, SMS and page view --
+// so moving it to a second base gives the main base its room back and gives
+// Events a fresh allowance of its own.
+//
+// Defaults to the events base rather than to the main one, because the outage
+// is live and a switch nobody has flipped fixes nothing. To roll back, set
+// AIRTABLE_EVENTS_BASE_ID to the main base id -- no deploy needed.
+const EVENTS_BASE = process.env.AIRTABLE_EVENTS_BASE_ID || "appE8OEBzFLzOfdMm";
+const EVENTS_SPLIT = EVENTS_BASE !== BASE;
+
+// Which base a table lives in. Only Events has moved.
+function baseFor(tableName) {
+  return tableName === EVENTS ? EVENTS_BASE : BASE;
+}
+
 const RETRY_DELAYS_MS = [200, 600, 1400];
 
 function jitter(ms) {
@@ -89,18 +109,20 @@ function jitter(ms) {
 }
 
 async function atFetch(path, opts = {}) {
-  if (!BASE || !KEY) {
+  const { baseId, ...init } = opts;
+  const base = baseId || BASE;
+  if (!base || !KEY) {
     const err = new Error("AIRTABLE_BASE_ID or AIRTABLE_API_KEY not set");
     err.code = "MISCONFIGURED";
     throw err;
   }
-  const method = (opts.method || "GET").toUpperCase();
+  const method = (init.method || "GET").toUpperCase();
   const idempotent = method === "GET";
 
   for (let attempt = 0; ; attempt++) {
     // eslint-disable-next-line no-await-in-loop
-    const r = await fetch(`${API}/${BASE}/${path}`, {
-      ...opts,
+    const r = await fetch(`${API}/${base}/${path}`, {
+      ...init,
       headers: {
         Authorization: `Bearer ${KEY}`,
         "Content-Type": "application/json",
@@ -131,7 +153,7 @@ async function findOne(tableName, formula) {
     maxRecords: "1",
     pageSize: "1",
   });
-  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`);
+  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`, { baseId: baseFor(tableName) });
   return r.records && r.records[0] ? r.records[0] : null;
 }
 
@@ -355,7 +377,9 @@ function projectPetitionSigned(payloadObj, contactRecordId, eventRecordId, times
   const fields = {
     signature_id: uuid(),
     contact: contactRecordId ? [contactRecordId] : undefined,
-    event: eventRecordId ? [eventRecordId] : undefined,
+    // Provenance link back to the Events row. Dropped once the log lives in
+    // its own base, since links cannot cross bases; nothing reads it.
+    event: (!EVENTS_SPLIT && eventRecordId) ? [eventRecordId] : undefined,
     first_name: pick("first_name"),
     last_name: pick("last_name"),
     email: normEmail(pick("email")) || undefined,
@@ -401,7 +425,9 @@ function projectDonation(payloadObj, contactRecordId, eventRecordId, timestamp) 
   return {
     donation_id: uuid(),
     contact: contactRecordId ? [contactRecordId] : undefined,
-    event: eventRecordId ? [eventRecordId] : undefined,
+    // Provenance link back to the Events row. Dropped once the log lives in
+    // its own base, since links cannot cross bases; nothing reads it.
+    event: (!EVENTS_SPLIT && eventRecordId) ? [eventRecordId] : undefined,
     amount_cents,
     amount: typeof amount_cents === "number" ? amount_cents / 100 : undefined,
     currency: p.currency ? String(p.currency).toUpperCase() : undefined,
@@ -448,7 +474,9 @@ function projectRallyTicket(payloadObj, contactRecordId, eventRecordId, timestam
   return {
     ticket_id: uuid(),
     contact: contactRecordId ? [contactRecordId] : undefined,
-    event: eventRecordId ? [eventRecordId] : undefined,
+    // Provenance link back to the Events row. Dropped once the log lives in
+    // its own base, since links cannot cross bases; nothing reads it.
+    event: (!EVENTS_SPLIT && eventRecordId) ? [eventRecordId] : undefined,
     first_name: first_name || undefined,
     last_name: last_name || undefined,
     email: normEmail(who.email) || undefined,
@@ -480,6 +508,7 @@ const PROJECTORS = {
 async function patchEvent(recordId, fields) {
   return atFetch(`${encodeURIComponent(EVENTS)}/${recordId}`, {
     method: "PATCH",
+    baseId: EVENTS_BASE,
     body: JSON.stringify({ fields, typecast: true }),
   });
 }
@@ -503,6 +532,7 @@ async function fanoutEvent(eventRecord, eventType, payloadObj, contactRecordId, 
     Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
     const r = await atFetch(encodeURIComponent(tableName), {
       method: "POST",
+      baseId: baseFor(tableName),
       body: JSON.stringify({ records: [{ fields }], typecast: true }),
     });
     await patchEvent(eventRecord.id, { fanout_status: "Fanned Out", fanout_error: "" });
@@ -519,7 +549,13 @@ async function logEvent({ contactRecordId, event_type, payload, fbclid, referral
   const payloadObj = parsePayloadObject(payload);
   const fields = {
     event_id: uuid(),
-    contact: contactRecordId ? [contactRecordId] : undefined,
+    // A linked record cannot point at another base. When the log is split out,
+    // the contact travels as its plain record id. Nothing reads this as a
+    // link -- every Events reader asks only for event_type, payload, timestamp,
+    // referral_code_used and the sentiment columns.
+    ...(EVENTS_SPLIT
+      ? { contact_id: contactRecordId || undefined }
+      : { contact: contactRecordId ? [contactRecordId] : undefined }),
     event_type,
     timestamp: timestamp || nowIso(),
     payload: typeof payload === "string" ? payload : JSON.stringify(payload || {}),
@@ -531,6 +567,7 @@ async function logEvent({ contactRecordId, event_type, payload, fbclid, referral
   Object.keys(fields).forEach((k) => fields[k] === undefined && delete fields[k]);
   const r = await atFetch(encodeURIComponent(EVENTS), {
     method: "POST",
+    baseId: EVENTS_BASE,
     body: JSON.stringify({ records: [{ fields }], typecast: true }),
   });
   const eventRecord = r.records[0];
@@ -577,26 +614,45 @@ async function updateContactStatusFromEvent(contactRecordId, eventType, currentS
 // Generic table helpers for the auxiliary tables (SMS Sends, Lapse Queue,
 // Site Stats, Referral Rollup, AB Daily). Thin wrappers over atFetch so
 // other api/ modules don't each reimplement Airtable plumbing.
+// Which bases a full scan of this table has to visit. Events is written only
+// to the new base, but everything logged before the split is still sitting in
+// the old one, so a scan that skipped it would report a log that began the day
+// we moved -- zeroing out, among other things, every referrer's all-time
+// signup credit in the nightly rollup. Reads union the two; writes never do.
+//
+// A `sort` applies per base, so a unioned result is ordered within each half
+// and old-then-new across the seam. Every Events caller aggregates rather than
+// reads in order, so that is fine -- but sort the result yourself if you ever
+// need a true ordering.
+function basesToScan(tableName) {
+  if (tableName === EVENTS && EVENTS_SPLIT) return [BASE, EVENTS_BASE];
+  return [baseFor(tableName)];
+}
+
 async function listRows(tableName, { formula, fields, maxRecords, sort } = {}) {
   const out = [];
-  let offset;
-  do {
-    const params = new URLSearchParams();
-    if (formula) params.set("filterByFormula", formula);
-    if (maxRecords) params.set("maxRecords", String(maxRecords));
-    params.set("pageSize", "100");
-    (fields || []).forEach((f) => params.append("fields[]", f));
-    (sort || []).forEach((s, i) => {
-      params.set(`sort[${i}][field]`, s.field);
-      params.set(`sort[${i}][direction]`, s.direction || "asc");
-    });
-    if (offset) params.set("offset", offset);
-    // eslint-disable-next-line no-await-in-loop
-    const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`);
-    out.push(...(r.records || []));
-    offset = r.offset;
+  for (const baseId of basesToScan(tableName)) {
+    let offset;
+    do {
+      const remaining = maxRecords ? maxRecords - out.length : 0;
+      if (maxRecords && remaining <= 0) break;
+      const params = new URLSearchParams();
+      if (formula) params.set("filterByFormula", formula);
+      if (maxRecords) params.set("maxRecords", String(remaining));
+      params.set("pageSize", "100");
+      (fields || []).forEach((f) => params.append("fields[]", f));
+      (sort || []).forEach((s, i) => {
+        params.set(`sort[${i}][field]`, s.field);
+        params.set(`sort[${i}][direction]`, s.direction || "asc");
+      });
+      if (offset) params.set("offset", offset);
+      // eslint-disable-next-line no-await-in-loop
+      const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`, { baseId });
+      out.push(...(r.records || []));
+      offset = r.offset;
+    } while (offset);
     if (maxRecords && out.length >= maxRecords) break;
-  } while (offset);
+  }
   return out;
 }
 
@@ -610,6 +666,10 @@ async function listRows(tableName, { formula, fields, maxRecords, sort } = {}) {
 // changes that function's return shape.
 //
 // → { records, offset } where offset is undefined on the last page.
+//
+// Unlike listRows, this reads ONE base: an Airtable cursor is meaningless
+// outside the base that issued it. For Events that means the new base only.
+// A caller that needs pre-split history should use listRows instead.
 async function listPage(tableName, { formula, fields, pageSize = 100, sort, offset } = {}) {
   const params = new URLSearchParams();
   if (formula) params.set("filterByFormula", formula);
@@ -620,7 +680,7 @@ async function listPage(tableName, { formula, fields, pageSize = 100, sort, offs
     params.set(`sort[${i}][direction]`, s.direction || "asc");
   });
   if (offset) params.set("offset", offset);
-  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`);
+  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`, { baseId: baseFor(tableName) });
   return { records: r.records || [], offset: r.offset };
 }
 
@@ -631,6 +691,7 @@ async function createRow(tableName, fields) {
   if (tableName === CONTACTS) return createContact(fields);
   const r = await atFetch(encodeURIComponent(tableName), {
     method: "POST",
+    baseId: baseFor(tableName),
     body: JSON.stringify({ records: [{ fields }], typecast: true }),
   });
   return r.records[0];
@@ -639,6 +700,7 @@ async function createRow(tableName, fields) {
 async function updateRow(tableName, recordId, fields) {
   return atFetch(`${encodeURIComponent(tableName)}/${recordId}`, {
     method: "PATCH",
+    baseId: baseFor(tableName),
     body: JSON.stringify({ fields, typecast: true }),
   });
 }

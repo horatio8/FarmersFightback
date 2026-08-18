@@ -1068,6 +1068,212 @@ async function run() {
       "run: node test/run.js --fix");
   });
 
+  // ------------------------------------------------------- the split log base
+  //
+  // On 18 Aug 2026 the Events table hit Airtable's record ceiling and every
+  // petition signup failed for 25 hours, because the signup writes a
+  // "Petition Signed" event. The log now lives in a base of its own. Two
+  // things make that dangerous and both are pinned here: a linked record
+  // cannot point across bases, and a table id is only valid inside the base
+  // that owns it. Get either wrong and the writes fail exactly as before.
+  group("the events log lives in its own base");
+
+  // Re-require a module tree with different env, so both the split and the
+  // rollback can be exercised in one process.
+  function withEnv(env, rels) {
+    const saved = {};
+    for (const [k, v] of Object.entries(env)) {
+      saved[k] = process.env[k];
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+    for (const rel of rels) delete require.cache[require.resolve(path.join(ROOT, rel))];
+    const mods = rels.map((rel) => R(rel));
+    const restore = () => {
+      for (const [k, v] of Object.entries(saved)) {
+        if (v === undefined) delete process.env[k]; else process.env[k] = v;
+      }
+      for (const rel of rels) delete require.cache[require.resolve(path.join(ROOT, rel))];
+    };
+    return { mods, restore };
+  }
+
+  // Records every Airtable request so a test can assert which base was hit.
+  function airtableSpy() {
+    const realFetch = global.fetch;
+    const calls = [];
+    global.fetch = async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const [, , base, table] = u.pathname.split("/"); // /v0/<base>/<table>
+      const method = (opts.method || "GET").toUpperCase();
+      const body = opts.body ? JSON.parse(opts.body) : null;
+      calls.push({ base, table: decodeURIComponent(table), method, body, query: u.searchParams });
+      // Reads come back empty — these tests are about where a request is
+      // addressed, and an empty table makes every caller take its write path.
+      const fields = body && body.records ? body.records[0].fields : (body && body.fields) || {};
+      const payload = method === "GET"
+        ? { records: [] }
+        : { records: [{ id: "recSPY000000001", fields }], id: "recSPY000000001", fields };
+      return { ok: true, status: 200, json: async () => payload, text: async () => "{}" };
+    };
+    return { calls, restore: () => { global.fetch = realFetch; } };
+  }
+
+  const MAIN = process.env.AIRTABLE_BASE_ID;
+  const LOG_BASE = "appE8OEBzFLzOfdMm";
+
+  await test("an event is written to the log base, and only there", async () => {
+    const spy = airtableSpy();
+    try {
+      const at = R("api/_airtable.js");
+      await at.logEvent({ event_type: "SMS Click", payload: { a: 1 }, fanout: false });
+    } finally { spy.restore(); }
+    const writes = spy.calls.filter((c) => c.method === "POST");
+    assert.equal(writes.length, 1, "one write expected");
+    assert.equal(writes[0].base, LOG_BASE, "the event went to the wrong base");
+    assert.notEqual(writes[0].base, MAIN, "the main base is the one that ran out of room");
+  });
+
+  await test("the contact travels as a plain id, because links cannot cross bases", async () => {
+    const spy = airtableSpy();
+    try {
+      const at = R("api/_airtable.js");
+      await at.logEvent({
+        contactRecordId: "recCONTACT00001",
+        event_type: "SMS Click", payload: {}, fanout: false,
+      });
+    } finally { spy.restore(); }
+    const f = spy.calls.find((c) => c.method === "POST").body.records[0].fields;
+    assert.equal(f.contact_id, "recCONTACT00001", "contact_id must carry the id");
+    assert.equal(f.contact, undefined, "a linked record here would be rejected by Airtable");
+  });
+
+  await test("the typed tables stay in the main base, and drop their link back", async () => {
+    const spy = airtableSpy();
+    try {
+      const at = R("api/_airtable.js");
+      await at.logEvent({
+        contactRecordId: "recCONTACT00001",
+        event_type: "Petition Signed",
+        payload: { first_name: "Jo", email: "jo@example.com" },
+      });
+    } finally { spy.restore(); }
+    const projection = spy.calls.find((c) => c.method === "POST" && c.table === "Petition Signatures");
+    assert.ok(projection, "the signature projection must still be written");
+    assert.equal(projection.base, MAIN, "signatures did not move; only the log did");
+    const f = projection.body.records[0].fields;
+    assert.deepEqual(f.contact, ["recCONTACT00001"], "the contact link is same-base and must survive");
+    assert.equal(f.event, undefined, "a link to the log would now cross bases");
+  });
+
+  await test("a full scan of the log reads both bases, so pre-split history survives", async () => {
+    const spy = airtableSpy();
+    try {
+      const at = R("api/_airtable.js");
+      await at.listRows("Events", { formula: "{referral_code_used}!=''" });
+    } finally { spy.restore(); }
+    const bases = spy.calls.filter((c) => c.method === "GET").map((c) => c.base);
+    assert.ok(bases.includes(MAIN), "the referral rollup is all-time; the old rows still count");
+    assert.ok(bases.includes(LOG_BASE), "new rows must be counted too");
+  });
+
+  await test("a scan of any other table still reads one base", async () => {
+    const spy = airtableSpy();
+    try {
+      const at = R("api/_airtable.js");
+      await at.listRows("Contacts", {});
+    } finally { spy.restore(); }
+    const bases = new Set(spy.calls.map((c) => c.base));
+    assert.equal(bases.size, 1, "only Events moved");
+    assert.ok(bases.has(MAIN), "contacts are in the main base");
+  });
+
+  await test("the social pipeline addresses the log by its own id in its own base", async () => {
+    const spy = airtableSpy();
+    const { mods, restore } = withEnv({}, ["lib/social/config.js", "lib/social/airtable.js", "lib/social/identity.js"]);
+    const [cfg, , identity] = mods;
+    try {
+      await identity.appendEvent("evt-1", "Social Comment", { t: 1 }, { contact: "recCONTACT00001" });
+    } finally { restore(); spy.restore(); }
+    const write = spy.calls.find((c) => c.method === "POST");
+    assert.equal(write.base, cfg.EVENTS_BASE_ID, "wrong base");
+    assert.equal(write.table, cfg.EVENTS_TABLE_ID, "a table id is only valid inside its own base");
+    assert.notEqual(cfg.EVENTS_TABLE_ID, cfg.TABLES.EVENTS, "the two bases hold different table ids");
+    const f = write.body.records[0].fields;
+    assert.equal(f.contact_id, "recCONTACT00001", "the contact must travel as an id here too");
+    assert.equal(f.contact, undefined, "no cross-base link");
+  });
+
+  await test("the social dedup check looks in the old base as well as the new one", async () => {
+    const spy = airtableSpy();
+    const { mods, restore } = withEnv({}, ["lib/social/config.js", "lib/social/airtable.js", "lib/social/identity.js"]);
+    const [cfg, , identity] = mods;
+    try {
+      await identity.appendEvent("evt-2", "Social Comment", {}, {});
+    } finally { restore(); spy.restore(); }
+    const reads = spy.calls.filter((c) => c.method === "GET");
+    assert.ok(reads.some((c) => c.base === cfg.EVENTS_BASE_ID), "must check the live log");
+    assert.ok(reads.some((c) => c.base === cfg.AIRTABLE_BASE_ID), "an event already logged before the split is not new");
+  });
+
+  await test("pointing the env back at the main base undoes the split without a deploy", async () => {
+    const spy = airtableSpy();
+    const { mods, restore } = withEnv(
+      { AIRTABLE_EVENTS_BASE_ID: MAIN, AIRTABLE_EVENTS_TABLE_ID: "tblhCWL3mckJl6YQ7" },
+      ["api/_airtable.js", "lib/social/config.js", "lib/social/airtable.js", "lib/social/identity.js"],
+    );
+    const [at, cfg, , identity] = mods;
+    try {
+      await at.logEvent({ contactRecordId: "recCONTACT00001", event_type: "SMS Click", payload: {}, fanout: false });
+      await identity.appendEvent("evt-3", "Social Comment", {}, { contact: "recCONTACT00001" });
+    } finally { restore(); spy.restore(); }
+    assert.equal(cfg.EVENTS_SPLIT, false, "rollback means no split");
+    for (const w of spy.calls.filter((c) => c.method === "POST")) {
+      assert.equal(w.base, MAIN, "everything is back in one base");
+      const f = w.body.records[0].fields;
+      assert.deepEqual(f.contact, ["recCONTACT00001"], "same base again, so the link comes back");
+      assert.equal(f.contact_id, undefined, "the text stand-in is only for the split");
+    }
+  });
+
+  await test("a signup survives a log that will not accept writes", async () => {
+    // The exact shape of the 25-hour outage: the Contact saves, the event
+    // does not. The supporter must still be told they signed, because they
+    // did — their details are in Airtable.
+    const realFetch = global.fetch;
+    let contactWritten = false;
+    global.fetch = async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const table = decodeURIComponent(u.pathname.split("/")[3] || "");
+      const method = (opts.method || "GET").toUpperCase();
+      const reply = (b, ok = true, status = 200) =>
+        ({ ok, status, json: async () => b, text: async () => JSON.stringify(b) });
+      if (u.hostname !== "api.airtable.com") return reply({});
+      if (table === "Events") {
+        return reply({ error: { type: "LIMIT_CHECK_TOO_MANY_RECORDS_IN_TABLE" } }, false, 422);
+      }
+      if (method === "GET") return reply({ records: [] });
+      if (table === "Contacts" && method === "POST") contactWritten = true;
+      const fields = opts.body ? (JSON.parse(opts.body).fields || {}) : {};
+      return reply({ id: "recNEWCONTACT01", fields, records: [{ id: "recNEWCONTACT01", fields }] });
+    };
+    const signup = R("api/petition-signup.js");
+    const res = { code: 0, body: null };
+    res.setHeader = () => {};
+    res.status = (c) => { res.code = c; return res; };
+    res.json = (b) => { res.body = b; return res; };
+    res.end = () => res;
+    try {
+      await signup({
+        method: "POST",
+        headers: {},
+        body: { first_name: "Jo", last_name: "Bloggs", email: "jo@example.com" },
+      }, res);
+    } finally { global.fetch = realFetch; }
+    assert.ok(contactWritten, "the contact must be saved before the event is logged");
+    assert.equal(res.code, 200, "a failed log entry must not be reported as a failed signup");
+    assert.ok(res.body && res.body.success, "the supporter is told they signed, because they did");
+  });
+
   // -------------------------------------------------------------- econ config
   group("economics config");
   const econ = R("lib/econ/config.js");

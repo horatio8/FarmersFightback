@@ -10,7 +10,10 @@
 // Counts Events rows written by /api/wa-redirect. Preview fetchers were never
 // logged in the first place, so these are taps by people.
 
-const { listPage } = require("../_airtable");
+// listRows, not listPage: the Events log was split across two bases on
+// 18 Aug 2026 and listRows sweeps both, so the scoreboard keeps the taps that
+// landed before the move.
+const { listRows } = require("../_airtable");
 const { requireBasicAuth } = require("../_util");
 
 const EVENTS = process.env.AIRTABLE_EVENTS_TABLE || "Events";
@@ -61,29 +64,22 @@ module.exports = async function handler(req, res) {
   let scanned = 0;
 
   try {
-    let offset;
-    do {
-      // eslint-disable-next-line no-await-in-loop
-      const page = await listPage(EVENTS, {
-        formula, fields: ["payload", "timestamp"], pageSize: 100, offset,
-      });
-      for (const rec of page.records) {
-        const f = rec.fields || {};
-        const p = parsePayload(f.payload);
-        const v = p.variant === "B" ? "B" : "A";
-        totals[v] += 1;
-        scanned += 1;
-        const day = String(f.timestamp || "").slice(0, 10);
-        if (day) {
-          byDay[day] = byDay[day] || { A: 0, B: 0 };
-          byDay[day][v] += 1;
-        }
-        const ua = p.ua || "unknown";
-        byUA[ua] = byUA[ua] || { A: 0, B: 0 };
-        byUA[ua][v] += 1;
+    const rows = await listRows(EVENTS, { formula, fields: ["payload", "timestamp"] });
+    for (const rec of rows) {
+      const f = rec.fields || {};
+      const p = parsePayload(f.payload);
+      const v = p.variant === "B" ? "B" : "A";
+      totals[v] += 1;
+      scanned += 1;
+      const day = String(f.timestamp || "").slice(0, 10);
+      if (day) {
+        byDay[day] = byDay[day] || { A: 0, B: 0 };
+        byDay[day][v] += 1;
       }
-      offset = page.offset;
-    } while (offset);
+      const ua = p.ua || "unknown";
+      byUA[ua] = byUA[ua] || { A: 0, B: 0 };
+      byUA[ua][v] += 1;
+    }
   } catch (e) {
     console.error("wa-clicks:", e.message);
     return res.status(500).json({ error: "count failed", detail: e.message.slice(0, 200) });
