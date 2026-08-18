@@ -1386,6 +1386,34 @@ async function run() {
     assert.equal(res.body.done, false, "kept rows mean the job is not done");
   });
 
+  group("reconciliation tallies");
+  const reconcile = R("api/admin/reconcile.js");
+
+  await test("tallies handle both select shapes and blanks", () => {
+    const rows = [
+      { fields: { status: "Petition Signed" } },
+      { fields: { status: { name: "Petition Signed" } } },
+      { fields: { status: "Donor" } },
+      { fields: {} },
+    ];
+    assert.deepEqual(reconcile.tally(rows, "status"),
+      { "Petition Signed": 2, Donor: 1, "(blank)": 1 },
+      "string and {name} selects must count as the same value");
+  });
+
+  await test("duplicate keys are surfaced, single and blank ones are not", () => {
+    const rows = [
+      { fields: { stripe_object_id: "pi_1" } },
+      { fields: { stripe_object_id: "pi_1" } },
+      { fields: { stripe_object_id: "pi_2" } },
+      { fields: {} },
+      { fields: {} },
+    ];
+    assert.deepEqual(reconcile.dupes(rows, "stripe_object_id"),
+      [{ value: "pi_1", rows: 2 }],
+      "two blank rows are not a duplicate payment");
+  });
+
   // -------------------------------------------------------------- econ config
   group("economics config");
   const econ = R("lib/econ/config.js");
