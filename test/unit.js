@@ -991,11 +991,14 @@ async function run() {
   await test("signups are attributed, so CN reporting can tell them apart", async () => {
     const h = cnHarness();
     try {
-      await cn.cnFunSignup({ email: "a@example.com", utm_medium: "ticket" });
+      await cn.cnFunSignup({ email: "a@example.com", route: "ticket" });
       const b = h.calls[0].body;
       assert.equal(b.utm_campaign, "fundraiser");
-      assert.equal(b.utm_medium, "ticket");
       assert.equal(b.utm_source, "farmersfightback.com");
+      // utm_content, not utm_medium: CN accepts medium and silently drops it,
+      // so the paid/comp split would have been blank in their reporting.
+      assert.equal(b.utm_content, "ticket");
+      assert.equal(b.utm_medium, undefined, "utm_medium is never stored by CN");
     } finally { h.restore(); }
   });
 

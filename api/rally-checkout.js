@@ -233,7 +233,7 @@ module.exports = async function handler(req, res) {
     // Airtable write above, never in place of it, and cannot fail the sale.
     await cnFunSignup({
       first_name, last_name, email, phone, postcode,
-      utm_medium: "ticket", utm_campaign: "fundraiser",
+      route: "ticket", utm_campaign: "fundraiser",
     }).catch((e) => console.error("rally CN mirror failed:", e.message));
 
     const base = process.env.RALLY_SUCCESS_URL_BASE || `${hostBase(req)}/fundraiser`;

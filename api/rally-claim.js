@@ -232,7 +232,7 @@ module.exports = async function handler(req, res) {
     // write. Best-effort — a claim must never fail over a reporting copy.
     await cnFunSignup({
       first_name, last_name, email, phone, postcode,
-      utm_medium: "comp", utm_campaign: "fundraiser",
+      route: "comp", utm_campaign: "fundraiser",
     }).catch((e) => console.error("rally-claim CN mirror failed:", e.message));
 
     // Decrement allowance on the token record (skip in fallback mode since

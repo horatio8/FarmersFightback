@@ -228,7 +228,13 @@ function cnFormEntry(formId, entry, opts = {}) {
 
 // Mirror one FUNdraiser signup into the CN landing page. Never throws — the
 // caller is mid-checkout and a reporting copy is not worth a failed sale.
-async function cnFunSignup({ first_name, last_name, email, phone, postcode, utm_source, utm_medium, utm_campaign }) {
+// `route` says how they signed up — "ticket" for a paid ticket, "comp" for a
+// claimed one. It travels as utm_content, NOT utm_medium: Campaign Nucleus
+// accepts utm_medium on a form entry and then silently drops it (verified
+// against the live API — source, campaign, term and content all persist,
+// medium comes back null every time). Putting the distinction in medium would
+// have looked right in our code and been permanently blank in their reporting.
+async function cnFunSignup({ first_name, last_name, email, phone, postcode, route, utm_source, utm_campaign }) {
   if (!email) return { skipped: true, reason: "no email" };
   const first = String(first_name || "").trim();
   const last = String(last_name || "").trim();
@@ -240,8 +246,8 @@ async function cnFunSignup({ first_name, last_name, email, phone, postcode, utm_
     phone: phone ? String(phone).trim() : undefined,
     postcode: postcode ? String(postcode).trim() : undefined,
     utm_source: utm_source || "farmersfightback.com",
-    utm_medium: utm_medium || undefined,
     utm_campaign: utm_campaign || "fundraiser",
+    utm_content: route || undefined,
   };
   Object.keys(entry).forEach((k) => entry[k] === undefined && delete entry[k]);
   try {
