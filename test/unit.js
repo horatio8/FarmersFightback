@@ -1235,6 +1235,60 @@ async function run() {
     }
   });
 
+  await test("paged reads repeat the exact query, because an offset is only valid against it", async () => {
+    // Airtable's offset token is bound to the query that issued it. A capped
+    // read spanning several pages must therefore send identical parameters
+    // with every page — recomputing maxRecords as "what's left" would pair a
+    // changed query with a stale offset.
+    const realFetch = global.fetch;
+    const queries = [];
+    global.fetch = async (url) => {
+      const u = new URL(String(url));
+      queries.push(u.searchParams);
+      const first = !u.searchParams.get("offset");
+      const n = first ? 100 : 50;
+      const body = {
+        records: Array.from({ length: n }, (_, i) => ({ id: `rec${first ? "A" : "B"}${i}`, fields: {} })),
+        ...(first ? { offset: "itrTOKEN/recCURSOR" } : {}),
+      };
+      return { ok: true, status: 200, json: async () => body, text: async () => "{}" };
+    };
+    try {
+      const at = R("api/_airtable.js");
+      const rows = await at.listRows("Contacts", { maxRecords: 150, formula: "{email}!=''" });
+      assert.equal(rows.length, 150, "the cap spans pages");
+    } finally { global.fetch = realFetch; }
+    assert.equal(queries.length, 2, "two pages expected");
+    for (const k of ["maxRecords", "filterByFormula", "pageSize"]) {
+      assert.equal(queries[1].get(k), queries[0].get(k), `${k} changed between pages`);
+    }
+  });
+
+  await test("a Stripe retry finds its event on either side of the split", async () => {
+    // Stripe retries a failed webhook delivery for up to three days — long
+    // enough to straddle the split. If the dedup lookup saw only the new
+    // base, the retry would double-log the donation and fan out a second row.
+    const spy = airtableSpy();
+    const seen = spy.calls; // addressed below; the spy returns empty reads
+    global.fetch = ((inner) => async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const base = u.pathname.split("/")[2];
+      if ((opts.method || "GET").toUpperCase() === "GET" && base === MAIN
+          && decodeURIComponent(u.search).includes("meta_event_id")) {
+        return { ok: true, status: 200, text: async () => "{}",
+          json: async () => ({ records: [{ id: "recOLDEVENT0001", fields: { meta_event_id: "don_1" } }] }) };
+      }
+      return inner(url, opts);
+    })(global.fetch);
+    try {
+      const at = R("api/_airtable.js");
+      const rec = await at.logEventIdempotent({ event_type: "Donation", payload: {}, meta_event_id: "don_1" });
+      assert.equal(rec.id, "recOLDEVENT0001", "the pre-split event must be found, not re-logged");
+    } finally { spy.restore(); }
+    assert.empty(seen.filter((c) => c.method === "POST").map((c) => c.table),
+      "a found event means nothing is written");
+  });
+
   await test("a signup survives a log that will not accept writes", async () => {
     // The exact shape of the 25-hour outage: the Contact saves, the event
     // does not. The supporter must still be told they signed, because they

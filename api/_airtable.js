@@ -147,13 +147,13 @@ async function atFetch(path, opts = {}) {
   }
 }
 
-async function findOne(tableName, formula) {
+async function findOne(tableName, formula, baseId) {
   const params = new URLSearchParams({
     filterByFormula: formula,
     maxRecords: "1",
     pageSize: "1",
   });
-  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`, { baseId: baseFor(tableName) });
+  const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`, { baseId: baseId || baseFor(tableName) });
   return r.records && r.records[0] ? r.records[0] : null;
 }
 
@@ -181,7 +181,17 @@ async function findContactByReferralCode(code) {
 }
 async function findEventByMetaEventId(metaEventId) {
   if (!metaEventId) return null;
-  return findOne(EVENTS, `{meta_event_id}='${escapeFormula(metaEventId)}'`);
+  // This backs the Stripe webhook's idempotency check, and Stripe retries a
+  // failed delivery for up to three days — long enough to straddle the base
+  // split. An event logged before the split must still be found, or the retry
+  // double-logs it and fans a second row into Donations.
+  const formula = `{meta_event_id}='${escapeFormula(metaEventId)}'`;
+  for (const baseId of basesToScan(EVENTS)) {
+    // eslint-disable-next-line no-await-in-loop
+    const hit = await findOne(EVENTS, formula, baseId);
+    if (hit) return hit;
+  }
+  return null;
 }
 
 // Visually unambiguous Crockford-style alphabet (no 0/O, 1/I/L).
@@ -632,26 +642,28 @@ function basesToScan(tableName) {
 async function listRows(tableName, { formula, fields, maxRecords, sort } = {}) {
   const out = [];
   for (const baseId of basesToScan(tableName)) {
+    // The cap is fixed before pagination starts and never changes between
+    // pages: an Airtable offset is only valid against the exact query that
+    // issued it, so every paged request must carry identical parameters.
+    const cap = maxRecords ? maxRecords - out.length : 0;
+    if (maxRecords && cap <= 0) break;
+    const params = new URLSearchParams();
+    if (formula) params.set("filterByFormula", formula);
+    if (maxRecords) params.set("maxRecords", String(cap));
+    params.set("pageSize", "100");
+    (fields || []).forEach((f) => params.append("fields[]", f));
+    (sort || []).forEach((s, i) => {
+      params.set(`sort[${i}][field]`, s.field);
+      params.set(`sort[${i}][direction]`, s.direction || "asc");
+    });
     let offset;
     do {
-      const remaining = maxRecords ? maxRecords - out.length : 0;
-      if (maxRecords && remaining <= 0) break;
-      const params = new URLSearchParams();
-      if (formula) params.set("filterByFormula", formula);
-      if (maxRecords) params.set("maxRecords", String(remaining));
-      params.set("pageSize", "100");
-      (fields || []).forEach((f) => params.append("fields[]", f));
-      (sort || []).forEach((s, i) => {
-        params.set(`sort[${i}][field]`, s.field);
-        params.set(`sort[${i}][direction]`, s.direction || "asc");
-      });
       if (offset) params.set("offset", offset);
       // eslint-disable-next-line no-await-in-loop
       const r = await atFetch(`${encodeURIComponent(tableName)}?${params}`, { baseId });
       out.push(...(r.records || []));
       offset = r.offset;
-    } while (offset);
-    if (maxRecords && out.length >= maxRecords) break;
+    } while (offset && !(maxRecords && out.length >= maxRecords));
   }
   return out;
 }
