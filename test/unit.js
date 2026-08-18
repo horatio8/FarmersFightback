@@ -1328,6 +1328,64 @@ async function run() {
     assert.ok(res.body && res.body.success, "the supporter is told they signed, because they did");
   });
 
+  group("moving the old events across");
+  const migrate = R("api/admin/migrate-events.js");
+
+  await test("an old row is translated, not copied verbatim", () => {
+    const mapped = migrate.mapOldEvent({
+      event_id: "e-1",
+      contact: ["recCONTACT00001"],
+      event_type: "Petition Signed",
+      timestamp: "2026-08-01T00:00:00.000Z",
+      payload: "{}",
+      escalation_flags: ["Abuse", "Media"],
+      sentiment_score: 0.5,
+      fanout_status: "Fanned Out",
+    });
+    assert.equal(mapped.contact_id, "recCONTACT00001", "the link becomes plain text");
+    assert.equal(mapped.contact, undefined, "a linked record cannot cross bases");
+    assert.equal(mapped.escalation_flags, "Abuse, Media", "multi-select becomes a joined string");
+    assert.equal(mapped.sentiment_score, 0.5, "numbers pass through");
+    assert.equal(mapped.fanout_status, "Fanned Out", "fan-out state travels; nothing re-fans-out");
+  });
+
+  await test("a row the new base does not confirm holding is never deleted", async () => {
+    // The scenario that would lose data: the copy silently fails (or the API
+    // key cannot see the new base), and the delete runs anyway. The migrator
+    // must gate every delete on an independent read-back of the new base.
+    const realFetch = global.fetch;
+    const deleted = [];
+    global.fetch = async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const base = u.pathname.split("/")[2];
+      const method = (opts.method || "GET").toUpperCase();
+      const reply = (b) => ({ ok: true, status: 200, json: async () => b, text: async () => "{}" });
+      if (method === "DELETE") { deleted.push(...u.searchParams.getAll("records[]")); return reply({ records: [] }); }
+      if (base === "app_test" && method === "GET") {
+        return reply({ records: [
+          { id: "recOLD01", fields: { event_id: "e-ok", event_type: "SMS Click", timestamp: "2026-08-01T00:00:00.000Z" } },
+          { id: "recOLD02", fields: { event_id: "e-lost", event_type: "SMS Click", timestamp: "2026-08-01T00:00:00.000Z" } },
+        ] });
+      }
+      // The new base: accepts every write, but only ever admits to holding
+      // e-ok — as if e-lost's copy evaporated.
+      if (method === "GET") {
+        return reply({ records: [{ id: "recNEW01", fields: { event_id: "e-ok" } }] });
+      }
+      return reply({ records: (JSON.parse(opts.body).records || []).map((r, i) => ({ id: `recNEW${i}`, fields: r.fields })) });
+    };
+    const res = { code: 0, body: null };
+    res.setHeader = () => {}; res.status = (c) => { res.code = c; return res; };
+    res.json = (b) => { res.body = b; return res; }; res.end = () => res;
+    try {
+      await migrate({ method: "GET", url: `/api/admin/migrate-events?token=${process.env.ADMIN_TOKEN}&write=1`, headers: {} }, res);
+    } finally { global.fetch = realFetch; }
+    assert.equal(res.code, 200, `migrate failed: ${JSON.stringify(res.body)}`);
+    assert.deepEqual(deleted, ["recOLD01"], "only the confirmed row may be deleted");
+    assert.equal(res.body.kept_unconfirmed, 1, "the unconfirmed row is kept and reported");
+    assert.equal(res.body.done, false, "kept rows mean the job is not done");
+  });
+
   // -------------------------------------------------------------- econ config
   group("economics config");
   const econ = R("lib/econ/config.js");

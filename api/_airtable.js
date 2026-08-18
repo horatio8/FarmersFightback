@@ -737,4 +737,11 @@ module.exports = {
   listPage,
   createRow,
   updateRow,
+  // For the one-off Events migration (api/admin/migrate-events.js), which
+  // must address both bases explicitly rather than through baseFor().
+  atFetch,
+  escapeFormula,
+  MAIN_BASE_ID: BASE,
+  EVENTS_BASE_ID: EVENTS_BASE,
+  EVENTS_SPLIT,
 };
