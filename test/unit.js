@@ -1394,6 +1394,29 @@ async function run() {
     assert.equal(res.body.done, false, "kept rows mean the job is not done");
   });
 
+  group("outage signup backfill");
+  const outage = R("api/admin/backfill-outage-signups.js");
+
+  await test("the reconstructed event is honest about what it is", () => {
+    const ev = outage.buildBackfillEvent({
+      id: "recABC",
+      createdTime: "2026-08-17T22:14:03.000Z",
+      fields: {
+        contact_id: "uuid-1", first_name: "Jo", last_name: "Bloggs",
+        email: "jo@example.com", first_source_channel: "Facebook", fbclid: "fb.1",
+      },
+    });
+    assert.equal(ev.event_type, "Petition Signed");
+    assert.equal(ev.timestamp, "2026-08-17T22:14:03.000Z",
+      "backdated to when they actually signed, so daily rollups stay truthful");
+    assert.equal(ev.meta_event_id, "outage_backfill_uuid-1",
+      "a deterministic key is what makes re-runs safe");
+    assert.equal(ev.payload.source, "outage-backfill", "never disguised as a live signup");
+    assert.equal(ev.source_channel, "Facebook");
+    assert.equal(ev.payload.email, "jo@example.com",
+      "identity travels in the payload so the signature projection is complete");
+  });
+
   group("reconciliation tallies");
   const reconcile = R("api/admin/reconcile.js");
 

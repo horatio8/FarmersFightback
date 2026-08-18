@@ -54,7 +54,8 @@
     "api/admin/signup-count.js": { "maxDuration": 300 },
     "api/admin/wa-clicks.js": { "maxDuration": 60 },
     "api/admin/migrate-events.js": { "maxDuration": 300 },
-    "api/admin/reconcile.js": { "maxDuration": 300 }
+    "api/admin/reconcile.js": { "maxDuration": 300 },
+    "api/admin/backfill-outage-signups.js": { "maxDuration": 300 }
   },
   "redirects": [
     { "source": "/rally",       "destination": "/fundraiser",           "permanent": false },
