@@ -100,6 +100,93 @@ module.exports = async function handler(req, res) {
         dupe_payment_intents: dupes(rows, "stripe_payment_intent"),
         dupe_order_refs: dupes(rows, "order_ref"),
       };
+    } else if (part === "stripe_tickets") {
+      // The source of truth for money: every Checkout Session on the rally
+      // Stripe account (Wallaloo & Gre Gre District Alliance), matched
+      // against the Rally Tickets table on payment intent. The restricted
+      // key can read Checkout Sessions; anything beyond that (refunds) is
+      // reported as not visible rather than guessed at.
+      const KEY = process.env.STRIPE_RALLY_SECRET_KEY;
+      if (!KEY) return res.status(503).json({ error: "STRIPE_RALLY_SECRET_KEY not set" });
+
+      const paid = [];
+      let unpaidOrOpen = 0;
+      let after;
+      do {
+        const q = new URLSearchParams({ limit: "100" });
+        if (after) q.set("starting_after", after);
+        // eslint-disable-next-line no-await-in-loop
+        const r = await fetch(`https://api.stripe.com/v1/checkout/sessions?${q}`, {
+          headers: { Authorization: `Bearer ${KEY}` },
+        });
+        // eslint-disable-next-line no-await-in-loop
+        const body = await r.json();
+        if (!r.ok) throw new Error(`Stripe ${r.status}: ${JSON.stringify(body).slice(0, 200)}`);
+        for (const s of body.data || []) {
+          if (s.payment_status === "paid") {
+            paid.push({
+              session: s.id,
+              pi: typeof s.payment_intent === "string" ? s.payment_intent : (s.payment_intent && s.payment_intent.id) || null,
+              amount: (s.amount_total || 0) / 100,
+              adult_qty: Number(s.metadata && s.metadata.adult_qty) || 0,
+              created: s.created,
+            });
+          } else unpaidOrOpen += 1;
+        }
+        after = body.has_more && body.data.length ? body.data[body.data.length - 1].id : null;
+      } while (after);
+
+      const rows = await listRows(TICKETS, {
+        fields: ["payment_status", "adult_qty", "amount", "stripe_payment_intent", "order_ref"],
+      });
+      const atByPi = new Map();
+      for (const t of rows) {
+        const pi = t.fields.stripe_payment_intent;
+        if (pi) atByPi.set(pi, t.fields);
+      }
+      const stripePis = new Set(paid.map((p) => p.pi).filter(Boolean));
+
+      const missing_in_airtable = paid.filter((p) => !p.pi || !atByPi.has(p.pi));
+      const paidStatuses = rows.filter((t) => {
+        const st = t.fields.payment_status;
+        return (st && st.name ? st.name : st) === "Paid";
+      });
+      const missing_in_stripe = paidStatuses
+        .filter((t) => !t.fields.stripe_payment_intent || !stripePis.has(t.fields.stripe_payment_intent))
+        .map((t) => ({ pi: t.fields.stripe_payment_intent || "(none)", order_ref: t.fields.order_ref }));
+      const amount_mismatches = paid
+        .filter((p) => p.pi && atByPi.has(p.pi))
+        .filter((p) => Math.abs((Number(atByPi.get(p.pi).amount) || 0) - p.amount) > 0.005)
+        .map((p) => ({ pi: p.pi, stripe: p.amount, airtable: Number(atByPi.get(p.pi).amount) || 0 }));
+
+      let refunds = "not checked";
+      try {
+        const r = await fetch("https://api.stripe.com/v1/refunds?limit=100", {
+          headers: { Authorization: `Bearer ${KEY}` },
+        });
+        const body = await r.json();
+        refunds = r.ok
+          ? { count: (body.data || []).length, sum: (body.data || []).reduce((s, x) => s + (x.amount || 0), 0) / 100 }
+          : `not visible to this key (${r.status})`;
+      } catch (e) { refunds = `not visible (${e.message.slice(0, 60)})`; }
+
+      out = {
+        stripe: {
+          paid_sessions: paid.length,
+          unpaid_or_abandoned_sessions: unpaidOrOpen,
+          sum_amount: Math.round(paid.reduce((s, p) => s + p.amount, 0) * 100) / 100,
+          adult_qty: paid.reduce((s, p) => s + p.adult_qty, 0),
+          refunds,
+        },
+        airtable: {
+          paid_rows: paidStatuses.length,
+          sum_amount: Math.round(paidStatuses.reduce((s, t) => s + (Number(t.fields.amount) || 0), 0) * 100) / 100,
+          adult_qty: paidStatuses.reduce((s, t) => s + (Number(t.fields.adult_qty) || 0), 0),
+        },
+        missing_in_airtable: missing_in_airtable.map((p) => ({ session: p.session, pi: p.pi, amount: p.amount })),
+        missing_in_stripe,
+        amount_mismatches,
+      };
     } else if (part === "events") {
       const formula = `OR(${PROJECTED_TYPES.map((t) => `{event_type}='${escapeFormula(t)}'`).join(",")})`;
       const rows = await listRows(EVENTS, { formula, fields: ["event_type", "fanout_status"] });
@@ -117,7 +204,7 @@ module.exports = async function handler(req, res) {
     } else {
       return res.status(400).json({
         error: "unknown part",
-        parts: ["contacts", "signatures", "donations", "tickets", "events", "fanout_failures"],
+        parts: ["contacts", "signatures", "donations", "tickets", "stripe_tickets", "events", "fanout_failures"],
       });
     }
     out.part = part;
