@@ -118,6 +118,27 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ old_base: oldCount, new_base: newCount });
     }
 
+    // The newest events in the new base — the live check that the split log
+    // is actually collecting. Migrated history keeps its old timestamps, so
+    // anything stamped after the cut-over is organically new. Read-only, and
+    // identity is reduced to presence: no payload, no contact details.
+    if (mode === "recent") {
+      const params = new URLSearchParams({
+        pageSize: "15",
+        filterByFormula: `IS_AFTER({timestamp}, DATEADD(NOW(), -24, 'hours'))`,
+      });
+      ["event_id", "event_type", "timestamp", "source_channel", "fanout_status", "contact_id"]
+        .forEach((f) => params.append("fields[]", f));
+      params.set("sort[0][field]", "timestamp");
+      params.set("sort[0][direction]", "desc");
+      const r = await atFetch(`${encodeURIComponent(EVENTS)}?${params}`, { baseId: EVENTS_BASE_ID });
+      const events = (r.records || []).map((rec) => {
+        const { contact_id, ...rest } = rec.fields || {};
+        return { ...rest, has_contact: Boolean(contact_id) };
+      });
+      return res.status(200).json({ last_24h_in_new_base: events.length, events });
+    }
+
     const out = {
       dry_run: !write,
       scanned: 0, copied: 0, already_copied: 0, deleted: 0, unverifiable: 0,
