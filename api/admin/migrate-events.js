@@ -30,7 +30,9 @@
 // how far it got. At Airtable's rate limits each invocation moves roughly
 // five thousand rows.
 
-const { atFetch, escapeFormula, MAIN_BASE_ID, EVENTS_BASE_ID, EVENTS_SPLIT } = require("../_airtable");
+const {
+  atFetch, escapeFormula, MAIN_BASE_ID, EVENTS_BASE_ID, EVENTS_HISTORY_BASES, EVENTS_SPLIT,
+} = require("../_airtable");
 
 const EVENTS = process.env.AIRTABLE_EVENTS_TABLE || "Events";
 const TIME_BUDGET_MS = 240 * 1000;
@@ -113,9 +115,14 @@ module.exports = async function handler(req, res) {
 
   try {
     if (mode === "count") {
-      const oldCount = await countEvents(MAIN_BASE_ID);
-      const newCount = await countEvents(EVENTS_BASE_ID);
-      return res.status(200).json({ old_base: oldCount, new_base: newCount });
+      const counts = {};
+      for (const baseId of [MAIN_BASE_ID, ...EVENTS_HISTORY_BASES, EVENTS_BASE_ID]) {
+        if (counts[baseId] !== undefined) continue;
+        // eslint-disable-next-line no-await-in-loop
+        counts[baseId] = await countEvents(baseId);
+      }
+      counts.live_base = EVENTS_BASE_ID;
+      return res.status(200).json(counts);
     }
 
     // The newest events in the new base — the live check that the split log

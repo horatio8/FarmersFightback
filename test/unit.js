@@ -1119,7 +1119,10 @@ async function run() {
   }
 
   const MAIN = process.env.AIRTABLE_BASE_ID;
-  const LOG_BASE = "appE8OEBzFLzOfdMm";
+  // The chain: main base (pre-split rows), slice 1 (filled 18 Aug 2026),
+  // and the live slice that takes every new write.
+  const SLICE1 = "appE8OEBzFLzOfdMm";
+  const LOG_BASE = "appxb9ykk2eXbuoIB";
 
   await test("an event is written to the log base, and only there", async () => {
     const spy = airtableSpy();
@@ -1165,15 +1168,16 @@ async function run() {
     assert.equal(f.event, undefined, "a link to the log would now cross bases");
   });
 
-  await test("a full scan of the log reads both bases, so pre-split history survives", async () => {
+  await test("a full scan of the log reads every slice, so no era of history is dropped", async () => {
     const spy = airtableSpy();
     try {
       const at = R("api/_airtable.js");
       await at.listRows("Events", { formula: "{referral_code_used}!=''" });
     } finally { spy.restore(); }
     const bases = spy.calls.filter((c) => c.method === "GET").map((c) => c.base);
-    assert.ok(bases.includes(MAIN), "the referral rollup is all-time; the old rows still count");
-    assert.ok(bases.includes(LOG_BASE), "new rows must be counted too");
+    assert.ok(bases.includes(MAIN), "the referral rollup is all-time; the oldest rows still count");
+    assert.ok(bases.includes(SLICE1), "slice 1 holds most of the migrated history");
+    assert.ok(bases.includes(LOG_BASE), "live rows must be counted too");
   });
 
   await test("a scan of any other table still reads one base", async () => {
@@ -1212,7 +1216,11 @@ async function run() {
     } finally { restore(); spy.restore(); }
     const reads = spy.calls.filter((c) => c.method === "GET");
     assert.ok(reads.some((c) => c.base === cfg.EVENTS_BASE_ID), "must check the live log");
-    assert.ok(reads.some((c) => c.base === cfg.AIRTABLE_BASE_ID), "an event already logged before the split is not new");
+    for (const h of cfg.EVENTS_HISTORY) {
+      assert.ok(reads.some((c) => c.base === h.base && c.table === h.table),
+        `an event already logged in retired slice ${h.base} is not new`);
+    }
+    assert.ok(cfg.EVENTS_HISTORY.length >= 2, "both retired slices must be in the chain");
   });
 
   await test("pointing the env back at the main base undoes the split without a deploy", async () => {

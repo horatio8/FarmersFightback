@@ -94,7 +94,23 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // Defaults to the events base rather than to the main one, because the outage
 // is live and a switch nobody has flipped fixes nothing. To roll back, set
 // AIRTABLE_EVENTS_BASE_ID to the main base id -- no deploy needed.
-const EVENTS_BASE = process.env.AIRTABLE_EVENTS_BASE_ID || "appE8OEBzFLzOfdMm";
+//
+// The log is a CHAIN of bases, not a pair: the full history turned out to be
+// bigger than one base's allowance (slice 1, appE8OEBzFLzOfdMm, filled on
+// 18 Aug 2026 while absorbing it). Writes go to the newest slice only;
+// reads union every slice. When the live slice fills, mint the next base,
+// append the current live id to AIRTABLE_EVENTS_HISTORY_BASES, and point
+// AIRTABLE_EVENTS_BASE_ID at the new one.
+const EVENTS_BASE = process.env.AIRTABLE_EVENTS_BASE_ID || "appxb9ykk2eXbuoIB";
+// Retired slices, oldest first. Read-only: nothing writes to these again.
+// The main base is always the first slice -- the pre-split rows live there --
+// so it is prepended rather than listed, and the env var only names the
+// bases minted since.
+const EVENTS_HISTORY = [...new Set([
+  BASE,
+  ...(process.env.AIRTABLE_EVENTS_HISTORY_BASES || "appE8OEBzFLzOfdMm")
+    .split(",").map((s) => s.trim()).filter(Boolean),
+])].filter((b) => b !== EVENTS_BASE);
 const EVENTS_SPLIT = EVENTS_BASE !== BASE;
 
 // Which base a table lives in. Only Events has moved.
@@ -635,7 +651,7 @@ async function updateContactStatusFromEvent(contactRecordId, eventType, currentS
 // reads in order, so that is fine -- but sort the result yourself if you ever
 // need a true ordering.
 function basesToScan(tableName) {
-  if (tableName === EVENTS && EVENTS_SPLIT) return [BASE, EVENTS_BASE];
+  if (tableName === EVENTS && EVENTS_SPLIT) return [...EVENTS_HISTORY, EVENTS_BASE];
   return [baseFor(tableName)];
 }
 
@@ -743,5 +759,6 @@ module.exports = {
   escapeFormula,
   MAIN_BASE_ID: BASE,
   EVENTS_BASE_ID: EVENTS_BASE,
+  EVENTS_HISTORY_BASES: EVENTS_HISTORY,
   EVENTS_SPLIT,
 };
