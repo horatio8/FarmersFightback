@@ -934,6 +934,100 @@ async function run() {
     assert.empty(redirects.map((r) => r.source), "an edge redirect would bypass tracking");
   });
 
+  // ------------------------------------------- /fun signups mirrored into CN
+  //
+  // A FUNdraiser signup is written to Airtable and, in parallel, posted into
+  // the Campaign Nucleus landing page so it reaches the email list. The whole
+  // point is that it is the SECOND destination: a CN problem must never cost
+  // a ticket sale.
+  group("fundraiser signups: the Campaign Nucleus mirror");
+  const cn = R("api/_cn.js");
+
+  function cnHarness(responder) {
+    const calls = [];
+    const realFetch = global.fetch;
+    global.fetch = async (url, opts = {}) => {
+      calls.push({ url: String(url), body: JSON.parse(opts.body || "{}"), method: opts.method });
+      if (responder) return responder();
+      const body = { data: { id: "entry-1" } };
+      return {
+        ok: true, status: 200, headers: { get: () => "application/json" },
+        json: async () => body, text: async () => JSON.stringify(body),
+      };
+    };
+    return { calls, restore: () => { global.fetch = realFetch; } };
+  }
+
+  await test("a signup is posted to the FUNdraiser form", async () => {
+    const h = cnHarness();
+    try {
+      await cn.cnFunSignup({
+        first_name: "Jane", last_name: "Farmer",
+        email: "jane@example.com", phone: "0412345678", postcode: "3387",
+      });
+      assert.equal(h.calls.length, 1, "exactly one entry should be posted");
+      assert.includes(h.calls[0].url, `/forms/${cn.CN_FUN_FORM_ID}/entries`);
+      assert.equal(h.calls[0].method, "POST");
+    } finally { h.restore(); }
+  });
+
+  await test("the entry carries the details the form collects", async () => {
+    const h = cnHarness();
+    try {
+      await cn.cnFunSignup({
+        first_name: "Jane", last_name: "Farmer",
+        email: "jane@example.com", phone: "0412345678", postcode: "3387",
+      });
+      const b = h.calls[0].body;
+      assert.equal(b.email, "jane@example.com");
+      assert.equal(b.first_name, "Jane");
+      assert.equal(b.last_name, "Farmer");
+      assert.equal(b.full_name, "Jane Farmer", "CN lists entries by full name");
+      assert.equal(b.phone, "0412345678");
+      assert.equal(b.postcode, "3387");
+    } finally { h.restore(); }
+  });
+
+  await test("signups are attributed, so CN reporting can tell them apart", async () => {
+    const h = cnHarness();
+    try {
+      await cn.cnFunSignup({ email: "a@example.com", utm_medium: "ticket" });
+      const b = h.calls[0].body;
+      assert.equal(b.utm_campaign, "fundraiser");
+      assert.equal(b.utm_medium, "ticket");
+      assert.equal(b.utm_source, "farmersfightback.com");
+    } finally { h.restore(); }
+  });
+
+  await test("a Campaign Nucleus failure never throws at the caller", async () => {
+    // rally-checkout awaits this mid-sale. If it threw, a CN outage would
+    // take the ticket down with it.
+    const h = cnHarness(() => { throw new Error("CN is down"); });
+    try {
+      const out = await cn.cnFunSignup({ email: "a@example.com" });
+      assert.equal(out.ok, false, "it should report failure, not raise it");
+    } finally { h.restore(); }
+  });
+
+  await test("a signup with no email is skipped rather than posted empty", async () => {
+    const h = cnHarness();
+    try {
+      const out = await cn.cnFunSignup({ first_name: "Jane" });
+      assert.equal(out.skipped, true);
+      assert.empty(h.calls, "nothing should be sent without an address");
+    } finally { h.restore(); }
+  });
+
+  await test("both /fun signup routes mirror, and neither can fail the sale", () => {
+    // Paid tickets and comp claims are both signups on /fun.
+    for (const f of ["api/rally-checkout.js", "api/rally-claim.js"]) {
+      const src = fsx.readFileSync(path.join(ROOT, f), "utf8");
+      assert.includes(src, "cnFunSignup", `${f} does not mirror to CN`);
+      assert.match(src, /cnFunSignup\([\s\S]{0,400}?\}\)\.catch\(/,
+        `${f} must swallow a CN failure, not let it break the flow`);
+    }
+  });
+
   // --------------------------------------------------------- the repair rules
   //
   // The autofix pass writes to source files, so its own rules need checking:

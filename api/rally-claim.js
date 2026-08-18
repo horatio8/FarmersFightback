@@ -29,6 +29,7 @@ const {
   logEvent,
   updateContactStatusFromEvent,
 } = require("./_airtable");
+const { cnFunSignup } = require("./_cn");
 
 const AT_BASE = process.env.AIRTABLE_BASE_ID;
 const AT_KEY = process.env.AIRTABLE_API_KEY;
@@ -225,6 +226,14 @@ module.exports = async function handler(req, res) {
     } catch (e) {
       console.error("rally-claim logEvent failed:", e.message);
     }
+
+    // Parallel destination: a comp ticket is still a FUNdraiser signup, so
+    // mirror it into the Campaign Nucleus landing page alongside the Airtable
+    // write. Best-effort — a claim must never fail over a reporting copy.
+    await cnFunSignup({
+      first_name, last_name, email, phone, postcode,
+      utm_medium: "comp", utm_campaign: "fundraiser",
+    }).catch((e) => console.error("rally-claim CN mirror failed:", e.message));
 
     // Decrement allowance on the token record (skip in fallback mode since
     // there's no record to update).

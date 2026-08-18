@@ -41,6 +41,7 @@
 // payment is confirmed. This endpoint's job is just to mint the session.
 
 const { matchOrCreateContact, setReferralCodeIfMissing, logEvent } = require("./_airtable");
+const { cnFunSignup } = require("./_cn");
 const { recordRallyTicketPurchase } = require("./_rally");
 
 const STRIPE_KEY = process.env.STRIPE_RALLY_SECRET_KEY;
@@ -225,6 +226,15 @@ module.exports = async function handler(req, res) {
       // Non-fatal — don't block the ticket sale if Airtable is down.
       console.error("rally pre-payment Airtable write failed:", e.message);
     }
+
+    // Parallel destination: mirror the signup into the Campaign Nucleus
+    // landing page, so /fun signups land on the email list and in CN
+    // reporting rather than living only in Airtable. Runs alongside the
+    // Airtable write above, never in place of it, and cannot fail the sale.
+    await cnFunSignup({
+      first_name, last_name, email, phone, postcode,
+      utm_medium: "ticket", utm_campaign: "fundraiser",
+    }).catch((e) => console.error("rally CN mirror failed:", e.message));
 
     const base = process.env.RALLY_SUCCESS_URL_BASE || `${hostBase(req)}/fundraiser`;
     const line_items = [];

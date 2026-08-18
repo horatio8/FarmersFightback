@@ -206,4 +206,54 @@ function cnAutomationAdd(automationId, profile) {
   return cnFetch(`/automations/${encodeURIComponent(automationId)}/profiles`, profile);
 }
 
-module.exports = { cnFetch, cnProfileMatch, cnAutomationAdd, cnSetUid, cnSetUidBulk, cnSetUidBulkSafe, CN_UID_FIELD };
+// Campaign Nucleus landing-page forms. A form doubles as a receiver: entries
+// can be posted straight into it, so a signup taken on our own site lands in
+// CN as if it had come through the hosted page — same list, same reporting.
+//
+// Used to mirror the FUNdraiser signups from /fun, which otherwise only ever
+// existed in Airtable. Deliberately a SECOND destination, never the first: the
+// Airtable write and the Stripe session are the flow that matters, and a CN
+// outage must not cost a ticket sale.
+const CN_FUN_FORM_ID = process.env.CN_FUN_FORM_ID
+  || "4117e43f-2c36-425d-88e4-e330c444b873"; // Farmer Fightback: FUNdraiser
+
+function cnFormEntry(formId, entry, opts = {}) {
+  if (!formId) return Promise.resolve({ skipped: true, reason: "no form id" });
+  return cnFetch(`/forms/${encodeURIComponent(formId)}/entries`, entry, "POST", {
+    // Short leash. This runs inside a checkout request, so it waits on CN for
+    // a couple of seconds at most and then gets out of the way.
+    timeoutMs: opts.timeoutMs || 4000,
+  });
+}
+
+// Mirror one FUNdraiser signup into the CN landing page. Never throws — the
+// caller is mid-checkout and a reporting copy is not worth a failed sale.
+async function cnFunSignup({ first_name, last_name, email, phone, postcode, utm_source, utm_medium, utm_campaign }) {
+  if (!email) return { skipped: true, reason: "no email" };
+  const first = String(first_name || "").trim();
+  const last = String(last_name || "").trim();
+  const entry = {
+    email: String(email).trim(),
+    first_name: first || undefined,
+    last_name: last || undefined,
+    full_name: [first, last].filter(Boolean).join(" ") || undefined,
+    phone: phone ? String(phone).trim() : undefined,
+    postcode: postcode ? String(postcode).trim() : undefined,
+    utm_source: utm_source || "farmersfightback.com",
+    utm_medium: utm_medium || undefined,
+    utm_campaign: utm_campaign || "fundraiser",
+  };
+  Object.keys(entry).forEach((k) => entry[k] === undefined && delete entry[k]);
+  try {
+    const out = await cnFormEntry(CN_FUN_FORM_ID, entry);
+    return { ok: !!(out && out.ok) };
+  } catch (e) {
+    console.error("cnFunSignup failed:", e.message);
+    return { ok: false, error: e.message };
+  }
+}
+
+module.exports = {
+  cnFetch, cnProfileMatch, cnAutomationAdd, cnSetUid, cnSetUidBulk, cnSetUidBulkSafe,
+  cnFormEntry, cnFunSignup, CN_UID_FIELD, CN_FUN_FORM_ID,
+};
