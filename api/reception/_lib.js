@@ -54,28 +54,19 @@ function validTokenShape(t) {
 // retyped on a phone keyboard, and "farmersforever" being refused because of
 // an autocapitalised F is a support call, not security.
 
-// "FarmersForever" was the shared password until 18 Aug 2026, when the event
-// was tightened to an invitation-only group of key supporters and the owner
-// asked for it to stop working in any capitalisation. It is refused here,
-// ahead of the comparison, so it stays dead even while the deployed
-// RECEPTION_PASSCODE env var still holds it.
-const RETIRED_PASSCODES = new Set(["farmersforever"]);
-
-// The password the page actually honours: RECEPTION_PASSCODE, unless that is
-// blank or retired, in which case this default. The page is password-only,
-// so there must always be exactly one working password.
-const DEFAULT_PASSCODE = "HoldTheGate29";
+// The password the page honours: RECEPTION_PASSCODE if set, else this
+// default. The page is password-only, so there must always be exactly one
+// working password. (Owner call, 18 Aug 2026: it is FarmersForever — briefly
+// retired that day and then reinstated the same afternoon.)
+const DEFAULT_PASSCODE = "FarmersForever";
 
 function activePasscode() {
   const configured = String(process.env.RECEPTION_PASSCODE || "").trim();
-  const norm = configured.toLowerCase().replace(/\s+/g, "");
-  if (!norm || RETIRED_PASSCODES.has(norm)) return DEFAULT_PASSCODE;
-  return configured;
+  return configured || DEFAULT_PASSCODE;
 }
 
 function passcodeOk(input) {
   const given = String(input || "").trim().toLowerCase().replace(/\s+/g, "");
-  if (RETIRED_PASSCODES.has(given)) return false;
   const want = activePasscode().trim().toLowerCase().replace(/\s+/g, "");
   if (!given || !want || given.length !== want.length) return false;
   return crypto.timingSafeEqual(Buffer.from(given), Buffer.from(want));

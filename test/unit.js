@@ -25,43 +25,35 @@ async function run() {
   group("reception: passcode");
   const rec = R("api/reception/_lib.js");
 
-  await test("the retired passcode is refused in every capitalisation and spacing", () => {
-    // Owner decision, 18 Aug 2026: the event is invitation-only, so
-    // "FarmersForever" must never open the door again — even though the
-    // deployed RECEPTION_PASSCODE env var may still hold it.
+  await test("the working password is FarmersForever, forgiving of case and spacing", () => {
+    // Owner call, 18 Aug 2026 (after a brief same-day retirement): the door
+    // key is FarmersForever. It gets read off a text and retyped on a phone,
+    // so an autocapitalised F is a support call, not security.
+    assert.equal(rec.activePasscode(), "FarmersForever");
     for (const v of ["FarmersForever", "farmersforever", "FARMERSFOREVER",
       "  FarmersForever  ", "Farmers Forever", "fArMeRsFoReVeR"]) {
-      assert.ok(!rec.passcodeOk(v), `retired passcode must be refused: ${JSON.stringify(v)}`);
+      assert.ok(rec.passcodeOk(v), `must accept ${JSON.stringify(v)}`);
     }
   });
-  await test("with the retired password still configured, the default takes over", () => {
-    // The page is password-only, so there must always be exactly one working
-    // password. RECEPTION_PASSCODE holds the retired value, so the coded
-    // default is the door key until a new value is set.
-    assert.equal(rec.activePasscode(), "HoldTheGate29");
-    assert.ok(rec.passcodeOk("holdthegate29"), "the default works, forgiving of case");
-    assert.ok(rec.passcodeOk("Hold The Gate 29"), "and of spacing");
-  });
-  await test("wrong guesses are refused", () => {
+  await test("wrong guesses are refused, including near misses", () => {
     for (const v of ["", null, undefined, "farmersforeve", "farmersforever1", "letmein",
-      "FarmersFightback", "holdthegate", "HoldTheGate30"]) {
+      "FarmersFightback", "HoldTheGate29"]) {
       assert.ok(!rec.passcodeOk(v), `should refuse ${JSON.stringify(v)}`);
     }
   });
-  await test("a NEW configured passcode still works, so the door can reopen deliberately", () => {
+  await test("a configured RECEPTION_PASSCODE overrides the default", () => {
     const saved = process.env.RECEPTION_PASSCODE;
     process.env.RECEPTION_PASSCODE = "PaddockGate2026";
     try {
-      assert.ok(rec.passcodeOk("paddock gate 2026"), "a fresh passcode is forgiving of case and spacing");
-      assert.ok(!rec.passcodeOk("FarmersForever"), "the retired one stays dead even then");
-    } finally { process.env.RECEPTION_PASSCODE = saved; }
+      assert.ok(rec.passcodeOk("paddock gate 2026"), "the configured value works");
+      assert.ok(!rec.passcodeOk("FarmersForever"), "and replaces the default rather than joining it");
+    } finally {
+      if (saved === undefined) delete process.env.RECEPTION_PASSCODE;
+      else process.env.RECEPTION_PASSCODE = saved;
+    }
   });
   await test("comparing a wrong-length guess does not throw", () => {
-    const saved = process.env.RECEPTION_PASSCODE;
-    process.env.RECEPTION_PASSCODE = "PaddockGate2026";
-    try {
-      assert.ok(!rec.passcodeOk("x"), "timingSafeEqual needs equal lengths; the guard must come first");
-    } finally { process.env.RECEPTION_PASSCODE = saved; }
+    assert.ok(!rec.passcodeOk("x"), "timingSafeEqual needs equal lengths; the guard must come first");
   });
 
   group("reception: invitation tokens");
