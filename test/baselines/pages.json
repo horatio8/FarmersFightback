@@ -286,7 +286,7 @@
   },
   "/reception": {
     "title": "Private Reception — By Invitation, Sat 29 August",
-    "words": 122,
+    "words": 97,
     "headings": [],
     "ctaCount": 3,
     "forms": 0,
@@ -489,5 +489,24 @@
     "links": 9,
     "overflow": 0,
     "mobileOverflow": 0
+  },
+  "/everyvictorian": {
+    "title": "11,000+ Emails. Now We Make the Premier Hear Us | Farmers Fightback",
+    "words": 1327,
+    "headings": [
+      "LET'S MAKE THE PREMIER HEAR US!",
+      "The plan: recruit every Victorian.",
+      "Hear their stories",
+      "Where it goes."
+    ],
+    "ctaCount": 21,
+    "forms": 0,
+    "inputs": 0,
+    "images": 13,
+    "imagesUnlabelled": 0,
+    "h1": 1,
+    "links": 9,
+    "overflow": 0,
+    "mobileOverflow": 22
   }
 }
