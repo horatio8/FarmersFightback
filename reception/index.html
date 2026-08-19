@@ -213,12 +213,10 @@ const I = {
 /* The ask on the confirmation. Pitched well above the public ladder on
    /donate ($35–$1,500): this page is only ever reached by someone holding a
    personal invitation to a donor reception, so the amounts match the room. */
-const GIVE = [
-  { amount: 250, tag: "A week of ads" },
-  { amount: 500, tag: "Signs for ten farms" },
-  { amount: 1000, tag: "A day in court" },
-  { amount: 2500, tag: "Backs the whole night" },
-];
+/* Amounts only, no per-tier promises: the owner's call is that the ask
+   stands on the cause — the public fight for the twelve — not on a menu of
+   what each dollar buys. */
+const GIVE = [{ amount: 250 }, { amount: 500 }, { amount: 1000 }, { amount: 2500 }];
 
 /* Straight into Stripe via our own checkout, not a bare payment link, so the
    gift carries attribution and lands in the economics dashboard as reception
@@ -529,18 +527,17 @@ function App() {
 
             <div className="ffx-give" ref={giveRef}>
               <div className="ffx-give-eb"><I.star w={11} /> Before you go</div>
-              <div className="ffx-give-h">{yes ? "The table is the easy part" : "Stand with us anyway"}</div>
-              <div className="ffx-give-script">the fight isn&rsquo;t</div>
+              <div className="ffx-give-h">{yes ? "They picked a fight with 12 farmers" : "Stand with the twelve anyway"}</div>
+              <div className="ffx-give-script">they got all of us</div>
               <p className="ffx-give-p">
                 {yes
-                  ? "Every hour in that room is paid for by farmers who chip in — the legal bills, the ads, the signs on the fences. If you can back it as well as attend it, tonight is the moment."
-                  : "You can't be in the room, but you can still be in the fight. What we're planning that night runs on what farmers put in."}
+                  ? "The government is dragging twelve farming families through fines and lawyers for refusing to open their gates. This is a public fight, and it runs on what farmers and their friends put in. If you can back it as well as attend it, tonight is the moment."
+                  : "You can't be in the room, but you can still stand with the twelve. The public fight against these fines runs on what farmers and their friends put in."}
               </p>
               <div className="ffx-give-grid">
                 {GIVE.map((g) => (
                   <a key={g.amount} className="ffx-give-opt" href={giveHref(g.amount)}>
                     ${g.amount}
-                    <small>{g.tag}</small>
                   </a>
                 ))}
               </div>
