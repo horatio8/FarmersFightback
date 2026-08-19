@@ -349,10 +349,10 @@ function App() {
 
   const tryCode = async () => {
     const c = codeInput.trim();
-    if (!c) { setCodeErr("Enter the passcode from your invitation."); return; }
+    if (!c) { setCodeErr("Enter the password."); return; }
     setCodeBusy(true); setCodeErr("");
     await openWith("code=" + encodeURIComponent(c), (d) => {
-      setCodeErr((d && d.error) || "That passcode isn't right.");
+      setCodeErr((d && d.error) || "That password isn't right.");
     });
     setCode(c);
     setCodeBusy(false);
@@ -436,29 +436,29 @@ function App() {
         <div className="ffx-wrap">
           <div className="ffx-card">
             <div className="ffx-vip ffx-vip-err">
-              <div className="ffx-vip-tag"><I.lock w={13} /> {isErr ? "Couldn't check that link" : "Invitation required"}</div>
-              <div className="ffx-vip-h">{isErr ? "Try again in a moment" : "This page opens only from your invitation"}</div>
+              <div className="ffx-vip-tag"><I.lock w={13} /> {isErr ? "Couldn't check that" : "Password required"}</div>
+              <div className="ffx-vip-h">{isErr ? "Try again in a moment" : "This page opens with a password"}</div>
               <p className="ffx-vip-p">
                 {isErr
                   ? "Something went wrong at our end, not yours. Refresh the page shortly."
-                  : "The Private Reception is for an invitation-only group of key supporters, and each invitation link works only for the person it was sent to. Open the link straight from your email — copying part of it, or forwarding someone else's, won't get through."}
+                  : "The Private Reception is for an invitation-only group of key supporters. If you've been given the password, enter it below and we'll take your RSVP."}
               </p>
             </div>
             {!isErr && (
               <React.Fragment>
-                <div className="ffx-sec-h">Have a passcode?</div>
+                <div className="ffx-sec-h">Enter the password</div>
                 <p className="ffx-sec-note">
-                  If we gave you one over the phone or in person, put it in here.
+                  It's in the message we sent you. Capitalisation doesn't matter.
                 </p>
                 <div className="ffx-code-row">
                   <input
                     className={"ffx-input" + (codeErr ? " ffx-input-err" : "")}
                     value={codeInput}
-                    placeholder="Passcode"
+                    placeholder="Password"
                     autoComplete="off"
                     autoCapitalize="none"
                     spellCheck={false}
-                    aria-label="Event passcode"
+                    aria-label="Event password"
                     onChange={(e) => { setCodeInput(e.target.value); setCodeErr(""); }}
                     onKeyDown={(e) => { if (e.key === "Enter") tryCode(); }}
                   />
@@ -577,7 +577,7 @@ function App() {
       <div className="ffx-wrap">
         <div className="ffx-card">
           <div className="ffx-vip">
-            <div className="ffx-vip-tag"><I.star w={13} /> {info.mode === "passcode" ? "Passcode accepted" : `Invitation ${info.registration ? "· already replied" : "· personal to you"}`}</div>
+            <div className="ffx-vip-tag"><I.star w={13} /> {info.mode === "passcode" ? "Password accepted" : `Invitation ${info.registration ? "· already replied" : "· personal to you"}`}</div>
             <div className="ffx-vip-h">
               {info.mode === "passcode"
                 ? "You're in — we just need your details"

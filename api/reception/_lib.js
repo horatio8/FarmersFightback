@@ -53,23 +53,30 @@ function validTokenShape(t) {
 // Matched case- and space-insensitively. It gets read off a text message and
 // retyped on a phone keyboard, and "farmersforever" being refused because of
 // an autocapitalised F is a support call, not security.
-function receptionPasscode() {
-  return String(process.env.RECEPTION_PASSCODE || "FarmersForever");
-}
 
-// "FarmersForever" was the shared passcode until 18 Aug 2026, when the event
+// "FarmersForever" was the shared password until 18 Aug 2026, when the event
 // was tightened to an invitation-only group of key supporters and the owner
 // asked for it to stop working in any capitalisation. It is refused here,
-// ahead of the env comparison, so it stays dead even while the deployed
-// RECEPTION_PASSCODE env var still holds it. Setting the env var to a NEW
-// value re-enables the passcode door with that value only.
+// ahead of the comparison, so it stays dead even while the deployed
+// RECEPTION_PASSCODE env var still holds it.
 const RETIRED_PASSCODES = new Set(["farmersforever"]);
+
+// The password the page actually honours: RECEPTION_PASSCODE, unless that is
+// blank or retired, in which case this default. The page is password-only,
+// so there must always be exactly one working password.
+const DEFAULT_PASSCODE = "HoldTheGate29";
+
+function activePasscode() {
+  const configured = String(process.env.RECEPTION_PASSCODE || "").trim();
+  const norm = configured.toLowerCase().replace(/\s+/g, "");
+  if (!norm || RETIRED_PASSCODES.has(norm)) return DEFAULT_PASSCODE;
+  return configured;
+}
 
 function passcodeOk(input) {
   const given = String(input || "").trim().toLowerCase().replace(/\s+/g, "");
   if (RETIRED_PASSCODES.has(given)) return false;
-  const want = receptionPasscode().trim().toLowerCase().replace(/\s+/g, "");
-  if (RETIRED_PASSCODES.has(want)) return false;
+  const want = activePasscode().trim().toLowerCase().replace(/\s+/g, "");
   if (!given || !want || given.length !== want.length) return false;
   return crypto.timingSafeEqual(Buffer.from(given), Buffer.from(want));
 }
@@ -170,7 +177,7 @@ module.exports = {
   mintToken,
   validTokenShape,
   tokenEquals,
-  receptionPasscode,
+  activePasscode,
   passcodeOk,
   findInviteByEmail,
   findInviteByToken,

@@ -34,8 +34,17 @@ async function run() {
       assert.ok(!rec.passcodeOk(v), `retired passcode must be refused: ${JSON.stringify(v)}`);
     }
   });
-  await test("while the retired passcode is the one configured, NO passcode opens the door", () => {
-    for (const v of ["", null, undefined, "farmersforeve", "farmersforever1", "letmein", "FarmersFightback"]) {
+  await test("with the retired password still configured, the default takes over", () => {
+    // The page is password-only, so there must always be exactly one working
+    // password. RECEPTION_PASSCODE holds the retired value, so the coded
+    // default is the door key until a new value is set.
+    assert.equal(rec.activePasscode(), "HoldTheGate29");
+    assert.ok(rec.passcodeOk("holdthegate29"), "the default works, forgiving of case");
+    assert.ok(rec.passcodeOk("Hold The Gate 29"), "and of spacing");
+  });
+  await test("wrong guesses are refused", () => {
+    for (const v of ["", null, undefined, "farmersforeve", "farmersforever1", "letmein",
+      "FarmersFightback", "holdthegate", "HoldTheGate30"]) {
       assert.ok(!rec.passcodeOk(v), `should refuse ${JSON.stringify(v)}`);
     }
   });

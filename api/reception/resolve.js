@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
     // one guest is allowed, same as a standard invitation.
     if (!token && code) {
       if (!R.passcodeOk(code)) {
-        return res.status(200).json({ valid: false, error: "That passcode isn't right." });
+        return res.status(200).json({ valid: false, error: "That password isn't right." });
       }
       return res.status(200).json({
         valid: true,
