@@ -1,6 +1,6 @@
 {
   "/": {
-    "title": "Farmers Fightback — Fighting for farmers, food & our future",
+    "title": "Farmers Fightback \u2014 Fighting for farmers, food & our future",
     "words": 693,
     "headings": [
       "Fighting for farmers, food & our future.",
@@ -24,7 +24,7 @@
     "mobileOverflow": 36
   },
   "/404": {
-    "title": "Page not found — Farmers Fightback",
+    "title": "Page not found \u2014 Farmers Fightback",
     "words": 44,
     "headings": [
       "That page has moved or never existed."
@@ -40,7 +40,7 @@
     "mobileOverflow": 0
   },
   "/admin": {
-    "title": "Farmers Fightback — Admin",
+    "title": "Farmers Fightback \u2014 Admin",
     "words": 0,
     "headings": [],
     "ctaCount": 0,
@@ -57,8 +57,8 @@
     "title": "FF Campaign Economics",
     "words": 195,
     "headings": [
-      "Farmers Fightback — Campaign Economics",
-      "Today's ads (Melbourne time) — spend vs what we got",
+      "Farmers Fightback \u2014 Campaign Economics",
+      "Today's ads (Melbourne time) \u2014 spend vs what we got",
       "Reconciling to Ads Manager (today)",
       "Donation revenue by how we acquired the donor (all-time)",
       "Donation revenue by how the gift was raised (all-time)"
@@ -92,7 +92,7 @@
     "mobileOverflow": 49
   },
   "/contact": {
-    "title": "Contact — Farmers Fightback",
+    "title": "Contact \u2014 Farmers Fightback",
     "words": 130,
     "headings": [
       "GET IN TOUCH."
@@ -149,7 +149,7 @@
     "mobileOverflow": 0
   },
   "/donate": {
-    "title": "Donate — Farmers Fightback · They have billions. We have you.",
+    "title": "Donate \u2014 Farmers Fightback \u00b7 They have billions. We have you.",
     "words": 314,
     "headings": [
       "THEY HAVE BILLION$. WE NEED YOU.",
@@ -167,7 +167,7 @@
     "mobileOverflow": 36
   },
   "/first": {
-    "title": "Be first in line — Farmers Fightback",
+    "title": "Be first in line \u2014 Farmers Fightback",
     "words": 77,
     "headings": [
       "BE FIRST in line"
@@ -183,11 +183,11 @@
     "mobileOverflow": 0
   },
   "/fundraiser": {
-    "title": "Farmers Fightback Fundraiser — Marnoo, Sat 29 August",
+    "title": "Farmers Fightback Fundraiser \u2014 Marnoo, Sat 29 August",
     "words": 185,
     "headings": [
       "FARMERS FIGHTBACK FUNdraiser",
-      "SPEAKERS FROM 7PM — THEN FOOD & MUSIC",
+      "SPEAKERS FROM 7PM \u2014 THEN FOOD & MUSIC",
       "MARNOO CRICKET GROUND"
     ],
     "ctaCount": 7,
@@ -201,10 +201,10 @@
     "mobileOverflow": 0
   },
   "/funraiser": {
-    "title": "You're on the list — Farmers Fightback",
+    "title": "You're on the list \u2014 Farmers Fightback",
     "words": 172,
     "headings": [
-      "YOU’RE ON the list"
+      "YOU\u2019RE ON the list"
     ],
     "ctaCount": 17,
     "forms": 0,
@@ -217,7 +217,7 @@
     "mobileOverflow": 0
   },
   "/funshare": {
-    "title": "Share the sign-up — Farmers Fightback",
+    "title": "Share the sign-up \u2014 Farmers Fightback",
     "words": 171,
     "headings": [
       "SHARE THE sign-up"
@@ -233,7 +233,7 @@
     "mobileOverflow": 0
   },
   "/media": {
-    "title": "Media — Farmers Fightback",
+    "title": "Media \u2014 Farmers Fightback",
     "words": 244,
     "headings": [
       "MEDIA & PRESS ENQUIRIES.",
@@ -252,7 +252,7 @@
     "mobileOverflow": 36
   },
   "/news": {
-    "title": "News — Farmers Fightback",
+    "title": "News \u2014 Farmers Fightback",
     "words": 217,
     "headings": [
       "NEWS FROM THE CORRIDOR."
@@ -285,7 +285,7 @@
     "mobileOverflow": 0
   },
   "/reception": {
-    "title": "Private Reception — By Invitation, Sat 29 August",
+    "title": "Private Reception \u2014 By Invitation, Sat 29 August",
     "words": 97,
     "headings": [],
     "ctaCount": 3,
@@ -299,7 +299,7 @@
     "mobileOverflow": 0
   },
   "/share": {
-    "title": "Thank you — Now share with 5 mates · Farmers Fightback",
+    "title": "Thank you \u2014 Now share with 5 mates \u00b7 Farmers Fightback",
     "words": 89,
     "headings": [
       "Thanks for backing the fight."
@@ -331,7 +331,7 @@
     "mobileOverflow": 0
   },
   "/take-action": {
-    "title": "Take Action — Farmers Fightback",
+    "title": "Take Action \u2014 Farmers Fightback",
     "words": 257,
     "headings": [
       "PICK A FIGHT. STAND UP."
@@ -347,7 +347,7 @@
     "mobileOverflow": 36
   },
   "/take-action/baldwins": {
-    "title": "Baldwin Defence — Charges Dropped. The Minister Must Resign.",
+    "title": "Baldwin Defence \u2014 Charges Dropped. The Minister Must Resign.",
     "words": 735,
     "headings": [
       "BASELESS CHARGES DROPPED. MINISTER MUST RESIGN.",
@@ -368,7 +368,7 @@
     "mobileOverflow": 73
   },
   "/take-action/fuel-and-fertiliser": {
-    "title": "Fuel & Fertiliser Crisis — Farmers Fightback",
+    "title": "Fuel & Fertiliser Crisis \u2014 Farmers Fightback",
     "words": 256,
     "headings": [
       "Plant at a loss, or don't plant at all."
@@ -384,7 +384,7 @@
     "mobileOverflow": 36
   },
   "/take-action/hold-the-gate": {
-    "title": "Hold the Gate — Farmers Fightback",
+    "title": "Hold the Gate \u2014 Farmers Fightback",
     "words": 491,
     "headings": [
       "Help our farmers, before it's too late.",
@@ -402,7 +402,7 @@
     "mobileOverflow": 36
   },
   "/take-action/remove-us-from-the-rez": {
-    "title": "Remove Us From The REZ — Farmers Fightback",
+    "title": "Remove Us From The REZ \u2014 Farmers Fightback",
     "words": 780,
     "headings": [
       "Remove us from the REZ.",
@@ -420,7 +420,7 @@
     "mobileOverflow": 36
   },
   "/take-action/volunteer": {
-    "title": "Volunteer — Farmers Fightback",
+    "title": "Volunteer \u2014 Farmers Fightback",
     "words": 343,
     "headings": [
       "VOLUNTEER WITH US.",
@@ -439,7 +439,7 @@
     "mobileOverflow": 36
   },
   "/the-fight": {
-    "title": "The Fight — Farmers Fightback",
+    "title": "The Fight \u2014 Farmers Fightback",
     "words": 387,
     "headings": [
       "WHAT WE'RE FIGHTING",
@@ -490,12 +490,12 @@
     "overflow": 0,
     "mobileOverflow": 0
   },
-  "/everyvictorian": {
-    "title": "11,000+ Emails. Now We Make the Premier Hear Us | Farmers Fightback",
+  "/every": {
+    "title": "11,000+ Emails. Let\u2019s Make the Premier Hear Us | Farmers Fightback",
     "words": 1327,
     "headings": [
       "LET'S MAKE THE PREMIER HEAR US!",
-      "The plan: recruit every Victorian.",
+      "The plan: recruit every Australian.",
       "Hear their stories",
       "Where it goes."
     ],

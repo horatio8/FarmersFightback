@@ -73,7 +73,8 @@
     { "source": "/petition",    "destination": "/take-action/hold-the-gate#sign", "permanent": false },
     { "source": "/holdthegate", "destination": "/take-action/hold-the-gate#sign", "permanent": false },
     { "source": "/helpholdthegate", "destination": "/take-action/hold-the-gate#sign", "permanent": true },
-    { "source": "/send-your-email", "destination": "/askjess", "permanent": false }
+    { "source": "/send-your-email", "destination": "/askjess", "permanent": false },
+    { "source": "/everyvictorian", "destination": "/every", "permanent": false }
   ],
   "headers": [
     {
