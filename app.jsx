@@ -3114,6 +3114,31 @@ const WON_PAGE = {
   },
 };
 
+// /everyvictorian — the escalation donation page. The story in one line:
+// 11,000+ emails have gone to the Premier's office and the fines are still
+// landing, so the next phase is scale — recruit every Victorian. The core of
+// the ask is that recruitment drive, not any menu of what a dollar buys, so
+// the tiles stay bare amounts from the shared ladder.
+const EVERY_VICTORIAN_PAGE = {
+  heroImage: "/assets/uploads/fight-police-farmers.jpg",
+  eyebrow: "11,000+ EMAILS TO THE PREMIER'S OFFICE",
+  heading: "Now we make the Premier hear us.",
+  lede: "More than 11,000 of you have emailed the Premier's office demanding this government stop targeting farming families. That message was sent one name at a time — and the fines are still landing. A Premier can ignore an inbox. He cannot ignore Victoria. So this is the next phase: we will recruit every Victorian to this fight, and your support is what makes it possible.",
+  achievements: {
+    heading: "The plan: recruit every Victorian.",
+    image: "/assets/uploads/stories/story-5.jpg",
+    imageAlt: "A farmer stands with his back to camera in a paddock, facing a line of transmission towers.",
+    imageFallback: "/assets/uploads/parliament-house-group.jpg",
+    bullets: [
+      "11,000+ emails are on the record in the Premier's office — sent by farmers and the people who stand with them.",
+      "The response so far is silence, while the fines keep landing on farming families.",
+      "So the fight goes to every letterbox, every feed and every town hall in the state — city and country, farmer or not.",
+      "Every Victorian who joins makes this a problem no Premier can file away. That's how the targeting ends.",
+    ],
+    kicker: "They have billions. We'll have Victoria.",
+  },
+};
+
 function DonorAchievements({ cfg }) {
   const [imgSrc, setImgSrc] = useState(cfg.image);
   const onErr = () => { if (cfg.imageFallback && imgSrc !== cfg.imageFallback) setImgSrc(cfg.imageFallback); };
@@ -5281,6 +5306,18 @@ function App() {
       autoScrollToWidget={false}
       storiesUrl="content/dambrosio-stories.json"
       storiesCta="Chip in and finish the job"
+    />
+  );
+  else if (page === "every-victorian") view = (
+    <DonorPage
+      override={EVERY_VICTORIAN_PAGE}
+      variant="won"
+      hideNav
+      hideTopBanner
+      whereFirst={false}
+      autoScrollToWidget={false}
+      storiesUrl="content/dambrosio-stories.json"
+      storiesCta="Chip in — help recruit every Victorian"
     />
   );
   else if (page === "volunteer") view = <VolunteerPage />;
