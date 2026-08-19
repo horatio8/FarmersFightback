@@ -98,7 +98,7 @@ async function run() {
     assert.equal(rec.cleanStr(null), "");
   });
   await test("the event record carries the details the page and API both render", () => {
-    assert.equal(rec.EVENT.name, "Farmers Muster");
+    assert.equal(rec.EVENT.name, "Private Reception");
     assert.includes(rec.EVENT.time, "5:00pm");
     assert.includes(rec.EVENT.venue, "Marnoo");
     assert.includes(rec.EVENT.date, "29 August");

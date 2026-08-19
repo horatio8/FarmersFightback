@@ -13,14 +13,16 @@ const INVITES = process.env.AIRTABLE_RECEPTION_INVITES_TABLE || "tbl4e1dznrukbzW
 const REGISTRATIONS = process.env.AIRTABLE_RECEPTION_REGS_TABLE || "tbleoZzh6jc5Q3Xt8";
 
 // Event facts, single source of truth for the API and the page copy.
+// Named and framed as a private reception for an invitation-only group of
+// key supporters -- never as the warm-up before the main event.
 const EVENT = {
-  name: "Farmers Muster",
+  name: "Private Reception",
   kicker: "By invitation only",
   date: "Saturday 29 August",
   time: "5:00pm – 6:00pm",
   venue: "Marnoo Cricket Ground",
   place: "Marnoo Recreation Reserve, Park St, Marnoo VIC 3387",
-  after: "Doors to the main FUNdraiser open at 6:00pm",
+  after: "The FUNdraiser follows from 6:00pm",
 };
 
 const TOKEN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
