@@ -3122,7 +3122,7 @@ const WON_PAGE = {
 const EVERY_VICTORIAN_PAGE = {
   heroImage: "/assets/uploads/fight-police-farmers.jpg",
   eyebrow: "11,000+ EMAILS TO THE PREMIER'S OFFICE",
-  heading: "Now we make the Premier hear us.",
+  heading: "Let's make the Premier hear us!",
   lede: "More than 11,000 of you have emailed the Premier's office demanding this government stop targeting farming families. That message was sent one name at a time — and the fines are still landing. A Premier can ignore an inbox. He cannot ignore Victoria. So this is the next phase: we will recruit every Victorian to this fight, and your support is what makes it possible.",
   achievements: {
     heading: "The plan: recruit every Victorian.",
