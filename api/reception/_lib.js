@@ -57,9 +57,19 @@ function receptionPasscode() {
   return String(process.env.RECEPTION_PASSCODE || "FarmersForever");
 }
 
+// "FarmersForever" was the shared passcode until 18 Aug 2026, when the event
+// was tightened to an invitation-only group of key supporters and the owner
+// asked for it to stop working in any capitalisation. It is refused here,
+// ahead of the env comparison, so it stays dead even while the deployed
+// RECEPTION_PASSCODE env var still holds it. Setting the env var to a NEW
+// value re-enables the passcode door with that value only.
+const RETIRED_PASSCODES = new Set(["farmersforever"]);
+
 function passcodeOk(input) {
   const given = String(input || "").trim().toLowerCase().replace(/\s+/g, "");
+  if (RETIRED_PASSCODES.has(given)) return false;
   const want = receptionPasscode().trim().toLowerCase().replace(/\s+/g, "");
+  if (RETIRED_PASSCODES.has(want)) return false;
   if (!given || !want || given.length !== want.length) return false;
   return crypto.timingSafeEqual(Buffer.from(given), Buffer.from(want));
 }

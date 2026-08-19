@@ -25,21 +25,34 @@ async function run() {
   group("reception: passcode");
   const rec = R("api/reception/_lib.js");
 
-  await test("accepts the passcode exactly", () => {
-    assert.ok(rec.passcodeOk("FarmersForever"), "the real passcode must work");
-  });
-  await test("forgives case and spacing, because it is retyped off a text message", () => {
-    for (const v of ["farmersforever", "FARMERSFOREVER", "  FarmersForever  ", "Farmers Forever"]) {
-      assert.ok(rec.passcodeOk(v), `should accept ${JSON.stringify(v)}`);
+  await test("the retired passcode is refused in every capitalisation and spacing", () => {
+    // Owner decision, 18 Aug 2026: the event is invitation-only, so
+    // "FarmersForever" must never open the door again — even though the
+    // deployed RECEPTION_PASSCODE env var may still hold it.
+    for (const v of ["FarmersForever", "farmersforever", "FARMERSFOREVER",
+      "  FarmersForever  ", "Farmers Forever", "fArMeRsFoReVeR"]) {
+      assert.ok(!rec.passcodeOk(v), `retired passcode must be refused: ${JSON.stringify(v)}`);
     }
   });
-  await test("refuses anything else, including near misses", () => {
+  await test("while the retired passcode is the one configured, NO passcode opens the door", () => {
     for (const v of ["", null, undefined, "farmersforeve", "farmersforever1", "letmein", "FarmersFightback"]) {
       assert.ok(!rec.passcodeOk(v), `should refuse ${JSON.stringify(v)}`);
     }
   });
+  await test("a NEW configured passcode still works, so the door can reopen deliberately", () => {
+    const saved = process.env.RECEPTION_PASSCODE;
+    process.env.RECEPTION_PASSCODE = "PaddockGate2026";
+    try {
+      assert.ok(rec.passcodeOk("paddock gate 2026"), "a fresh passcode is forgiving of case and spacing");
+      assert.ok(!rec.passcodeOk("FarmersForever"), "the retired one stays dead even then");
+    } finally { process.env.RECEPTION_PASSCODE = saved; }
+  });
   await test("comparing a wrong-length guess does not throw", () => {
-    assert.ok(!rec.passcodeOk("x"), "timingSafeEqual needs equal lengths; the guard must come first");
+    const saved = process.env.RECEPTION_PASSCODE;
+    process.env.RECEPTION_PASSCODE = "PaddockGate2026";
+    try {
+      assert.ok(!rec.passcodeOk("x"), "timingSafeEqual needs equal lengths; the guard must come first");
+    } finally { process.env.RECEPTION_PASSCODE = saved; }
   });
 
   group("reception: invitation tokens");
