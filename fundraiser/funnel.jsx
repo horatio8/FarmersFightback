@@ -22,7 +22,7 @@ const ADULT_PRICE = 50;
 
 const EVENT = {
   date: "Saturday 29 August",
-  gates: "Gates from 6:00pm",
+  gates: "Gate from 5:00 pm",
   venue: "Marnoo Cricket Ground",
   place: "Marnoo, Victoria",
 };
@@ -238,7 +238,7 @@ function LineupSection() {
     <section className="ffx-lineup">
       <div className="ffx-lineup-head">
         <span className="ffx-lineup-eb">On the night</span>
-        <div className="ffx-lineup-gates">Gates open from 6pm</div>
+        <div className="ffx-lineup-gates">Gate open from 5pm</div>
         <h2>Speakers from 7pm &mdash; then food &amp; music</h2>
         <p>Come for the fight, stay for the night. A proper country get-together with the people standing up for our farmers.</p>
       </div>
