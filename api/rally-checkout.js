@@ -42,7 +42,7 @@
 
 const { matchOrCreateContact, setReferralCodeIfMissing, logEvent } = require("./_airtable");
 const { cnFunSignup } = require("./_cn");
-const { recordRallyTicketPurchase } = require("./_rally");
+const { recordRallyTicketPurchase, ticketSalesState } = require("./_rally");
 
 const STRIPE_KEY = process.env.STRIPE_RALLY_SECRET_KEY;
 const STRIPE_PK = process.env.STRIPE_RALLY_PUBLISHABLE_KEY;
@@ -120,6 +120,15 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: "Ticketing isn't fully configured yet. Please try again shortly." });
   }
 
+  // GET ?state=1 → are sales open? The page asks on load so a visitor sees
+  // the closed notice instead of a form that will only refuse them at the
+  // end. Sold counts stay private — closed yes/no is all the page needs.
+  if (req.method === "GET" && new URL(req.url, hostBase(req)).searchParams.get("state") === "1") {
+    const st = await ticketSalesState();
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(200).json({ closed: !!st.closed, message: st.closed ? st.message : undefined });
+  }
+
   // GET ?session_id=X → read summary back (used on Stripe return).
   if (req.method === "GET") {
     const url = new URL(req.url, hostBase(req));
@@ -165,6 +174,13 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST or GET only" });
 
   try {
+    // The close gate, ahead of everything else: no contact write, no CN
+    // mirror, no Stripe session once sales have ended.
+    const sales = await ticketSalesState();
+    if (sales.closed) {
+      return res.status(410).json({ error: sales.message, closed: true });
+    }
+
     const body = req.body || {};
     const adult_qty = Math.max(0, Math.min(50, Number(body.adult_qty) || 0));
     // The event has a single ticket type. Any kid_qty posted by a stale

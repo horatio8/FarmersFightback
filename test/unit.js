@@ -1431,6 +1431,60 @@ async function run() {
       "identity travels in the payload so the signature projection is complete");
   });
 
+  group("ticket sales close");
+  const rally = R("api/_rally.js");
+  const BEFORE_CUTOFF = Date.parse("2026-08-25T00:00:00Z");
+  const AFTER_CUTOFF = Date.parse("2026-08-26T14:00:00.001Z");
+
+  function ticketsStub(rows) {
+    const realFetch = global.fetch;
+    let called = 0;
+    global.fetch = async () => {
+      called += 1;
+      return { ok: true, status: 200, text: async () => "{}",
+        json: async () => ({ records: rows.map((q, i) => ({ id: `rec${i}`, fields: { total_qty: q } })) }) };
+    };
+    return { calls: () => called, restore: () => { global.fetch = realFetch; } };
+  }
+
+  await test("sales stay open under the cap before the cutoff", async () => {
+    const stub = ticketsStub([600, 400, 43]); // 1,043 — one seat left
+    try {
+      const st = await rally.ticketSalesState(BEFORE_CUTOFF);
+      assert.equal(st.closed, false, "1,043 sold is still open");
+      assert.equal(st.sold, 1043);
+    } finally { stub.restore(); }
+  });
+
+  await test("the 1,044th ticket closes sales", async () => {
+    const stub = ticketsStub([600, 400, 44]);
+    try {
+      const st = await rally.ticketSalesState(BEFORE_CUTOFF);
+      assert.equal(st.closed, true, "at the cap means closed");
+      assert.equal(st.reason, "sold_out");
+      assert.match(st.message, /sorry/i, "the refusal carries the apology");
+    } finally { stub.restore(); }
+  });
+
+  await test("midnight ending Wed 26 Aug (Melbourne) closes sales regardless of count", async () => {
+    const stub = ticketsStub([1]);
+    try {
+      const st = await rally.ticketSalesState(AFTER_CUTOFF);
+      assert.equal(st.closed, true);
+      assert.equal(st.reason, "time");
+      assert.equal(stub.calls(), 0, "the time check must not depend on Airtable being up");
+    } finally { stub.restore(); }
+  });
+
+  await test("a down database fails open before the cutoff, never closed", async () => {
+    const realFetch = global.fetch;
+    global.fetch = async () => { throw new Error("airtable down"); };
+    try {
+      const st = await rally.ticketSalesState(BEFORE_CUTOFF);
+      assert.equal(st.closed, false, "an outage must not stop the last days of sales");
+    } finally { global.fetch = realFetch; }
+  });
+
   group("reconciliation tallies");
   const reconcile = R("api/admin/reconcile.js");
 

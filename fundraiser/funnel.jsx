@@ -697,6 +697,10 @@ function RallyFunnel() {
 
   const [step, setStep] = useState(returningFromStripe ? "confirm" : "details");
   const [showTerms, setShowTerms] = useState(false);
+  // null = still checking; {closed, message} once the server answers. The
+  // server enforces the close regardless — this just spares people a form
+  // that would only refuse them at the last step.
+  const [sales, setSales] = useState(null);
   const [qty, setQty] = useState({ adults: 1, comp: 1 });
   const [form, setForm] = useState({ first: "", last: "", email: "", phone: "", postcode: "" });
   const [claimInfo, setClaimInfo] = useState(null);
@@ -705,6 +709,23 @@ function RallyFunnel() {
 
   const orderRef = useRef("FFR-" + Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Math.floor(100 + Math.random() * 899)).current;
   const [myReferralCode, setMyReferralCode] = useState("");
+
+  /* Are ticket sales still open? Skipped for someone back from Stripe —
+     their purchase is already made and the confirmation must still render.
+     If the check itself fails, the form stays up: the server would refuse a
+     closed sale anyway, and a network blip must not hide a live checkout. */
+  useEffect(() => {
+    if (returningFromStripe) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/rally-checkout?state=1");
+        const data = await r.json().catch(() => ({}));
+        if (!cancelled && data && typeof data.closed === "boolean") setSales(data);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+  }, [returningFromStripe]);
 
   /* Look up the comp token on landing when claim= is present. */
   useEffect(() => {
@@ -795,6 +816,28 @@ function RallyFunnel() {
   let body;
   if (step === "confirm") {
     body = <ConfirmStep comp={comp} qty={qty} form={form} orderRef={orderRef} myToken={myReferralCode} />;
+  } else if (sales && sales.closed && !comp) {
+    // Sales are over. Comp claims still resolve (those seats are already
+    // set aside); everyone else gets the apology rather than a dead form.
+    body = (
+      <div className="ffx-card">
+        <div className="ffx-closed">
+          <h2 className="ffx-closed-h">Ticket sales have now closed</h2>
+          <p className="ffx-closed-p">
+            We're sorry to miss you — the response has been bigger than we ever hoped, and the
+            night is now at capacity. Thank you to every single person who grabbed a ticket.
+          </p>
+          <p className="ffx-closed-p">
+            Already got yours? We'll see you there — {EVENT.gates.toLowerCase()},{" "}
+            {EVENT.date}, {EVENT.venue}.
+          </p>
+          <p className="ffx-closed-p">
+            You can still stand with the farmers this fight is for:{" "}
+            <a className="ffx-closed-link" href="/every">chip in to the campaign here</a>.
+          </p>
+        </div>
+      </div>
+    );
   } else if (step === "checkout" && !comp) {
     body = <CheckoutStep qty={qty} form={form} ref_code={inboundRef} onBack={() => setStep("details")} onTerms={() => setShowTerms(true)} />;
   } else {
