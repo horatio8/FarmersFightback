@@ -430,16 +430,16 @@
   </style>
   <style>
     /* Page-local: static briefing sections in the /fundraiser card language. */
-    .ffx-brief h2{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.09em;font-size:17px;color:var(--barn);margin:0 0 12px}
+    .ffx-brief h2{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:0.09em;font-size:20px;color:var(--barn);margin:0 0 12px}
     .ffx-brief .ffx-card{margin-bottom:22px}
-    .ffx-brief p{margin:0 0 13px;color:var(--ink);font-size:16.5px;line-height:1.6}
+    .ffx-brief p{margin:0 0 13px;color:var(--ink);font-size:18px;line-height:1.6}
     .ffx-brief p:last-child{margin-bottom:0}
     .ffx-brief ul{margin:0 0 13px 20px;padding:0}
-    .ffx-brief li{margin:0 0 8px;font-size:16.5px;line-height:1.55}
-    .ffx-ro{border-left:4px solid var(--field-green);background:#f4f7f2;border-radius:0 12px 12px 0;padding:14px 18px;margin:0 0 13px}
-    .ffx-ro b{font-family:var(--f-disp);text-transform:uppercase;letter-spacing:0.05em;color:var(--field-green);display:block;font-size:15px}
+    .ffx-brief li{margin:0 0 9px;font-size:18px;line-height:1.55}
+    .ffx-ro{border-left:4px solid var(--field-green);background:#f4f7f2;border-radius:0 12px 12px 0;padding:14px 18px;margin:0 0 13px;font-size:18px}
+    .ffx-ro b{font-family:var(--f-disp);text-transform:uppercase;letter-spacing:0.05em;color:var(--field-green);display:block;font-size:17px}
     .ffx-dir-btn{display:inline-block;background:var(--field-green);color:#fff;text-decoration:none;font-family:var(--f-disp);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:15px;padding:12px 26px;border-radius:26px}
-    .ffx-note{background:#fdf6e3;border-left:4px solid var(--sun-gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:15.5px;line-height:1.55}
+    .ffx-note{background:#fdf6e3;border-left:4px solid var(--sun-gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:17px;line-height:1.55}
   </style>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -465,13 +465,31 @@
 
     <div class="ffx-card">
       <h2>Your ticket</h2>
-      <p>Your ticket should have been sent to you in an email from <strong>Humanitix</strong> — check your inbox. Can&rsquo;t find it after checking spam? Email <a href="mailto:support@farmersfightback.com">support@farmersfightback.com</a>.</p>
-      <p class="ffx-note">Mobile coverage out here is patchy. <strong>Load your directions before you leave town and screenshot your ticket</strong> in case you have no signal at the gate.</p>
-      <p><a class="ffx-dir-btn" href="https://maps.google.com/?q=Marnoo+Recreation+Reserve,+28+Park+Lane,+Marnoo+VIC+3387" rel="noopener">Get directions &rsaquo;</a></p>
-      <p>Put the full address into your maps app, not just the word Marnoo.</p>
+      <ul>
+        <li>Your ticket should have been sent to you in an email from <strong>Humanitix</strong> &mdash; check your inbox.</li>
+        <li>Can&rsquo;t find it after checking spam? Email <a href="mailto:support@farmersfightback.com">support@farmersfightback.com</a>.</li>
+        <li><strong>Screenshot your ticket</strong> before you leave &mdash; signal at the gate can be patchy.</li>
+      </ul>
     </div>
 
-    <div class="ffx-card">
+    <section class="ffx-map">
+      <div class="ffx-map-head">
+        <span class="ffx-map-eb">Getting there</span>
+        <h2>Marnoo Cricket Ground</h2>
+        <p>Marnoo Recreation Reserve, 28 Park Lane, Marnoo VIC 3387</p>
+      </div>
+      <div class="ffx-map-frame">
+        <iframe title="Map showing Marnoo Cricket Ground" src="https://maps.google.com/maps?q=Marnoo%20Recreation%20Reserve%2C%20Marnoo%20VIC%203387&z=12&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      </div>
+      <div class="ffx-map-actions">
+        <a class="ffx-btn ffx-btn-map" id="ffx-dir" href="https://www.google.com/maps/dir/?api=1&destination=Marnoo%20Recreation%20Reserve%2C%20Marnoo%20VIC%203387" target="_blank" rel="noopener noreferrer">Get directions</a>
+        <button type="button" class="ffx-btn ffx-btn-mapghost" id="ffx-howfar">How far is it from me?</button>
+      </div>
+      <p class="ffx-map-dist" id="ffx-dist" style="display:none"></p>
+      <p class="ffx-note" style="margin-top:14px">Put the full address into your maps app, not just the word Marnoo &mdash; and <strong>load your directions before you leave town</strong>.</p>
+    </section>
+
+    <div class="ffx-card" style="margin-top:22px">
       <h2>Running order</h2>
       <div class="ffx-ro"><b>5:00 pm</b>Gates open. Bar opens.</div>
       <div class="ffx-ro"><b>7:00 pm</b>Speakers: Ben Duxson, Barnaby Joyce and Senator Pauline Hanson.</div>
@@ -482,54 +500,71 @@
 
     <div class="ffx-card">
       <h2>Parking</h2>
-      <p>Parking is <strong>on the streets around Marnoo</strong>, not at the reserve. If you have elderly or less mobile people in the car, drop them at the gate first, then go and park.</p>
       <ul>
-        <li>Parking will be well signposted.</li>
-        <li>Follow the directions of the parking attendants.</li>
-        <li>Do not block anyone or anything in.</li>
+        <li>Park <strong>on the streets around Marnoo</strong>, not at the reserve &mdash; it&rsquo;s well signposted.</li>
+        <li>Elderly or less mobile? Drop them at the gate first, then park.</li>
+        <li>Follow the parking attendants, and don&rsquo;t block anyone in.</li>
+        <li>The ground is soft and wet in places &mdash; take it steady, and follow the attendants around boggy patches.</li>
+        <li>Short walk in from most streets; a <strong>shuttle bus</strong> is available if you need it.</li>
       </ul>
-      <p>The ground is soft and wet in places, so take it steady coming in and going out, and follow the attendants if they wave you around a boggy patch. It is a short walk in from most streets, and a shuttle bus is available if you need it.</p>
     </div>
 
     <div class="ffx-card">
-      <h2>Dress for it</h2>
-      <p>The forecast is dry and clear &mdash; about 17 degrees in the afternoon heading down towards 5 overnight. This is an outdoor event in a marquee on a cricket ground.</p>
+      <h2>Dress for cold</h2>
+      <p>Dry and clear &mdash; about <strong>17 degrees</strong> in the afternoon, down towards <strong>5 overnight</strong>. Outdoors, in a marquee, on a cricket ground.</p>
       <ul>
         <li>A proper coat and layers</li>
         <li>Practical shoes &mdash; the ground is grass and uneven</li>
-        <li>A torch, or at least a charged phone, for the walk back to the car</li>
+        <li>A torch, or a charged phone, for the walk back to the car</li>
       </ul>
       <p>Nobody is dressing up. Come as you would to a footy final in August.</p>
     </div>
 
     <div class="ffx-card">
       <h2>Food, drink and the kids</h2>
-      <p>Your supper is <strong>included in your ticket</strong> and it is being cooked by locals. The bar runs all night with local brews and other drinks available to buy.</p>
-      <p><strong>No BYO.</strong> It is a licensed event, and all drinks must be consumed in the marquee.</p>
-      <p>Kids are welcome all night. Under 18s need to be with a responsible adult the whole time.</p>
+      <ul>
+        <li>Supper is <strong>included in your ticket</strong>, cooked by locals.</li>
+        <li>The bar runs all night &mdash; local brews and other drinks to buy.</li>
+        <li><strong>No BYO.</strong> Licensed event; all drinks stay in the marquee.</li>
+        <li>Kids welcome all night; under 18s stay with a responsible adult.</li>
+      </ul>
     </div>
 
     <div class="ffx-card">
       <h2>Staying the night</h2>
-      <p>If you are not driving home, <strong>sort a bed today</strong>. Stawell, St Arnaud, Horsham, Donald, Murtoa and Rupanyup all have rooms within an hour of Marnoo, and they will be booked out by the weekend.</p>
+      <ul>
+        <li>Not driving home? <strong>Sort a bed today.</strong></li>
+        <li>Stawell, St Arnaud, Horsham, Donald, Murtoa and Rupanyup all have rooms within an hour.</li>
+        <li>They will be booked out by the weekend.</li>
+      </ul>
     </div>
 
     <div class="ffx-card">
       <h2>Getting home</h2>
-      <p>This is a licensed event three hours from Melbourne with <strong>no taxis and no rideshare</strong>. Please sort your plan before you arrive: nominate a driver or book a bed. Police are aware of the event and there will be booze buses in the district.</p>
-      <p>Two other things about the drive home: kangaroos are out in numbers on these roads after dark, and fatigue is real after a big night. Take it slowly.</p>
+      <ul>
+        <li>Licensed event, three hours from Melbourne, <strong>no taxis and no rideshare</strong> &mdash; plan before you arrive.</li>
+        <li>Nominate a driver or book a bed. Police are aware of the event and there will be booze buses in the district.</li>
+        <li>Kangaroos are out in numbers after dark &mdash; and fatigue is real after a big night. Take it slowly.</li>
+      </ul>
     </div>
 
     <div class="ffx-card">
       <h2>At the gate</h2>
-      <p>Have your ticket ready to scan &mdash; one scan per ticket. If you bought for a group, whoever holds the tickets should walk in with the group.</p>
-      <p>There are qualified first aiders on site. Please stay out of any fenced or marked-off areas &mdash; it is a working recreation reserve. There will be photographers and media on the night.</p>
+      <ul>
+        <li>Have your ticket ready to scan &mdash; one scan per ticket.</li>
+        <li>Bought for a group? Whoever holds the tickets walks in with the group.</li>
+        <li>Qualified first aiders are on site.</li>
+        <li>Stay out of fenced or marked-off areas &mdash; it&rsquo;s a working recreation reserve.</li>
+        <li>There will be photographers and media on the night.</li>
+      </ul>
     </div>
 
     <div class="ffx-card">
       <h2>If you need something</h2>
-      <p>Tickets and anything else: <a href="mailto:support@farmersfightback.com">support@farmersfightback.com</a></p>
-      <p>On the night: <strong>James on <a href="tel:+61451861705">0451 861 705</a></strong></p>
+      <ul>
+        <li>Tickets and anything else: <a href="mailto:support@farmersfightback.com">support@farmersfightback.com</a></li>
+        <li>On the night: <strong>James on <a href="tel:+61451861705">0451 861 705</a></strong></li>
+      </ul>
       <p>That is everything. Rug up, leave a bit early, and we will see you at the gate. <strong>This is the biggest night this campaign has put on, and it is going to be a cracker.</strong></p>
       <p>Ben Duxson<br/>Farmers Fightback</p>
     </div>
@@ -542,5 +577,29 @@
     <div class="ffx-foot-auth">Authorised by Ben Duxson, Farmers Fightback, Marnoo VIC.</div>
   </footer>
 </div>
+<script>
+(function(){
+  var LAT=-36.65, LNG=142.8833, Q="Marnoo Recreation Reserve, Marnoo VIC 3387";
+  var btn=document.getElementById("ffx-howfar"), dist=document.getElementById("ffx-dist"), dir=document.getElementById("ffx-dir");
+  function show(t,err){dist.style.display="block";dist.innerHTML=t;dist.className="ffx-map-dist"+(err?" ffx-map-dist-err":"");}
+  btn.addEventListener("click",function(){
+    if(!navigator.geolocation){show("Your browser can\u2019t share your location. Use Get directions instead.",true);return;}
+    btn.disabled=true;btn.textContent="Finding you\u2026";
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat=pos.coords.latitude,lng=pos.coords.longitude,r=function(d){return d*Math.PI/180};
+      var dLat=r(LAT-lat),dLng=r(LNG-lng);
+      var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(r(lat))*Math.cos(r(LAT))*Math.sin(dLng/2)*Math.sin(dLng/2);
+      var km=2*6371*Math.asin(Math.min(1,Math.sqrt(a)));
+      var pretty=km<10?km.toFixed(1):Math.round(km).toLocaleString("en-AU");
+      dir.href="https://www.google.com/maps/dir/?api=1&origin="+lat+","+lng+"&destination="+encodeURIComponent(Q);
+      show("You\u2019re about <b>"+pretty+" km</b> away in a straight line &mdash; tap <span class=\"ffx-map-dist-cta\">Get directions</span> for the drive.");
+      btn.disabled=false;btn.textContent="How far is it from me?";
+    },function(err){
+      show(err&&err.code===1?"Location access was blocked. You can still tap Get directions.":"Couldn\u2019t work out where you are. Tap Get directions instead.",true);
+      btn.disabled=false;btn.textContent="How far is it from me?";
+    },{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
+  });
+})();
+</script>
 </body>
 </html>
