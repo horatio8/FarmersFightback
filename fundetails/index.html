@@ -482,7 +482,11 @@
         <iframe title="Map showing Marnoo Cricket Ground" src="https://maps.google.com/maps?q=Marnoo%20Recreation%20Reserve%2C%20Marnoo%20VIC%203387&z=12&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
       </div>
       <div class="ffx-map-actions">
-        <a class="ffx-btn ffx-btn-map" id="ffx-dir" href="https://www.google.com/maps/dir/?api=1&destination=Marnoo%20Recreation%20Reserve%2C%20Marnoo%20VIC%203387" target="_blank" rel="noopener noreferrer">Get directions</a>
+        <a class="ffx-btn ffx-btn-map" id="ffx-dir" href="https://www.google.com/maps/dir/?api=1&destination=Marnoo%20Recreation%20Reserve%2C%20Marnoo%20VIC%203387" target="_blank" rel="noopener noreferrer">Google Maps</a>
+        <a class="ffx-btn ffx-btn-map" href="https://maps.apple.com/?daddr=Marnoo%20Recreation%20Reserve%2C%20Marnoo%20VIC%203387&dirflg=d" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+        <a class="ffx-btn ffx-btn-map" href="https://www.waze.com/ul?ll=-36.65%2C142.8833&navigate=yes" target="_blank" rel="noopener noreferrer">Waze</a>
+      </div>
+      <div class="ffx-map-actions">
         <button type="button" class="ffx-btn ffx-btn-mapghost" id="ffx-howfar">How far is it from me?</button>
       </div>
       <p class="ffx-map-dist" id="ffx-dist" style="display:none"></p>
@@ -582,7 +586,7 @@
   var btn=document.getElementById("ffx-howfar"), dist=document.getElementById("ffx-dist"), dir=document.getElementById("ffx-dir");
   function show(t,err){dist.style.display="block";dist.innerHTML=t;dist.className="ffx-map-dist"+(err?" ffx-map-dist-err":"");}
   btn.addEventListener("click",function(){
-    if(!navigator.geolocation){show("Your browser can\u2019t share your location. Use Get directions instead.",true);return;}
+    if(!navigator.geolocation){show("Your browser can\u2019t share your location. Use the maps buttons instead.",true);return;}
     btn.disabled=true;btn.textContent="Finding you\u2026";
     navigator.geolocation.getCurrentPosition(function(pos){
       var lat=pos.coords.latitude,lng=pos.coords.longitude,r=function(d){return d*Math.PI/180};
@@ -591,10 +595,10 @@
       var km=2*6371*Math.asin(Math.min(1,Math.sqrt(a)));
       var pretty=km<10?km.toFixed(1):Math.round(km).toLocaleString("en-AU");
       dir.href="https://www.google.com/maps/dir/?api=1&origin="+lat+","+lng+"&destination="+encodeURIComponent(Q);
-      show("You\u2019re about <b>"+pretty+" km</b> away in a straight line &mdash; tap <span class=\"ffx-map-dist-cta\">Get directions</span> for the drive.");
+      show("You\u2019re about <b>"+pretty+" km</b> away in a straight line &mdash; tap <span class=\"ffx-map-dist-cta\">Google Maps</span> for the drive.");
       btn.disabled=false;btn.textContent="How far is it from me?";
     },function(err){
-      show(err&&err.code===1?"Location access was blocked. You can still tap Get directions.":"Couldn\u2019t work out where you are. Tap Get directions instead.",true);
+      show(err&&err.code===1?"Location access was blocked. You can still tap any of the maps buttons.":"Couldn\u2019t work out where you are. Tap any of the maps buttons instead.",true);
       btn.disabled=false;btn.textContent="How far is it from me?";
     },{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
   });
