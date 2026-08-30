@@ -1431,6 +1431,24 @@ async function run() {
       "identity travels in the payload so the signature projection is complete");
   });
 
+  group("signup SMS is switched off");
+  await test("a signup never queues or sends a text", async () => {
+    // Owner decision, 28 Aug 2026. The switch is code-side: no env change can
+    // silently re-enable it (SIGNUP_SMS_ENABLED=1 must be set deliberately).
+    const realFetch = global.fetch;
+    let fetched = 0;
+    global.fetch = async () => { fetched += 1; throw new Error("nothing should be called"); };
+    try {
+      const cc = R("api/_cellcast.js");
+      const out = await cc.enqueueSignupSMS({
+        contactFields: { referral_code: "ABC123" },
+        mobile: "0400111222", first_name: "Jo",
+      });
+      assert.equal(out.skipped, "signup sms switched off");
+      assert.equal(fetched, 0, "no Cellcast call, no Airtable queue row — nothing at all");
+    } finally { global.fetch = realFetch; }
+  });
+
   group("ticket sales close");
   const rally = R("api/_rally.js");
   const BEFORE_CUTOFF = Date.parse("2026-08-25T00:00:00Z");

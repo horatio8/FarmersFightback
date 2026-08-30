@@ -139,8 +139,14 @@ async function alreadyQueued(hash, template) {
 // Called from petition-signup after a successful signup. Never throws.
 // Skips: no mobile, existing donors (they get WS5 treatment), opted-out
 // contacts, and anyone who has ever been queued a signup text.
+// Owner decision, 28 Aug 2026: no automated text on signup. The switch is
+// code-side so it holds without any env change; set SIGNUP_SMS_ENABLED=1
+// to deliberately turn the texts back on.
+const SIGNUP_SMS_ENABLED = process.env.SIGNUP_SMS_ENABLED === "1";
+
 async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
   try {
+    if (!SIGNUP_SMS_ENABLED) return { skipped: "signup sms switched off" };
     const phone = normPhone(mobile);
     if (!phone || !phone.startsWith("+")) return { skipped: "no valid mobile" };
     const status = contactFields?.status?.name || contactFields?.status || "";
@@ -263,6 +269,16 @@ async function dispatchDueSMS({ maxRows = 25, deadlineMs = 60000 } = {}) {
     if (contact?.fields?.sms_opt_out) {
       // eslint-disable-next-line no-await-in-loop
       await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: "opted out before send" });
+      results.suppressed++;
+      continue;
+    }
+
+    // Signup texts are switched off: drain any still-queued signup rows as
+    // suppressed rather than sending them late.
+    const template = f.template?.name || f.template;
+    if (!SIGNUP_SMS_ENABLED && template === "signup_ab") {
+      // eslint-disable-next-line no-await-in-loop
+      await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: "signup sms switched off" });
       results.suppressed++;
       continue;
     }
