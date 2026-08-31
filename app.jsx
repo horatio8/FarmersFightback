@@ -1207,19 +1207,10 @@ function AskJessBand() {
 // demand justice on the right. Deliberately no secondary links. A panel with
 // two exits splits the click it was built to win.
 function TwinPromos() {
+  // The FUNdraiser panel came out on 31 Aug 2026 -- the event ran on the
+  // 29th. To promote the next event, add a second panel object here and the
+  // two-up grid comes back by itself.
   const panels = [
-    {
-      key: "fundraiser",
-      eyebrow: "Saturday 29 August",
-      title: "The Farmers Fightback FUNdraiser",
-      lede: "A night to fight for the future of farming, with Pauline Hanson joining us.",
-      facts: ["Marnoo Cricket Ground", "Gates 6:00pm", "$50, meal included"],
-      cta: "Get your tickets",
-      href: "/fun",
-      img: "assets/uploads/fundraiser-share.jpg",
-      alt: "Farmers Fightback FUNdraiser, Saturday 29 August at Marnoo Cricket Ground",
-      tone: "gold",
-    },
     {
       key: "demand",
       eyebrow: "The Intimidation Files",
@@ -1236,7 +1227,7 @@ function TwinPromos() {
 
   return (
     <section className="ff-section ff-twin">
-      <div className="ff-wrap ff-twin-grid">
+      <div className="ff-wrap ff-twin-grid" style={panels.length === 1 ? { gridTemplateColumns: "1fr", maxWidth: 720, marginLeft: "auto", marginRight: "auto" } : undefined}>
         {panels.map(p => (
           <article className={`ff-twin-card ff-twin-card--${p.tone}`} key={p.key}>
             <div className="ff-twin-media">
