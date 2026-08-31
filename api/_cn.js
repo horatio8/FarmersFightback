@@ -95,9 +95,17 @@ function cnSetUid({ first_name, last_name, email, mobile, uid }) {
 }
 
 // Bulk variant of cnSetUid: one POST /profiles/match/bulk for a whole batch.
-// Probed against production: custom1 is the column backing the
-// FarmersFightback_UID CRM alias — the bulk endpoint matches existing
-// profiles (names and tags intact) and sets it, echoing the alias back.
+// Rows carry the CRM alias as a TOP-LEVEL key, exactly as the single-profile
+// path does.
+//
+// This used to send `custom1` instead, on the belief that custom1 was the
+// column backing the FarmersFightback_UID alias. Re-probed against production
+// on 31 Aug 2026: it is not. PATCHing a profile with custom1 leaves
+// FarmersFightback_UID untouched, while the same call with the alias key sets
+// it and a fresh GET confirms it persisted — on /profiles/match/bulk as well
+// as /profiles/match. Every bulk write before this fix (the whole backfill and
+// every nightly cron run) therefore landed in a column the merge tag does not
+// read, which is why all 256,965 profiles still returned a null UID.
 // Rows use the same shape cnSetUid takes: {first_name,last_name,email,mobile,uid}.
 // CN validates with PHP's filter_var, which is stricter than a loose
 // "something@something.something" test. Sending an address it rejects costs
@@ -130,7 +138,7 @@ function bulkRow(r, slim) {
     return {
       email,
       mobile: email ? undefined : r.mobile,
-      custom1: String(r.uid).toUpperCase(),
+      [CN_UID_FIELD]: String(r.uid).toUpperCase(),
     };
   }
   return {
@@ -138,7 +146,7 @@ function bulkRow(r, slim) {
     last_name: r.last_name || undefined,
     email,
     mobile: r.mobile || undefined,
-    custom1: String(r.uid).toUpperCase(),
+    [CN_UID_FIELD]: String(r.uid).toUpperCase(),
   };
 }
 

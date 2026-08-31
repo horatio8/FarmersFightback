@@ -169,6 +169,33 @@ async function run() {
     assert.equal(seen[1].hasBody, true, "POST must still carry one");
   });
 
+  await test("a bulk UID push carries the CRM alias, never custom1", async () => {
+    // The merge tag %recipient.FarmersFightback_UID% reads the CRM alias
+    // column. custom1 is a different column: probed against production on
+    // 31 Aug 2026, writing custom1 leaves the alias null. Sending it there
+    // is a silent no-op — the whole backfill and every nightly cron run went
+    // into it and no profile ever showed a UID. Pin the alias so a future
+    // "tidy-up" cannot quietly break the merge tag again.
+    const bodies = [];
+    const realFetch = global.fetch;
+    global.fetch = async (u, init) => {
+      bodies.push(JSON.parse(init.body));
+      return { ok: true, status: 200, text: async () => '{"data":[]}' };
+    };
+    try {
+      const { cnSetUidBulk } = R("api/_cn.js");
+      await cnSetUidBulk([{ email: "a@b.com", first_name: "A", last_name: "B", uid: "abc123" }]);
+      await cnSetUidBulk([{ email: "a@b.com", uid: "abc123" }], { slim: true });
+    } finally { global.fetch = realFetch; }
+    for (const [i, body] of bodies.entries()) {
+      const row = body[0];
+      assert.equal(row.FarmersFightback_UID, "ABC123",
+        `row ${i}: the alias must carry the code, uppercased`);
+      assert.equal(row.custom1, undefined,
+        `row ${i}: custom1 does not back the merge tag — writing it is a silent no-op`);
+    }
+  });
+
   // ------------------------------------------------------------ referral codes
   group("referral codes");
   const at = R("api/_airtable.js");
