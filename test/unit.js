@@ -1617,6 +1617,121 @@ async function run() {
       "two blank rows are not a duplicate payment");
   });
 
+  // ------------------------------------------- fundraising account cutover
+  group("fundraising account cutover");
+  const cutover = R("api/_stripe-fundraising.js");
+  const BEFORE_CUTOVER = new Date("2026-08-31T13:59:59Z");
+  const AFTER_CUTOVER = new Date("2026-08-31T14:00:00Z");
+
+  function withStripeEnv(vals, fn) {
+    const keys = [
+      "STRIPE_SECRET_KEY", "STRIPE_FUNDRAISING_SECRET_KEY",
+      "STRIPE_WEBHOOK_SECRET", "STRIPE_FUNDRAISING_WEBHOOK_SECRET",
+    ];
+    const saved = {};
+    for (const k of keys) {
+      saved[k] = process.env[k];
+      if (vals[k] === undefined) delete process.env[k]; else process.env[k] = vals[k];
+    }
+    const restore = () => {
+      for (const k of keys) {
+        if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k];
+      }
+    };
+    const out = fn();
+    if (out && typeof out.finally === "function") return out.finally(restore);
+    restore();
+    return out;
+  }
+
+  await test("midnight 1 Sep (Melbourne) flips new sessions to the Wallaloo & Gre Gre key", () => {
+    assert.equal(cutover.CUTOVER_UTC, "2026-08-31T14:00:00.000Z",
+      "AEST midnight is 14:00 UTC the day before");
+    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_FUNDRAISING_SECRET_KEY: "sk_new" }, () => {
+      assert.equal(cutover.fundraisingCutoverActive(BEFORE_CUTOVER), false);
+      assert.equal(cutover.fundraisingCutoverActive(AFTER_CUTOVER), true);
+      assert.equal(cutover.fundraisingKey(BEFORE_CUTOVER), "sk_old", "before midnight: legacy account");
+      assert.equal(cutover.fundraisingKey(AFTER_CUTOVER), "sk_new", "after midnight: fundraising account");
+    });
+  });
+
+  await test("a missing new key after the cutover fails OPEN onto the legacy account", () => {
+    // A misconfigured switch must never stop donations — worst case the
+    // money lands where it always has, and the logs shout about it.
+    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old" }, () => {
+      assert.equal(cutover.fundraisingKey(AFTER_CUTOVER), "sk_old");
+    });
+  });
+
+  await test("session readbacks try both accounts, most-likely creator first", () => {
+    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_FUNDRAISING_SECRET_KEY: "sk_new" }, () => {
+      assert.deepEqual(cutover.fundraisingReadKeys(BEFORE_CUTOVER), ["sk_old", "sk_new"]);
+      assert.deepEqual(cutover.fundraisingReadKeys(AFTER_CUTOVER), ["sk_new", "sk_old"]);
+    });
+    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old" }, () => {
+      assert.deepEqual(cutover.fundraisingReadKeys(AFTER_CUTOVER), ["sk_old"],
+        "an unset new key never puts undefined in the try-list");
+    });
+  });
+
+  await test("the webhook accepts events signed by either account", async () => {
+    // Existing monthly donors rebill on the legacy account forever, so its
+    // signing secret must keep verifying alongside the new account's.
+    const signed = (raw, secret) => {
+      const t = Math.floor(Date.now() / 1000);
+      const v1 = require("crypto").createHmac("sha256", secret).update(`${t}.${raw}`).digest("hex");
+      return `t=${t},v1=${v1}`;
+    };
+    const fakeReq = (raw, sig) => {
+      const h = {};
+      return {
+        method: "POST",
+        headers: { "stripe-signature": sig },
+        on(ev, fn) {
+          h[ev] = fn;
+          if (ev === "end") setImmediate(() => { h.data(Buffer.from(raw)); h.end(); });
+        },
+      };
+    };
+    const fakeRes = () => {
+      const r = { code: 0, body: null };
+      r.status = (c) => { r.code = c; return r; };
+      r.json = (b) => { r.body = b; return r; };
+      r.send = (b) => { r.body = b; return r; };
+      return r;
+    };
+    // An event type the handler ignores: verification runs, nothing else does.
+    const raw = JSON.stringify({ type: "charge.updated", data: { object: {} } });
+    await withStripeEnv({
+      STRIPE_SECRET_KEY: "sk_old", STRIPE_FUNDRAISING_SECRET_KEY: "sk_new",
+      STRIPE_WEBHOOK_SECRET: "whsec_old", STRIPE_FUNDRAISING_WEBHOOK_SECRET: "whsec_new",
+    }, async () => {
+      const webhook = R("api/stripe-webhook.js");
+      for (const secret of ["whsec_old", "whsec_new"]) {
+        const res = fakeRes();
+        // eslint-disable-next-line no-await-in-loop
+        await webhook(fakeReq(raw, signed(raw, secret)), res);
+        assert.equal(res.code, 200, `${secret} must verify`);
+        assert.equal(res.body.ignored, "charge.updated");
+      }
+      const res = fakeRes();
+      await webhook(fakeReq(raw, signed(raw, "whsec_wrong")), res);
+      assert.equal(res.code, 400, "an unknown signer is still rejected");
+    });
+  });
+
+  await test("no page links a hardcoded Stripe Payment Link any more", () => {
+    // Payment Links belong permanently to the legacy account — a surviving
+    // one would keep taking money there after the cutover. site.json's
+    // copies are exempt: they are error-path fallbacks only, used when
+    // /api/checkout is down (better the old account than a lost gift).
+    for (const rel of ["app.jsx", "fundraiser/funnel.jsx"]) {
+      const src = require("fs").readFileSync(path.join(ROOT, rel), "utf8");
+      assert.noMatch(src, /buy\.stripe\.com|donate\.stripe\.com/,
+        `${rel} still points at a legacy Payment Link`);
+    }
+  });
+
   // -------------------------------------------------------------- econ config
   group("economics config");
   const econ = R("lib/econ/config.js");

@@ -14,9 +14,12 @@
 // process rally traffic.
 //
 // Environment variables required:
-//   STRIPE_WEBHOOK_SECRET  — Stripe signing secret (whsec_...)
-//   STRIPE_SECRET_KEY      — Stripe restricted API key (read: Checkout
+//   STRIPE_WEBHOOK_SECRET  — legacy donations account signing secret (whsec_...)
+//   STRIPE_SECRET_KEY      — legacy donations account API key (read: Checkout
 //                            Sessions, Payment Links, Customers, Invoices)
+//   STRIPE_FUNDRAISING_WEBHOOK_SECRET — Wallaloo & Gre Gre account signing
+//                            secret (its endpoint also points here)
+//   STRIPE_FUNDRAISING_SECRET_KEY     — Wallaloo & Gre Gre account API key
 //   META_PIXEL_ID          — used by ./_meta
 //   META_CAPI_TOKEN        — used by ./_meta
 
@@ -82,8 +85,12 @@ async function reconcileDonationLapse(details) {
 // requires the raw request body bytes.
 module.exports.config = { api: { bodyParser: false } };
 
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+// Two accounts deliver to this endpoint: the legacy shared donations
+// account (existing monthly donors keep rebilling there forever) and,
+// from the September 2026 cutover, the Wallaloo & Gre Gre fundraising
+// account. Each pair binds a signing secret to the API key of the account
+// that signs with it, so follow-up lookups hit the right account.
+const { fundraisingWebhookPairs } = require("./_stripe-fundraising");
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -122,9 +129,9 @@ function verifyStripeSignature(rawBody, signatureHeader, secret) {
   return crypto.timingSafeEqual(a, b);
 }
 
-async function stripeGet(path) {
+async function stripeGet(path, key) {
   const r = await fetch(`https://api.stripe.com/v1/${path}`, {
-    headers: { Authorization: `Bearer ${STRIPE_KEY}` },
+    headers: { Authorization: `Bearer ${key}` },
   });
   if (!r.ok) throw new Error(`Stripe ${path} → ${r.status}`);
   return r.json();
@@ -132,7 +139,7 @@ async function stripeGet(path) {
 
 // Pull whatever customer details Stripe has for us. Different events
 // expose customer data in different shapes; we try a couple of paths.
-async function resolveCustomerDetails(obj) {
+async function resolveCustomerDetails(obj, stripeKey) {
   // checkout.session.completed:
   //   obj.customer_details = { email, name, phone, address: { postal_code, country } }
   // invoice.paid:
@@ -146,9 +153,9 @@ async function resolveCustomerDetails(obj) {
   if (direct.email || direct.name) return direct;
 
   // Last-resort: look up the Customer by ID if we have one.
-  if (obj.customer && STRIPE_KEY) {
+  if (obj.customer && stripeKey) {
     try {
-      const c = await stripeGet(`customers/${obj.customer}`);
+      const c = await stripeGet(`customers/${obj.customer}`, stripeKey);
       return {
         email: c.email,
         name: c.name,
@@ -250,8 +257,9 @@ async function fireCAPIPurchase({ event_id, amount_minor, currency, details, con
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).send("POST only");
 
-  if (!WEBHOOK_SECRET) {
-    console.error("STRIPE_WEBHOOK_SECRET not set");
+  const pairs = fundraisingWebhookPairs();
+  if (!pairs.length) {
+    console.error("no Stripe webhook secret set (STRIPE_WEBHOOK_SECRET / STRIPE_FUNDRAISING_WEBHOOK_SECRET)");
     return res.status(500).send("Server misconfigured");
   }
 
@@ -263,9 +271,13 @@ module.exports = async function handler(req, res) {
   }
 
   const sig = req.headers["stripe-signature"];
-  if (!verifyStripeSignature(raw, sig, WEBHOOK_SECRET)) {
+  // The signature identifies which account sent the event; the matched
+  // pair's API key is used for every follow-up lookup below.
+  const pair = pairs.find((p) => verifyStripeSignature(raw, sig, p.secret));
+  if (!pair) {
     return res.status(400).send("Invalid signature");
   }
+  const STRIPE_KEY = pair.key;
 
   let event;
   try {
@@ -295,7 +307,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ received: true, skipped: `payment_status=${obj.payment_status}` });
       }
 
-      const details = await resolveCustomerDetails(obj);
+      const details = await resolveCustomerDetails(obj, STRIPE_KEY);
       const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
       await recordDonationInAirtable({
         stripe_event_id: `stripe_${obj.id}`,
@@ -336,13 +348,13 @@ module.exports = async function handler(req, res) {
       // by reading the subscription, so we can carry fbc/fbp/source_url
       // through to the rebill events too.
       let meta = {};
-      let details = await resolveCustomerDetails(obj);
+      let details = await resolveCustomerDetails(obj, STRIPE_KEY);
       if (obj.subscription && STRIPE_KEY) {
         try {
-          const sub = await stripeGet(`subscriptions/${obj.subscription}`);
+          const sub = await stripeGet(`subscriptions/${obj.subscription}`, STRIPE_KEY);
           meta = sub.metadata || {};
           if (!details.email && sub.customer) {
-            const c = await stripeGet(`customers/${sub.customer}`);
+            const c = await stripeGet(`customers/${sub.customer}`, STRIPE_KEY);
             details = { email: c.email, name: c.name, phone: c.phone, address: c.address };
           }
         } catch (e) {

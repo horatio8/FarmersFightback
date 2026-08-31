@@ -9,6 +9,8 @@
 //   ...&part=events         { by_event_type, by_fanout_status } for the four
 //                           event types that project into typed tables
 //   ...&part=fanout_failures  events whose projection did not land
+//   ...&part=stripe_accounts  which real Stripe account each configured key
+//                           belongs to, plus the fundraising cutover state
 //
 // Each part is a full paged scan, sized to fit one 300s invocation on its
 // own — that is why they are separate calls rather than one report. Events
@@ -189,6 +191,52 @@ module.exports = async function handler(req, res) {
         missing_in_stripe,
         amount_mismatches,
       };
+    } else if (part === "stripe_accounts") {
+      // Which real Stripe account each configured key belongs to — the
+      // live-identity check for the fundraising cutover (the MCP connector
+      // only sees a sandbox, so this is the authoritative view). Read-only:
+      // GET /v1/account answers for the key's own account with any secret
+      // or restricted key. Reports id + business name only, never key
+      // material.
+      const { CUTOVER_UTC, fundraisingCutoverActive, fundraisingKey } = require("../_stripe-fundraising");
+      const keys = {
+        legacy_donations: process.env.STRIPE_SECRET_KEY,
+        fundraising: process.env.STRIPE_FUNDRAISING_SECRET_KEY,
+        rally: process.env.STRIPE_RALLY_SECRET_KEY,
+      };
+      const accounts = {};
+      for (const [name, key] of Object.entries(keys)) {
+        if (!key) { accounts[name] = { configured: false }; continue; }
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const r = await fetch("https://api.stripe.com/v1/account", {
+            headers: { Authorization: `Bearer ${key}` },
+          });
+          // eslint-disable-next-line no-await-in-loop
+          const a = await r.json();
+          if (!r.ok) throw new Error((a.error && a.error.message) || `Stripe ${r.status}`);
+          accounts[name] = {
+            configured: true,
+            account_id: a.id,
+            business_name:
+              (a.business_profile && a.business_profile.name) ||
+              (a.settings && a.settings.dashboard && a.settings.dashboard.display_name) ||
+              null,
+            livemode: key.includes("_live_"),
+          };
+        } catch (e) {
+          accounts[name] = { configured: true, error: String(e.message).slice(0, 200) };
+        }
+      }
+      const activeKey = fundraisingKey();
+      out = {
+        accounts,
+        cutover_utc: CUTOVER_UTC,
+        cutover_active: fundraisingCutoverActive(),
+        new_sessions_use: activeKey
+          ? Object.entries(keys).find(([, k]) => k === activeKey)?.[0] || "unknown"
+          : "none — no key configured",
+      };
     } else if (part === "events") {
       const formula = `OR(${PROJECTED_TYPES.map((t) => `{event_type}='${escapeFormula(t)}'`).join(",")})`;
       const rows = await listRows(EVENTS, { formula, fields: ["event_type", "fanout_status"] });
@@ -206,7 +254,7 @@ module.exports = async function handler(req, res) {
     } else {
       return res.status(400).json({
         error: "unknown part",
-        parts: ["contacts", "signatures", "donations", "tickets", "stripe_tickets", "events", "fanout_failures"],
+        parts: ["contacts", "signatures", "donations", "tickets", "stripe_tickets", "stripe_accounts", "events", "fanout_failures"],
       });
     }
     out.part = part;

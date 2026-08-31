@@ -937,7 +937,10 @@ function DonateBand() {
                 {a.tag && <span className="ff-give-chip-tag">{a.tag}</span>}
               </button>
             ))}
-            <a href={otherUrl} target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
+            {/* The custom-amount Payment Link lives on the legacy Stripe
+                account; /donate's typed-amount widget goes through
+                /api/checkout, which follows the account cutover. */}
+            <a href="/donate" target="_top" rel="noopener" className="ff-give-chip ff-give-chip--other">
               <span className="ff-give-chip-amt">Other</span>
               <span className="ff-give-chip-tag">Choose your own</span>
             </a>
@@ -2131,7 +2134,11 @@ function BaldwinFloodlight({ p, receiverUrl }) {
 
         <Rule />
 
-        {/* DONATE — Stripe payment links */}
+        {/* DONATE — /api/checkout deep links, so the tiles follow whichever
+            Stripe account the server is creating sessions on (the September
+            2026 fundraising-account cutover flips them at midnight with no
+            frontend change). ?slug= carries "baldwins" the same way
+            client_reference_id did on the old Payment Links. */}
         <div id="donate" className="fl-donate fl-pad" style={{ paddingTop: 88, paddingBottom: 88, background: C.navyDeep }}>
           <Eyebrow>Fund the fight</Eyebrow>
           <h2 className="fl-h2" style={{ margin: "18px 0 14px" }}>Defend Aussie Farmers. <span style={{ color: C.yellow }}>Pick an amount.</span></h2>
@@ -2140,14 +2147,14 @@ function BaldwinFloodlight({ p, receiverUrl }) {
           </p>
           <div className="fl-donate-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, border: `1px solid ${C.rule}` }}>
             {[
-              { amount: 35,   url: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q" },
-              { amount: 65,   url: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R" },
-              { amount: 135,  url: "https://buy.stripe.com/dRm9AS7kOghlaaL2tqbV60S", isDefault: true },
-              { amount: 265,  url: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T" },
-              { amount: 550,  url: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U" },
-              { amount: 1500, url: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V" },
+              { amount: 35 },
+              { amount: 65 },
+              { amount: 135, isDefault: true },
+              { amount: 265 },
+              { amount: 550 },
+              { amount: 1500 },
             ].map((d, i, arr) => (
-              <a key={d.amount} href={appendClientRef(d.url, "baldwins")} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
+              <a key={d.amount} href={`/api/checkout?amount=${d.amount}&frequency=oneoff&slug=baldwins`} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
                 padding: "28px 24px", minHeight: 160,
                 borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",
@@ -2159,8 +2166,10 @@ function BaldwinFloodlight({ p, receiverUrl }) {
                 <div className="fl-tile-cta" style={{ display: "inline-flex", alignItems: "center", gap: 8, font: `800 13px/1 ${fonts.mono}`, letterSpacing: ".16em", textTransform: "uppercase" }}>Give <span style={{ fontSize: 18 }}>→</span></div>
               </a>
             ))}
-            {/* Other amount cell — uses custom-amount payment link */}
-            <a href={appendClientRef("https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X", "baldwins")} target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
+            {/* Other amount cell — the custom-amount Payment Link belongs to
+                the legacy account, so send choose-your-own donors to /donate,
+                whose typed-amount widget checks out through /api/checkout. */}
+            <a href="/donate" target="_top" rel="noopener" className="fl-donate-tile fl-donate-tile--other" style={{
               display: "flex", flexDirection: "column", justifyContent: "space-between",
               padding: "28px 24px", minHeight: 160,
               gridColumn: "span 2",

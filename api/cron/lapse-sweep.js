@@ -15,6 +15,7 @@
 
 const { listRows, updateRow, findOne, nowIso } = require("../_airtable");
 const { requireCron, stripeClient, phoneHash, splitName } = require("../_util");
+const { fundraisingReadKeys } = require("../_stripe-fundraising");
 const { cnAutomationAdd } = require("../_cn");
 const { enqueueDonationLapseSMS, dispatchDueSMS } = require("../_cellcast");
 
@@ -83,7 +84,19 @@ module.exports = async function handler(req, res) {
       maxRecords: 50,
     });
 
-    const stripe = process.env.STRIPE_SECRET_KEY ? stripeClient(process.env.STRIPE_SECRET_KEY) : null;
+    // Sessions logged just before the account cutover live on the legacy
+    // account, later ones on the fundraising account — only the account
+    // that created a session can read it, so try both.
+    const readKeys = fundraisingReadKeys();
+    const stripe = readKeys.length
+      ? async (path) => {
+          for (const key of readKeys) {
+            const hit = await stripeClient(key)(path).catch(() => null);
+            if (hit) return hit;
+          }
+          return null;
+        }
+      : null;
 
     for (const row of rows) {
       const f = row.fields || {};

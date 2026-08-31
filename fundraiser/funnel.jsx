@@ -558,25 +558,23 @@ function ShareBlock({ myToken }) {
 }
 
 /* ============================================================
-   DONATION block — each amount is a REAL anchor pointing straight at
-   the exact same Stripe payment page the /donate page uses. The /donate
-   page reads content/site.json -> donorPage.amounts[].url (+ otherUrl),
-   so those are the authoritative links, mirrored below.
-
-   The URLs are hardcoded as a fallback so the buttons ALWAYS go direct
-   to Stripe (never to /donate), and also re-synced from site.json on
-   mount so they can't drift if the /donate links are ever changed.
+   DONATION block — each amount is a REAL anchor into
+   /api/checkout?amount=…, which 303s straight onto the Stripe-hosted
+   payment page of whichever account the server is creating sessions on.
+   The September 2026 fundraising-account cutover flips these buttons at
+   midnight with no frontend change — which is exactly why they no longer
+   point at hardcoded Payment Links (those belong to the legacy account
+   permanently). "Other" goes to /donate's typed-amount widget, which
+   checks out through the same API.
    ============================================================ */
 
-// Authoritative Stripe links, copied from content/site.json donorPage.
-// Keep in step with /donate; the mount-time fetch below re-syncs anyway.
 const RALLY_DONATE_URLS = {
-  35: "https://buy.stripe.com/14AbJ0eNg0in96H2tqbV60Q",
-  65: "https://buy.stripe.com/28EdR85cG3uzaaL2tqbV60R",
-  265: "https://buy.stripe.com/5kQeVcfRkghlfv5fgcbV60T",
-  550: "https://buy.stripe.com/7sY5kCgVo7KP0AbgkgbV60U",
-  1500: "https://buy.stripe.com/7sY4gydJcaX1dmX1pmbV60V",
-  other: "https://donate.stripe.com/14A6oG8oS4yDciT5FCbV60X",
+  35: "/api/checkout?amount=35&frequency=oneoff&slug=fundraiser",
+  65: "/api/checkout?amount=65&frequency=oneoff&slug=fundraiser",
+  265: "/api/checkout?amount=265&frequency=oneoff&slug=fundraiser",
+  550: "/api/checkout?amount=550&frequency=oneoff&slug=fundraiser",
+  1500: "/api/checkout?amount=1500&frequency=oneoff&slug=fundraiser",
+  other: "/donate",
 };
 
 // `heading` overrides the headline. /cantmakeit passes its own because
@@ -584,28 +582,7 @@ const RALLY_DONATE_URLS = {
 // have just told us they aren't coming.
 function DonationBlock({ heading }) {
   const AMTS = [35, 65, 265, 550, 1500];
-  const [urls, setUrls] = useState(RALLY_DONATE_URLS);
-
-  // Re-sync from the same key /donate reads, so if those links change the
-  // rally page follows. Purely an override of the hardcoded defaults —
-  // never clears them, so the anchors are always live Stripe links.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/content/site.json", { cache: "no-store" });
-        const data = await r.json();
-        const dp = (data && data.donorPage) || {};
-        const next = { ...RALLY_DONATE_URLS };
-        (dp.amounts || []).forEach((a) => {
-          if (a && a.amount && a.url) next[a.amount] = a.url;
-        });
-        if (dp.otherUrl) next.other = dp.otherUrl;
-        if (!cancelled) setUrls(next);
-      } catch (e) { /* keep hardcoded defaults */ }
-    })();
-    return () => { cancelled = true; };
-  }, []);
+  const urls = RALLY_DONATE_URLS;
 
   return (
     <div className="ffx-block ffx-block-green">
