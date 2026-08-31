@@ -196,6 +196,31 @@ async function run() {
     }
   });
 
+  await test("an empty ref is an untracked visit, not an error", async () => {
+    // Share emails merge the referrer's code into the link. Until every
+    // profile carries one, some recipients get "?ref=" with nothing after
+    // it. That is a visitor we simply cannot attribute — answering 400 would
+    // paint routine traffic as failure. An unknown non-empty code still 404s.
+    const handler = R("api/share-click.js");
+    const mk = () => {
+      const res = { code: 0, body: null };
+      res.setHeader = () => {}; res.status = (c) => { res.code = c; return res; };
+      res.json = (b) => { res.body = b; return res; }; res.end = () => res;
+      return res;
+    };
+    const realFetch = global.fetch;
+    global.fetch = async () => { throw new Error("no lookup should happen for a blank ref"); };
+    try {
+      for (const ref of ["", "   ", undefined]) {
+        const res = mk();
+        // eslint-disable-next-line no-await-in-loop
+        await handler({ method: "POST", headers: {}, body: { ref } }, res);
+        assert.equal(res.code, 200, `ref ${JSON.stringify(ref)} must not be an error`);
+        assert.match(res.body.skipped, /no ref/, "and it must say why it did nothing");
+      }
+    } finally { global.fetch = realFetch; }
+  });
+
   // ------------------------------------------------------------ referral codes
   group("referral codes");
   const at = R("api/_airtable.js");

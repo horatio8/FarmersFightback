@@ -43,7 +43,14 @@ module.exports = async function handler(req, res) {
   try {
     const body = req.body || {};
     const { ref, source_url, fbclid } = body;
-    if (!ref) return res.status(400).json({ error: "ref required" });
+    // A blank ref is what %recipient.FarmersFightback_UID% renders for a
+    // supporter who has no referral code yet: the link arrives as "?ref=".
+    // That visit is untracked, not broken — answer 200 so it doesn't read as
+    // a failure in logs or to the caller. A non-empty code that matches
+    // nobody still 404s, because that IS a real signal worth seeing.
+    if (!ref || !String(ref).trim()) {
+      return res.status(200).json({ success: true, skipped: "no ref — untracked visit" });
+    }
 
     const referrer = await findContactByReferralCode(ref);
     if (!referrer) return res.status(404).json({ error: "Unknown referral_code" });
