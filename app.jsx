@@ -5,6 +5,19 @@ const CONTENT_URL = (typeof window !== "undefined" && window.__FF_CONTENT_URL) |
 const ContentContext = createContext(null);
 const useContent = () => useContext(ContentContext);
 
+// Where a signer of the MAIN petition (/petition -> hold-the-gate) lands once
+// their signature is saved.
+//
+// TEMPORARY, 28 Aug 2026: pointed at the share page instead of the donation
+// ask, trading the immediate donation prompt for reach. To reverse, set this
+// back to "/donate" and deploy -- there is nothing else to undo.
+//
+// The share page opens ready to use because signPetition() has already put
+// ff_referral_code and ff_contact_id in localStorage by the time we get here.
+// The homepage petition form and the volunteer form are deliberately NOT
+// affected; they still go to /donate.
+const PETITION_THANKS_DESTINATION = "/share";
+
 // ---------- Placeholder image helper ----------
 function Placeholder({ label, ratio = "16/9", tone = "navy", className = "", children }) {
   const palettes = {
@@ -2312,7 +2325,7 @@ function PetitionPage({ slug }) {
           campaign: p.campaign || p.slug,
         },
       });
-      window.location.assign("/donate");
+      window.location.assign(PETITION_THANKS_DESTINATION);
     } catch { setState("error"); }
   };
 
