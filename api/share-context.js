@@ -21,7 +21,7 @@ const {
   setReferralCodeIfMissing,
 } = require("./_airtable");
 
-const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+const { fundraisingReadKeys } = require("./_stripe-fundraising");
 
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",
@@ -38,13 +38,19 @@ function corsOrigin(req) {
   return null;
 }
 
+// The session lives on whichever account created it — legacy before the
+// fundraising cutover, Wallaloo & Gre Gre after — so try both, most
+// likely first, same as checkout.js's readback.
 async function fetchCheckoutSession(sessionId) {
-  if (!STRIPE_KEY || !sessionId) return null;
-  const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
-    headers: { Authorization: `Bearer ${STRIPE_KEY}` },
-  });
-  if (!r.ok) return null;
-  return r.json();
+  if (!sessionId) return null;
+  for (const key of fundraisingReadKeys()) {
+    // eslint-disable-next-line no-await-in-loop
+    const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    if (r.ok) return r.json();
+  }
+  return null;
 }
 
 module.exports = async function handler(req, res) {

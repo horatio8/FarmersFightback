@@ -2154,7 +2154,7 @@ function BaldwinFloodlight({ p, receiverUrl }) {
               { amount: 550 },
               { amount: 1500 },
             ].map((d, i, arr) => (
-              <a key={d.amount} href={`/api/checkout?amount=${d.amount}&frequency=oneoff&slug=baldwins`} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
+              <a key={d.amount} href={`/api/checkout?amount=${d.amount}&frequency=oneoff&slug=baldwins`} onClick={() => markDonatePending(d.amount)} target="_top" rel="noopener nofollow" className={`fl-donate-tile ${d.isDefault ? "is-default" : ""}`} style={{
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
                 padding: "28px 24px", minHeight: 160,
                 borderRight: ((i + 1) % 4 !== 0 && i !== arr.length - 1) ? `1px solid ${C.rule}` : "none",

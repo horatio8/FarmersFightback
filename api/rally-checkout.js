@@ -43,6 +43,7 @@
 const { matchOrCreateContact, setReferralCodeIfMissing, logEvent } = require("./_airtable");
 const { cnFunSignup } = require("./_cn");
 const { recordRallyTicketPurchase, ticketSalesState } = require("./_rally");
+const { isRallyTicketSession } = require("./_stripe-fundraising");
 
 const STRIPE_KEY = process.env.STRIPE_RALLY_SECRET_KEY;
 const STRIPE_PK = process.env.STRIPE_RALLY_PUBLISHABLE_KEY;
@@ -146,7 +147,9 @@ module.exports = async function handler(req, res) {
       // (where Stripe's webhook can't reach us) and a belt-and-braces backup
       // on production. Idempotent on the session id, so it never double-writes
       // alongside the webhook. Best-effort — never block the page render.
-      if (s.payment_status === "paid") {
+      // Since the fundraising cutover this account also carries donations,
+      // so only sessions stamped as tickets may be booked as tickets.
+      if (s.payment_status === "paid" && isRallyTicketSession(s)) {
         try { await recordRallyTicketPurchase({ session: s }); }
         catch (e) { console.error("confirm-on-return record failed:", e.message); }
       }

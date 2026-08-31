@@ -27,7 +27,7 @@
 //   - a checkout session can only be read back by the account that created
 //     it, so lookups try both keys, newest-likely first.
 
-const CUTOVER_UTC = "2026-08-31T14:00:00.000Z"; // Mon 1 Sep 2026 00:00 AEST
+const CUTOVER_UTC = "2026-08-31T14:00:00.000Z"; // Tue 1 Sep 2026 00:00 AEST
 
 function fundraisingCutoverActive(now = new Date()) {
   return now.getTime() >= Date.parse(CUTOVER_UTC);
@@ -49,7 +49,9 @@ function fundraisingKey(now = new Date()) {
       "no Wallaloo & Gre Gre key set (STRIPE_FUNDRAISING_SECRET_KEY / STRIPE_RALLY_SECRET_KEY) after cutover — creating sessions on the legacy donations account instead"
     );
   }
-  return process.env.STRIPE_SECRET_KEY;
+  // Fail open in this direction too: a missing legacy key must not stop
+  // donations while a W&G key is available.
+  return process.env.STRIPE_SECRET_KEY || wgKey();
 }
 
 // Keys to try when READING a session by id (thank-you readback, lapse
@@ -91,6 +93,7 @@ function isRallyTicketSession(obj) {
 
 module.exports = {
   CUTOVER_UTC,
+  wgKey,
   fundraisingCutoverActive,
   fundraisingKey,
   fundraisingReadKeys,

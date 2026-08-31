@@ -60,6 +60,13 @@ module.exports = async function handler(req, res) {
     if (session.payment_status !== "paid") {
       return res.status(400).json({ error: `session is not paid (${session.payment_status})` });
     }
+    if (session.mode === "subscription") {
+      // processDonationEvent books subscriptions from invoice.paid, not the
+      // session — deleting the mis-booked rows here would leave the money in
+      // no ledger. Resend the invoice.paid event from the Stripe dashboard
+      // instead (the new webhook routing will book it), then re-run this.
+      return res.status(400).json({ error: "subscription session — replay its invoice.paid event instead of this repair" });
+    }
 
     // The rows the old dispatcher wrote under its ticket identity.
     const misEvent = await listRows(EVENTS, {

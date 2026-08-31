@@ -593,7 +593,7 @@ function DonationBlock({ heading }) {
       </div>
       <div className="ffx-don-grid">
         {AMTS.map((a) => (
-          <a key={a} className="ffx-don-opt" href={urls[a]} target="_top" rel="noopener">{money(a)}</a>
+          <a key={a} className="ffx-don-opt" href={urls[a]} target="_top" rel="noopener nofollow">{money(a)}</a>
         ))}
         <a className="ffx-don-opt ffx-don-other" href={urls.other} target="_top" rel="noopener">Other</a>
       </div>

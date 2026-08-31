@@ -170,20 +170,25 @@ async function createSession(p, req) {
   const session = await createOnActiveAccount(payload);
 
   // Abandon detection for WS4: log the attempt; lapse-sweep checks whether
-  // this session got paid after 30 min. Best-effort only.
-  try {
-    await createRow(LAPSE_TABLE, {
-      lapse_id: uuid(),
-      form: "donation",
-      email: p.email || undefined,
-      contact_id: p.contact_id || undefined,
-      session_id: session.id,
-      amount: p.amount,
-      status: "pending",
-      created_at: nowIso(),
-    });
-  } catch (e) {
-    console.error("lapse row create failed:", e.message);
+  // this session got paid after 30 min. Best-effort only. Identity-less
+  // attempts are not logged: the sweep can do nothing with an anonymous
+  // row, and the donate tiles are now plain GET links that crawlers can
+  // follow — each bot hit would otherwise mint a junk pending row.
+  if (p.email || p.contact_id) {
+    try {
+      await createRow(LAPSE_TABLE, {
+        lapse_id: uuid(),
+        form: "donation",
+        email: p.email || undefined,
+        contact_id: p.contact_id || undefined,
+        session_id: session.id,
+        amount: p.amount,
+        status: "pending",
+        created_at: nowIso(),
+      });
+    } catch (e) {
+      console.error("lapse row create failed:", e.message);
+    }
   }
 
   return session;
@@ -196,8 +201,8 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
 
-  if (!process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_FUNDRAISING_SECRET_KEY) {
-    console.error("no Stripe secret key set (STRIPE_SECRET_KEY / STRIPE_FUNDRAISING_SECRET_KEY)");
+  if (!process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_FUNDRAISING_SECRET_KEY && !process.env.STRIPE_RALLY_SECRET_KEY) {
+    console.error("no Stripe secret key set (STRIPE_SECRET_KEY / STRIPE_FUNDRAISING_SECRET_KEY / STRIPE_RALLY_SECRET_KEY)");
     return res.status(500).json({ error: "Donations aren't configured yet." });
   }
 

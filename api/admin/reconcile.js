@@ -127,6 +127,9 @@ module.exports = async function handler(req, res) {
         const body = await r.json();
         if (!r.ok) throw new Error(`Stripe ${r.status}: ${JSON.stringify(body).slice(0, 200)}`);
         for (const s of body.data || []) {
+          // Since the fundraising cutover this account also carries
+          // donation sessions — only stamped tickets belong in this tally.
+          if (!((s.metadata || {}).ff_content_type === "rally_ticket")) continue;
           if (s.payment_status === "paid") {
             paid.push({
               session: s.id,
@@ -198,7 +201,7 @@ module.exports = async function handler(req, res) {
       // GET /v1/account answers for the key's own account with any secret
       // or restricted key. Reports id + business name only, never key
       // material.
-      const { CUTOVER_UTC, fundraisingCutoverActive, fundraisingKey } = require("../_stripe-fundraising");
+      const { CUTOVER_UTC, fundraisingCutoverActive, fundraisingKey, wgKey } = require("../_stripe-fundraising");
       const keys = {
         legacy_donations: process.env.STRIPE_SECRET_KEY,
         fundraising_override: process.env.STRIPE_FUNDRAISING_SECRET_KEY,
@@ -243,7 +246,7 @@ module.exports = async function handler(req, res) {
       // key missing a permission (price_data, subscriptions) fails here
       // and nowhere near a real donor.
       if (url.searchParams.get("probe") === "1") {
-        const probeKey = process.env.STRIPE_FUNDRAISING_SECRET_KEY || process.env.STRIPE_RALLY_SECRET_KEY;
+        const probeKey = wgKey();
         out.probe = {};
         if (!probeKey) {
           out.probe.error = "no W&G key configured";

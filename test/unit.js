@@ -1809,6 +1809,107 @@ async function run() {
     }
   });
 
+  await test("the legacy account's webhook books donations exactly as before", async () => {
+    // The original functionality: one-off donations and monthly rebills on
+    // the legacy account keep landing as Donation events with the same
+    // labels. Existing monthly donors live here forever.
+    const savedMeta = {};
+    for (const [k, v] of Object.entries({ META_PIXEL_ID: "px_test", META_CAPI_TOKEN: "tok_meta" })) {
+      savedMeta[k] = process.env[k]; process.env[k] = v;
+    }
+    const realFetch = global.fetch;
+    const donationPayloads = [];
+    global.fetch = async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const method = (opts.method || "GET").toUpperCase();
+      const reply = (b) => ({ ok: true, status: 200, json: async () => b, text: async () => JSON.stringify(b) });
+      if (u.hostname !== "api.airtable.com") return reply({ events_received: 1, metadata: {} });
+      if (method === "GET") return reply({ records: [] });
+      const body = JSON.parse(opts.body || "{}");
+      const fields = body.fields || (body.records && body.records[0] && body.records[0].fields) || {};
+      if (fields.event_type === "Donation") donationPayloads.push(JSON.parse(fields.payload));
+      return reply({ id: "recX", fields, records: [{ id: "recX", fields }] });
+    };
+    try {
+      await withStripeEnv({
+        STRIPE_SECRET_KEY: "sk_old", STRIPE_WEBHOOK_SECRET: "whsec_old",
+        STRIPE_RALLY_SECRET_KEY: "sk_rally", STRIPE_RALLY_WEBHOOK_SECRET: "whsec_rally",
+      }, async () => {
+        for (const m of ["api/_meta.js", "api/stripe-webhook.js"]) {
+          delete require.cache[path.join(ROOT, m)];
+        }
+        const webhook = R("api/stripe-webhook.js");
+        const send = async (event) => {
+          const raw = JSON.stringify(event);
+          const res = whRes();
+          await webhook(whReq(raw, whSigned(raw, "whsec_old")), res);
+          return res;
+        };
+
+        const oneoff = await send({
+          type: "checkout.session.completed",
+          data: { object: {
+            id: "cs_legacy1", mode: "payment", payment_status: "paid",
+            amount_total: 3500, currency: "aud",
+            metadata: { org: "ff", content_name: "One-off Donation" },
+            customer_details: { email: "old.donor@example.org", name: "Old Donor" },
+          } },
+        });
+        assert.equal(oneoff.code, 200, `one-off failed: ${JSON.stringify(oneoff.body)}`);
+        assert.equal(oneoff.body.fired, "Purchase");
+
+        const rebill = await send({
+          type: "invoice.paid",
+          data: { object: {
+            id: "in_legacy1", status: "paid",
+            amount_paid: 2500, currency: "aud",
+            customer_email: "monthly.donor@example.org", customer_name: "Monthly Donor",
+          } },
+        });
+        assert.equal(rebill.code, 200, `rebill failed: ${JSON.stringify(rebill.body)}`);
+        assert.equal(rebill.body.fired, "Purchase");
+      });
+    } finally {
+      global.fetch = realFetch;
+      for (const [k, v] of Object.entries(savedMeta)) {
+        if (v === undefined) delete process.env[k]; else process.env[k] = v;
+      }
+    }
+    assert.equal(donationPayloads.length, 2, "both charges must reach the Donation ledger");
+    assert.equal(donationPayloads[0].content_name, "One-off Donation");
+    assert.equal(donationPayloads[1].content_name, "Monthly Donation");
+  });
+
+  await test("the thank-you readback finds a session whichever account created it", async () => {
+    // A donor who pays at 23:58 lands back on /donate at 00:01 — the
+    // session lives on the account that made it, so the readback tries
+    // both instead of erroring the thank-you page.
+    const realFetch = global.fetch;
+    global.fetch = async (url, opts = {}) => {
+      const auth = (opts.headers && opts.headers.Authorization) || "";
+      if (auth.includes("sk_old")) {
+        return { ok: false, status: 404, text: async () => "{}", json: async () => ({}) };
+      }
+      return {
+        ok: true, status: 200,
+        json: async () => ({ amount_total: 6500, currency: "aud", mode: "payment", payment_status: "paid", customer_details: { email: "x@y.z" } }),
+        text: async () => "{}",
+      };
+    };
+    try {
+      await withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_RALLY_SECRET_KEY: "sk_rally" }, async () => {
+        const checkout = R("api/checkout.js");
+        const res = { code: 0, body: null };
+        res.setHeader = () => {}; res.status = (c) => { res.code = c; return res; };
+        res.json = (b) => { res.body = b; return res; }; res.end = () => res;
+        await checkout({ method: "GET", url: "/api/checkout?session_id=cs_wg_123", headers: {} }, res);
+        assert.equal(res.code, 200, `readback failed: ${JSON.stringify(res.body)}`);
+        assert.equal(res.body.session.paid, true, "the W&G-held session must still be found");
+        assert.equal(res.body.session.amount_total, 6500);
+      });
+    } finally { global.fetch = realFetch; }
+  });
+
   await test("no page links a hardcoded Stripe Payment Link any more", () => {
     // Payment Links belong permanently to the legacy account — a surviving
     // one would keep taking money there after the cutover. site.json's
