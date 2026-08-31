@@ -22,31 +22,8 @@ const {
   updateContactStatusFromEvent,
 } = require("./_airtable");
 const { postEvent } = require("./_meta");
+const { rollThanksDestination } = require("./_util");
 const { enqueueSignupSMS } = require("./_cellcast");
-
-// Where a signer lands after the main petition, decided HERE per signer so
-// the split is owner-tunable without touching code:
-//
-//   PETITION_SHARE_PERCENT = 0..100
-//
-// That percentage of signers is sent to /share (the referral/share page);
-// the rest get the /donate ask. Unset or invalid means 0 -- everyone to the
-// donation ask, the long-standing behaviour. Examples: 70 sends roughly 70
-// of every 100 signers to /share; 100 sends everyone.
-//
-// NOTE for whoever flips it: Vercel bakes env vars into a deployment, so
-// after changing the value in Settings -> Environment Variables you must hit
-// Redeploy for it to take effect. The variable can be set differently for
-// Preview and Production, so a split can be trialled on preview first.
-//
-// The verdict rides back to the browser as thanks_destination in the signup
-// response, and into the Petition Signed event payload so each arm's
-// donations can be measured afterwards.
-function rollThanksDestination(rand = Math.random()) {
-  const raw = Number(process.env.PETITION_SHARE_PERCENT);
-  const pct = Number.isFinite(raw) ? Math.min(100, Math.max(0, raw)) : 0;
-  return rand * 100 < pct ? "/share" : "/donate";
-}
 
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",

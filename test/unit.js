@@ -1497,6 +1497,26 @@ async function run() {
     assert.equal(eventPayload.thanks_destination, "/share", "the arm is recorded for later measurement");
   });
 
+  await test("flows outside the signup API get their verdict from /api/thanks-destination", async () => {
+    const saved = process.env.PETITION_SHARE_PERCENT;
+    process.env.PETITION_SHARE_PERCENT = "100";
+    const handler = R("api/thanks-destination.js");
+    const res = { code: 0, body: null, headers: {} };
+    res.setHeader = (k, v) => { res.headers[k] = v; };
+    res.status = (c) => { res.code = c; return res; };
+    res.json = (b) => { res.body = b; return res; };
+    try {
+      handler({ method: "GET" }, res);
+    } finally {
+      if (saved === undefined) delete process.env.PETITION_SHARE_PERCENT;
+      else process.env.PETITION_SHARE_PERCENT = saved;
+    }
+    assert.equal(res.code, 200);
+    assert.equal(res.body.destination, "/share", "honours the same dial as the signup path");
+    assert.equal(res.headers["Cache-Control"], "no-store",
+      "a cached verdict would glue an edge's visitors to one arm");
+  });
+
   group("signup SMS is switched off");
   await test("a signup never queues or sends a text", async () => {
     // Owner decision, 28 Aug 2026. The switch is code-side: no env change can

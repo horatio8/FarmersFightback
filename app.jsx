@@ -14,8 +14,9 @@ const useContent = () => useContext(ContentContext);
 // This constant is only the fallback for when the API call fails and no
 // verdict comes back. The share page opens ready to use because signPetition()
 // has already put ff_referral_code and ff_contact_id in localStorage by the
-// time the redirect fires. The homepage petition form and the volunteer form
-// are deliberately not part of the split; they still go straight to /donate.
+// time the redirect fires. The homepage petition form rides the same signup
+// response; the volunteer form (no signup API call) asks
+// /api/thanks-destination for its verdict instead.
 const PETITION_THANKS_FALLBACK = "/donate";
 
 // ---------- Placeholder image helper ----------
@@ -704,7 +705,7 @@ function Petition() {
     ev.preventDefault();
     if (!validate()) return;
     setState("submitting");
-    await signPetition({
+    const signed = await signPetition({
       first_name: form.first.trim(),
       last_name: form.last.trim(),
       email: form.email.trim(),
@@ -714,7 +715,7 @@ function Petition() {
       receiverUrl: c.receiverUrl,
       country: "au",
     });
-    window.location.assign("/donate");
+    window.location.assign(signed?.thanksDestination || PETITION_THANKS_FALLBACK);
   };
 
   if (state === "done") {
@@ -3223,7 +3224,15 @@ function VolunteerPage() {
       if (receiverUrl) await fetch(receiverUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       sendCAPI("CompleteRegistration", { em: form.email, fn: form.first, ln: form.last, ph: form.phone, zp: form.postcode, country: "au" }, { content_name: "Volunteer Registration" });
       window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: form.first.trim() } }));
-      window.location.assign("/donate");
+      // This form posts to a receiver, not our own API, so ask the server for
+      // its /donate-vs-/share verdict separately. The registration is already
+      // saved by here -- a failed roll must never surface as an error.
+      let dest = "";
+      try {
+        const vr = await fetch("/api/thanks-destination");
+        dest = (await vr.json())?.destination || "";
+      } catch {}
+      window.location.assign(dest || PETITION_THANKS_FALLBACK);
     } catch { setState("error"); }
   };
   return (

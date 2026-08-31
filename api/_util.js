@@ -169,7 +169,19 @@ function splitName(name) {
   return { fn: parts[0], ln: parts.length > 1 ? parts.slice(1).join(" ") : undefined };
 }
 
+// Where a supporter lands after completing a form, decided per person:
+// PETITION_SHARE_PERCENT (0-100) is the share sent to /share; the rest get
+// the /donate ask. Unset/garbage/negative reads as 0 (everyone to donate);
+// values over 100 clamp. Vercel bakes env vars at deploy time, so changing
+// the value needs a Redeploy to take effect.
+function rollThanksDestination(rand = Math.random()) {
+  const raw = Number(process.env.PETITION_SHARE_PERCENT);
+  const pct = Number.isFinite(raw) ? Math.min(100, Math.max(0, raw)) : 0;
+  return rand * 100 < pct ? "/share" : "/donate";
+}
+
 module.exports = {
+  rollThanksDestination,
   phoneHash,
   cellcastToE164,
   splitName,
