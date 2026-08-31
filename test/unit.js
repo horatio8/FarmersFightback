@@ -510,8 +510,11 @@ async function run() {
   const exists = (rel) => fsx.existsSync(path.join(ROOT, rel.replace(/^\//, "")));
 
   await test("every scheduled job points at a handler that exists", () => {
+    // A cron path may carry a query string (Vercel routes on the path and
+    // hands the query to the handler), so resolve the file from the path
+    // alone — otherwise a perfectly good "?mode=bulk" job reads as missing.
     const missing = (vercel.crons || [])
-      .filter((c) => !exists(c.path + ".js"))
+      .filter((c) => !exists(String(c.path).split("?")[0] + ".js"))
       .map((c) => c.path);
     assert.empty(missing, "a cron whose handler is missing never runs and never says so");
   });
