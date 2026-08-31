@@ -85,12 +85,15 @@ async function reconcileDonationLapse(details) {
 // requires the raw request body bytes.
 module.exports.config = { api: { bodyParser: false } };
 
-// Two accounts deliver to this endpoint: the legacy shared donations
-// account (existing monthly donors keep rebilling there forever) and,
-// from the September 2026 cutover, the Wallaloo & Gre Gre fundraising
-// account. Each pair binds a signing secret to the API key of the account
-// that signs with it, so follow-up lookups hit the right account.
-const { fundraisingWebhookPairs } = require("./_stripe-fundraising");
+// The legacy shared donations account delivers here (existing monthly
+// donors keep rebilling there forever). The Wallaloo & Gre Gre account —
+// where new donations are created from the September 2026 cutover —
+// delivers to /api/rally-webhook, which routes donation events into
+// processDonationEvent below. The pair list keeps room for a dedicated
+// W&G endpoint on this path too (STRIPE_FUNDRAISING_WEBHOOK_SECRET),
+// binding each signing secret to the API key of the account that signs
+// with it, so follow-up lookups hit the right account.
+const { fundraisingWebhookPairs, isRallyTicketSession } = require("./_stripe-fundraising");
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -296,109 +299,124 @@ module.exports = async function handler(req, res) {
     const obj = event.data && event.data.object;
     const ua = req.headers["user-agent"];
     const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress;
-
-    if (type === "checkout.session.completed") {
-      // Subscription first charges also fire invoice.paid — skip them here
-      // to avoid double-counting.
-      if (obj.mode === "subscription") {
-        return res.status(200).json({ received: true, skipped: "subscription handled by invoice.paid" });
-      }
-      if (obj.payment_status !== "paid") {
-        return res.status(200).json({ received: true, skipped: `payment_status=${obj.payment_status}` });
-      }
-
-      const details = await resolveCustomerDetails(obj, STRIPE_KEY);
-      const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
-      await recordDonationInAirtable({
-        stripe_event_id: `stripe_${obj.id}`,
-        details,
-        amount_minor: obj.amount_total,
-        currency: obj.currency,
-        contentName: meta.content_name || "One-off Donation",
-        fbclid: meta.fbclid,
-        fbp: meta.fbp,
-        sourceUrl: meta.source_url,
-        petitionSlug: obj.client_reference_id || null,
-        stripeObjectId: obj.id,
-        stripeObjectType: "checkout.session",
-        rawStripeObject: obj,
-      });
-      await reconcileDonationLapse(details);
-      await fireCAPIPurchase({
-        event_id: `stripe_${obj.id}`,                   // idempotent across retries
-        amount_minor: obj.amount_total,
-        currency: obj.currency,
-        details,
-        contentName: meta.content_name || "One-off Donation",
-        sourceUrl: meta.source_url,
-        fbc: meta.fbc,
-        fbp: meta.fbp,
-        ip,
-        userAgent: ua,
-      });
-      return res.status(200).json({ received: true, fired: "Purchase" });
-    }
-
-    if (type === "invoice.paid") {
-      if (obj.status !== "paid") {
-        return res.status(200).json({ received: true, skipped: `status=${obj.status}` });
-      }
-      // invoice.paid fires for subscription first charge AND every rebill.
-      // We pull the originating Checkout Session's metadata (if available)
-      // by reading the subscription, so we can carry fbc/fbp/source_url
-      // through to the rebill events too.
-      let meta = {};
-      let details = await resolveCustomerDetails(obj, STRIPE_KEY);
-      if (obj.subscription && STRIPE_KEY) {
-        try {
-          const sub = await stripeGet(`subscriptions/${obj.subscription}`, STRIPE_KEY);
-          meta = sub.metadata || {};
-          if (!details.email && sub.customer) {
-            const c = await stripeGet(`customers/${sub.customer}`, STRIPE_KEY);
-            details = { email: c.email, name: c.name, phone: c.phone, address: c.address };
-          }
-        } catch (e) {
-          console.error("subscription lookup failed:", e.message);
-        }
-      }
-
-      await recordDonationInAirtable({
-        stripe_event_id: `stripe_${obj.id}`,
-        details,
-        amount_minor: obj.amount_paid,
-        currency: obj.currency,
-        contentName: meta.content_name || "Monthly Donation",
-        fbclid: meta.fbclid,
-        fbp: meta.fbp,
-        sourceUrl: meta.source_url,
-        // Subscription rebills don't carry client_reference_id on the
-        // invoice — we'd need to look up the original checkout session
-        // to recover the petition slug. For now leave null on rebills.
-        petitionSlug: meta.petition_slug || null,
-        stripeObjectId: obj.id,
-        stripeObjectType: "invoice",
-        rawStripeObject: obj,
-      });
-      await reconcileDonationLapse(details);
-      await fireCAPIPurchase({
-        event_id: `stripe_${obj.id}`,
-        amount_minor: obj.amount_paid,
-        currency: obj.currency,
-        details,
-        contentName: meta.content_name || "Monthly Donation",
-        sourceUrl: meta.source_url,
-        fbc: meta.fbc,
-        fbp: meta.fbp,
-        ip,
-        userAgent: ua,
-      });
-      return res.status(200).json({ received: true, fired: "Purchase" });
-    }
-
-    return res.status(200).json({ received: true, ignored: type });
+    const out = await processDonationEvent(type, obj, { stripeKey: STRIPE_KEY, ip, userAgent: ua });
+    return res.status(200).json({ received: true, ...out });
   } catch (err) {
     console.error("stripe-webhook handler error:", err);
     // Return 500 so Stripe retries — better than silently dropping the event.
     return res.status(500).json({ error: "handler error" });
   }
 };
+
+// The donation side of a Stripe event, independent of which endpoint and
+// signing secret delivered it — /api/rally-webhook calls this for the
+// donation traffic that lands on the Wallaloo & Gre Gre account after the
+// cutover. Returns the response detail object; the caller wraps it in
+// { received: true, ... } and owns signature verification.
+async function processDonationEvent(type, obj, { stripeKey, ip, userAgent }) {
+  if (type === "checkout.session.completed") {
+    // Ticket money is rally-webhook's job — never book it as a donation.
+    if (isRallyTicketSession(obj)) {
+      return { skipped: "rally ticket handled by rally-webhook" };
+    }
+    // Subscription first charges also fire invoice.paid — skip them here
+    // to avoid double-counting.
+    if (obj.mode === "subscription") {
+      return { skipped: "subscription handled by invoice.paid" };
+    }
+    if (obj.payment_status !== "paid") {
+      return { skipped: `payment_status=${obj.payment_status}` };
+    }
+
+    const details = await resolveCustomerDetails(obj, stripeKey);
+    const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
+    await recordDonationInAirtable({
+      stripe_event_id: `stripe_${obj.id}`,
+      details,
+      amount_minor: obj.amount_total,
+      currency: obj.currency,
+      contentName: meta.content_name || "One-off Donation",
+      fbclid: meta.fbclid,
+      fbp: meta.fbp,
+      sourceUrl: meta.source_url,
+      petitionSlug: obj.client_reference_id || null,
+      stripeObjectId: obj.id,
+      stripeObjectType: "checkout.session",
+      rawStripeObject: obj,
+    });
+    await reconcileDonationLapse(details);
+    await fireCAPIPurchase({
+      event_id: `stripe_${obj.id}`,                   // idempotent across retries
+      amount_minor: obj.amount_total,
+      currency: obj.currency,
+      details,
+      contentName: meta.content_name || "One-off Donation",
+      sourceUrl: meta.source_url,
+      fbc: meta.fbc,
+      fbp: meta.fbp,
+      ip,
+      userAgent,
+    });
+    return { fired: "Purchase" };
+  }
+
+  if (type === "invoice.paid") {
+    if (obj.status !== "paid") {
+      return { skipped: `status=${obj.status}` };
+    }
+    // invoice.paid fires for subscription first charge AND every rebill.
+    // We pull the originating Checkout Session's metadata (if available)
+    // by reading the subscription, so we can carry fbc/fbp/source_url
+    // through to the rebill events too.
+    let meta = {};
+    let details = await resolveCustomerDetails(obj, stripeKey);
+    if (obj.subscription && stripeKey) {
+      try {
+        const sub = await stripeGet(`subscriptions/${obj.subscription}`, stripeKey);
+        meta = sub.metadata || {};
+        if (!details.email && sub.customer) {
+          const c = await stripeGet(`customers/${sub.customer}`, stripeKey);
+          details = { email: c.email, name: c.name, phone: c.phone, address: c.address };
+        }
+      } catch (e) {
+        console.error("subscription lookup failed:", e.message);
+      }
+    }
+
+    await recordDonationInAirtable({
+      stripe_event_id: `stripe_${obj.id}`,
+      details,
+      amount_minor: obj.amount_paid,
+      currency: obj.currency,
+      contentName: meta.content_name || "Monthly Donation",
+      fbclid: meta.fbclid,
+      fbp: meta.fbp,
+      sourceUrl: meta.source_url,
+      // Subscription rebills don't carry client_reference_id on the
+      // invoice — we'd need to look up the original checkout session
+      // to recover the petition slug. For now leave null on rebills.
+      petitionSlug: meta.petition_slug || null,
+      stripeObjectId: obj.id,
+      stripeObjectType: "invoice",
+      rawStripeObject: obj,
+    });
+    await reconcileDonationLapse(details);
+    await fireCAPIPurchase({
+      event_id: `stripe_${obj.id}`,
+      amount_minor: obj.amount_paid,
+      currency: obj.currency,
+      details,
+      contentName: meta.content_name || "Monthly Donation",
+      sourceUrl: meta.source_url,
+      fbc: meta.fbc,
+      fbp: meta.fbp,
+      ip,
+      userAgent,
+    });
+    return { fired: "Purchase" };
+  }
+
+  return { ignored: type };
+}
+
+module.exports.processDonationEvent = processDonationEvent;

@@ -201,7 +201,7 @@ module.exports = async function handler(req, res) {
       const { CUTOVER_UTC, fundraisingCutoverActive, fundraisingKey } = require("../_stripe-fundraising");
       const keys = {
         legacy_donations: process.env.STRIPE_SECRET_KEY,
-        fundraising: process.env.STRIPE_FUNDRAISING_SECRET_KEY,
+        fundraising_override: process.env.STRIPE_FUNDRAISING_SECRET_KEY,
         rally: process.env.STRIPE_RALLY_SECRET_KEY,
       };
       const accounts = {};
@@ -237,6 +237,52 @@ module.exports = async function handler(req, res) {
           ? Object.entries(keys).find(([, k]) => k === activeKey)?.[0] || "unknown"
           : "none — no key configured",
       };
+
+      // ?probe=1 — prove the W&G key can actually CREATE donation sessions
+      // before the cutover clock relies on it: one $2 one-off and one $2
+      // monthly, the exact payload shapes /api/checkout sends, expired
+      // immediately so nothing purchasable is left behind. A restricted
+      // key missing a permission (price_data, subscriptions) fails here
+      // and nowhere near a real donor.
+      if (url.searchParams.get("probe") === "1") {
+        const probeKey = process.env.STRIPE_FUNDRAISING_SECRET_KEY || process.env.STRIPE_RALLY_SECRET_KEY;
+        out.probe = {};
+        if (!probeKey) {
+          out.probe.error = "no W&G key configured";
+        } else {
+          const { toFormBody, stripeClient } = require("../_util");
+          const wg = stripeClient(probeKey);
+          for (const frequency of ["oneoff", "monthly"]) {
+            const monthly = frequency === "monthly";
+            try {
+              const s = await wg("checkout/sessions", {
+                method: "POST",
+                body: toFormBody({
+                  mode: monthly ? "subscription" : "payment",
+                  line_items: [{
+                    quantity: 1,
+                    price_data: {
+                      currency: "aud",
+                      unit_amount: 200,
+                      product_data: { name: "Cutover permission probe (not a real ask)" },
+                      ...(monthly ? { recurring: { interval: "month" } } : {}),
+                    },
+                  }],
+                  metadata: { org: "ff", probe: "cutover" },
+                  success_url: "https://www.farmersfightback.com/donate?cs={CHECKOUT_SESSION_ID}",
+                  cancel_url: "https://www.farmersfightback.com/donate?cancelled=1",
+                }),
+              });
+              await wg(`checkout/sessions/${s.id}/expire`, { method: "POST" }).catch((e) => {
+                out.probe[`${frequency}_expire_warning`] = e.message.slice(0, 200);
+              });
+              out.probe[frequency] = "ok — session created and expired";
+            } catch (e) {
+              out.probe[frequency] = `FAILED: ${e.message.slice(0, 300)}`;
+            }
+          }
+        }
+      }
     } else if (part === "events") {
       const formula = `OR(${PROJECTED_TYPES.map((t) => `{event_type}='${escapeFormula(t)}'`).join(",")})`;
       const rows = await listRows(EVENTS, { formula, fields: ["event_type", "fanout_status"] });

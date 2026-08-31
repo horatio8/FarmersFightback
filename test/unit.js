@@ -1627,6 +1627,7 @@ async function run() {
     const keys = [
       "STRIPE_SECRET_KEY", "STRIPE_FUNDRAISING_SECRET_KEY",
       "STRIPE_WEBHOOK_SECRET", "STRIPE_FUNDRAISING_WEBHOOK_SECRET",
+      "STRIPE_RALLY_SECRET_KEY", "STRIPE_RALLY_WEBHOOK_SECRET",
     ];
     const saved = {};
     for (const k of keys) {
@@ -1647,11 +1648,20 @@ async function run() {
   await test("midnight 1 Sep (Melbourne) flips new sessions to the Wallaloo & Gre Gre key", () => {
     assert.equal(cutover.CUTOVER_UTC, "2026-08-31T14:00:00.000Z",
       "AEST midnight is 14:00 UTC the day before");
-    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_FUNDRAISING_SECRET_KEY: "sk_new" }, () => {
+    // The W&G account is already wired in as the rally key — no new
+    // credential needed for the flip.
+    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_RALLY_SECRET_KEY: "sk_rally" }, () => {
       assert.equal(cutover.fundraisingCutoverActive(BEFORE_CUTOVER), false);
       assert.equal(cutover.fundraisingCutoverActive(AFTER_CUTOVER), true);
       assert.equal(cutover.fundraisingKey(BEFORE_CUTOVER), "sk_old", "before midnight: legacy account");
-      assert.equal(cutover.fundraisingKey(AFTER_CUTOVER), "sk_new", "after midnight: fundraising account");
+      assert.equal(cutover.fundraisingKey(AFTER_CUTOVER), "sk_rally", "after midnight: the rally key IS the W&G account");
+    });
+    withStripeEnv({
+      STRIPE_SECRET_KEY: "sk_old", STRIPE_RALLY_SECRET_KEY: "sk_rally",
+      STRIPE_FUNDRAISING_SECRET_KEY: "sk_new",
+    }, () => {
+      assert.equal(cutover.fundraisingKey(AFTER_CUTOVER), "sk_new",
+        "an explicit fundraising key overrides the rally key");
     });
   });
 
@@ -1664,42 +1674,43 @@ async function run() {
   });
 
   await test("session readbacks try both accounts, most-likely creator first", () => {
-    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_FUNDRAISING_SECRET_KEY: "sk_new" }, () => {
-      assert.deepEqual(cutover.fundraisingReadKeys(BEFORE_CUTOVER), ["sk_old", "sk_new"]);
-      assert.deepEqual(cutover.fundraisingReadKeys(AFTER_CUTOVER), ["sk_new", "sk_old"]);
+    withStripeEnv({ STRIPE_SECRET_KEY: "sk_old", STRIPE_RALLY_SECRET_KEY: "sk_rally" }, () => {
+      assert.deepEqual(cutover.fundraisingReadKeys(BEFORE_CUTOVER), ["sk_old", "sk_rally"]);
+      assert.deepEqual(cutover.fundraisingReadKeys(AFTER_CUTOVER), ["sk_rally", "sk_old"]);
     });
     withStripeEnv({ STRIPE_SECRET_KEY: "sk_old" }, () => {
       assert.deepEqual(cutover.fundraisingReadKeys(AFTER_CUTOVER), ["sk_old"],
-        "an unset new key never puts undefined in the try-list");
+        "an unset W&G key never puts undefined in the try-list");
     });
   });
+
+  const whSigned = (raw, secret) => {
+    const t = Math.floor(Date.now() / 1000);
+    const v1 = require("crypto").createHmac("sha256", secret).update(`${t}.${raw}`).digest("hex");
+    return `t=${t},v1=${v1}`;
+  };
+  const whReq = (raw, sig) => {
+    const h = {};
+    return {
+      method: "POST",
+      headers: { "stripe-signature": sig },
+      on(ev, fn) {
+        h[ev] = fn;
+        if (ev === "end") setImmediate(() => { h.data(Buffer.from(raw)); h.end(); });
+      },
+    };
+  };
+  const whRes = () => {
+    const r = { code: 0, body: null };
+    r.status = (c) => { r.code = c; return r; };
+    r.json = (b) => { r.body = b; return r; };
+    r.send = (b) => { r.body = b; return r; };
+    return r;
+  };
 
   await test("the webhook accepts events signed by either account", async () => {
     // Existing monthly donors rebill on the legacy account forever, so its
     // signing secret must keep verifying alongside the new account's.
-    const signed = (raw, secret) => {
-      const t = Math.floor(Date.now() / 1000);
-      const v1 = require("crypto").createHmac("sha256", secret).update(`${t}.${raw}`).digest("hex");
-      return `t=${t},v1=${v1}`;
-    };
-    const fakeReq = (raw, sig) => {
-      const h = {};
-      return {
-        method: "POST",
-        headers: { "stripe-signature": sig },
-        on(ev, fn) {
-          h[ev] = fn;
-          if (ev === "end") setImmediate(() => { h.data(Buffer.from(raw)); h.end(); });
-        },
-      };
-    };
-    const fakeRes = () => {
-      const r = { code: 0, body: null };
-      r.status = (c) => { r.code = c; return r; };
-      r.json = (b) => { r.body = b; return r; };
-      r.send = (b) => { r.body = b; return r; };
-      return r;
-    };
     // An event type the handler ignores: verification runs, nothing else does.
     const raw = JSON.stringify({ type: "charge.updated", data: { object: {} } });
     await withStripeEnv({
@@ -1708,16 +1719,94 @@ async function run() {
     }, async () => {
       const webhook = R("api/stripe-webhook.js");
       for (const secret of ["whsec_old", "whsec_new"]) {
-        const res = fakeRes();
+        const res = whRes();
         // eslint-disable-next-line no-await-in-loop
-        await webhook(fakeReq(raw, signed(raw, secret)), res);
+        await webhook(whReq(raw, whSigned(raw, secret)), res);
         assert.equal(res.code, 200, `${secret} must verify`);
         assert.equal(res.body.ignored, "charge.updated");
       }
-      const res = fakeRes();
-      await webhook(fakeReq(raw, signed(raw, "whsec_wrong")), res);
+      const res = whRes();
+      await webhook(whReq(raw, whSigned(raw, "whsec_wrong")), res);
       assert.equal(res.code, 400, "an unknown signer is still rejected");
     });
+  });
+
+  await test("the W&G webhook books tickets as tickets and donations as donations", async () => {
+    // After the cutover one account carries BOTH revenue streams, delivered
+    // to the same endpoint. A ticket recorded as a donation (or vice versa)
+    // corrupts two ledgers at once, so routing is by what the session IS:
+    // rally-checkout stamps ff_content_type=rally_ticket, donations don't.
+    const savedMeta = {};
+    for (const [k, v] of Object.entries({ META_PIXEL_ID: "px_test", META_CAPI_TOKEN: "tok_meta" })) {
+      savedMeta[k] = process.env[k]; process.env[k] = v;
+    }
+    const realFetch = global.fetch;
+    const eventTypesLogged = [];
+    global.fetch = async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const method = (opts.method || "GET").toUpperCase();
+      const reply = (b) => ({ ok: true, status: 200, json: async () => b, text: async () => JSON.stringify(b) });
+      if (u.hostname !== "api.airtable.com") return reply({ events_received: 1 });
+      if (method === "GET") return reply({ records: [] });
+      const body = JSON.parse(opts.body || "{}");
+      const fields = body.fields || (body.records && body.records[0] && body.records[0].fields) || {};
+      if (fields.event_type) eventTypesLogged.push(fields.event_type);
+      return reply({ id: "recX", fields, records: [{ id: "recX", fields }] });
+    };
+    try {
+      await withStripeEnv({
+        STRIPE_SECRET_KEY: "sk_old", STRIPE_WEBHOOK_SECRET: "whsec_old",
+        STRIPE_RALLY_SECRET_KEY: "sk_rally", STRIPE_RALLY_WEBHOOK_SECRET: "whsec_rally",
+      }, async () => {
+        // Fresh modules so _meta and the webhook consts see this env.
+        for (const m of ["api/_meta.js", "api/stripe-webhook.js", "api/rally-webhook.js"]) {
+          delete require.cache[path.join(ROOT, m)];
+        }
+        const rallyHook = R("api/rally-webhook.js");
+        const send = async (event) => {
+          const raw = JSON.stringify(event);
+          const res = whRes();
+          await rallyHook(whReq(raw, whSigned(raw, "whsec_rally")), res);
+          return res;
+        };
+
+        const ticket = await send({
+          type: "checkout.session.completed",
+          data: { object: {
+            id: "cs_tix1", mode: "payment", payment_status: "paid",
+            amount_total: 5500, currency: "aud",
+            metadata: { ff_content_type: "rally_ticket", adult_qty: "2" },
+            customer_details: { email: "tick@example.org", name: "Tick Buyer" },
+          } },
+        });
+        assert.equal(ticket.code, 200, `ticket event failed: ${JSON.stringify(ticket.body)}`);
+        assert.equal(ticket.body.type, "rally_ticket", "a stamped ticket takes the ticket path");
+
+        const donation = await send({
+          type: "checkout.session.completed",
+          data: { object: {
+            id: "cs_don1", mode: "payment", payment_status: "paid",
+            amount_total: 6500, currency: "aud",
+            metadata: { org: "ff", content_name: "One-off Donation" },
+            customer_details: { email: "give@example.org", name: "Gen Donor" },
+          } },
+        });
+        assert.equal(donation.code, 200, `donation event failed: ${JSON.stringify(donation.body)}`);
+        assert.equal(donation.body.type, "donation", "an unstamped session takes the donation path");
+        assert.equal(donation.body.fired, "Purchase");
+
+        const rebill = await send({ type: "invoice.paid", data: { object: { id: "in_1", status: "open" } } });
+        assert.equal(rebill.body.type, "donation", "invoice.paid on this account is donation traffic");
+
+        assert.includes(eventTypesLogged.join(","), "Rally Ticket Purchased", "the ticket must reach the ticket ledger");
+        assert.includes(eventTypesLogged.join(","), "Donation", "the donation must reach the donation ledger");
+      });
+    } finally {
+      global.fetch = realFetch;
+      for (const [k, v] of Object.entries(savedMeta)) {
+        if (v === undefined) delete process.env[k]; else process.env[k] = v;
+      }
+    }
   });
 
   await test("no page links a hardcoded Stripe Payment Link any more", () => {

@@ -26,7 +26,24 @@ const { toFormBody, stripeClient, hostBase } = require("./_util");
 const { fundraisingKey, fundraisingReadKeys } = require("./_stripe-fundraising");
 
 const LAPSE_TABLE = process.env.AIRTABLE_LAPSE_TABLE || "Lapse Queue";
-const stripe = () => stripeClient(fundraisingKey());
+
+// Create the session on whichever account the cutover clock points at.
+// If that account refuses (e.g. the W&G restricted key is missing a
+// permission the donation flow needs), retry once on the legacy account
+// with a loud log — a gift must never be lost to a key-scope problem.
+async function createOnActiveAccount(payload) {
+  const key = fundraisingKey();
+  try {
+    return await stripeClient(key)("checkout/sessions", { method: "POST", body: toFormBody(payload) });
+  } catch (e) {
+    const legacy = process.env.STRIPE_SECRET_KEY;
+    if (legacy && key !== legacy) {
+      console.error(`fundraising-account session create failed (${e.message}) — retrying on legacy account`);
+      return stripeClient(legacy)("checkout/sessions", { method: "POST", body: toFormBody(payload) });
+    }
+    throw e;
+  }
+}
 
 // A session can only be read back by the account that created it, and
 // thank-you readbacks straddle the cutover (donor pays at 23:58, lands back
@@ -150,7 +167,7 @@ async function createSession(p, req) {
       : { payment_intent_data: { metadata, description: `Farmers Fightback Donation (${label})` } }),
   };
 
-  const session = await stripe()("checkout/sessions", { method: "POST", body: toFormBody(payload) });
+  const session = await createOnActiveAccount(payload);
 
   // Abandon detection for WS4: log the attempt; lapse-sweep checks whether
   // this session got paid after 30 min. Best-effort only.

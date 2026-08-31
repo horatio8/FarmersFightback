@@ -3,15 +3,18 @@
 // writes each ticket purchase to Airtable + fires Meta CAPI "Purchase"
 // for ad attribution.
 //
-// The rally uses a separate Stripe account from the site's donation
-// flow, so its webhook lives on its own path with its own signing
-// secret. This handler processes ONLY rally ticket events; the donation
-// account's webhook stays wired to /api/stripe-webhook and is untouched.
+// Since the September 2026 fundraising cutover the W&G account carries
+// BOTH ticket sales and new donations, so this handler is the account's
+// dispatcher: sessions stamped ff_content_type=rally_ticket take the
+// ticket path below, and everything else (donation sessions, invoice.paid
+// rebills) is handed to stripe-webhook's processDonationEvent. The legacy
+// donation account's webhook stays wired to /api/stripe-webhook.
 //
 // Wired in the Wallaloo/GreGre Stripe Dashboard → Developers → Webhooks:
 //   Endpoint URL: https://www.farmersfightback.com/api/rally-webhook
 //   Events to subscribe to:
 //     - checkout.session.completed
+//     - invoice.paid                 (monthly donations: first charge + rebills)
 //
 // Env:
 //   STRIPE_RALLY_WEBHOOK_SECRET  Signing secret (whsec_...) for this
@@ -28,6 +31,8 @@ const crypto = require("crypto");
 const { postEvent } = require("./_meta");
 const { splitName } = require("./_util");
 const { recordRallyTicketPurchase } = require("./_rally");
+const { isRallyTicketSession } = require("./_stripe-fundraising");
+const { processDonationEvent } = require("./stripe-webhook");
 
 module.exports.config = { api: { bodyParser: false } };
 
@@ -146,8 +151,14 @@ module.exports = async function handler(req, res) {
     const ua = req.headers["user-agent"];
     const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress;
 
-    if (type !== "checkout.session.completed") {
-      return res.status(200).json({ received: true, ignored: type });
+    // Everything that is not a ticket sale — donation checkout sessions
+    // created here since the fundraising cutover, invoice.paid from monthly
+    // donations, any other subscribed event — belongs to the donation
+    // pipeline, which books it to Airtable + Meta exactly as the legacy
+    // account's webhook would.
+    if (type !== "checkout.session.completed" || !isRallyTicketSession(obj)) {
+      const out = await processDonationEvent(type, obj, { stripeKey: STRIPE_KEY, ip, userAgent: ua });
+      return res.status(200).json({ received: true, ...out, type: "donation" });
     }
     if (obj.payment_status !== "paid") {
       return res.status(200).json({ received: true, skipped: `payment_status=${obj.payment_status}` });
@@ -155,13 +166,6 @@ module.exports = async function handler(req, res) {
 
     const details = await resolveCustomerDetails(obj);
     const meta = (obj.metadata && (obj.metadata.ff_meta || obj.metadata)) || {};
-
-    // Defensive: on the rally account, EVERY checkout should be a rally
-    // ticket. Log a warning if metadata says otherwise but process anyway
-    // so a mis-tagged sale still lands in Airtable.
-    if (meta.ff_content_type && meta.ff_content_type !== "rally_ticket") {
-      console.warn(`rally-webhook: unexpected ff_content_type "${meta.ff_content_type}" on rally account, processing anyway`);
-    }
 
     // Airtable write via the shared recorder — idempotent on the session id,
     // so this is safe alongside the confirmation-page recorder in
