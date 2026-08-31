@@ -24,6 +24,30 @@ const {
 const { postEvent } = require("./_meta");
 const { enqueueSignupSMS } = require("./_cellcast");
 
+// Where a signer lands after the main petition, decided HERE per signer so
+// the split is owner-tunable without touching code:
+//
+//   PETITION_SHARE_PERCENT = 0..100
+//
+// That percentage of signers is sent to /share (the referral/share page);
+// the rest get the /donate ask. Unset or invalid means 0 -- everyone to the
+// donation ask, the long-standing behaviour. Examples: 70 sends roughly 70
+// of every 100 signers to /share; 100 sends everyone.
+//
+// NOTE for whoever flips it: Vercel bakes env vars into a deployment, so
+// after changing the value in Settings -> Environment Variables you must hit
+// Redeploy for it to take effect. The variable can be set differently for
+// Preview and Production, so a split can be trialled on preview first.
+//
+// The verdict rides back to the browser as thanks_destination in the signup
+// response, and into the Petition Signed event payload so each arm's
+// donations can be measured afterwards.
+function rollThanksDestination(rand = Math.random()) {
+  const raw = Number(process.env.PETITION_SHARE_PERCENT);
+  const pct = Number.isFinite(raw) ? Math.min(100, Math.max(0, raw)) : 0;
+  return rand * 100 < pct ? "/share" : "/donate";
+}
+
 const ALLOWED_ORIGINS = new Set([
   "https://farmersfightback.com",
   "https://www.farmersfightback.com",
@@ -122,6 +146,7 @@ module.exports = async function handler(req, res) {
     }
 
     const metaEventId = `petition_${contactUuid}_${Date.now()}`;
+    const thanksDestination = rollThanksDestination();
 
     // The Contact is already saved by this point, so a failure here loses the
     // log entry, not the supporter — and must not be allowed to fail the
@@ -136,7 +161,7 @@ module.exports = async function handler(req, res) {
       // Full raw request body — anything the frontend posts is captured,
       // including fields we don't currently parse (consent, country,
       // campaign, additional utm_* params, future form fields, etc.).
-      payload: body,
+      payload: { ...body, thanks_destination: thanksDestination },
       fbclid,
       referral_code_used: ref || undefined,
       source_channel: channel,
@@ -200,6 +225,7 @@ module.exports = async function handler(req, res) {
       referral_code: referralCode,
       meta_event_id: metaEventId,
       is_new_contact: isNew,
+      thanks_destination: thanksDestination,
       sms,
     });
   } catch (err) {
@@ -211,3 +237,5 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: "Internal error" });
   }
 };
+
+module.exports.rollThanksDestination = rollThanksDestination;

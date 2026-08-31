@@ -6,17 +6,17 @@ const ContentContext = createContext(null);
 const useContent = () => useContext(ContentContext);
 
 // Where a signer of the MAIN petition (/petition -> hold-the-gate) lands once
-// their signature is saved.
+// their signature is saved. The SERVER decides per signer: /api/petition-signup
+// rolls PETITION_SHARE_PERCENT (0-100 = the share of signers sent to /share;
+// the rest get the /donate ask) and returns thanks_destination. Change the
+// split by editing that env var in Vercel and redeploying -- no code change.
 //
-// TEMPORARY, 28 Aug 2026: pointed at the share page instead of the donation
-// ask, trading the immediate donation prompt for reach. To reverse, set this
-// back to "/donate" and deploy -- there is nothing else to undo.
-//
-// The share page opens ready to use because signPetition() has already put
-// ff_referral_code and ff_contact_id in localStorage by the time we get here.
-// The homepage petition form and the volunteer form are deliberately NOT
-// affected; they still go to /donate.
-const PETITION_THANKS_DESTINATION = "/share";
+// This constant is only the fallback for when the API call fails and no
+// verdict comes back. The share page opens ready to use because signPetition()
+// has already put ff_referral_code and ff_contact_id in localStorage by the
+// time the redirect fires. The homepage petition form and the volunteer form
+// are deliberately not part of the split; they still go straight to /donate.
+const PETITION_THANKS_FALLBACK = "/donate";
 
 // ---------- Placeholder image helper ----------
 function Placeholder({ label, ratio = "16/9", tone = "navy", className = "", children }) {
@@ -336,6 +336,7 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
 
   // Vercel native capture (Airtable + server-side Meta Lead).
   let metaEventId = "";
+  let thanksDestination = "";
   let contactId = "";
   let referralCode = "";
   try {
@@ -364,6 +365,7 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
       metaEventId = j.meta_event_id || "";
       contactId = j.contact_id || "";
       referralCode = j.referral_code || "";
+      thanksDestination = j.thanks_destination || "";
       if (referralCode) try { localStorage.setItem("ff_referral_code", referralCode); } catch {}
       if (contactId)   try { localStorage.setItem("ff_contact_id", contactId); } catch {}
       // Session-scoped (clears when the tab closes, so shared computers
@@ -388,7 +390,7 @@ async function signPetition({ first_name, last_name, email, mobile, postcode, co
   sendPartial("petition", { email, mobile, first_name, last_name, postcode }, true);
 
   window.dispatchEvent(new CustomEvent("petition-signed", { detail: { first: (first_name || "").trim() } }));
-  return { metaEventId, contactId, referralCode };
+  return { metaEventId, contactId, referralCode, thanksDestination };
 }
 
 // ---------- Top banner ----------
@@ -2311,7 +2313,7 @@ function PetitionPage({ slug }) {
     if (!validate()) return;
     setState("submitting");
     try {
-      await signPetition({
+      const signed = await signPetition({
         first_name: form.first.trim(),
         last_name: form.last.trim(),
         email: form.email.trim(),
@@ -2325,7 +2327,7 @@ function PetitionPage({ slug }) {
           campaign: p.campaign || p.slug,
         },
       });
-      window.location.assign(PETITION_THANKS_DESTINATION);
+      window.location.assign(signed?.thanksDestination || PETITION_THANKS_FALLBACK);
     } catch { setState("error"); }
   };
 

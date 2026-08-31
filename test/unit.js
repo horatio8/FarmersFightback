@@ -1431,6 +1431,72 @@ async function run() {
       "identity travels in the payload so the signature projection is complete");
   });
 
+  group("petition thanks split");
+  await test("the env var is the whole dial: 0/unset = donate, 100 = share, clamped in between", () => {
+    const signup = R("api/petition-signup.js");
+    const saved = process.env.PETITION_SHARE_PERCENT;
+    try {
+      delete process.env.PETITION_SHARE_PERCENT;
+      assert.equal(signup.rollThanksDestination(0.0), "/donate", "unset means everyone gets the ask");
+      process.env.PETITION_SHARE_PERCENT = "100";
+      assert.equal(signup.rollThanksDestination(0.999), "/share", "100 sends everyone to share");
+      process.env.PETITION_SHARE_PERCENT = "30";
+      assert.equal(signup.rollThanksDestination(0.299), "/share", "roll below the cut goes to share");
+      assert.equal(signup.rollThanksDestination(0.301), "/donate", "roll above the cut goes to donate");
+      process.env.PETITION_SHARE_PERCENT = "banana";
+      assert.equal(signup.rollThanksDestination(0.0), "/donate", "garbage reads as 0, never as open floodgates");
+      process.env.PETITION_SHARE_PERCENT = "250";
+      assert.equal(signup.rollThanksDestination(0.999), "/share", "values over 100 clamp to 100");
+      process.env.PETITION_SHARE_PERCENT = "-5";
+      assert.equal(signup.rollThanksDestination(0.0), "/donate", "negatives clamp to 0");
+    } finally {
+      if (saved === undefined) delete process.env.PETITION_SHARE_PERCENT;
+      else process.env.PETITION_SHARE_PERCENT = saved;
+    }
+  });
+
+  await test("the verdict reaches the browser and the event log", async () => {
+    // The client redirects wherever thanks_destination says, and the event
+    // payload records the arm so donations per arm can be measured later.
+    const saved = process.env.PETITION_SHARE_PERCENT;
+    process.env.PETITION_SHARE_PERCENT = "100";
+    const realFetch = global.fetch;
+    let eventPayload = null;
+    global.fetch = async (url, opts = {}) => {
+      const u = new URL(String(url));
+      const table = decodeURIComponent(u.pathname.split("/")[3] || "");
+      const method = (opts.method || "GET").toUpperCase();
+      const reply = (b) => ({ ok: true, status: 200, json: async () => b, text: async () => JSON.stringify(b) });
+      if (u.hostname !== "api.airtable.com") return reply({});
+      if (table === "Events" && method === "POST") {
+        const f = JSON.parse(opts.body).records[0].fields;
+        if (f.event_type === "Petition Signed") eventPayload = JSON.parse(f.payload);
+        return reply({ records: [{ id: "recEVT0000000001", fields: f }] });
+      }
+      if (method === "GET") return reply({ records: [] });
+      const fields = opts.body ? (JSON.parse(opts.body).fields || {}) : {};
+      return reply({ id: "recNEWCONTACT01", fields, records: [{ id: "recNEWCONTACT01", fields }] });
+    };
+    const signup = R("api/petition-signup.js");
+    const res = { code: 0, body: null };
+    res.setHeader = () => {}; res.status = (c) => { res.code = c; return res; };
+    res.json = (b) => { res.body = b; return res; }; res.end = () => res;
+    try {
+      await signup({
+        method: "POST", headers: {},
+        body: { first_name: "Zz", last_name: "SplitRoll", email: "zz.split.roll@example.org" },
+      }, res);
+    } finally {
+      global.fetch = realFetch;
+      if (saved === undefined) delete process.env.PETITION_SHARE_PERCENT;
+      else process.env.PETITION_SHARE_PERCENT = saved;
+    }
+    assert.equal(res.code, 200, `signup failed: ${JSON.stringify(res.body)}`);
+    assert.equal(res.body.thanks_destination, "/share", "the browser is told where to go");
+    assert.ok(eventPayload, "a Petition Signed event must be logged");
+    assert.equal(eventPayload.thanks_destination, "/share", "the arm is recorded for later measurement");
+  });
+
   group("signup SMS is switched off");
   await test("a signup never queues or sends a text", async () => {
     // Owner decision, 28 Aug 2026. The switch is code-side: no env change can
