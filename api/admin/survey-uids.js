@@ -141,6 +141,23 @@ module.exports = async function handler(req, res) {
         const rows0 = await select(TABLES.SYNC_STATE, `{key} = '${fesc(STATE_KEY)}'`, null, 1);
         stateRec = rows0.length ? rows0[0] : null;
         try { stateVal = stateRec && stateRec.fields.value ? JSON.parse(stateRec.fields.value) : null; } catch { stateVal = null; }
+        // &reset=1 clears a FINISHED walk so it can be run again, and reports
+        // what it cleared. A completed backfill is otherwise permanent: the
+        // done flag short-circuits every later call, including the cron's.
+        // That is the right default until the finished walk turns out to have
+        // been wrong — the Aug 2026 run completed against custom1, which does
+        // not back the merge tag, so all 67,640 of its writes have to be
+        // replayed to the CRM alias. Resetting is safe whenever it is wrong:
+        // pushes are match-or-update, so a redundant replay costs time, never
+        // data.
+        if (url.searchParams.get("reset") === "1") {
+          const cleared = stateVal;
+          const fresh = { cursor: null, done: false, lock_until: 0 };
+          const clearFields = { key: STATE_KEY, value: JSON.stringify(fresh), updated_at: new Date().toISOString() };
+          if (stateRec) await update(TABLES.SYNC_STATE, [{ id: stateRec.id, fields: clearFields }]);
+          else stateRec = (await create(TABLES.SYNC_STATE, [clearFields]))[0];
+          return res.status(200).json({ ok: true, mode, reset: true, cleared, state: fresh });
+        }
         if (stateVal && stateVal.done) {
           return res.status(200).json({ ok: true, mode, done: true, state: stateVal });
         }
