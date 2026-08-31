@@ -218,10 +218,8 @@ module.exports = async function handler(req, res) {
           accounts[name] = {
             configured: true,
             account_id: a.id,
-            business_name:
-              (a.business_profile && a.business_profile.name) ||
-              (a.settings && a.settings.dashboard && a.settings.dashboard.display_name) ||
-              null,
+            business_name: (a.business_profile && a.business_profile.name) || null,
+            dashboard_name: (a.settings && a.settings.dashboard && a.settings.dashboard.display_name) || null,
             livemode: key.includes("_live_"),
           };
         } catch (e) {
@@ -279,6 +277,18 @@ module.exports = async function handler(req, res) {
               out.probe[frequency] = "ok — session created and expired";
             } catch (e) {
               out.probe[frequency] = `FAILED: ${e.message.slice(0, 300)}`;
+            }
+          }
+          // The webhook's follow-up lookups (customer details on sparse
+          // events, subscription metadata on rebills) need read access.
+          // Both degrade gracefully if refused, but better to know now.
+          for (const [name, path] of [["customers_read", "customers?limit=1"], ["subscriptions_read", "subscriptions?limit=1"]]) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              await wg(path);
+              out.probe[name] = "ok";
+            } catch (e) {
+              out.probe[name] = `FAILED (webhook degrades gracefully): ${e.message.slice(0, 200)}`;
             }
           }
         }
