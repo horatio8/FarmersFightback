@@ -23,10 +23,13 @@ async function readAirtableState() {
   const out = { econ_settings: null, cn_uid_backfill: null };
   try {
     const { select } = require("../../lib/social/airtable");
-    const { TABLES } = require("../../lib/econ/config");
     const econ = require("../../lib/econ/config");
-    out.econ_settings = await econ.loadSettings(select).catch(() => null);
-    const rows = await select(TABLES.SYNC_STATE, `{key} = 'cn_uid_backfill'`, null, 1).catch(() => []);
+    // Only call it "live" when the row was actually read: loadSettings()
+    // returns its defaults silently on any failure, which would let an
+    // unreachable Airtable masquerade as a confirmed setting.
+    const econRows = await select(econ.TABLES.SITE_STATS, `{key} = 'econ_settings'`, null, 1).catch(() => []);
+    if (econRows.length) out.econ_settings = await econ.loadSettings(select).catch(() => null);
+    const rows = await select(econ.TABLES.SYNC_STATE, `{key} = 'cn_uid_backfill'`, null, 1).catch(() => []);
     if (rows.length && rows[0].fields && rows[0].fields.value) {
       try { out.cn_uid_backfill = JSON.parse(rows[0].fields.value); } catch { /* leave null */ }
     }
