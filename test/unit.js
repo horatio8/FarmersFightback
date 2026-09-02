@@ -2001,6 +2001,88 @@ async function run() {
     }
   });
 
+  // --------------------------------------------------------- feature register
+  // lib/features.js is only a tracker if it cannot go stale. These tests scan
+  // the code for every env var it reads and every gate the register names, so
+  // a new switch without a register entry, or a register entry whose gate has
+  // gone, fails the build instead of leaving the report quietly wrong.
+  group("feature register");
+  const feat = R("lib/features.js");
+  const walkJs = (dir) => fsx.readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
+    const p = path.join(dir, d.name);
+    return d.isDirectory() ? walkJs(p) : d.name.endsWith(".js") ? [p] : [];
+  });
+  const featSrc = [
+    ...walkJs(path.join(ROOT, "api")), ...walkJs(path.join(ROOT, "lib")),
+    path.join(ROOT, "app.jsx"), path.join(ROOT, "fundraiser/funnel.jsx"),
+  ].map((f) => fsx.readFileSync(f, "utf8")).join("\n");
+  const referencedEnv = new Set([...featSrc.matchAll(/process\.env\.([A-Z0-9_]+)/g)].map((m) => m[1]));
+  const registeredEnv = new Set(feat.REGISTER.flatMap((f) => f.env || []));
+
+  await test("every env var the code reads is a registered feature or declared wiring", () => {
+    const missing = [...referencedEnv].filter((v) => !feat.WIRING_ENV.has(v) && !registeredEnv.has(v)).sort();
+    assert.empty(missing, "add each to lib/features.js: REGISTER if it changes behaviour, WIRING_ENV if it is a credential or table name");
+  });
+
+  await test("no registered env var has gone stale", () => {
+    const stale = [...registeredEnv].filter((v) => !referencedEnv.has(v)).sort();
+    assert.empty(stale, "the code no longer reads these -- fix or drop the register entry");
+  });
+
+  await test("nothing is both a feature and wiring", () => {
+    assert.empty([...registeredEnv].filter((v) => feat.WIRING_ENV.has(v)), "a var is one or the other");
+  });
+
+  await test("every code-side gate still exists where the register says", () => {
+    const gone = feat.REGISTER.filter((f) => f.code).filter((f) => {
+      const src = fsx.readFileSync(path.join(ROOT, f.code.file), "utf8");
+      return !new RegExp(`\\b(const|function)\\s+${f.code.constant}\\b`).test(src);
+    }).map((f) => `${f.key}: ${f.code.file} ${f.code.constant}`);
+    assert.empty(gone, "a renamed or removed gate would leave the tracker lying about it");
+  });
+
+  await test("register entries are unique and fully described", () => {
+    const keys = feat.REGISTER.map((f) => f.key);
+    assert.equal(new Set(keys).size, keys.length, "duplicate key in the register");
+    for (const f of feat.REGISTER) {
+      for (const k of ["key", "area", "name", "what", "source", "control", "resolve"]) assert.ok(f[k], `${f.key} is missing ${k}`);
+    }
+  });
+
+  await test("the endpoint reports every feature and every cron with a live state", async () => {
+    const handler = R("api/admin/features.js");
+    const mk = () => {
+      const res = { code: 0, body: null, headers: {} };
+      res.setHeader = (k, v) => { res.headers[k] = v; }; res.status = (c) => { res.code = c; return res; };
+      res.json = (b) => { res.body = b; return res; }; res.send = (b) => { res.body = b; return res; };
+      return res;
+    };
+    const realFetch = global.fetch;
+    global.fetch = async () => { throw new Error("offline in tests"); };
+    let denied, res, text;
+    try {
+      denied = mk(); await handler({ method: "GET", url: "/api/admin/features", headers: {} }, denied);
+      res = mk(); await handler({ method: "GET", url: `/api/admin/features?token=${process.env.ADMIN_TOKEN}`, headers: {} }, res);
+      text = mk(); await handler({ method: "GET", url: `/api/admin/features?token=${process.env.ADMIN_TOKEN}&format=text`, headers: {} }, text);
+    } finally { global.fetch = realFetch; }
+    assert.equal(denied.code, 401, "no token, no report");
+    assert.equal(res.code, 200, `report failed: ${JSON.stringify(res.body).slice(0, 200)}`);
+    const keys = new Set(res.body.features.map((f) => f.key));
+    for (const f of feat.REGISTER) assert.ok(keys.has(f.key), `report is missing ${f.key}`);
+    for (const c of vercel.crons) {
+      assert.ok(keys.has(`cron:${c.path.split("?")[0].replace(/^\/api\//, "")}`), `report is missing cron ${c.path}`);
+    }
+    for (const f of res.body.features) assert.ok("on" in f && "value" in f, `${f.key} reports no state`);
+    assert.equal(res.headers["Cache-Control"], "no-store", "a cached report would show stale switches");
+    assert.includes(text.body, "## SMS", "text format groups by area");
+    // What this session changed must read back correctly.
+    const by = Object.fromEntries(res.body.features.map((f) => [f.key, f]));
+    assert.equal(by.signup_sms.on, true, "signup texts were reinstated on 1 Sep 2026");
+    assert.equal(by.stripe_fundraising_cutover.on, true, "the account cutover is in the past");
+    assert.equal(by.ticket_sales.on, false, "ticket sales closed on 26 Aug 2026");
+    assert.equal(by.top_banner.on, true, "the signature banner is enabled in site.json");
+  });
+
   // -------------------------------------------------------------- econ config
   group("economics config");
   const econ = R("lib/econ/config.js");
