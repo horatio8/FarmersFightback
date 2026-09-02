@@ -3369,3 +3369,94 @@ img { max-width: 100%; display: block; }
 @media (max-width: 560px) {
   .ff-twin-cta { width: 100%; text-align: center; }
 }
+
+/* ============ Shop (Shopify merch) ============ */
+.ff-shop-hero { padding-top: clamp(56px, 8vw, 100px); padding-bottom: clamp(40px, 6vw, 72px); background: var(--ff-navy); }
+.ff-shop-hero-inner { max-width: 760px; }
+.ff-shop-hero .ff-eyebrow { color: rgba(255,255,255,.86); }
+.ff-shop-h1 { color: #fff; margin-top: 12px; }
+.ff-shop-hero .ff-lede { color: rgba(255,255,255,.92); }
+.ff-shop-body-section { padding-top: clamp(28px, 4vw, 44px); background: var(--ff-paper); }
+
+.ff-shop-toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+.ff-shop-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ff-shop-chip {
+  padding: 9px 16px; border-radius: 999px; border: 2px solid var(--ff-navy);
+  font-family: var(--ff-cond); font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ff-navy); background: #fff; transition: background .15s, color .15s, border-color .15s;
+}
+.ff-shop-chip:hover { background: var(--ff-paper-2); }
+.ff-shop-chip.is-active { background: var(--ff-navy); color: #fff; }
+.ff-shop-chip--soft { border-color: var(--ff-rule-2); color: var(--ff-ink-2); font-size: 13px; padding: 7px 14px; }
+.ff-shop-chip--soft.is-active { background: var(--ff-red); border-color: var(--ff-red); color: #fff; }
+
+.ff-shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
+.ff-shop-grid--band { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1000px) { .ff-shop-grid--band { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .ff-shop-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+
+.ff-shop-card {
+  display: flex; flex-direction: column; background: #fff;
+  border: 1px solid var(--ff-rule); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 8px 26px rgba(18,53,75,.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.ff-shop-card:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(18,53,75,.12); }
+.ff-shop-card.is-soldout .ff-shop-media { opacity: .72; }
+.ff-shop-media { position: relative; display: block; aspect-ratio: 4 / 5; background: var(--ff-paper-2); overflow: hidden; }
+.ff-shop-media > img { width: 100%; height: 100%; object-fit: cover; }
+.ff-shop-placeholder {
+  width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  color: rgba(255,255,255,.92); text-align: center; padding: 18px;
+}
+.ff-shop-placeholder img { width: 46%; max-width: 150px; opacity: .92; }
+.ff-shop-placeholder-type { font-family: var(--ff-cond); font-size: 15px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; margin-top: 6px; }
+.ff-shop-placeholder small { font-size: 12px; opacity: .8; }
+.ff-shop-placeholder.is-light { color: var(--ff-navy); }
+.ff-shop-badges { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.ff-shop-badge {
+  display: inline-block; padding: 4px 9px; border-radius: 4px; background: #fff; color: var(--ff-navy);
+  font-family: var(--ff-cond); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18);
+}
+.ff-shop-badge--out { background: var(--ff-ink); color: #fff; }
+.ff-shop-body { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 18px; flex: 1; }
+.ff-shop-title { font-family: var(--ff-serif); font-size: 19px; line-height: 1.2; color: var(--ff-navy); margin: 0; font-weight: 700; }
+.ff-shop-title a:hover { color: var(--ff-red); }
+.ff-shop-meta { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 13px; color: var(--ff-muted); font-family: var(--ff-cond); letter-spacing: .04em; text-transform: uppercase; }
+.ff-shop-swatch { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); display: inline-block; flex-shrink: 0; }
+.ff-shop-price { margin: 2px 0 4px; font-size: 20px; font-weight: 700; color: var(--ff-ink); display: flex; gap: 10px; align-items: baseline; }
+.ff-shop-price s { font-size: 15px; color: var(--ff-muted); font-weight: 500; }
+.ff-shop-size { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ff-ink-2); }
+.ff-shop-size span { font-family: var(--ff-cond); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.ff-shop-size select {
+  flex: 1; min-width: 0; padding: 9px 10px; font: inherit; font-size: 14px; color: var(--ff-ink);
+  border: 1px solid var(--ff-rule-2); border-radius: var(--ff-radius); background: #fff;
+}
+.ff-shop-actions { margin-top: auto; padding-top: 8px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.ff-shop-actions .ff-btn--block { padding: 14px 18px; font-size: 15px; }
+.ff-shop-details { font-size: 13px; color: var(--ff-ink-2); }
+.ff-shop-details:hover { color: var(--ff-red); }
+
+.ff-shop-card--skeleton { pointer-events: none; }
+.ff-shop-card--skeleton .ff-shop-media,
+.ff-shop-card--skeleton .ff-shop-body span {
+  background: linear-gradient(90deg, var(--ff-paper-2) 25%, #ecebe4 50%, var(--ff-paper-2) 75%);
+  background-size: 200% 100%; animation: ff-shop-shimmer 1.4s infinite;
+}
+.ff-shop-card--skeleton .ff-shop-body span { display: block; height: 14px; border-radius: 4px; }
+.ff-shop-card--skeleton .ff-shop-body span:first-child { width: 70%; height: 20px; }
+.ff-shop-card--skeleton .ff-shop-body span:last-child { height: 44px; margin-top: 10px; }
+@keyframes ff-shop-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.ff-shop-empty { text-align: center; padding: 48px 20px; background: #fff; border: 1px dashed var(--ff-rule-2); border-radius: 14px; }
+.ff-shop-empty strong { display: block; font-family: var(--ff-serif); font-size: 22px; color: var(--ff-navy); margin-bottom: 6px; }
+.ff-shop-empty p { margin: 0 0 18px; color: var(--ff-ink-2); }
+
+.ff-shop-foot { margin-top: 36px; padding-top: 22px; border-top: 1px solid var(--ff-rule); color: var(--ff-ink-2); font-size: 15px; }
+.ff-shop-foot p { margin: 0 0 8px; }
+.ff-shop-store-link a { color: var(--ff-red); text-decoration: underline; }
+
+.ff-shop-band { background: var(--ff-paper-2); border-top: 1px solid var(--ff-rule); }
+.ff-shop-band-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+.ff-shop-band-head .ff-lede { margin: 8px 0 0; }

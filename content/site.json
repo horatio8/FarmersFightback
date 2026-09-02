@@ -54,6 +54,11 @@
         "active": false
       },
       {
+        "label": "Shop",
+        "href": "/shop",
+        "active": false
+      },
+      {
         "label": "Contact Us",
         "href": "/contact",
         "active": false
@@ -337,6 +342,27 @@
           {
             "label": "Volunteer",
             "href": "/take-action/volunteer"
+          }
+        ]
+      },
+      {
+        "heading": "Shop",
+        "links": [
+          {
+            "label": "Merch",
+            "href": "/shop"
+          },
+          {
+            "label": "Apparel",
+            "href": "/shop#apparel"
+          },
+          {
+            "label": "Accessories",
+            "href": "/shop#accessories"
+          },
+          {
+            "label": "Signs & stickers",
+            "href": "/shop#signage-stickers"
           }
         ]
       }
@@ -1156,5 +1182,24 @@
     "sub": "The Coalition hasn't locked in its position on VNI West and the Western Renewables Link. A personal email from you takes 10 seconds and lands on the desks of all three leaders.",
     "buttonLabel": "Send your email now",
     "href": "/askjess"
+  },
+  "shop": {
+    "enabled": true,
+    "storeUrl": "https://shop.farmersfightback.com",
+    "storeName": "Farmers Fightback shop",
+    "eyebrow": "Wear the fight",
+    "heading": "Gear that pays for the <em>fight</em>",
+    "lede": "Tees, quarter zips, caps, beanies, stubby holders, car flags and fence signs. Every dollar of profit goes straight back into the campaign.",
+    "heroImage": "assets/uploads/gate-flag-workers.jpg",
+    "note": "Orders are packed and posted by our volunteers from the Wimmera. Sold at cost plus a small margin for the fight.",
+    "homepageBand": true,
+    "homepageHeading": "Wear the fight",
+    "homepageLede": "New merch is in. Every sale helps keep the pressure on the Government.",
+    "featured": [
+      "t-shirt-navy-mens",
+      "quarter-zip-beige-womens",
+      "cap-midnight-blue",
+      "sign"
+    ]
   }
 }

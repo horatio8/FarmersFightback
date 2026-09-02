@@ -1269,12 +1269,288 @@ function HomePage() {
         <Petition />
         <AskJessBand />
         <ActionCards />
+        <ShopBand />
         <Quote />
         <DonateBand />
       </main>
       <Footer />
       <VideoModal open={modal} onClose={() => setModal(false)} />
     </>
+  );
+}
+
+// ---------- Shop (Shopify merch) ----------
+// The catalogue comes from /api/shop, which reads the Shopify store's public
+// product feed. Nothing is sold here: "Buy now" is Shopify's cart permalink
+// (/cart/<variant>:1), so checkout, payment, shipping and stock all stay in
+// Shopify. Cart attributes carry the referral code and the fact that the
+// sale started on this site, so every order in Shopify says where it came from.
+const SHOP_API = "/api/shop";
+const SHOP_SWATCHES = {
+  "Navy": "#12354B", "Midnight Blue": "#1b2a4a", "Beige": "#d9c8a5", "Red": "#C62828",
+  "Black": "#151515", "White": "#f4f4f1", "Green": "#2f5d3a", "Grey": "#8a8f94",
+};
+const SHOP_LIGHT_SWATCHES = new Set(["Beige", "White"]);
+const SHOP_FIT_LABEL = { mens: "Men's", womens: "Women's", unisex: "Unisex" };
+
+function shopMoney(n) {
+  if (n === null || n === undefined) return "";
+  const v = Number(n);
+  return `$${v % 1 ? v.toFixed(2) : v.toFixed(0)}`;
+}
+function shopPriceLabel(p) {
+  if (p.price === null) return "";
+  return p.priceMax && p.priceMax !== p.price ? `${shopMoney(p.price)} – ${shopMoney(p.priceMax)}` : shopMoney(p.price);
+}
+// Product page on the store, tagged so Shopify's own reports show the visit
+// came from the website. `ref` is Shopify's landing-site reference, which it
+// keeps on the order, so a supporter's referral code follows them across.
+function shopProductUrl(url, campaign) {
+  try {
+    const u = new URL(url);
+    u.searchParams.set("utm_source", "farmersfightback.com");
+    u.searchParams.set("utm_medium", "website");
+    u.searchParams.set("utm_campaign", campaign || "shop");
+    const a = getAttribution();
+    if (a.ref) u.searchParams.set("ref", String(a.ref).toUpperCase());
+    return u.toString();
+  } catch { return url; }
+}
+// Straight to checkout with one of this variant in the cart. Mirrors
+// buyUrl() in api/shop.js; the attributes land on the Shopify order.
+function shopBuyUrl(store, variantId) {
+  const q = new URLSearchParams();
+  q.set("attributes[ff_source]", "farmersfightback.com");
+  const a = getAttribution();
+  if (a.ref) q.set("attributes[ff_ref]", String(a.ref).toUpperCase());
+  if (a.utm_campaign) q.set("attributes[ff_campaign]", String(a.utm_campaign));
+  return `${store}/cart/${variantId}:1?${q.toString()}`;
+}
+// Merchandising order: dearest first, then A-Z, so the apparel leads and
+// the stubby holders close the grid. Sold-out items drop to the end.
+function shopSort(products) {
+  return [...products].sort((a, b) =>
+    (Number(b.available) - Number(a.available)) ||
+    ((b.price || 0) - (a.price || 0)) ||
+    String(a.title).localeCompare(String(b.title)));
+}
+
+function useShopCatalogue() {
+  const [state, setState] = useState({ loading: true, data: null, error: null });
+  useEffect(() => {
+    let alive = true;
+    fetch(SHOP_API)
+      .then(async (r) => {
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
+        return j;
+      })
+      .then((data) => alive && setState({ loading: false, data, error: null }))
+      .catch((e) => alive && setState({ loading: false, data: null, error: e.message || "failed" }));
+    return () => { alive = false; };
+  }, []);
+  return state;
+}
+
+function ShopPlaceholder({ p }) {
+  const light = p.colour && SHOP_LIGHT_SWATCHES.has(p.colour);
+  const bg = (p.colour && SHOP_SWATCHES[p.colour]) || "var(--ff-navy)";
+  const logo = window.location.pathname.split("/").length > 2 ? "../assets/" : "assets/";
+  return (
+    <div className={`ff-shop-placeholder ${light ? "is-light" : ""}`} style={{ background: bg }} aria-label={`${p.title} — photo coming soon`}>
+      <img src={`${logo}${light ? "logo.png" : "uploads/ff-logo-white.png"}`} alt="" loading="lazy" />
+      <span className="ff-shop-placeholder-type">{p.type || "Merch"}</span>
+      <small>Photo coming soon</small>
+    </div>
+  );
+}
+
+function ShopCard({ p, store, campaign }) {
+  const firstAvailable = (p.variants.find((v) => v.available) || p.variants[0] || {}).id;
+  const [variantId, setVariantId] = useState(firstAvailable);
+  const variant = p.variants.find((v) => v.id === variantId) || p.variants[0];
+  const multi = p.variants.length > 1;
+  const optionName = (p.options[0] && p.options[0].name) || "Option";
+  const detailsUrl = shopProductUrl(p.url, campaign);
+  const onBuy = () => {
+    sendCAPI("InitiateCheckout", {}, {
+      content_ids: [p.handle], content_type: "product", content_name: p.title,
+      value: variant ? variant.price : p.price, currency: "AUD", num_items: 1,
+    });
+  };
+  return (
+    <article className={`ff-shop-card ${p.available ? "" : "is-soldout"}`} data-handle={p.handle}>
+      <a className="ff-shop-media" href={detailsUrl} rel="noopener" aria-label={`${p.title} on the shop`}>
+        {p.image
+          ? <img src={p.image.src} alt={p.image.alt || p.title} loading="lazy" width={p.image.width || undefined} height={p.image.height || undefined} />
+          : <ShopPlaceholder p={p} />}
+        <span className="ff-shop-badges">
+          {p.fit && <span className="ff-shop-badge">{SHOP_FIT_LABEL[p.fit] || p.fit}</span>}
+          {!p.available && <span className="ff-shop-badge ff-shop-badge--out">Sold out</span>}
+        </span>
+      </a>
+      <div className="ff-shop-body">
+        <h3 className="ff-shop-title"><a href={detailsUrl} rel="noopener">{p.title}</a></h3>
+        <p className="ff-shop-meta">
+          {p.colour && <span className="ff-shop-swatch" style={{ background: SHOP_SWATCHES[p.colour] || "#999" }} aria-hidden="true" />}
+          {[p.colour, p.type].filter(Boolean).join(" · ")}
+        </p>
+        <p className="ff-shop-price">
+          {variant && multi ? shopMoney(variant.price) : shopPriceLabel(p)}
+          {p.compareAt && p.compareAt > (variant ? variant.price : p.price) && <s>{shopMoney(p.compareAt)}</s>}
+        </p>
+        {multi && (
+          <label className="ff-shop-size">
+            <span>{optionName}</span>
+            <select value={variantId} onChange={(e) => setVariantId(Number(e.target.value))}>
+              {p.variants.map((v) => (
+                <option key={v.id} value={v.id} disabled={!v.available}>{v.title}{v.available ? "" : " — sold out"}</option>
+              ))}
+            </select>
+          </label>
+        )}
+        <div className="ff-shop-actions">
+          {p.available && variant && variant.available
+            ? <a className="ff-btn ff-btn--red ff-btn--block" href={shopBuyUrl(store, variant.id)} rel="noopener" onClick={onBuy}>Buy now <span aria-hidden="true">&rsaquo;</span></a>
+            : <a className="ff-btn ff-btn--outline ff-btn--block" href={detailsUrl} rel="noopener">Notify me on the shop</a>}
+          <a className="ff-link ff-shop-details" href={detailsUrl} rel="noopener">Details &amp; sizing &rarr;</a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ShopSkeleton({ count = 8 }) {
+  return (
+    <div className="ff-shop-grid" aria-busy="true" aria-label="Loading the shop">
+      {Array.from({ length: count }).map((_, i) => (
+        <div className="ff-shop-card ff-shop-card--skeleton" key={i}>
+          <div className="ff-shop-media" />
+          <div className="ff-shop-body"><span /><span /><span /></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ShopPage() {
+  const site = useContent();
+  const c = site.shop || {};
+  const { loading, data, error } = useShopCatalogue();
+  const collections = (data && data.collections) || [];
+  const hashFilter = (typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "") || "all";
+  const [filter, setFilter] = useState(hashFilter);
+  const [fit, setFit] = useState("all");
+  useEffect(() => {
+    if (!data) return;
+    if (filter !== "all" && !collections.some((k) => k.handle === filter)) setFilter("all");
+  }, [data]);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.fbq) window.fbq("track", "ViewContent", { content_type: "product_group", content_name: "Shop" });
+  }, []);
+  const store = (data && data.store && data.store.url) || c.storeUrl || "https://shop.farmersfightback.com";
+  const all = shopSort((data && data.products) || []);
+  const fits = Array.from(new Set(all.map((p) => p.fit).filter(Boolean)));
+  const shown = all
+    .filter((p) => filter === "all" || p.collections.includes(filter))
+    .filter((p) => fit === "all" || p.fit === fit || (fit !== "unisex" && p.fit === "unisex"));
+  const pick = (k) => { setFilter(k); try { history.replaceState(null, "", k === "all" ? window.location.pathname : `#${k}`); } catch {} };
+
+  return (
+    <PageShell>
+      <section className={`ff-section ff-shop-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
+        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
+        <div className="ff-wrap ff-shop-hero-inner">
+          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow || "Wear the fight"}</span>
+          <h1 className="ff-h2 ff-shop-h1" dangerouslySetInnerHTML={html(c.heading || "Gear that pays for the <em>fight</em>")} />
+          <p className="ff-lede">{c.lede}</p>
+        </div>
+      </section>
+
+      <section className="ff-section ff-shop-body-section">
+        <div className="ff-wrap">
+          <div className="ff-shop-toolbar" role="group" aria-label="Filter the shop">
+            <div className="ff-shop-chips">
+              <button type="button" className={`ff-shop-chip ${filter === "all" ? "is-active" : ""}`} onClick={() => pick("all")}>All{all.length ? ` (${all.length})` : ""}</button>
+              {collections.map((k) => (
+                <button type="button" key={k.handle} className={`ff-shop-chip ${filter === k.handle ? "is-active" : ""}`} onClick={() => pick(k.handle)}>
+                  {k.title}{k.count ? ` (${k.count})` : ""}
+                </button>
+              ))}
+            </div>
+            {fits.length > 1 && (
+              <div className="ff-shop-chips ff-shop-chips--fit">
+                <button type="button" className={`ff-shop-chip ff-shop-chip--soft ${fit === "all" ? "is-active" : ""}`} onClick={() => setFit("all")}>Everyone</button>
+                {fits.filter((f) => f !== "unisex").map((f) => (
+                  <button type="button" key={f} className={`ff-shop-chip ff-shop-chip--soft ${fit === f ? "is-active" : ""}`} onClick={() => setFit(f)}>{SHOP_FIT_LABEL[f]}</button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {loading && <ShopSkeleton />}
+          {!loading && error && (
+            <div className="ff-shop-empty">
+              <strong>The catalogue didn't load.</strong>
+              <p>The shop itself is fine — browse it directly and we'll sort this end.</p>
+              <a className="ff-btn ff-btn--red" href={shopProductUrl(`${store}/collections/all`, "shop-fallback")} rel="noopener">Open the shop <span aria-hidden="true">&rsaquo;</span></a>
+            </div>
+          )}
+          {!loading && !error && shown.length === 0 && (
+            <div className="ff-shop-empty">
+              <strong>Nothing here right now.</strong>
+              <p>{all.length ? "Try another category." : "The shelves are being restocked — check back soon."}</p>
+              {all.length > 0 && <button type="button" className="ff-btn ff-btn--outline" onClick={() => { pick("all"); setFit("all"); }}>Show everything</button>}
+            </div>
+          )}
+          {!loading && !error && shown.length > 0 && (
+            <div className="ff-shop-grid">
+              {shown.map((p) => <ShopCard key={p.handle} p={p} store={store} campaign="shop" />)}
+            </div>
+          )}
+
+          <div className="ff-shop-foot">
+            {c.note && <p className="ff-shop-note">{c.note}</p>}
+            <p className="ff-shop-store-link">
+              Checkout, shipping and returns are handled by our store at{" "}
+              <a href={shopProductUrl(store, "shop")} rel="noopener">shop.farmersfightback.com</a>.
+            </p>
+          </div>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
+// Homepage strip: a handful of featured items and one button to /shop. It
+// renders nothing at all if the catalogue is unavailable, so a Shopify
+// outage cannot leave a hole on the homepage.
+function ShopBand() {
+  const c = useContent().shop || {};
+  const { data } = useShopCatalogue();
+  if (!c.enabled || !c.homepageBand || !data || !data.products || !data.products.length) return null;
+  const wanted = Array.isArray(c.featured) ? c.featured : [];
+  const byHandle = new Map(data.products.map((p) => [p.handle, p]));
+  const picked = wanted.map((h) => byHandle.get(h)).filter((p) => p && p.available);
+  const rest = shopSort(data.products).filter((p) => p.available && !picked.includes(p));
+  const items = [...picked, ...rest].slice(0, 4);
+  if (!items.length) return null;
+  const store = data.store.url;
+  return (
+    <section className="ff-section ff-shop-band">
+      <div className="ff-wrap">
+        <div className="ff-shop-band-head">
+          <div>
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.homepageHeading || "Wear the fight"}</span>
+            <p className="ff-lede">{c.homepageLede}</p>
+          </div>
+          <a className="ff-btn ff-btn--outline" href="/shop">Browse the shop <span aria-hidden="true">&rsaquo;</span></a>
+        </div>
+        <div className="ff-shop-grid ff-shop-grid--band">
+          {items.map((p) => <ShopCard key={p.handle} p={p} store={store} campaign="homepage" />)}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -5320,6 +5596,7 @@ function App() {
   else if (page === "contact") view = <ContactPage />;
   else if (page === "media") view = <MediaPage />;
   else if (page === "donate") view = <DonorPage />;
+  else if (page === "shop") view = <ShopPage />;
   else if (page === "won") view = (
     <DonorPage
       override={WON_PAGE}

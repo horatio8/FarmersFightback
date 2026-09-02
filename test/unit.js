@@ -2001,6 +2001,127 @@ async function run() {
     }
   });
 
+  // -------------------------------------------------------- shop integration
+  // The merch page is a thin front on the Shopify store: the catalogue is
+  // read from Shopify's public feed through /api/shop and every purchase is
+  // handed to Shopify checkout. These pin the reshaping, the edge cache, the
+  // failure path and the attribution that rides on each order.
+  group("shop integration");
+  const app = fsx.readFileSync(path.join(ROOT, "app.jsx"), "utf8");
+  const site = R("content/site.json");
+  const shopFixture = {
+    products: [
+      { id: 1, title: "T-Shirt Navy Men's", handle: "t-shirt-navy-mens", body_html: "<p>Heavy cotton <b>tee</b>.</p>",
+        product_type: "T-Shirt", tags: ["Apparel", "Men's", "Merch", "Navy", "Tees"], images: [],
+        options: [{ name: "Size", position: 1, values: ["S", "M", "L"] }],
+        variants: [
+          { id: 11, title: "S", price: "40.00", available: false, compare_at_price: null },
+          { id: 12, title: "M", price: "40.00", available: true, compare_at_price: "45.00" },
+          { id: 13, title: "L", price: "42.00", available: true, compare_at_price: null },
+        ] },
+      { id: 2, title: "Stubby Holder Red", handle: "stubby-holder-red", body_html: "", product_type: "Drinkware",
+        tags: "Accessories, Merch, Red, Stubby Holders", images: [{ src: "https://cdn.shopify.com/x.jpg", alt: null, width: 800, height: 1000 }],
+        options: [{ name: "Title", values: ["Default Title"] }],
+        variants: [{ id: 21, title: "Default Title", price: "5.00", available: false }] },
+      { id: 3, title: "Ghost", handle: "ghost", product_type: "Sign", tags: [], images: [], options: [], variants: [] },
+      { id: 4, title: "Cap Beige", handle: "cap-beige", body_html: "", product_type: "Headwear",
+        tags: ["Beige", "Caps", "Headwear", "Merch", "Unisex"], images: [], options: [{ name: "Title", values: ["Default Title"] }],
+        variants: [{ id: 41, title: "Default Title", price: "35.00", available: true }] },
+    ],
+  };
+  const shopCollections = { collections: [
+    { handle: "apparel", title: "Apparel", products_count: 15 },
+    { handle: "frontpage", title: "Home page", products_count: 1 },
+    { handle: "accessories", title: "Accessories", products_count: 5 },
+  ] };
+  const shopFetch = (fail) => async (u) => {
+    if (fail) throw new Error("shopify down");
+    const url = String(u);
+    const j = url.includes("/collections.json") ? shopCollections
+      : url.includes("/collections/apparel/") ? { products: [{ handle: "t-shirt-navy-mens" }] }
+      : url.includes("/collections/accessories/") ? { products: [{ handle: "stubby-holder-red" }] }
+      : shopFixture;
+    return { ok: true, status: 200, json: async () => j };
+  };
+  const shopRes = () => {
+    const res = { code: 0, body: null, headers: {} };
+    res.setHeader = (k, v) => { res.headers[k] = v; }; res.status = (c) => { res.code = c; return res; };
+    res.json = (b) => { res.body = b; return res; };
+    return res;
+  };
+
+  await test("the shop page exists, is routed, and is linked from the nav and footer", () => {
+    assert.ok(exists("shop.html"), "shop.html shell is missing");
+    assert.includes(fsx.readFileSync(path.join(ROOT, "shop.html"), "utf8"), 'data-page="shop"', "shell must route to the shop view");
+    assert.includes(app, 'page === "shop"', "app.jsx has no shop route");
+    assert.ok(site.nav.items.some((i) => i.href === "/shop"), "Shop is not in the nav");
+    assert.ok(site.footer.columns.some((c) => c.links.some((l) => l.href === "/shop")), "Shop is not in the footer");
+    assert.equal(site.shop && site.shop.enabled, true, "site.json shop.enabled should be on");
+    assert.includes(app, "<ShopBand />", "homepage merch strip is not mounted");
+  });
+
+  await test("the catalogue endpoint reshapes Shopify's feed and caches at the edge", async () => {
+    const handler = R("api/shop.js");
+    const realFetch = global.fetch;
+    global.fetch = shopFetch(false);
+    let res;
+    try { res = shopRes(); await handler({ method: "GET", url: "/api/shop", headers: {} }, res); }
+    finally { global.fetch = realFetch; }
+    assert.equal(res.code, 200, JSON.stringify(res.body).slice(0, 200));
+    assert.match(res.headers["Cache-Control"], /s-maxage=\d+/, "the catalogue must be cached at the edge");
+    assert.equal(res.body.store.url, "https://shop.farmersfightback.com");
+    assert.deepEqual(res.body.collections.map((c) => c.handle), ["apparel", "accessories", "type-headwear"],
+      "frontpage is Shopify's own, not a category; an uncollected product gets a group from its type");
+    assert.deepEqual(res.body.collections.map((c) => c.count), [1, 1, 1], "counts are of sellable products, not Shopify's archived-inclusive count");
+    assert.equal(res.body.products.length, 3, "a product with no variants cannot be sold and is dropped");
+    const cap = res.body.products.find((p) => p.handle === "cap-beige");
+    assert.deepEqual(cap.collections, ["type-headwear"]); assert.equal(cap.fit, "unisex");
+    const tee = res.body.products.find((p) => p.handle === "t-shirt-navy-mens");
+    assert.equal(tee.colour, "Navy"); assert.equal(tee.fit, "mens"); assert.equal(tee.type, "T-Shirt");
+    assert.deepEqual(tee.collections, ["apparel"]);
+    assert.equal(tee.price, 40); assert.equal(tee.priceMax, 42); assert.equal(tee.compareAt, 45);
+    assert.equal(tee.available, true); assert.equal(tee.image, null, "no photo yet means null, not a broken src");
+    assert.equal(tee.description, "Heavy cotton tee.", "body_html is flattened to text");
+    assert.equal(tee.url, "https://shop.farmersfightback.com/products/t-shirt-navy-mens");
+    assert.deepEqual(tee.variants.map((v) => v.available), [false, true, true]);
+    const stubby = res.body.products.find((p) => p.handle === "stubby-holder-red");
+    assert.equal(stubby.available, false, "every variant sold out means the product is sold out");
+    assert.deepEqual(stubby.tags, ["Accessories", "Merch", "Red", "Stubby Holders"], "comma-string tags are split");
+    assert.equal(stubby.image.alt, "Stubby Holder Red", "a missing alt falls back to the title");
+    assert.equal(stubby.colour, "Red");
+  });
+
+  await test("a Shopify outage answers 502 uncached, never a blank 200", async () => {
+    const handler = R("api/shop.js");
+    const realFetch = global.fetch;
+    global.fetch = shopFetch(true);
+    let res;
+    try { res = shopRes(); await handler({ method: "GET", url: "/api/shop", headers: {} }, res); }
+    finally { global.fetch = realFetch; }
+    assert.equal(res.code, 502);
+    assert.equal(res.headers["Cache-Control"], "no-store", "an error must not be cached over the good copy");
+    assert.equal(res.body.store, "https://shop.farmersfightback.com", "the page needs the store address to fall back to");
+  });
+
+  await test("buy links go straight to Shopify checkout with the referral code on the order", () => {
+    const { buyUrl } = R("api/shop.js");
+    const u = new URL(buyUrl("https://shop.farmersfightback.com", 12, { ref: " ab12 " }));
+    assert.equal(u.pathname, "/cart/12:1", "Shopify's cart permalink puts the item in the cart and opens checkout");
+    assert.equal(u.searchParams.get("attributes[ff_ref]"), "AB12", "referral codes are upper-case, trimmed");
+    assert.equal(u.searchParams.get("attributes[ff_source]"), "farmersfightback.com");
+    const plain = new URL(buyUrl("https://shop.farmersfightback.com", 12, {}));
+    assert.equal(plain.searchParams.get("attributes[ff_ref]"), null, "no code, no attribute");
+    // The browser-side builder in app.jsx must produce the same permalink.
+    assert.includes(app, "/cart/${variantId}:1?", "app.jsx shopBuyUrl drifted from api/shop.js buyUrl");
+    assert.includes(app, 'q.set("attributes[ff_source]", "farmersfightback.com")');
+  });
+
+  await test("the /api/shop edge cache is declared in vercel.json", () => {
+    const h = (vercel.headers || []).find((x) => x.source === "/api/shop");
+    assert.ok(h, "no Cache-Control header rule for /api/shop");
+    assert.match(h.headers.find((x) => x.key === "Cache-Control").value, /s-maxage=/);
+  });
+
   // --------------------------------------------------------- feature register
   // lib/features.js is only a tracker if it cannot go stale. These tests scan
   // the code for every env var it reads and every gate the register names, so
@@ -2078,6 +2199,8 @@ async function run() {
     // What this session changed must read back correctly.
     const by = Object.fromEntries(res.body.features.map((f) => [f.key, f]));
     assert.equal(by.signup_sms.on, true, "signup texts were reinstated on 1 Sep 2026");
+    assert.equal(by.shop_page.on, true, "the merch shop is on");
+    assert.equal(by.shop_homepage_band.on, true, "the homepage merch strip is on");
     assert.equal(by.stripe_fundraising_cutover.on, true, "the account cutover is in the past");
     assert.equal(by.ticket_sales.on, false, "ticket sales closed on 26 Aug 2026");
     assert.equal(by.top_banner.on, true, "the signature banner is enabled in site.json");
