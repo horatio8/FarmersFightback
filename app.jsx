@@ -1366,8 +1366,11 @@ function ShopPlaceholder({ p }) {
 }
 
 function ShopCard({ p, store, campaign }) {
-  const firstAvailable = (p.variants.find((v) => v.available) || p.variants[0] || {}).id;
-  const [variantId, setVariantId] = useState(firstAvailable);
+  // Default to a middle size where one is in stock; Shopify's variant order
+  // is not always smallest-first, so "first available" can land on 3XL.
+  const inStock = p.variants.filter((v) => v.available);
+  const preferred = ["M", "L", "Medium", "Large"].map((s) => inStock.find((v) => String(v.title).toUpperCase() === s.toUpperCase())).find(Boolean);
+  const [variantId, setVariantId] = useState((preferred || inStock[0] || p.variants[0] || {}).id);
   const variant = p.variants.find((v) => v.id === variantId) || p.variants[0];
   const multi = p.variants.length > 1;
   const optionName = (p.options[0] && p.options[0].name) || "Option";
