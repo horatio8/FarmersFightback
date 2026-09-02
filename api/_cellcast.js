@@ -139,10 +139,12 @@ async function alreadyQueued(hash, template) {
 // Called from petition-signup after a successful signup. Never throws.
 // Skips: no mobile, existing donors (they get WS5 treatment), opted-out
 // contacts, and anyone who has ever been queued a signup text.
-// Owner decision, 28 Aug 2026: no automated text on signup. The switch is
-// code-side so it holds without any env change; set SIGNUP_SMS_ENABLED=1
-// to deliberately turn the texts back on.
-const SIGNUP_SMS_ENABLED = process.env.SIGNUP_SMS_ENABLED === "1";
+// Switched off by owner decision on 28 Aug 2026, and reinstated by owner
+// decision on 1 Sep 2026 -- so the default is back to sending. The kill
+// switch survives the change and only changes polarity: SIGNUP_SMS_ENABLED=0
+// stops the texts again without a code change. Vercel bakes env vars at build
+// time, so either direction needs a redeploy before it takes effect.
+const SIGNUP_SMS_ENABLED = process.env.SIGNUP_SMS_ENABLED !== "0";
 
 async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
   try {
@@ -273,8 +275,8 @@ async function dispatchDueSMS({ maxRows = 25, deadlineMs = 60000 } = {}) {
       continue;
     }
 
-    // Signup texts are switched off: drain any still-queued signup rows as
-    // suppressed rather than sending them late.
+    // Only while the kill switch is set: drain any still-queued signup rows
+    // as suppressed rather than sending them late. Normally a no-op.
     const template = f.template?.name || f.template;
     if (!SIGNUP_SMS_ENABLED && template === "signup_ab") {
       // eslint-disable-next-line no-await-in-loop

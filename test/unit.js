@@ -1572,10 +1572,16 @@ async function run() {
       "a cached verdict would glue an edge's visitors to one arm");
   });
 
-  group("signup SMS is switched off");
-  await test("a signup never queues or sends a text", async () => {
-    // Owner decision, 28 Aug 2026. The switch is code-side: no env change can
-    // silently re-enable it (SIGNUP_SMS_ENABLED=1 must be set deliberately).
+  group("signup SMS is on, with a kill switch");
+  // Reinstated by owner decision 1 Sep 2026, after being off since 28 Aug.
+  // Both directions are pinned: the default must send, and one env var must
+  // still be able to stop it without a code change. An invalid mobile is the
+  // probe, so the switch can be read off the skip reason without any network.
+  const smsSwitch = async (envVal) => {
+    const saved = process.env.SIGNUP_SMS_ENABLED;
+    if (envVal === undefined) delete process.env.SIGNUP_SMS_ENABLED;
+    else process.env.SIGNUP_SMS_ENABLED = envVal;
+    delete require.cache[path.join(ROOT, "api/_cellcast.js")];
     const realFetch = global.fetch;
     let fetched = 0;
     global.fetch = async () => { fetched += 1; throw new Error("nothing should be called"); };
@@ -1583,11 +1589,29 @@ async function run() {
       const cc = R("api/_cellcast.js");
       const out = await cc.enqueueSignupSMS({
         contactFields: { referral_code: "ABC123" },
-        mobile: "0400111222", first_name: "Jo",
+        mobile: "not-a-phone", first_name: "Jo",
       });
-      assert.equal(out.skipped, "signup sms switched off");
-      assert.equal(fetched, 0, "no Cellcast call, no Airtable queue row — nothing at all");
-    } finally { global.fetch = realFetch; }
+      return { out, fetched };
+    } finally {
+      global.fetch = realFetch;
+      if (saved === undefined) delete process.env.SIGNUP_SMS_ENABLED;
+      else process.env.SIGNUP_SMS_ENABLED = saved;
+      delete require.cache[path.join(ROOT, "api/_cellcast.js")];
+    }
+  };
+
+  await test("by default a signup gets past the switch", async () => {
+    const { out } = await smsSwitch(undefined);
+    assert.notEqual(out.skipped, "signup sms switched off",
+      "the texts are reinstated: nothing may stop a signup at the switch");
+    assert.equal(out.skipped, "no valid mobile",
+      "it should fall through to the ordinary guards instead");
+  });
+
+  await test("SIGNUP_SMS_ENABLED=0 still stops them dead", async () => {
+    const { out, fetched } = await smsSwitch("0");
+    assert.equal(out.skipped, "signup sms switched off");
+    assert.equal(fetched, 0, "no Cellcast call, no Airtable queue row — nothing at all");
   });
 
   group("ticket sales close");
