@@ -16,7 +16,7 @@
 //   products: [{
 //     handle, title, type, tags, description, url,
 //     price, priceMax, compareAt, available,
-//     colour, fit,                     // read from Shopify tags
+//     colour, fit, preorder,           // read from Shopify tags
 //     collections: [handle],
 //     image: { src, alt, width, height } | null,
 //     options: [{ name, values }],
@@ -35,7 +35,7 @@ const UA = "Mozilla/5.0 (compatible; FarmersFightbackBot/1.0; +https://farmersfi
 
 // Tags Shopify carries on every product. The colour set is the merch
 // palette; anything else in the tags is a category and stays in `tags`.
-const COLOURS = ["Navy", "Beige", "Midnight Blue", "Red", "Black", "White", "Green", "Grey"];
+const COLOURS = ["Navy", "Midnight Blue", "Cream", "Ecru", "Beige", "Red", "Black", "White", "Green", "Grey"];
 const FITS = { "Men's": "mens", "Women's": "womens", Unisex: "unisex" };
 
 function storeUrl() {
@@ -85,6 +85,10 @@ function normaliseProduct(p, store, collectionsByHandle) {
     available: variants.some((v) => v.available),
     colour,
     fit: fitTag ? FITS[fitTag] : null,
+    // Shopify carries a "Pre-order" tag on made-to-order lines. Buyers need
+    // this before they pay: in stock ships in 5 days, pre-order takes 2 to 3
+    // weeks, and the shipping policy promises pre-orders are marked.
+    preorder: tags.some((x) => String(x).toLowerCase() === "pre-order"),
     collections: collectionsByHandle.get(p.handle) || [],
     image: img ? { src: img.src, alt: img.alt || p.title, width: img.width || null, height: img.height || null } : null,
     options: (p.options || []).map((o) => ({ name: o.name, values: o.values || [] })),
@@ -151,7 +155,12 @@ async function loadCatalogue(store = storeUrl()) {
 
   return {
     store: { url: store, name: (site.shop && site.shop.storeName) || "Farmers Fightback shop", currency: "AUD" },
-    collections: allCollections.map((c) => ({ ...c, count: products.filter((p) => p.collections.includes(c.handle)).length })),
+    // A collection can empty out when products are archived or unpublished
+    // (Accessories did, on 3 Sep 2026). An empty chip is a dead end, so the
+    // count is recomputed from what is actually sellable and zeroes are cut.
+    collections: allCollections
+      .map((c) => ({ ...c, count: products.filter((p) => p.collections.includes(c.handle)).length }))
+      .filter((c) => c.count > 0),
     products,
     fetched_at: new Date().toISOString(),
   };

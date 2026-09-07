@@ -357,10 +357,6 @@
             "href": "/shop#apparel"
           },
           {
-            "label": "Accessories",
-            "href": "/shop#accessories"
-          },
-          {
             "label": "Signs & stickers",
             "href": "/shop#signage-stickers"
           }
@@ -1189,7 +1185,7 @@
     "storeName": "Farmers Fightback shop",
     "eyebrow": "Wear the fight",
     "heading": "Gear that pays for the <em>fight</em>",
-    "lede": "Tees, quarter zips, caps, beanies, stubby holders, car flags and fence signs. Every dollar of profit goes straight back into the campaign.",
+    "lede": "Tees, quarter zips, crew sweats, caps, beanies and fence signs. Every dollar of profit goes straight back into the campaign.",
     "heroImage": "assets/uploads/gate-flag-workers.jpg",
     "note": "Orders are packed and posted by our volunteers from the Wimmera. Sold at cost plus a small margin for the fight.",
     "homepageBand": true,

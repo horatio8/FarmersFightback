@@ -2024,8 +2024,8 @@ async function run() {
         options: [{ name: "Title", values: ["Default Title"] }],
         variants: [{ id: 21, title: "Default Title", price: "5.00", available: false }] },
       { id: 3, title: "Ghost", handle: "ghost", product_type: "Sign", tags: [], images: [], options: [], variants: [] },
-      { id: 4, title: "Cap Beige", handle: "cap-beige", body_html: "", product_type: "Headwear",
-        tags: ["Beige", "Caps", "Headwear", "Merch", "Unisex"], images: [], options: [{ name: "Title", values: ["Default Title"] }],
+      { id: 4, title: "Cap Cream", handle: "cap-cream", body_html: "", product_type: "Headwear",
+        tags: ["Cream", "Caps", "Headwear", "Merch", "Unisex", "Pre-order"], images: [], options: [{ name: "Title", values: ["Default Title"] }],
         variants: [{ id: 41, title: "Default Title", price: "35.00", available: true }] },
     ],
   };
@@ -2033,6 +2033,7 @@ async function run() {
     { handle: "apparel", title: "Apparel", products_count: 15 },
     { handle: "frontpage", title: "Home page", products_count: 1 },
     { handle: "accessories", title: "Accessories", products_count: 5 },
+    { handle: "empty-cat", title: "Emptied Out", products_count: 4 },
   ] };
   const shopFetch = (fail) => async (u) => {
     if (fail) throw new Error("shopify down");
@@ -2040,6 +2041,7 @@ async function run() {
     const j = url.includes("/collections.json") ? shopCollections
       : url.includes("/collections/apparel/") ? { products: [{ handle: "t-shirt-navy-mens" }] }
       : url.includes("/collections/accessories/") ? { products: [{ handle: "stubby-holder-red" }] }
+      : url.includes("/collections/empty-cat/") ? { products: [] }
       : shopFixture;
     return { ok: true, status: 200, json: async () => j };
   };
@@ -2071,11 +2073,14 @@ async function run() {
     assert.match(res.headers["Cache-Control"], /s-maxage=\d+/, "the catalogue must be cached at the edge");
     assert.equal(res.body.store.url, "https://shop.farmersfightback.com");
     assert.deepEqual(res.body.collections.map((c) => c.handle), ["apparel", "accessories", "type-headwear"],
-      "frontpage is Shopify's own, not a category; an uncollected product gets a group from its type");
+      "frontpage is Shopify's own; an emptied collection is dropped; an uncollected product gets a group from its type");
     assert.deepEqual(res.body.collections.map((c) => c.count), [1, 1, 1], "counts are of sellable products, not Shopify's archived-inclusive count");
     assert.equal(res.body.products.length, 3, "a product with no variants cannot be sold and is dropped");
-    const cap = res.body.products.find((p) => p.handle === "cap-beige");
+    const cap = res.body.products.find((p) => p.handle === "cap-cream");
     assert.deepEqual(cap.collections, ["type-headwear"]); assert.equal(cap.fit, "unisex");
+    // The store renamed Beige to Cream on 3 Sep 2026; both must still read.
+    assert.equal(cap.colour, "Cream", "a renamed palette colour must still be recognised");
+    assert.equal(cap.preorder, true, "the Pre-order tag drives the badge and the dispatch line");
     const tee = res.body.products.find((p) => p.handle === "t-shirt-navy-mens");
     assert.equal(tee.colour, "Navy"); assert.equal(tee.fit, "mens"); assert.equal(tee.type, "T-Shirt");
     assert.deepEqual(tee.collections, ["apparel"]);
@@ -2084,11 +2089,23 @@ async function run() {
     assert.equal(tee.description, "Heavy cotton tee.", "body_html is flattened to text");
     assert.equal(tee.url, "https://shop.farmersfightback.com/products/t-shirt-navy-mens");
     assert.deepEqual(tee.variants.map((v) => v.available), [false, true, true]);
+    assert.equal(tee.preorder, false, "an untagged product is in stock, not pre-order");
     const stubby = res.body.products.find((p) => p.handle === "stubby-holder-red");
     assert.equal(stubby.available, false, "every variant sold out means the product is sold out");
     assert.deepEqual(stubby.tags, ["Accessories", "Merch", "Red", "Stubby Holders"], "comma-string tags are split");
     assert.equal(stubby.image.alt, "Stubby Holder Red", "a missing alt falls back to the title");
     assert.equal(stubby.colour, "Red");
+  });
+
+  await test("the shop page shows pre-order status and never a dead filter", () => {
+    assert.includes(app, 'ff-shop-badge--pre', "no pre-order badge on the card");
+    assert.includes(app, "ships in 2 to 3 weeks", "pre-order dispatch time is not shown to the buyer");
+    assert.includes(app, "ships within 5 days", "in-stock dispatch time is not shown to the buyer");
+    assert.includes(app, '"Cream": "#e6dcc4"', "no swatch for the renamed Cream colourway");
+    // Every footer shop link must point at a filter the page can actually show.
+    const shopLinks = site.footer.columns.flatMap((c) => c.links).filter((l) => l.href.startsWith("/shop#"));
+    assert.empty(shopLinks.filter((l) => l.href.includes("accessories")),
+      "Accessories emptied out on 3 Sep 2026; a footer link to it lands on an empty grid");
   });
 
   await test("a Shopify outage answers 502 uncached, never a blank 200", async () => {

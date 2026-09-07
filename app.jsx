@@ -1287,10 +1287,11 @@ function HomePage() {
 // sale started on this site, so every order in Shopify says where it came from.
 const SHOP_API = "/api/shop";
 const SHOP_SWATCHES = {
-  "Navy": "#12354B", "Midnight Blue": "#1b2a4a", "Beige": "#d9c8a5", "Red": "#C62828",
-  "Black": "#151515", "White": "#f4f4f1", "Green": "#2f5d3a", "Grey": "#8a8f94",
+  "Navy": "#12354B", "Midnight Blue": "#1b2a4a", "Cream": "#e6dcc4", "Ecru": "#e6dcc4",
+  "Beige": "#d9c8a5", "Red": "#C62828", "Black": "#151515", "White": "#f4f4f1",
+  "Green": "#2f5d3a", "Grey": "#8a8f94",
 };
-const SHOP_LIGHT_SWATCHES = new Set(["Beige", "White"]);
+const SHOP_LIGHT_SWATCHES = new Set(["Cream", "Ecru", "Beige", "White"]);
 const SHOP_FIT_LABEL = { mens: "Men's", womens: "Women's", unisex: "Unisex" };
 
 function shopMoney(n) {
@@ -1389,6 +1390,7 @@ function ShopCard({ p, store, campaign }) {
           : <ShopPlaceholder p={p} />}
         <span className="ff-shop-badges">
           {p.fit && <span className="ff-shop-badge">{SHOP_FIT_LABEL[p.fit] || p.fit}</span>}
+          {p.preorder && <span className="ff-shop-badge ff-shop-badge--pre">Pre-order</span>}
           {!p.available && <span className="ff-shop-badge ff-shop-badge--out">Sold out</span>}
         </span>
       </a>
@@ -1402,6 +1404,9 @@ function ShopCard({ p, store, campaign }) {
           {variant && multi ? shopMoney(variant.price) : shopPriceLabel(p)}
           {p.compareAt && p.compareAt > (variant ? variant.price : p.price) && <s>{shopMoney(p.compareAt)}</s>}
         </p>
+        <p className="ff-shop-ship">
+          {p.preorder ? "Pre-order \u00b7 ships in 2 to 3 weeks" : "In stock \u00b7 ships within 5 days"}
+        </p>
         {multi && (
           <label className="ff-shop-size">
             <span>{optionName}</span>
@@ -1414,7 +1419,7 @@ function ShopCard({ p, store, campaign }) {
         )}
         <div className="ff-shop-actions">
           {p.available && variant && variant.available
-            ? <a className="ff-btn ff-btn--red ff-btn--block" href={shopBuyUrl(store, variant.id)} rel="noopener" onClick={onBuy}>Buy now <span aria-hidden="true">&rsaquo;</span></a>
+            ? <a className="ff-btn ff-btn--red ff-btn--block" href={shopBuyUrl(store, variant.id)} rel="noopener" onClick={onBuy}>{p.preorder ? "Pre-order" : "Buy now"} <span aria-hidden="true">&rsaquo;</span></a>
             : <a className="ff-btn ff-btn--outline ff-btn--block" href={detailsUrl} rel="noopener">Notify me on the shop</a>}
           <a className="ff-link ff-shop-details" href={detailsUrl} rel="noopener">Details &amp; sizing &rarr;</a>
         </div>
