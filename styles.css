@@ -3378,6 +3378,12 @@ img { max-width: 100%; display: block; }
 .ff-shop-hero .ff-lede { color: rgba(255,255,255,.92); }
 .ff-shop-body-section { padding-top: clamp(28px, 4vw, 44px); background: var(--ff-paper); }
 
+/* Banner hero: artwork whole, words beneath. For a supplied image that
+   already carries its own headline. */
+.ff-shop-hero--banner { padding: 0 0 clamp(32px, 5vw, 56px); background: var(--ff-navy); }
+.ff-shop-banner-img { width: 100%; max-height: 60vh; object-fit: cover; object-position: center; display: block; }
+.ff-shop-hero--banner .ff-shop-hero-inner { padding-top: clamp(26px, 4vw, 44px); }
+
 .ff-shop-toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
 .ff-shop-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .ff-shop-chip {

@@ -1466,14 +1466,30 @@ function ShopPage() {
 
   return (
     <PageShell>
-      <section className={`ff-section ff-shop-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
-        {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
-        <div className="ff-wrap ff-shop-hero-inner">
-          <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow || "Wear the fight"}</span>
-          <h1 className="ff-h2 ff-shop-h1" dangerouslySetInnerHTML={html(c.heading || "Gear that pays for the <em>fight</em>")} />
-          <p className="ff-lede">{c.lede}</p>
-        </div>
-      </section>
+      {/* Two hero layouts. "banner" shows the artwork whole with the words
+          underneath, which is what a supplied image with its own headline
+          needs -- overlaying our h1 on it printed one headline on top of
+          another. Anything else keeps the full-bleed treatment used
+          elsewhere on the site. */}
+      {c.heroLayout === "banner" ? (
+        <section className="ff-shop-hero ff-shop-hero--banner">
+          {c.heroImage && <img className="ff-shop-banner-img" src={c.heroImage} alt={c.heroAlt || ""} />}
+          <div className="ff-wrap ff-shop-hero-inner">
+            <span className="ff-eyebrow ff-eyebrow--light"><span className="ff-eyebrow-dot" /> {c.eyebrow || "Wear the fight"}</span>
+            <h1 className="ff-h2 ff-shop-h1" dangerouslySetInnerHTML={html(c.heading || "Gear that pays for the <em>fight</em>")} />
+            <p className="ff-lede">{c.lede}</p>
+          </div>
+        </section>
+      ) : (
+        <section className={`ff-section ff-shop-hero ${c.heroImage ? "ff-imghero ff-imghero--dark" : ""}`} style={c.heroImage ? { backgroundImage: `url(${c.heroImage})`, backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" } : undefined}>
+          {c.heroImage && <span className="ff-imghero-scrim" aria-hidden="true" />}
+          <div className="ff-wrap ff-shop-hero-inner">
+            <span className="ff-eyebrow"><span className="ff-eyebrow-dot" /> {c.eyebrow || "Wear the fight"}</span>
+            <h1 className="ff-h2 ff-shop-h1" dangerouslySetInnerHTML={html(c.heading || "Gear that pays for the <em>fight</em>")} />
+            <p className="ff-lede">{c.lede}</p>
+          </div>
+        </section>
+      )}
 
       <section className="ff-section ff-shop-body-section">
         <div className="ff-wrap">
