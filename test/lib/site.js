@@ -94,7 +94,7 @@ function listPages() {
   const out = [];
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "test") continue;
+      if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "test" || entry.name === "farmersvotes") continue;
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) { walk(full); continue; }
       if (!entry.name.endsWith(".html")) continue;

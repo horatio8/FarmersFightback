@@ -640,7 +640,7 @@ async function run() {
   // in the HTML shells, so walk the whole tree for those too.
   function jsxFiles(dir, out = []) {
     for (const e of fsx.readdirSync(dir, { withFileTypes: true })) {
-      if (["node_modules", ".git", "test", ".github"].includes(e.name)) continue;
+      if (["node_modules", ".git", "test", ".github", "farmersvotes"].includes(e.name)) continue;
       const full = path.join(dir, e.name);
       if (e.isDirectory()) jsxFiles(full, out);
       else if (/\.jsx$/.test(e.name)) out.push(full);

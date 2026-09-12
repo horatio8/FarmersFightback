@@ -1,0 +1,52 @@
+{
+  "_readme": "One entry per jurisdiction. Flip `enabled` to switch a state on; run `node scripts/ingest-boundaries.js <STATE>` to produce its boundary files first. Nothing else in the site is state-specific.",
+  "site": {
+    "name": "Farmers Votes",
+    "authorisation": "Authorised by Ben Duxson, Farmers Votes, Marnoo VIC",
+    "support_email": "support@farmersfightback.com",
+    "default_jurisdiction": "VIC"
+  },
+  "boundary_source": {
+    "provider": "ABS ASGS Edition 3, 2024 non-ABS structures (SED = state seats, CED = federal seats), served as GeoJSON from geo.abs.gov.au",
+    "state_layer": "https://geo.abs.gov.au/arcgis/rest/services/ASGS2024/SED/MapServer/0",
+    "federal_layer": "https://geo.abs.gov.au/arcgis/rest/services/ASGS2024/CED/MapServer/0",
+    "postcode_layer": "https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/POA/MapServer/0",
+    "licence": "CC BY 4.0 (Commonwealth of Australia, ABS)",
+    "verified": "2026-09-12: VIC federal layer = 38 divisions, identical names to the AEC's own October 2024 shapefile (Vic-october-2024-esri.zip)."
+  },
+  "federal": {
+    "name": "Federal", "enabled": false,
+    "houses": {
+      "reps":   { "name": "House of Representatives", "per_voter": 1, "boundary": "{state}-federal" },
+      "senate": { "name": "Senate", "per_voter": 6, "region_from": "statewide" }
+    },
+    "next_election": null,
+    "note": "Last held 3 May 2025; next due by 2028. Turn on per state via states[X].federal_enabled."
+  },
+  "states": {
+    "VIC": {
+      "name": "Victoria", "enabled": true, "federal_enabled": false, "abs_state_code": "2",
+      "election": { "date": "2026-11-28", "enrolment_close": "2026-11-03T20:00:00+11:00", "nominations_close": "2026-11-09T12:00:00+11:00", "early_voting_from": "2026-11-18", "commission": "VEC", "commission_url": "https://www.vec.vic.gov.au/voting/2026-state-election" },
+      "houses": {
+        "assembly": { "name": "Legislative Assembly", "seats": 88, "per_voter": 1, "boundary": "vic-state" },
+        "council":  { "name": "Legislative Council", "seats": 40, "per_voter": 5, "regions": 8, "region_from": "parenthetical", "note": "ABS names each district 'Ripon (Western Victoria)'; the bracketed part is the LC region." }
+      },
+      "parties_major": ["Labor", "Liberal", "National", "Greens", "One Nation"],
+      "parties_other": ["Legalise Cannabis", "Shooters, Fishers and Farmers", "Family First", "Animal Justice", "Libertarian", "Victorian Socialists", "DLP", "Independent"]
+    },
+    "NSW": {
+      "name": "New South Wales", "enabled": false, "federal_enabled": false, "abs_state_code": "1",
+      "election": { "date": "2027-03-27", "commission": "NSWEC", "commission_url": "https://elections.nsw.gov.au" },
+      "houses": {
+        "assembly": { "name": "Legislative Assembly", "seats": 93, "per_voter": 1, "boundary": "nsw-state" },
+        "council":  { "name": "Legislative Council", "seats": 42, "per_voter": 21, "region_from": "statewide" }
+      }
+    },
+    "QLD": { "name": "Queensland", "enabled": false, "federal_enabled": false, "abs_state_code": "3", "election": { "date": "2028-10-28", "commission": "ECQ" }, "houses": { "assembly": { "name": "Legislative Assembly", "seats": 93, "per_voter": 1, "boundary": "qld-state" } } },
+    "SA":  { "name": "South Australia", "enabled": false, "federal_enabled": false, "abs_state_code": "4", "election": { "date": "2030-03-16", "commission": "ECSA" }, "houses": { "assembly": { "name": "House of Assembly", "seats": 47, "per_voter": 1, "boundary": "sa-state" }, "council": { "name": "Legislative Council", "seats": 22, "per_voter": 11, "region_from": "statewide" } } },
+    "WA":  { "name": "Western Australia", "enabled": false, "federal_enabled": false, "abs_state_code": "5", "election": { "date": "2029-03-10", "commission": "WAEC" }, "houses": { "assembly": { "name": "Legislative Assembly", "seats": 59, "per_voter": 1, "boundary": "wa-state" }, "council": { "name": "Legislative Council", "seats": 37, "per_voter": 37, "region_from": "statewide" } } },
+    "TAS": { "name": "Tasmania", "enabled": false, "federal_enabled": false, "abs_state_code": "6", "election": { "date": null, "commission": "TEC" }, "houses": { "assembly": { "name": "House of Assembly", "seats": 35, "per_voter": 7, "boundary": "tas-state", "note": "Hare-Clark: 5 divisions x 7 members" }, "council": { "name": "Legislative Council", "seats": 15, "per_voter": 1, "region_from": "boundary", "boundary": "tas-council" } } },
+    "NT":  { "name": "Northern Territory", "enabled": false, "federal_enabled": false, "abs_state_code": "7", "election": { "date": "2028-08-26", "commission": "NTEC" }, "houses": { "assembly": { "name": "Legislative Assembly", "seats": 25, "per_voter": 1, "boundary": "nt-state" } } },
+    "ACT": { "name": "Australian Capital Territory", "enabled": false, "federal_enabled": false, "abs_state_code": "8", "election": { "date": "2028-10-21", "commission": "Elections ACT" }, "houses": { "assembly": { "name": "Legislative Assembly", "seats": 25, "per_voter": 5, "boundary": "act-state", "note": "Hare-Clark: 5 electorates x 5 members" } } }
+  }
+}

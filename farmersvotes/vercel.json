@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    { "source": "/api/lookup", "headers": [{ "key": "Cache-Control", "value": "public, s-maxage=86400, stale-while-revalidate=604800" }] },
+    { "source": "/content/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] }
+  ],
+  "functions": { "api/lookup.js": { "maxDuration": 10 } }
+}
