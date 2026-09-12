@@ -4,7 +4,7 @@
 
 **Stack.** Same as Farmers Fightback and for the same reasons: static pages + serverless functions on Vercel, Airtable as the store, Stripe for money, Campaign Nucleus and Cellcast for email and SMS, Meta pixel + CAPI for attribution. Lives in this repo under `farmersvotes/`, deployed as its **own Vercel project with Root Directory = `farmersvotes`** on its own domain. The FF site ignores the folder (`.vercelignore`).
 
-**Status at 12 Sep 2026.** Sections marked ✅ are built and tested (`node test/run.js`, 14/14). Everything else is designed here and waiting on the inputs listed at the end.
+**Status at 12 Sep 2026.** Sections marked ✅ are built and tested (`node test/run.js`, 19/19; full browser pass 18/18 on the dev server). Pages live: home with lookup, capture gate, seat scorecard, party grid, media, donate, quiz and shop placeholders, about. Everything else is designed here and waiting on the inputs listed at the end.
 
 ---
 
@@ -35,7 +35,7 @@ How it works:
 - A postcode from a state that is off says so by name ("New South Wales is not switched on yet"), never a blank error.
 - `GET /api/lookup?postcode=` / `?lat=&lng=` / `?address=`. Postcode and point answers are edge-cached for a day.
 
-## 3. Candidates and members ✅ (data) / ⏳ (page)
+## 3. Candidates and members ✅
 
 **Source: Wikipedia "Candidates of the 2026 Victorian state election"**, parsed by `scripts/import-candidates-wikipedia.js` into `data/candidates/vic-2026.json`.
 
@@ -51,7 +51,7 @@ Caveats, stated plainly:
 - Upper house tickets are joint Coalition lists, so Coalition MLCs are labelled "Coalition" unless Wikipedia tags them.
 - Bendigo East has no sitting member marked and is not on the retiring list; that is Wikipedia's data, consistent with the Premier's seat being open.
 
-## 4. Data model: new Airtable base "Farmers Votes" ⏳
+## 4. Data model: new Airtable base "Farmers Votes" ✅ (base `app9btcsVjsWFtc2n`, 12 tables created 12 Sep 2026)
 
 | Table | One row per | Key fields |
 |---|---|---|
@@ -102,13 +102,13 @@ Caveats, stated plainly:
 - **Gated**: name, email, mobile, postcode captured before the result. Consent checkbox for FF and FV updates.
 - Result page ends on the donate ask, then a share link carrying their referral code.
 
-## 8. Party comparison ⏳
+## 8. Party comparison ✅ (page) / ⏳ (positions)
 
 - Grid: issues down, parties across. Majors (Labor, Liberal, National, Greens, One Nation) shown; **the rest in an expandable section**.
 - Reads from `Party Positions`, so it updates without a deploy.
 - Placeholder issues until you send the real list (you said more than five here).
 
-## 9. Donations ⏳
+## 9. Donations ✅ (page and capture) / ⏳ (Stripe checkout, needs keys)
 
 - **New Stripe account**, FF's checkout and webhook code reused with a separate key set and a `fv` metadata stamp.
 - **Same donor matrix as FF** (tiles, one-off and monthly).
@@ -126,7 +126,7 @@ Caveats, stated plainly:
 
 - Same Shopify store, same products. `/api/shop` copied from FF with `ff_source=farmersvotes.com` on the cart attributes, so the order says which site sold it.
 
-## 12. Media releases ⏳
+## 12. Media releases ✅
 
 - `Media Releases` table → `/api/releases` (edge-cached 5 minutes) → `/media` page. Write in Airtable, published within five minutes. Newest first, each with its own URL for sharing.
 - News is just the same table with a tag.

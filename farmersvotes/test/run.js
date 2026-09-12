@@ -115,6 +115,54 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     finally { if (saved !== undefined) process.env.GOOGLE_MAPS_KEY = saved; }
   });
 
+  console.log("api/seat, api/parties, api/capture, api/releases (Airtable not configured)");
+  await test("seat scorecard joins boundary, candidates and placeholder ratings", async () => {
+    const seat = require("../api/seat");
+    const r = res(); await seat({ method: "GET", query: { state: "VIC", district: "Ripon" } }, r);
+    assert.strictEqual(r.code, 200);
+    assert.strictEqual(r.body.seat.name, "Ripon"); assert.strictEqual(r.body.region.name, "Western Victoria"); assert.strictEqual(r.body.region.members, 5);
+    assert.ok(r.body.lower.length >= 5, "Ripon has candidates"); assert.ok(r.body.upper.length >= 5, "Western Victoria has tickets");
+    assert.ok(r.body.lower.some((m) => m.name === "Martha Haylett" && m.incumbent), "the sitting member is on the card");
+    assert.strictEqual(r.body.issues.length, 5, "five placeholder issues");
+    assert.ok(r.body.lower.every((m) => m.overall === "Unknown"), "no ratings yet means every light is grey, never invented");
+    assert.strictEqual(r.body.ratings_live, false);
+    const bad = res(); await seat({ method: "GET", query: { state: "VIC", district: "Nowhere" } }, bad); assert.strictEqual(bad.code, 404); assert.ok(bad.body.options.includes("Ripon"));
+    const off = res(); await seat({ method: "GET", query: { state: "NSW", district: "Albury" } }, off); assert.strictEqual(off.code, 404);
+  });
+  await test("retiring members are flagged on the card from the retiring list", async () => {
+    const seat = require("../api/seat");
+    const r = res(); await seat({ method: "GET", query: { state: "VIC", district: "Bayswater" } }, r);
+    assert.ok(r.body.lower.length > 0);
+    // Jackson Taylor retired from Bayswater; he should not appear as a running incumbent
+    assert.ok(!r.body.lower.some((m) => m.name === "Jackson Taylor" && m.incumbent && !m.retiring), "a retiring MP is never shown as a live incumbent");
+  });
+  await test("party grid lists the majors and the rest separately", async () => {
+    const parties = require("../api/parties");
+    const r = res(); await parties({ method: "GET", query: { state: "VIC" } }, r);
+    assert.strictEqual(r.code, 200);
+    assert.deepStrictEqual(r.body.majors.map((x) => x.party), ["Labor", "Liberal", "National", "Greens", "One Nation"]);
+    assert.ok(r.body.others.length >= 5); assert.ok(r.body.issues.length >= 5);
+    assert.ok(r.body.majors.every((m) => Object.values(m.ratings).every((x) => x.rating === "Unknown")), "placeholders are grey, not invented");
+  });
+  await test("capture validates input and lets the voter through when Airtable is not configured", async () => {
+    const capture = require("../api/capture");
+    const saved = [process.env.AIRTABLE_FV_BASE_ID, process.env.AIRTABLE_API_KEY, process.env.AIRTABLE_TOKEN];
+    delete process.env.AIRTABLE_FV_BASE_ID; delete process.env.AIRTABLE_API_KEY; delete process.env.AIRTABLE_TOKEN;
+    try {
+      let r = res(); await capture({ method: "POST", headers: {}, body: {} }, r); assert.strictEqual(r.code, 400);
+      r = res(); await capture({ method: "POST", headers: {}, body: { email: "not-an-email" } }, r); assert.strictEqual(r.code, 400);
+      r = res(); await capture({ method: "POST", headers: {}, body: { email: "a@b.co", mobile: "1234" } }, r); assert.strictEqual(r.code, 400);
+      r = res(); await capture({ method: "POST", headers: {}, body: { first_name: "Jo", email: "jo@example.com", mobile: "0412 345 678", seat_state: "Ripon" } }, r);
+      assert.strictEqual(r.code, 202); assert.strictEqual(r.body.ok, true); assert.strictEqual(r.body.stored, false);
+    } finally { [process.env.AIRTABLE_FV_BASE_ID, process.env.AIRTABLE_API_KEY, process.env.AIRTABLE_TOKEN] = saved; for (const k of ["AIRTABLE_FV_BASE_ID", "AIRTABLE_API_KEY", "AIRTABLE_TOKEN"]) if (process.env[k] === undefined) delete process.env[k]; }
+  });
+  await test("releases answers an empty, cacheable list when Airtable is not configured", async () => {
+    const releases = require("../api/releases");
+    const saved = process.env.AIRTABLE_FV_BASE_ID; delete process.env.AIRTABLE_FV_BASE_ID;
+    try { const r = res(); await releases({ method: "GET", query: {} }, r); assert.strictEqual(r.code, 200); assert.deepStrictEqual(r.body.items, []); assert.match(r.headers["Cache-Control"], /s-maxage/); }
+    finally { if (saved !== undefined) process.env.AIRTABLE_FV_BASE_ID = saved; }
+  });
+
   console.log("candidates");
   await test("the Victorian candidate list covers every district and carries sources", () => {
     const file = require(path.join(__dirname, "..", "data", "candidates", "vic-2026.json"));
