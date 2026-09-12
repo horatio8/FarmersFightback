@@ -27,4 +27,4 @@ node scripts/import-candidates-wikipedia.js VIC 2026   # candidates + retiring l
 
 ## Deploy
 
-Own Vercel project on this repo with **Root Directory = `farmersvotes`**. Env: `GOOGLE_MAPS_KEY`, `STRIPE_FV_SECRET_KEY`, `STRIPE_FV_WEBHOOK_SECRET`, `AIRTABLE_API_KEY`, `AIRTABLE_FV_BASE_ID`, plus the Campaign Nucleus and Cellcast keys shared with FF.
+Own Vercel project on this repo with **Root Directory = `farmersvotes`**. Env: `GOOGLE_MAPS_KEY`, `STRIPE_FV_SECRET_KEY`, `STRIPE_FV_WEBHOOK_SECRET`, `AIRTABLE_API_KEY`, `AIRTABLE_FV_BASE_ID=app9btcsVjsWFtc2n` (base "Farmers Votes", created 12 Sep 2026 with the 12 tables in SPEC.md; add it to the API token's scope), plus the Campaign Nucleus and Cellcast keys shared with FF.
