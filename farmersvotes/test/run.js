@@ -1,5 +1,6 @@
 // node test/run.js  -- the lookup engine, end to end, against the shipped data.
 const assert = require("assert");
+const fs = require("fs");
 const path = require("path");
 const E = require("../lib/electorates");
 const handler = require("../api/lookup");
@@ -190,6 +191,38 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     // Upper house tickets are joint Coalition lists, untagged, so "Coalition" is the honest label there.
     assert.ok(wv.some((x) => x.name === "Bev McArthur" && ["Coalition", "Liberal"].includes(x.party) && x.incumbent), "Western Victoria: McArthur is a sitting Coalition MLC");
     assert.ok(wv.some((x) => x.name === "Sarah Mansfield" && x.party === "Greens"), "Western Victoria: Mansfield is Greens, so the bands are aligned");
+  });
+
+  console.log("issues page");
+
+  await test("/issues content has two groups of three issues, each with proofs", () => {
+    const c = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "content", "issues.json"), "utf8"));
+    assert.strictEqual(c.title, "Why put Labor last");
+    assert.deepStrictEqual(c.groups.map((g) => g.key), ["farmers", "cities"]);
+    const issues = c.groups.flatMap((g) => g.issues);
+    assert.deepStrictEqual(issues.map((i) => i.id), ["issue-1", "issue-2", "issue-3", "issue-4", "issue-5", "issue-6"]);
+    for (const i of issues) { assert.ok(i.title && i.body && i.face, i.id + " needs title, body and face caption"); assert.ok(i.proofs.length >= 2, i.id + " needs at least two proofs"); for (const p of i.proofs) assert.ok(p.text && p.href, i.id + " proof needs text and href"); }
+    assert.ok(issues.find((i) => i.id === "issue-3").help, "issue 3 carries the help line");
+    assert.strictEqual(issues.find((i) => i.id === "issue-6").extra_from, "farmland_figure");
+    assert.strictEqual(typeof c.farmland_figure, "string");
+  });
+
+  await test("every photo the issues page references is shipped", () => {
+    const c = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "content", "issues.json"), "utf8"));
+    for (const i of c.groups.flatMap((g) => g.issues)) if (i.image) assert.ok(fs.existsSync(path.join(__dirname, "..", i.image)), i.image + " missing");
+    for (const f of ["assets/logo-votes.png", "assets/logo-votes-white.png"]) assert.ok(fs.existsSync(path.join(__dirname, "..", f)), f + " missing");
+  });
+
+  await test("/issues is routed and reachable", () => {
+    const v = require("../vercel.json");
+    assert.ok(v.rewrites.some((r) => r.source === "/issues" && r.destination === "/index.html"), "vercel.json needs the /issues rewrite");
+    const app = fs.readFileSync(path.join(__dirname, "..", "app.jsx"), "utf8");
+    assert.ok(/parts\[0\] === "issues"\) view = <IssuesPage \/>/.test(app), "router must mount IssuesPage");
+    assert.ok(/\["\/issues", "Why Labor last"\]/.test(app), "site nav links to /issues");
+    const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+    assert.ok(/family=Oswald/.test(html) && /family=Source\+Sans\+3/.test(html), "index.html loads Oswald and Source Sans 3");
+    const css = fs.readFileSync(path.join(__dirname, "..", "styles.css"), "utf8");
+    for (const sel of [".iss .iss-h1", ".iss .iss-tab[aria-pressed=\"true\"]", ".iss .iss-switch", ".iss .iss-card", ".iss .iss-band", ".iss .iss-footer"]) assert.ok(css.includes(sel), "styles.css missing " + sel);
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

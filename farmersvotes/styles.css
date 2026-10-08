@@ -145,3 +145,107 @@ details.more { margin-top: 18px; } details.more summary { cursor: pointer; font:
 .skel { background: linear-gradient(90deg, var(--paper-2) 25%, #ecebe4 50%, var(--paper-2) 75%); background-size: 200% 100%; animation: sh 1.4s infinite; border-radius: 8px; }
 @keyframes sh { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ===== /issues: "Why put Labor last" (Claude Design handoff, Issues.dc.html).
+   Palette and type are the page's own: navy #143E65, red #A80A0A, gold #F7C325,
+   paper #FBF7EE, ink #1B1A17; Oswald display, Source Sans 3 body. Scoped to .iss
+   so the rest of the site keeps its chrome. ===== */
+.iss { display: flex; flex-direction: column; min-height: 100vh; font-family: "Source Sans 3", system-ui, sans-serif; font-size: 18px; line-height: 1.5; background: #FBF7EE; color: #1B1A17; -webkit-font-smoothing: antialiased; }
+.iss a { color: #143E65; text-decoration: underline; }
+.iss a:hover { color: #A80A0A; }
+.iss button { font: inherit; }
+.iss .iss-wrap { max-width: 1140px; margin: 0 auto; box-sizing: border-box; }
+.iss .iss-osw { font-family: Oswald, sans-serif; text-transform: uppercase; }
+
+/* header */
+.iss .iss-strip { background: #A80A0A; color: #fff; text-align: center; padding: 12px 16px; font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 16px; line-height: 1.3; }
+.iss .iss-strip .dot { margin: 0 14px; opacity: .7; }
+.iss .iss-strip .day { font-weight: 400; letter-spacing: .03em; }
+.iss .iss-header { position: sticky; top: 0; z-index: 50; background: #fff; color: #143E65; box-shadow: 0 2px 8px rgba(14,45,74,.18); }
+.iss .iss-header-inner { max-width: 1140px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 16px; justify-content: space-between; }
+.iss .iss-logo { display: flex; align-items: center; text-decoration: none; min-height: 48px; }
+.iss .iss-logo img { height: 44px; width: auto; display: block; }
+.iss .iss-nav { display: flex; gap: 28px; align-items: center; font-family: Oswald, sans-serif; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; font-size: 17px; }
+.iss .iss-nav a { color: #143E65; text-decoration: none; padding: 12px 0; }
+.iss .iss-nav a:hover { color: #143E65; }
+.iss .iss-header-cta { display: flex; gap: 10px; align-items: center; }
+.iss .iss-donate-gold { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; background: #F7C325; color: #1B1A17; text-decoration: none; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 18px; border-radius: 4px; }
+.iss .iss-donate-gold:hover { background: #E0AE12; color: #1B1A17; }
+.iss .iss-burger { min-width: 48px; min-height: 48px; background: transparent; border: 2px solid #143E65; border-radius: 4px; color: #143E65; font-size: 22px; cursor: pointer; display: none; align-items: center; justify-content: center; padding: 0; }
+.iss .iss-menu { display: flex; flex-direction: column; font-family: Oswald, sans-serif; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; font-size: 20px; background: #143E65; }
+.iss .iss-menu a { color: #fff; text-decoration: none; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.iss .iss-menu a:last-child { border-bottom: 0; }
+@media (max-width: 859px) { .iss .iss-nav { display: none; } .iss .iss-burger { display: flex; } }
+
+/* intro */
+.iss .iss-intro { background: #143E65; color: #fff; }
+.iss .iss-intro .iss-wrap { padding: 40px 20px 36px; }
+.iss .iss-h1 { margin: 0 0 10px; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; line-height: .95; font-size: clamp(44px, 8vw, 84px); color: #fff; letter-spacing: 0; }
+.iss .iss-lede { margin: 0 0 28px; font-size: clamp(19px, 2.4vw, 24px); max-width: 700px; }
+.iss .iss-eyebrow { margin: 0 0 6px; font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: 15px; color: #F7C325; }
+.iss .iss-question { margin: 0 0 16px; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; line-height: 1; font-size: clamp(30px, 4.5vw, 44px); color: #fff; }
+.iss .iss-picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.iss .iss-tab { display: flex; align-items: center; gap: 16px; text-align: left; min-height: 92px; padding: 16px 20px; border: 3px solid #fff; border-radius: 6px; background: #fff; color: #143E65; cursor: pointer; box-shadow: none; transition: transform .12s; }
+.iss .iss-tab:hover { transform: translateY(-2px); }
+.iss .iss-tab[aria-pressed="true"] { border-color: #F7C325; background: #A80A0A; color: #fff; box-shadow: 0 0 0 4px rgba(247,195,37,.35); }
+.iss .iss-tab svg { flex: none; }
+.iss .iss-tab-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.iss .iss-tab-label { font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: clamp(20px, 2.8vw, 26px); line-height: 1.05; }
+.iss .iss-tab-sub { font-size: 16px; opacity: .85; }
+.iss .iss-tab-check { margin-left: auto; flex: none; width: 36px; height: 36px; border-radius: 50%; border: 3px solid currentColor; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+
+/* sticky track switch */
+.iss .iss-switch { position: sticky; top: 68px; z-index: 40; background: #A80A0A; color: #fff; box-shadow: 0 4px 12px rgba(14,45,74,.2); }
+.iss .iss-switch .iss-wrap { padding: 8px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.iss .iss-switch-cur { display: flex; align-items: center; gap: 10px; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 17px; }
+.iss .iss-switch-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; background: #fff; color: #A80A0A; border: 0; border-radius: 4px; cursor: pointer; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 15px; }
+.iss .iss-switch-btn:hover { background: #FBF7EE; }
+
+/* tracks */
+.iss .iss-tracks { background: #FBF7EE; }
+.iss .iss-tracks .iss-wrap { padding: 32px 20px 48px; display: grid; gap: 32px; align-items: start; grid-template-columns: minmax(0, 1fr); }
+.iss .iss-tracks .iss-wrap.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.iss .iss-group { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.iss .iss-h2 { margin: 0; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; line-height: .95; font-size: clamp(34px, 5vw, 56px); color: #A80A0A; letter-spacing: 0; }
+.iss .iss-card { display: flex; flex-direction: column; gap: 14px; background: #fff; border-top: 6px solid #143E65; border-radius: 4px; box-shadow: 0 2px 10px rgba(27,26,23,.08); overflow: hidden; scroll-margin-top: 150px; }
+.iss .iss-slot { aspect-ratio: 16 / 9; background: #E8E2D4; position: relative; color: #1B1A17; }
+.iss .iss-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.iss .iss-slot-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 12px; box-sizing: border-box; font: 500 13px/1.3 system-ui, -apple-system, sans-serif; letter-spacing: .01em; opacity: .75; }
+.iss .iss-slot-empty svg { opacity: .45; }
+.iss .iss-slot-empty span { max-width: 90%; }
+.iss .iss-card-body { display: flex; flex-direction: column; gap: 14px; padding: 4px 22px 24px; }
+.iss .iss-h3 { margin: 0; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; line-height: 1; font-size: clamp(26px, 3.4vw, 38px); color: #143E65; text-wrap: balance; letter-spacing: 0; }
+.iss .iss-body { margin: 0; font-size: 19px; }
+.iss .iss-proofs { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.iss .iss-proof { display: flex; gap: 12px; padding: 10px 12px; background: #FBF7EE; border-radius: 4px; border-top: 3px solid #143E65; font-size: 16px; }
+.iss .iss-proof span { flex: 1; }
+.iss .iss-proof a { flex: none; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; align-self: center; }
+.iss .iss-help { margin: 0; padding: 12px 14px; background: #143E65; color: #fff; border-radius: 4px; font-weight: 600; font-size: 16px; }
+.iss .iss-extra { margin: 0; font-size: 19px; font-weight: 600; color: #A80A0A; }
+.iss .iss-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.iss .iss-btn-red { flex: 1 1 180px; display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 20px; background: #A80A0A; color: #fff; text-decoration: none; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 17px; border-radius: 4px; }
+.iss .iss-btn-red:hover { background: #8A0808; color: #fff; }
+.iss .iss-btn-navy { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 20px; border: 2px solid #143E65; color: #143E65; text-decoration: none; font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; font-size: 17px; border-radius: 4px; box-sizing: border-box; }
+.iss .iss-btn-navy:hover { background: #143E65; color: #fff; }
+
+/* donate band */
+.iss .iss-band { background: #F7C325; color: #143E65; }
+.iss .iss-band .iss-wrap { padding: 40px 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; }
+.iss .iss-band p { margin: 0; font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase; font-size: clamp(22px, 3.2vw, 32px); line-height: 1.15; flex: 1 1 420px; }
+.iss .iss-band-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 36px; background: #A80A0A; color: #fff; text-decoration: none; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 22px; border-radius: 4px; flex: 1 1 200px; max-width: 320px; }
+.iss .iss-band-btn:hover { background: #8A0808; color: #fff; }
+
+/* footer */
+.iss .iss-footer { background: #0E2D4A; color: #D6DEE8; font-size: 16px; line-height: 1.5; }
+.iss .iss-footer .iss-wrap { padding: 40px 20px 110px; display: flex; flex-direction: column; gap: 28px; }
+.iss .iss-footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; align-items: start; }
+.iss .iss-footer-brand { display: flex; flex-direction: column; gap: 14px; }
+.iss .iss-footer-brand img { height: 44px; width: auto; display: block; align-self: flex-start; }
+.iss .iss-footer-brand p { margin: 0; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; font-size: 22px; color: #fff; line-height: 1.1; }
+.iss .iss-footer-nav { display: flex; flex-direction: column; gap: 0; }
+.iss .iss-footer-nav a { display: block; padding: 14px 0; border-bottom: 1px solid rgba(214,222,232,.25); color: #fff; text-decoration: none; font-family: Oswald, sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; font-size: 20px; line-height: 1.1; }
+.iss .iss-footer-nav a:hover { color: #F7C325; }
+.iss .iss-footer-nav a.gold { color: #F7C325; font-weight: 700; }
+.iss .iss-footer-nav a.gold:hover { color: #fff; }
+.iss .iss-footer-nav a:last-child { border-bottom: 0; }
+.iss .iss-auth { margin: 12px 0 0; padding-top: 16px; border-top: 1px solid rgba(214,222,232,.3); font-size: 14px; color: #D6DEE8; }

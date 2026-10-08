@@ -46,7 +46,7 @@ function Nav() {
   const cfg = useConfig();
   const [open, setOpen] = useState(false);
   const path = window.location.pathname;
-  const links = [["/", "Home"], ["/seat", "Your seat"], ["/parties", "Parties"], ["/quiz", "How to vote"], ["/media", "Media"], ["/shop", "Shop"]];
+  const links = [["/", "Home"], ["/seat", "Your seat"], ["/parties", "Parties"], ["/issues", "Why Labor last"], ["/quiz", "How to vote"], ["/media", "Media"], ["/shop", "Shop"]];
   return (
     <nav className="nav">
       <div className="wrap nav-inner">
@@ -71,7 +71,7 @@ function Footer() {
           <p style={{ maxWidth: 380, marginTop: 10 }}>Where your members and candidates stand on farming, with the evidence. Run by the people behind Farmers Fightback.</p>
         </div>
         <div><h4>Take action</h4><Link to="/seat">Find your seat</Link><Link to="/quiz">How should I vote?</Link><Link to="/donate">Donate</Link><a href="https://www.farmersfightback.com/take-action/hold-the-gate#sign">Sign the petition</a></div>
-        <div><h4>More</h4><Link to="/parties">Compare the parties</Link><Link to="/media">Media releases</Link><Link to="/shop">Merch</Link><a href="https://www.farmersfightback.com">farmersfightback.com</a><a href={`mailto:${cfg.site.support_email}`}>Contact</a></div>
+        <div><h4>More</h4><Link to="/parties">Compare the parties</Link><Link to="/issues">Why put Labor last</Link><Link to="/media">Media releases</Link><Link to="/shop">Merch</Link><a href="https://www.farmersfightback.com">farmersfightback.com</a><a href={`mailto:${cfg.site.support_email}`}>Contact</a></div>
       </div>
       <div className="wrap footer-base">
         <span className="auth">{cfg.site.authorisation}</span>
@@ -399,6 +399,199 @@ function HomePage() {
   );
 }
 
+// ---------- /issues: "Why put Labor last" ----------
+// Built from the Claude Design handoff (Issues.dc.html + SiteHeader/SiteFooter).
+// Copy, photos and source links live in /content/issues.json. The page carries
+// its own header and footer from the design; the rest of the site keeps Nav/Footer.
+const ISS_ICON = {
+  farmers: "M4 20h16v-2H4v2zm1-9 2.3-6.9c.2-.6.8-1.1 1.4-1.1h6.6c.6 0 1.2.4 1.4 1.1L19 11h1v2h-1.2l-.6 4H5.8l-.6-4H4v-2h1zm2.1 0h9.8l-1.6-5H8.7L7.1 11zM9 15.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm6 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
+  cities: "M3 21V9l5-3 5 3v3h3V7l5 2v12H3zm2-2h3v-3H5v3zm0-5h3v-3H5v3zm5 5h3v-3h-3v3zm0-5h3v-3h-3v3zm6 5h3v-3h-3v3zm0-5h3v-3h-3v3z",
+  tick: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z",
+  swap: "M6.99 11 3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z",
+};
+const Ico = ({ d, size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={d} fill="currentColor" /></svg>;
+function useWidth() {
+  const [w, setW] = useState(window.innerWidth);
+  useEffect(() => { const r = () => setW(window.innerWidth); window.addEventListener("resize", r); return () => window.removeEventListener("resize", r); }, []);
+  return w;
+}
+function VotesHeader() {
+  const cfg = useConfig();
+  const width = useWidth();
+  const [open, setOpen] = useState(false);
+  const el = ((cfg.states || {})[cfg.site.default_jurisdiction] || {}).election || {};
+  const now = new Date();
+  const early = el.early_voting_from ? new Date(el.early_voting_from + "T00:00:00") : null;
+  const day = el.date ? new Date(el.date + "T00:00:00") : null;
+  let strip = "Put Labor Last.";
+  if (early && day && now >= early && now < day) strip = "Early voting is open. Put Labor Last.";
+  else if (day && now >= day) strip = "Vote today. Put Labor Last.";
+  else if (early) strip = `${Math.max(1, Math.ceil((early - now) / 86400000))} days until early voting opens`;
+  const dayLabel = day ? day.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }) : "";
+  const isMobile = width < 860;
+  const links = [["/seat", "Who to vote for"], ["/issues", "Issues"], ["/about", "About"]];
+  return (
+    <>
+      <div className="iss-strip"><span>{strip}</span><span className="dot">·</span><span className="day">Election day {dayLabel}</span></div>
+      <header className="iss-header">
+        <div className="iss-header-inner">
+          <Link to="/" className="iss-logo"><img src="/assets/logo-votes.png" alt="Farmers Fightback Votes" /></Link>
+          {!isMobile && <nav className="iss-nav">{links.map(([to, l]) => <Link key={to} to={to}>{l}</Link>)}</nav>}
+          <div className="iss-header-cta">
+            <Link to="/donate" className="iss-donate-gold">Donate</Link>
+            {isMobile && <button type="button" className="iss-burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>☰</button>}
+          </div>
+        </div>
+        {isMobile && open && <nav className="iss-menu">{links.map(([to, l]) => <Link key={to} to={to} onClick={() => setOpen(false)}>{l}</Link>)}</nav>}
+      </header>
+    </>
+  );
+}
+function VotesFooter() {
+  const cfg = useConfig();
+  return (
+    <footer className="iss-footer">
+      <div className="iss-wrap">
+        <div className="iss-footer-grid">
+          <div className="iss-footer-brand">
+            <img src="/assets/logo-votes-white.png" alt="Farmers Fightback Votes" />
+            <p>Save our farmers.<br />Put Labor Last.</p>
+          </div>
+          <nav className="iss-footer-nav" aria-label="Footer">
+            <Link to="/seat">Who to vote for</Link>
+            <Link to="/issues">Why put Labor last</Link>
+            <Link to="/donate" className="gold">Donate</Link>
+            <Link to="/about">About us</Link>
+          </nav>
+        </div>
+        <p className="iss-auth">{cfg.site.authorisation}</p>
+      </div>
+    </footer>
+  );
+}
+function IssueSlot({ it }) {
+  if (it.image) return <div className="iss-slot"><img src={it.image} alt={it.caption || it.face || ""} loading="lazy" /></div>;
+  return (
+    <div className="iss-slot" role="img" aria-label={it.face}>
+      <div className="iss-slot-empty">
+        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
+        <span>{it.face}</span>
+      </div>
+    </div>
+  );
+}
+function IssuesPage() {
+  const { loading, data: c, error } = useFetch("/content/issues.json", []);
+  const width = useWidth();
+  const [track, setTrack] = useState(null);
+  const pending = useRef(null);
+  useEffect(() => {
+    document.title = "Why put Labor last · Farmers Votes";
+    const h = window.location.hash;
+    if (window.innerWidth < 900) { if (/issue-[123]/.test(h)) setTrack("farmers"); if (/issue-[456]/.test(h)) setTrack("cities"); }
+  }, []);
+  useEffect(() => {
+    if (!c) return;
+    const id = pending.current; pending.current = null;
+    if (id) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: "smooth" }); return; }
+    const h = window.location.hash.slice(1);
+    if (h) { const el = document.getElementById(h); if (el) el.scrollIntoView(); }
+  }, [c, track]);
+  const narrow = width < 900;
+  const cur = track || (narrow ? "farmers" : "both");
+  const focused = cur !== "both";
+  const groups = c ? c.groups : [];
+  const visible = focused ? groups.filter((g) => g.key === cur) : groups;
+  const curG = groups.find((g) => g.key === cur) || groups[0];
+  const other = curG ? groups.find((g) => g.key !== curG.key) : null;
+  const go = (g) => {
+    const id = g.issues[0].id;
+    if (g.key === track) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: "smooth" }); return; }
+    pending.current = id; setTrack(g.key);
+  };
+  return (
+    <div className="iss">
+      <VotesHeader />
+      {error && <section className="iss-intro"><div className="iss-wrap"><h1 className="iss-h1">We couldn't load this page.</h1><p className="iss-lede">{error}</p></div></section>}
+      {c && (
+        <>
+          <section className="iss-intro">
+            <div className="iss-wrap">
+              <h1 className="iss-h1">{c.title}</h1>
+              <p className="iss-lede">{c.lede}</p>
+              <p className="iss-eyebrow">{c.step_eyebrow}</p>
+              <p className="iss-question">{c.step_question}</p>
+              <div className="iss-picker">
+                {groups.map((g) => {
+                  const on = cur === g.key;
+                  return (
+                    <button type="button" key={g.key} className="iss-tab" aria-pressed={on} onClick={() => go(g)}>
+                      <Ico d={ISS_ICON[g.key]} size={44} />
+                      <span className="iss-tab-text"><span className="iss-tab-label">{g.label}</span><span className="iss-tab-sub">{g.sub}</span></span>
+                      <span className="iss-tab-check">{on && <Ico d={ISS_ICON.tick} size={22} />}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+          {focused && curG && other && (
+            <div className="iss-switch">
+              <div className="iss-wrap">
+                <span className="iss-switch-cur"><Ico d={ISS_ICON[curG.key]} size={22} />{curG.label}</span>
+                <button type="button" className="iss-switch-btn" onClick={() => go(other)}>Switch to {other.key} <Ico d={ISS_ICON.swap} size={18} /></button>
+              </div>
+            </div>
+          )}
+          <section className="iss-tracks">
+            <div className={"iss-wrap" + (visible.length > 1 ? " is-two" : "")}>
+              {visible.map((g) => (
+                <div className="iss-group" key={g.key}>
+                  <h2 className="iss-h2">{g.label}</h2>
+                  {g.issues.map((it) => {
+                    const extra = it.extra_from ? String(c[it.extra_from] || "").trim() : "";
+                    return (
+                      <article id={it.id} className="iss-card" key={it.id}>
+                        <IssueSlot it={it} />
+                        <div className="iss-card-body">
+                          <h3 className="iss-h3">{it.title}</h3>
+                          <p className="iss-body">{it.body}</p>
+                          <ul className="iss-proofs">
+                            {(it.proofs || []).map((p, i) => (
+                              <li className="iss-proof" key={i}>
+                                <span>{p.text}</span>
+                                <a href={p.href} target="_blank" rel="noopener" onClick={p.href === "#" ? (e) => e.preventDefault() : undefined}>Source</a>
+                              </li>
+                            ))}
+                          </ul>
+                          {it.help && <p className="iss-help">{c.help_line}</p>}
+                          {extra && <p className="iss-extra">{extra}</p>}
+                          <div className="iss-ctas">
+                            <Link to="/seat" className="iss-btn-red">{c.cta_find}</Link>
+                            <Link to="/donate" className="iss-btn-navy">{c.cta_donate}</Link>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </section>
+          <section className="iss-band">
+            <div className="iss-wrap">
+              <p>{c.band_heading}</p>
+              <Link to="/donate" className="iss-band-btn">{c.band_cta}</Link>
+            </div>
+          </section>
+        </>
+      )}
+      {loading && <div style={{ flex: 1 }} />}
+      <VotesFooter />
+    </div>
+  );
+}
+
 // ---------- app ----------
 function App() {
   const [cfg, setCfg] = useState(null); const [err, setErr] = useState(null);
@@ -417,6 +610,7 @@ function App() {
   else if (parts[0] === "donate") view = <DonatePage />;
   else if (parts[0] === "quiz") view = <QuizPage />;
   else if (parts[0] === "shop") view = <ShopPage />;
+  else if (parts[0] === "issues") view = <IssuesPage />;
   else if (parts[0] === "about") view = <AboutPage />;
   else view = <HomePage />;
   return <Config.Provider value={cfg}>{view}</Config.Provider>;

@@ -88,6 +88,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/issues",
+      "destination": "/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/index.html"
     }
