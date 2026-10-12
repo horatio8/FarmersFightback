@@ -346,8 +346,8 @@ function HomePage() {
           <div className="v-story-img"><img src="/assets/issues/mary-colin.jpg" alt="Mary and Colin at their farm gate" /></div>
           <div>
             <p className="v-kicker">★ Fined at their own gate</p>
-            <h2 className="v-h2 v-h2--mc">Mary and Colin are 80. Labor fined them $814 for defending their own farm.</h2>
-            <p className="v-story-p">Twelve farmers have been fined so far. Labor handed the line to a Spanish multinational to build, own and operate.</p>
+            <h2 className="v-h2 v-h2--mc">Labor fined 12 farmers nearly $1000 for defending their own farm.</h2>
+            <p className="v-story-p">Mary and Colin, both 80, were fined $814 at their own gate. Labor handed the line to a Spanish multinational to build, own and operate.</p>
             <Link to="/issues#issue-1" className="v-underline">Read their story →</Link>
           </div>
         </div>
