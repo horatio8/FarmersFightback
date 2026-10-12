@@ -471,13 +471,18 @@ const PARTY_COLOURS = [
 ];
 const partyColour = (p) => (PARTY_COLOURS.find(([re]) => re.test(p || "")) || [null, "#5B574E"])[1];
 
-// Real maps: Leaflet over CARTO's OpenStreetMap tiles, with the seat's
-// boundary from /api/boundary on top. "hero" is a fixed, tinted backdrop;
-// "full" is the interactive map lower down the page.
-const TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const TILE_CREDIT = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+// Real maps: Leaflet with the seat's boundary from /api/boundary on top.
+// Tiles come from MapTiler (key in config site.maptiler_key, locked to our
+// domains in the MapTiler dashboard), or CARTO's free OpenStreetMap tiles
+// when no key is set. "hero" is a fixed, tinted backdrop; "full" is the
+// interactive map lower down the page.
+const OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+const tileSource = (key) => key
+  ? { url: `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${encodeURIComponent(key)}`, opts: { tileSize: 512, zoomOffset: -1, attribution: `&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> ${OSM}`, maxZoom: 18, crossOrigin: true } }
+  : { url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", opts: { subdomains: "abcd", attribution: `${OSM} &copy; <a href="https://carto.com/attributions">CARTO</a>`, maxZoom: 18, detectRetina: true } };
 function SeatLeaflet({ boundary, variant, label }) {
   const el = useRef(null);
+  const key = useConfig().site.maptiler_key || "";
   useEffect(() => {
     if (!boundary || !el.current || !window.L) return;
     const L = window.L, hero = variant === "hero";
@@ -485,7 +490,8 @@ function SeatLeaflet({ boundary, variant, label }) {
       zoomControl: !hero, attributionControl: !hero, dragging: !hero && !L.Browser.mobile, touchZoom: !hero,
       scrollWheelZoom: false, doubleClickZoom: !hero, boxZoom: false, keyboard: !hero, tap: false, zoomSnap: 0.25,
     });
-    L.tileLayer(TILES, { attribution: TILE_CREDIT, subdomains: "abcd", maxZoom: 18, detectRetina: true }).addTo(map);
+    const src = tileSource(key);
+    L.tileLayer(src.url, src.opts).addTo(map);
     const shape = L.polygon(boundary.rings.map((r) => r.map(([x, y]) => [y, x])), hero
       ? { color: "#fff", weight: 3, fillColor: "#5FA8FF", fillOpacity: 0.28, interactive: false }
       : { color: "#143E65", weight: 3, fillColor: "#143E65", fillOpacity: 0.16 }).addTo(map);
@@ -499,7 +505,7 @@ function SeatLeaflet({ boundary, variant, label }) {
     const again = setTimeout(fit, 250);
     window.addEventListener("resize", fit);
     return () => { clearTimeout(again); window.removeEventListener("resize", fit); map.remove(); };
-  }, [boundary, variant]);
+  }, [boundary, variant, key]);
   return <div ref={el} className={`v-leaflet v-leaflet--${variant}`} role="img" aria-label={label} />;
 }
 // The page's main ask: first name and mobile for an election-day text.

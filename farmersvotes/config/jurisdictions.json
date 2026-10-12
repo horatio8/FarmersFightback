@@ -4,7 +4,8 @@
     "name": "Farmers Votes",
     "authorisation": "Authorised by Ben Duxson, Farmers Votes, Marnoo VIC",
     "support_email": "support@farmersfightback.com",
-    "default_jurisdiction": "VIC"
+    "default_jurisdiction": "VIC",
+    "maptiler_key": "KI4mzKgYqOnLRMnsyvOG"
   },
   "boundary_source": {
     "provider": "ABS ASGS Edition 3, 2024 non-ABS structures (SED = state seats, CED = federal seats), served as GeoJSON from geo.abs.gov.au",
