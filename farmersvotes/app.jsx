@@ -585,7 +585,6 @@ function SeatPage({ state, district }) {
   const list = after
     ? ballot.map((b) => ({ ...(byName[b.name] || {}), ...b }))
     : [...data.lower].sort((a, b) => (b.incumbent ? 1 : 0) - (a.incumbent ? 1 : 0));
-  const url = seatShare(state, name);
   return (
     <Page>
       <section className="v-sec v-res-head">
@@ -660,13 +659,6 @@ function SeatPage({ state, district }) {
             {data.copy.places.length > 0 && <><p className="v-p">Main towns and suburbs:</p><p className="v-places">{data.copy.places.join(", ")}</p></>}
             <p className="v-muted v-mt"><Link to="/seat">Not your electorate? Look up another postcode.</Link></p>
           </div>
-        </div>
-      </section>
-      <section className="v-sec v-navy">
-        <div className="v-wrap v-narrow v-pad-md">
-          <h2 className="v-h2 v-h2--light v-h2--md">Share with your friends in {name}</h2>
-          <p className="v-share-lede">They get this page and the how-to-vote card. One tap.</p>
-          <ShareGrid url={url} msg={seatMsg(name, url)} subject={`How to vote in ${name}`} label={name} />
         </div>
       </section>
       <WhenWhere />
