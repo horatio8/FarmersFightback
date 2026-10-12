@@ -2,7 +2,7 @@
   "_comment": "Per-seat copy for the result page (/seat/VIC/<District>). Every district works without an entry here: the hook falls back to default_hook_labor or default_hook_other, candidates come from data/candidates, towns from places.json. Add an entry to give a seat its own hook, a line per candidate on the transmission lines (stances, keyed by exact candidate name), or, after the ballot draw, the how-to-vote order (ballot: [{name, party}] top to bottom, Labor last). A seat with a ballot list switches to the numbered card.",
   "ballot_draw": "2026-11-09",
   "default_hook_labor": "Held by Labor. Their transmission lines were sold to Victorians at $3.9 billion. They're now up to $11.4 billion, and it lands on your power bill.",
-  "default_hook_other": "Labor wants this seat. Their transmission lines were sold at $3.9 billion and are now up to $11.4 billion. Don't hand it to them.",
+  "default_hook_other": "Labor's transmission lines were sold to Victorians at $3.9 billion. They're now up to $11.4 billion, and it lands on your power bill.",
   "seats": {
     "Ripon": {
       "hook": "VNI West cuts straight through Ripon. Mary and Colin, both 80, were fined $814 at their own gate here.",

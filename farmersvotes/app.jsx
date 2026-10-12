@@ -428,6 +428,7 @@ function FindPage() {
 // ---------- result ----------
 const initials = (n) => n.split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 3).join("").toUpperCase();
 const isLabor = (p) => /labor/i.test(p || "");
+const isOneNation = (p) => (/one nation/i.test(p || "") ? 1 : 0);
 function profileLine(c, seatName) {
   if (c.retiring) return `Sitting ${c.party} member for ${seatName}. Retiring at this election.`;
   if (c.incumbent) return `Sitting ${c.party} member for ${seatName}.`;
@@ -499,7 +500,8 @@ function SeatLeaflet({ boundary, variant, label }) {
     const fit = () => {
       map.invalidateSize();
       const wide = el.current.clientWidth >= 860;
-      map.fitBounds(shape.getBounds(), !hero ? { padding: [24, 24] } : wide ? { paddingTopLeft: [Math.round(el.current.clientWidth * 0.5), 30], paddingBottomRight: [40, 30] } : { padding: [30, 30] });
+      // Narrow screens: the shape sits in the top part, above the headline.
+      map.fitBounds(shape.getBounds(), !hero ? { padding: [24, 24] } : wide ? { paddingTopLeft: [Math.round(el.current.clientWidth * 0.5), 30], paddingBottomRight: [40, 30] } : { paddingTopLeft: [24, 20], paddingBottomRight: [24, Math.round(el.current.clientHeight * 0.56)] });
     };
     fit();
     const again = setTimeout(fit, 250);
@@ -509,13 +511,12 @@ function SeatLeaflet({ boundary, variant, label }) {
   return <div ref={el} className={`v-leaflet v-leaflet--${variant}`} role="img" aria-label={label} />;
 }
 // The page's main ask: first name and mobile for an election-day text.
-// Postcode comes from the lookup; anyone who arrived on a shared link is
-// asked for it here.
+// Postcode comes from the lookup; it is never asked for here.
 function Reminder({ seat, state }) {
   const saved = store.get("fv_reminder");
   const last = (() => { try { return JSON.parse(sessionStorage.getItem("fv_last_seat") || "{}"); } catch { return {}; } })();
-  const knownPc = /^\d{4}$/.test(last.postcode || "") ? last.postcode : "";
-  const [f, setF] = useState({ first_name: "", mobile: "", postcode: knownPc });
+  const postcode = /^\d{4}$/.test(last.postcode || "") ? last.postcode : "";
+  const [f, setF] = useState({ first_name: "", mobile: "" });
   const [done, setDone] = useState(saved && saved.mobile ? saved : null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -526,11 +527,10 @@ function Reminder({ seat, state }) {
     const d = f.mobile.replace(/\s/g, "");
     if (!f.first_name.trim()) return setErr("Your first name, please.");
     if (!/^04\d{8}$/.test(d)) return setErr("Enter an Australian mobile number, like 0412 345 678.");
-    if (!/^\d{4}$/.test(f.postcode)) return setErr("Enter your four-digit postcode.");
     setBusy(true);
     try {
       const attr = getAttribution();
-      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ first_name: f.first_name.trim(), mobile: d, postcode: f.postcode, consent_sms: true, seat_state: name, seat_region: seat.region ? seat.region.name : "", jurisdiction: state, source: "Reminder", ref: attr.ref || "", utm: attr }) });
+      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ first_name: f.first_name.trim(), mobile: d, postcode, consent_sms: true, seat_state: name, seat_region: seat.region ? seat.region.name : "", jurisdiction: state, source: "Reminder", ref: attr.ref || "", utm: attr }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
       const rec = { first_name: f.first_name.trim(), mobile: f.mobile, referral_code: j.referral_code || null, at: Date.now() };
@@ -550,7 +550,6 @@ function Reminder({ seat, state }) {
             <form className="v-remind-form" onSubmit={submit} noValidate>
               <input className="v-pc-input v-remind-in" value={f.first_name} onChange={up("first_name", (v) => v.slice(0, 60))} autoComplete="given-name" placeholder="First name" aria-label="First name" />
               <input className="v-pc-input v-remind-in" value={f.mobile} onChange={up("mobile", (v) => v.replace(/[^\d ]/g, "").slice(0, 12))} inputMode="tel" type="tel" autoComplete="tel" placeholder="Mobile number" aria-label="Mobile number" />
-              {!knownPc && <input className="v-pc-input v-remind-in" value={f.postcode} onChange={up("postcode", (v) => v.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" autoComplete="postal-code" placeholder="Postcode" aria-label="Postcode" />}
               <button type="submit" className="v-btn v-btn--navy v-remind-btn" disabled={busy}>{busy ? "One sec…" : "Remind me on election day"}</button>
             </form>
             {err && <p className="v-remind-err">{err}</p>}
@@ -584,7 +583,7 @@ function SeatPage({ state, district }) {
   const byName = Object.fromEntries(data.lower.map((c) => [c.name, c]));
   const list = after
     ? ballot.map((b) => ({ ...(byName[b.name] || {}), ...b }))
-    : [...data.lower].sort((a, b) => (b.incumbent ? 1 : 0) - (a.incumbent ? 1 : 0));
+    : [...data.lower].sort((a, b) => (isOneNation(b.party) - isOneNation(a.party)) || ((b.incumbent ? 1 : 0) - (a.incumbent ? 1 : 0)));
   return (
     <Page>
       <section className="v-sec v-res-head">
@@ -592,9 +591,8 @@ function SeatPage({ state, district }) {
         <div className="v-res-tint" />
         <div className="v-wrap v-pad-head v-res-inner">
           <p className="v-res-k">Your electorate{region ? ` · ${region} Region` : ""}</p>
-          <h1 className="v-res-name">{name}</h1>
+          <h1 className="v-res-name"><span className="v-res-pll">Put Labor Last in</span>{name}</h1>
           <p className="v-res-hook">{data.copy.hook}</p>
-          <p className="v-res-pll">Put Labor Last</p>
         </div>
       </section>
       <Reminder seat={data} state={state} />
@@ -620,32 +618,6 @@ function SeatPage({ state, district }) {
               ))}
             </div>
           ) : <p className="v-p">No candidates announced yet for {name}.</p>}
-        </div>
-      </section>
-      <section className="v-sec v-sec--paper">
-        <div className="v-wrap v-pad v-htv-grid">
-          <div>
-            <h2 className="v-h2">How to vote in {name}</h2>
-            {after ? (
-              <>
-                <p className="v-p">Lower house (the small green ballot): number every box, Labor last. Copy the card, or save it to your phone.</p>
-                <div className="v-row v-row--mb">
-                  <Link to={`/card/${state}/${encodeURIComponent(name)}`} className="v-btn v-btn--navy v-btn--md">Save card to phone</Link>
-                  <Link to={`/card/${state}/${encodeURIComponent(name)}?print=1`} className="v-btn v-btn--outline v-btn--md">Print A5</Link>
-                </div>
-              </>
-            ) : (
-              <p className="v-p v-p--mb">Candidates aren't final until the ballot draw on {data.copy.ballot_draw ? fmt(dayOf(data.copy.ballot_draw), { weekday: "long", day: "numeric", month: "long" }) : "nominations close"}. Sign up above and we'll text you the finished card.</p>
-            )}
-            {region && (
-              <div className="v-tile v-tile--plain">
-                <p className="v-tile-h v-tile-h--sm">Upper house · {region} Region</p>
-                <p>The big white ballot. Group voting tickets are gone this election, so your numbers decide. Number <strong>at least five</strong> groups above the line, in your own order, and put Labor's group last of the ones you number.</p>
-                <p className="v-muted">Our recommended order for {region} will be published after the ballot draw.</p>
-              </div>
-            )}
-          </div>
-          <HTVCard electorate={name} rows={after ? list : []} drawDate={data.copy.ballot_draw} />
         </div>
       </section>
       <section className="v-sec v-sec--paper">
@@ -739,12 +711,12 @@ function IssuesPage() {
               <p className="iss-eyebrow">{c.step_eyebrow}</p>
               <p className="iss-question">{c.step_question}</p>
               <div className="iss-picker">
-                {groups.map((g) => {
+                {[...groups].sort((a, b) => (a.tab_order || 0) - (b.tab_order || 0)).map((g) => {
                   const on = cur === g.key;
                   return (
                     <button type="button" key={g.key} className="iss-tab" aria-pressed={on} onClick={() => go(g)}>
                       <Ico d={ICON[g.key]} size={44} />
-                      <span className="iss-tab-text"><span className="iss-tab-label">{g.label}</span><span className="iss-tab-sub">{g.sub}</span></span>
+                      <span className="iss-tab-text"><span className="iss-tab-label">{g.tab_label || g.label}</span><span className="iss-tab-sub">{g.sub}</span></span>
                       <span className="iss-tab-check">{on && <Ico d={ICON.tick} size={22} />}</span>
                     </button>
                   );
@@ -755,8 +727,8 @@ function IssuesPage() {
           {focused && curG && other && (
             <div className="iss-switch">
               <div className="iss-wrap">
-                <span className="iss-switch-cur"><Ico d={ICON[curG.key]} size={22} />{curG.label}</span>
-                <button type="button" className="iss-switch-btn" onClick={() => go(other)}>Switch to {other.key} <Ico d={ICON.swap} size={18} /></button>
+                <span className="iss-switch-cur"><Ico d={ICON[curG.key]} size={22} />{curG.tab_label || curG.label}</span>
+                <button type="button" className="iss-switch-btn" onClick={() => go(other)}>Switch to {other.tab_label || other.key} <Ico d={ICON.swap} size={18} /></button>
               </div>
             </div>
           )}

@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy for /issues (the 'Why put Labor last' page). Edit text, photos and source links here; the page reads this file at load. An issue with no image shows the grey placeholder with its 'face' caption. proofs[].href of '#' renders a Source link that goes nowhere until a real URL is pasted in. teaser and home_label feed the six cards on the home page.",
+  "_comment": "Copy for /issues (the 'Why put Labor last' page). Edit text, photos and source links here; the page reads this file at load. An issue with no image shows the grey placeholder with its 'face' caption. proofs[].href of '#' renders a Source link that goes nowhere until a real URL is pasted in. teaser and home_label feed the six cards on the home page. tab_label and tab_order set the City / Country toggle.",
   "title": "Why put Labor last",
   "lede": "Six reasons we cannot miss this chance to vote Labor out.",
   "step_eyebrow": "★ Step one",
@@ -87,7 +87,9 @@
           "teaser": "The mental health program is funded by the agency sending the fines."
         }
       ],
-      "home_label": "For the country"
+      "home_label": "For the country",
+      "tab_label": "Country",
+      "tab_order": 1
     },
     {
       "key": "cities",
@@ -157,7 +159,9 @@
           "teaser": "Transmission costs land on every bill. Less farmland means dearer food."
         }
       ],
-      "home_label": "For the city"
+      "home_label": "For the city",
+      "tab_label": "City",
+      "tab_order": 0
     }
   ]
 }
