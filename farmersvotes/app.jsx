@@ -350,7 +350,7 @@ function HomePage() {
       <section id="top" className="v-hero">
         <div className="v-hero-shade" />
         <div className="v-wrap v-hero-inner">
-          <h1 className="v-hero-h1"><span>{city ? "Save your power bill." : "Save our farmers."}</span><span className="v-pink">Put Labor Last.</span></h1>
+          <h1 className="v-hero-h1"><span>{city ? "Save your power bill." : "Save our farmers."}</span><span className="v-hero-serif">Vote Labor Out.</span></h1>
           <p className="v-hero-lede">{el.date ? dayMonth(el.date) : "Election day"} is the only chance we get to stop them. Make it count.</p>
           <div className="v-row v-row--hero">
             <a href="#donate" className="v-btn v-btn--red v-btn--lg">Chip in now</a>
