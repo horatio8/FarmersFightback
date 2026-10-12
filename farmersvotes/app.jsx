@@ -1,8 +1,10 @@
 /* global React, ReactDOM */
-// Farmers Votes front end. One bundle, routed on pathname. Reads
-// /config/jurisdictions.json for site copy and the enabled states, and the
-// /api endpoints for everything else.
-const { useState, useEffect, useMemo, useRef, createContext, useContext } = React;
+// Farmers Fightback Votes front end. One bundle, routed on pathname, built
+// from the Claude Design handoff (Home, Find, Result, HTV card, Issues,
+// Donate, About). Reads /config/jurisdictions.json for dates and the
+// authorisation line, /content/*.json for copy, and /api for the lookup,
+// the seat, the boundary, capture and donations.
+const { useState, useEffect, useRef, createContext, useContext } = React;
 
 // ---------- attribution (same keys FF uses) ----------
 const ATTR_KEY = "fv_attribution";
@@ -18,14 +20,22 @@ function captureAttribution() {
   } catch { return {}; }
 }
 const getAttribution = () => { try { return JSON.parse(sessionStorage.getItem(ATTR_KEY) || "{}"); } catch { return {}; } };
-const getGate = () => { try { return JSON.parse(localStorage.getItem("fv_gate") || "null"); } catch { return null; } };
-const setGate = (v) => { try { localStorage.setItem("fv_gate", JSON.stringify(v)); } catch {} };
+const store = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
 const track = (name, data) => { try { if (window.fbq) window.fbq("track", name, data || {}); } catch {} };
 
 const Config = createContext(null);
 const useConfig = () => useContext(Config);
 const nav = (to) => { window.history.pushState({}, "", to); window.dispatchEvent(new PopStateEvent("popstate")); window.scrollTo(0, 0); };
-const Link = ({ to, className, children, ...rest }) => <a href={to} className={className} onClick={(e) => { if (e.metaKey || e.ctrlKey || rest.target) return; e.preventDefault(); nav(to); }} {...rest}>{children}</a>;
+const Link = ({ to, className, children, onClick, ...rest }) => (
+  <a href={to} className={className} {...rest} onClick={(e) => {
+    if (onClick) onClick(e);
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || rest.target || to.startsWith("#") || /^[a-z]+:/i.test(to)) return;
+    e.preventDefault(); nav(to);
+  }}>{children}</a>
+);
 
 function useFetch(url, deps = []) {
   const [s, set] = useState({ loading: !!url, data: null, error: null });
@@ -40,394 +50,136 @@ function useFetch(url, deps = []) {
   }, deps);
   return s;
 }
-
-// ---------- chrome ----------
-function Nav() {
-  const cfg = useConfig();
-  const [open, setOpen] = useState(false);
-  const path = window.location.pathname;
-  const links = [["/", "Home"], ["/seat", "Your seat"], ["/parties", "Parties"], ["/issues", "Why Labor last"], ["/quiz", "How to vote"], ["/media", "Media"], ["/shop", "Shop"]];
-  return (
-    <nav className="nav">
-      <div className="wrap nav-inner">
-        <Link to="/" className="brand">Farmers <b>Votes</b><span className="brand-tag">by Farmers Fightback</span></Link>
-        <div className="nav-links">{links.map(([to, l]) => <Link key={to} to={to} className={path === to || (to !== "/" && path.startsWith(to)) ? "is-active" : ""}>{l}</Link>)}</div>
-        <div className="nav-cta">
-          <Link to="/donate" className="btn btn--red">Donate</Link>
-          <button className="burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}><span /><span /><span /></button>
-        </div>
-      </div>
-      {open && <div className="mobile-menu">{links.map(([to, l]) => <Link key={to} to={to} onClick={() => setOpen(false)}>{l}</Link>)}</div>}
-    </nav>
-  );
-}
-function Footer() {
-  const cfg = useConfig();
-  return (
-    <footer className="footer">
-      <div className="wrap footer-inner">
-        <div>
-          <div className="brand" style={{ color: "#fff" }}>Farmers <b>Votes</b></div>
-          <p style={{ maxWidth: 380, marginTop: 10 }}>Where your members and candidates stand on farming, with the evidence. Run by the people behind Farmers Fightback.</p>
-        </div>
-        <div><h4>Take action</h4><Link to="/seat">Find your seat</Link><Link to="/quiz">How should I vote?</Link><Link to="/donate">Donate</Link><a href="https://www.farmersfightback.com/take-action/hold-the-gate#sign">Sign the petition</a></div>
-        <div><h4>More</h4><Link to="/parties">Compare the parties</Link><Link to="/issues">Why put Labor last</Link><Link to="/media">Media releases</Link><Link to="/shop">Merch</Link><a href="https://www.farmersfightback.com">farmersfightback.com</a><a href={`mailto:${cfg.site.support_email}`}>Contact</a></div>
-      </div>
-      <div className="wrap footer-base">
-        <span className="auth">{cfg.site.authorisation}</span>
-        <span>© {new Date().getFullYear()} Farmers Votes</span>
-      </div>
-    </footer>
-  );
-}
-function Shell({ children }) { return <><Nav /><main>{children}</main><Footer /></>; }
-function DonateBand({ heading, lede }) {
-  return (
-    <section className="section band"><div className="wrap band-inner">
-      <div className="light-text"><span className="eyebrow eyebrow--light">Back the fight</span><h2 className="h2" style={{ marginTop: 10 }}>{heading || "They have the lobbyists. We have you."}</h2><p className="lede">{lede || "Every dollar goes to telling voters the truth about who stands with farmers."}</p></div>
-      <Link to="/donate" className="btn btn--red btn--lg">Chip in now ›</Link>
-    </div></section>
-  );
-}
-
-// ---------- lookup ----------
-function Lookup({ compact }) {
-  const cfg = useConfig();
-  const [mode, setMode] = useState("postcode");
-  const [q, setQ] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-  const [result, setResult] = useState(null);
-  const submit = async (e) => {
-    e && e.preventDefault(); setErr(""); setResult(null);
-    const v = q.trim(); if (!v) return;
-    setBusy(true);
-    try {
-      const u = mode === "postcode" ? `/api/lookup?postcode=${encodeURIComponent(v)}` : `/api/lookup?address=${encodeURIComponent(v)}`;
-      const r = await fetch(u); const j = await r.json();
-      if (!r.ok) throw new Error(j.error || "Lookup failed");
-      if (!j.supported) { setErr(j.reason === "Unknown postcode" ? "We can't find that postcode." : `${j.reason}. We're starting with ${cfg.states[cfg.site.default_jurisdiction].name}.`); return; }
-      track("Search", { search_string: mode, content_category: "lookup" });
-      if (j.resolved === false) { setResult(j); return; }
-      const seat = (j.seats || []).find((s) => s.house === "assembly");
-      go(j.state, seat.name, j);
-    } catch (ex) { setErr(ex.message); } finally { setBusy(false); }
-  };
-  const go = (state, district, j) => {
-    const region = ((j.seats || []).find((s) => s.house === "council") || {}).name || (j.options && j.options.council && j.options.council[0]) || "";
-    const federal = ((j.seats || []).find((s) => s.house === "reps") || {}).name || "";
-    sessionStorage.setItem("fv_last_seat", JSON.stringify({ state, district, region, federal, postcode: mode === "postcode" ? q.trim() : "" }));
-    nav(`/seat/${state}/${encodeURIComponent(district)}`);
-  };
-  return (
-    <form className="lookup" onSubmit={submit}>
-      {!compact && <><h3 className="h3">Find your seat</h3><p>Your postcode is enough for most people. If it's split across seats, we'll ask you to pick.</p></>}
-      <div className="toggle" role="tablist">
-        <button type="button" className={mode === "postcode" ? "is-on" : ""} onClick={() => setMode("postcode")}>Postcode</button>
-        <button type="button" className={mode === "address" ? "is-on" : ""} onClick={() => setMode("address")}>Street address</button>
-      </div>
-      <div className="field">
-        <label htmlFor="lookup-q">{mode === "postcode" ? "Postcode" : "Address"}</label>
-        <input id="lookup-q" inputMode={mode === "postcode" ? "numeric" : "text"} autoComplete={mode === "postcode" ? "postal-code" : "street-address"} placeholder={mode === "postcode" ? "e.g. 3387" : "e.g. 12 Main St, Marnoo VIC"} value={q} onChange={(e) => setQ(e.target.value)} maxLength={mode === "postcode" ? 4 : 120} />
-      </div>
-      {result && result.resolved === false && (
-        <div>
-          <p><b>Postcode {result.postcode} covers {result.options.assembly.length} seats.</b> Which is yours?</p>
-          <div className="pick">{result.options.assembly.map((o) => <button type="button" key={o.code} onClick={() => go(result.state, o.name, { seats: [{ house: "assembly", name: o.name }], options: result.options })}><span>{o.name}</span><small>{Math.round(o.share * 100)}% of the postcode</small></button>)}</div>
-          <p className="hint">Not sure? <button type="button" className="btn btn--outline" style={{ padding: "8px 12px", fontSize: 12 }} onClick={() => { setMode("address"); setResult(null); }}>Use your street address</button></p>
-        </div>
-      )}
-      <button className="btn btn--red btn--lg btn--block" disabled={busy}>{busy ? "Looking up…" : "Show me my seat ›"}</button>
-      {err && <p className="error">{err}</p>}
-      {!compact && <p className="hint">We don't keep your address. Only the seat.</p>}
-    </form>
-  );
-}
-
-// ---------- capture gate ----------
-function Gate({ seat, onDone }) {
-  const cfg = useConfig();
-  const [f, setF] = useState({ first_name: "", last_name: "", email: "", mobile: "", consent_email: true, consent_sms: false });
-  const [busy, setBusy] = useState(false); const [err, setErr] = useState("");
-  const up = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
-  const submit = async (e) => {
-    e.preventDefault(); setErr("");
-    if (!f.first_name.trim()) return setErr("Your first name, please.");
-    if (!/^\S+@\S+\.\S+$/.test(f.email)) return setErr("Enter a valid email.");
-    setBusy(true);
-    try {
-      const attr = getAttribution();
-      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, postcode: seat.postcode, seat_state: seat.district, seat_region: seat.region, seat_federal: seat.federal, jurisdiction: seat.state, source: "Lookup", ref: attr.ref || "", utm: attr }) });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || "Something went wrong");
-      setGate({ at: Date.now(), referral_code: j.referral_code || null, email: f.email });
-      track("Lead", { content_name: "Seat lookup" });
-      onDone(j);
-    } catch (ex) { setErr(ex.message); } finally { setBusy(false); }
-  };
-  return (
-    <form className="lookup" onSubmit={submit} style={{ maxWidth: 560, margin: "0 auto" }}>
-      <span className="eyebrow">One more step</span>
-      <h3 className="h3" style={{ marginTop: 8 }}>Your <em>{seat.district}</em> scorecard is ready</h3>
-      <p>Tell us who you are and we'll keep you posted on {seat.district} before {cfg.states[seat.state].name} votes.</p>
-      <div className="field-row">
-        <div className="field"><label>First name</label><input autoComplete="given-name" value={f.first_name} onChange={up("first_name")} /></div>
-        <div className="field"><label>Last name</label><input autoComplete="family-name" value={f.last_name} onChange={up("last_name")} /></div>
-      </div>
-      <div className="field"><label>Email</label><input type="email" autoComplete="email" inputMode="email" value={f.email} onChange={up("email")} /></div>
-      <div className="field"><label>Mobile (optional, for a text on election week)</label><input type="tel" autoComplete="tel" inputMode="tel" value={f.mobile} onChange={up("mobile")} placeholder="04…" /></div>
-      <label className="check"><input type="checkbox" checked={f.consent_email} onChange={up("consent_email")} /><span>Email me updates from Farmers Votes and Farmers Fightback. Unsubscribe any time.</span></label>
-      <label className="check"><input type="checkbox" checked={f.consent_sms} onChange={up("consent_sms")} /><span>Text me too.</span></label>
-      <button className="btn btn--red btn--lg btn--block" disabled={busy}>{busy ? "One sec…" : "Show my scorecard ›"}</button>
-      {err && <p className="error">{err}</p>}
-      <p className="hint">We keep your details under the Privacy Act and never sell them.</p>
-    </form>
-  );
-}
-
-// ---------- scorecard ----------
-const Dot = ({ r }) => <span className={`dot ${r}`} aria-label={r} />;
-function MemberCard({ m, issues }) {
-  return (
-    <article className="card">
-      <div className={`card-top rating-${m.overall}`}>
-        <div className="card-name">{m.name}</div>
-        <div className="card-party">{m.party}{m.incumbent && <span className="badge badge--mp">Sitting MP</span>}{m.retiring && <span className="badge badge--retiring">Retiring</span>}{m.ticket_position && <span className="badge">#{m.ticket_position} on ticket</span>}</div>
-      </div>
-      <div className="lights">
-        {issues.map((i) => { const r = m.ratings[i.slug] || { rating: "Unknown" }; return (
-          <div className="light" key={i.slug}><Dot r={r.rating} /><span className="light-label">{i.title}</span>
-            {r.sources && r.sources[0] ? <a className="light-src" href={r.sources[0]} target="_blank" rel="noopener noreferrer">source ↗</a> : <span className="light-src">{r.method === "Party position" ? "party position" : r.rating === "Unknown" ? "hasn't told us" : ""}</span>}
-          </div>); })}
-      </div>
-      <div className="card-foot"><span className="overall"><Dot r={m.overall} /> Overall: {m.overall === "Unknown" ? "no position yet" : m.overall}</span></div>
-    </article>
-  );
-}
-function SeatPage({ state, district }) {
-  const cfg = useConfig();
-  const last = (() => { try { return JSON.parse(sessionStorage.getItem("fv_last_seat") || "null"); } catch { return null; } })() || {};
-  const [gated, setGated] = useState(!!getGate());
-  const { loading, data, error } = useFetch(state && district ? `/api/seat?state=${state}&district=${encodeURIComponent(district)}` : null, [state, district]);
-  useEffect(() => { if (data) track("ViewContent", { content_name: `Seat ${data.seat.name}`, content_category: "scorecard" }); }, [data]);
-  if (!state || !district) return <Shell><section className="section"><div className="wrap" style={{ maxWidth: 560 }}><span className="eyebrow">Your seat</span><h1 className="h2" style={{ margin: "10px 0 18px" }}>Who represents <em>you</em>?</h1><Lookup /></div></section></Shell>;
-  if (error) return <Shell><section className="section"><div className="wrap"><h1 className="h2">We couldn't load that seat.</h1><p className="lede">{error}</p><Link to="/seat" className="btn btn--outline" style={{ marginTop: 16 }}>Try another lookup</Link></div></section></Shell>;
-  if (loading || !data) return <Shell><section className="section"><div className="wrap"><div className="skel" style={{ height: 40, width: 320, marginBottom: 20 }} /><div className="cards">{[1, 2, 3].map((i) => <div key={i} className="skel" style={{ height: 300 }} />)}</div></div></section></Shell>;
-  const seatInfo = { state, district: data.seat.name, region: data.region && data.region.name, federal: last.federal || "", postcode: last.postcode || "" };
-  const days = data.election && data.election.date ? Math.max(0, Math.ceil((new Date(data.election.date) - Date.now()) / 86400000)) : null;
-  const gate = getGate();
-  const share = `${window.location.origin}/seat/${state}/${encodeURIComponent(data.seat.name)}${gate && gate.referral_code ? `?ref=${gate.referral_code}` : ""}`;
-  return (
-    <Shell>
-      <section className="seat-head"><div className="wrap">
-        <span className="eyebrow">{data.state_name} · {data.seat.house}</span>
-        <h1 className="h1" style={{ marginTop: 8 }}>{data.seat.name}</h1>
-        <div className="seat-meta">
-          {data.region && <span>Upper house: <b>{data.region.name}</b> ({data.region.members} members)</span>}
-          {days !== null && <span>Election: <b>{new Date(data.election.date).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</b>, {days} days away</span>}
-          <span><Link to="/seat" style={{ textDecoration: "underline" }}>Not your seat?</Link></span>
-        </div>
-      </div></section>
-      {!gated ? (
-        <section className="section" style={{ background: "var(--paper-2)" }}><div className="wrap"><Gate seat={seatInfo} onDone={() => setGated(true)} /></div></section>
-      ) : (
-        <>
-          <section className="section"><div className="wrap">
-            <span className="eyebrow">Lower house · {data.seat.house}</span>
-            <h2 className="h2" style={{ margin: "10px 0 6px" }}>Candidates for <em>{data.seat.name}</em></h2>
-            {!data.ratings_live && <p className="notice" style={{ margin: "12px 0 6px" }}>Ratings are being researched. Grey means we haven't published a position yet. Every light will carry its source.</p>}
-            <div className="legend"><span><Dot r="Green" /> Backs farmers</span><span><Dot r="Amber" /> Mixed</span><span><Dot r="Red" /> Against farmers</span><span><Dot r="Unknown" /> No position yet</span></div>
-            {data.lower.length ? <div className="cards">{data.lower.map((m) => <MemberCard key={m.member_id} m={m} issues={data.issues} />)}</div> : <p className="lede">No candidates announced yet for this seat.</p>}
-          </div></section>
-          {data.region && (
-            <section className="section" style={{ paddingTop: 0 }}><div className="wrap">
-              <span className="eyebrow">Upper house · {data.region.house}</span>
-              <h2 className="h2" style={{ margin: "10px 0 16px" }}>{data.region.name} region</h2>
-              <p className="lede" style={{ marginBottom: 18 }}>You also elect {data.region.members} members here. Tickets are listed in the order parties put them forward.</p>
-              {data.upper.length ? <div className="cards">{data.upper.map((m) => <MemberCard key={m.member_id} m={m} issues={data.issues} />)}</div> : <p className="lede">No tickets announced yet.</p>}
-            </div></section>
-          )}
-          <section className="section" style={{ paddingTop: 0 }}><div className="wrap"><div className="step" style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
-            <div><b style={{ fontSize: 22, display: "inline" }}>Share this scorecard.</b><div style={{ color: "var(--ink-2)", marginTop: 4 }}>Every neighbour who sees it is a vote that counts.</div></div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <a className="btn btn--outline" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer" onClick={() => track("Share", { content_name: data.seat.name })}>Facebook</a>
-              <a className="btn btn--outline" href={`sms:?&body=${encodeURIComponent(`Where do our ${data.seat.name} candidates stand on farming? ${share}`)}`}>Text it</a>
-              <button className="btn btn--outline" onClick={() => { navigator.clipboard && navigator.clipboard.writeText(share); }}>Copy link</button>
-            </div>
-          </div></div></section>
-          <DonateBand heading={`Help us reach every voter in ${data.seat.name}`} lede="Ads in this seat cost money. Your donation puts this scorecard in front of your neighbours." />
-        </>
-      )}
-    </Shell>
-  );
-}
-
-// ---------- parties ----------
-function PartiesPage() {
-  const cfg = useConfig();
-  const { loading, data, error } = useFetch(`/api/parties?state=${cfg.site.default_jurisdiction}`, []);
-  const Grid = ({ rows, issues }) => (
-    <div className="grid-wrap"><table className="grid"><thead><tr><th>Issue</th>{rows.map((r) => <th key={r.party} style={{ textAlign: "center" }}>{r.party}</th>)}</tr></thead>
-      <tbody>{issues.map((i) => <tr key={i.slug}><td>{i.title}</td>{rows.map((r) => { const x = r.ratings[i.slug]; return <td className="c" key={r.party}>{x.sources[0] ? <a href={x.sources[0]} target="_blank" rel="noopener noreferrer"><Dot r={x.rating} /></a> : <Dot r={x.rating} />}</td>; })}</tr>)}</tbody></table></div>
-  );
-  return (
-    <Shell>
-      <section className="section"><div className="wrap">
-        <span className="eyebrow">Compare the parties</span>
-        <h1 className="h2" style={{ margin: "10px 0 10px" }}>Where each party <em>really</em> stands</h1>
-        <p className="lede" style={{ marginBottom: 20 }}>Positions come from voting records, platforms and what they told us in our survey. Tap a light for the source.</p>
-        {loading && <div className="skel" style={{ height: 320 }} />}
-        {error && <p className="error">{error}</p>}
-        {data && <>
-          {!data.live && <p className="notice" style={{ marginBottom: 14 }}>Placeholder issues. Real positions publish as the research is signed off.</p>}
-          <div className="legend"><span><Dot r="Green" /> Backs farmers</span><span><Dot r="Amber" /> Mixed</span><span><Dot r="Red" /> Against</span><span><Dot r="Unknown" /> No position</span></div>
-          <Grid rows={data.majors} issues={data.issues} />
-          {data.others.length > 0 && <details className="more"><summary>Other parties and independents ({data.others.length})</summary><Grid rows={data.others} issues={data.issues} /></details>}
-        </>}
-      </div></section>
-      <DonateBand />
-    </Shell>
-  );
-}
-
-// ---------- media ----------
-function MediaPage({ slug }) {
-  const { loading, data, error } = useFetch("/api/releases", []);
-  const items = (data && data.items) || [];
-  const one = slug ? items.find((i) => i.slug === slug) : null;
-  return (
-    <Shell><section className="section"><div className="wrap" style={{ maxWidth: 820 }}>
-      <span className="eyebrow">Media</span>
-      {one ? (<article><time>{new Date(one.date).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })} · {one.type}</time><h1 className="h2" style={{ margin: "8px 0 18px" }}>{one.title}</h1><div className="lede" style={{ maxWidth: "none", whiteSpace: "pre-wrap" }}>{one.body || one.summary}</div>{one.attachments.map((a) => <p key={a.url}><a href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>{a.name}</a></p>)}<p style={{ marginTop: 24 }}><Link to="/media" style={{ textDecoration: "underline" }}>← All media releases</Link></p></article>) : (<>
-        <h1 className="h2" style={{ margin: "10px 0 18px" }}>Media releases</h1>
-        {loading && <div className="skel" style={{ height: 200 }} />}
-        {error && <p className="error">{error}</p>}
-        {data && !items.length && <p className="lede">Nothing published yet. Media enquiries: <a href="mailto:support@farmersfightback.com" style={{ textDecoration: "underline" }}>support@farmersfightback.com</a>.</p>}
-        <div className="releases">{items.map((i) => <div className="release" key={i.slug}><time>{new Date(i.date).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })} · {i.type}</time><h3 className="h3"><Link to={`/media/${i.slug}`}>{i.title}</Link></h3><p>{i.summary}</p></div>)}</div>
-      </>)}
-    </div></section></Shell>
-  );
-}
-
-// ---------- donate (UI ready; checkout wires to Stripe when keys land) ----------
-const AMOUNTS = { oneoff: [25, 50, 100, 250, 500, 1000], monthly: [10, 20, 35, 50, 100, 200] };
-function DonatePage() {
-  const cfg = useConfig();
-  const [freq, setFreq] = useState("oneoff"); const [amt, setAmt] = useState(100); const [other, setOther] = useState("");
-  const [f, setF] = useState({ first_name: "", last_name: "", email: "", mobile: "", address: "", terms: false, citizen: false, own_funds: false });
-  const up = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
-  const [busy, setBusy] = useState(false); const [err, setErr] = useState("");
-  const value = other ? Number(other) : amt;
-  const submit = async (e) => {
-    e.preventDefault(); setErr("");
-    if (!(value > 0)) return setErr("Pick an amount.");
-    if (!f.first_name || !f.last_name || !/^\S+@\S+\.\S+$/.test(f.email) || !f.address.trim()) return setErr("We need your name, email and residential address. Electoral law requires it for donations.");
-    if (!f.terms || !f.citizen || !f.own_funds) return setErr("Please tick all three declarations.");
-    setBusy(true);
-    try {
-      const r = await fetch("/api/donate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: value, frequency: freq, ...f, attribution: getAttribution() }) });
-      const j = await r.json().catch(() => ({}));
-      if (r.status === 503) { setErr("Donations open at launch. Thanks for being early."); return; }
-      if (!r.ok || !j.url) throw new Error(j.error || "Could not start checkout");
-      track("InitiateCheckout", { value, currency: "AUD" });
-      window.location.href = j.url;
-    } catch (ex) { setErr(ex.message); } finally { setBusy(false); }
-  };
-  return (
-    <Shell>
-      <section className="hero"><div className="wrap hero-grid">
-        <div className="light-text"><span className="eyebrow eyebrow--light">Donate</span><h1 className="h1" style={{ margin: "10px 0 14px" }}>They have billions. <em>We have you.</em></h1><p className="lede">Every dollar tells more voters where their candidates stand. No consultants, no waste. Just the truth, in every seat that matters.</p></div>
-        <form className="lookup" onSubmit={submit}>
-          <div className="toggle"><button type="button" className={freq === "oneoff" ? "is-on" : ""} onClick={() => setFreq("oneoff")}>One-off</button><button type="button" className={freq === "monthly" ? "is-on" : ""} onClick={() => setFreq("monthly")}>Monthly</button></div>
-          <div className="pick" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>{AMOUNTS[freq].map((a) => <button type="button" key={a} onClick={() => { setAmt(a); setOther(""); }} style={{ justifyContent: "center", fontWeight: 700, fontSize: 18, borderColor: !other && amt === a ? "var(--red)" : undefined, background: !other && amt === a ? "#fff5f5" : undefined }}>${a}</button>)}</div>
-          <div className="field"><label>Other amount</label><input inputMode="decimal" value={other} onChange={(e) => setOther(e.target.value.replace(/[^\d.]/g, ""))} placeholder="$" /></div>
-          <div className="field-row"><div className="field"><label>First name</label><input value={f.first_name} onChange={up("first_name")} autoComplete="given-name" /></div><div className="field"><label>Last name</label><input value={f.last_name} onChange={up("last_name")} autoComplete="family-name" /></div></div>
-          <div className="field"><label>Email</label><input type="email" value={f.email} onChange={up("email")} autoComplete="email" /></div>
-          <div className="field"><label>Mobile</label><input type="tel" value={f.mobile} onChange={up("mobile")} autoComplete="tel" /></div>
-          <div className="field"><label>Residential address (required by electoral law)</label><input value={f.address} onChange={up("address")} autoComplete="street-address" /></div>
-          <label className="check"><input type="checkbox" checked={f.citizen} onChange={up("citizen")} /><span>I am an Australian citizen or permanent resident, or an Australian entity.</span></label>
-          <label className="check"><input type="checkbox" checked={f.own_funds} onChange={up("own_funds")} /><span>This donation is from my own funds and not on behalf of anyone else.</span></label>
-          <label className="check"><input type="checkbox" checked={f.terms} onChange={up("terms")} /><span>I accept the <Link to="/about" style={{ textDecoration: "underline" }}>donation terms</Link> and understand my details may be disclosed to the electoral commission as required by law.</span></label>
-          <button className="btn btn--red btn--lg btn--block" disabled={busy}>{busy ? "One moment…" : `Donate $${value || 0}${freq === "monthly" ? " a month" : ""} ›`}</button>
-          {err && <p className="error">{err}</p>}
-          <p className="hint">Secure payment by Stripe. {cfg.site.authorisation}.</p>
-        </form>
-      </div></section>
-    </Shell>
-  );
-}
-
-// ---------- simple pages ----------
-function QuizPage() {
-  return (<Shell><section className="section"><div className="wrap" style={{ maxWidth: 720 }}><span className="eyebrow">How should I vote?</span><h1 className="h2" style={{ margin: "10px 0 12px" }}>Rank what matters to <em>you</em>. We'll show who backs it.</h1><p className="lede">Twenty seconds: drag five issues into order and we match you to the candidates in your seat. Opening shortly, once the ratings are in.</p><div style={{ marginTop: 22 }}><Link to="/seat" className="btn btn--red btn--lg">Find my seat first ›</Link></div></div></section><DonateBand /></Shell>);
-}
-function ShopPage() {
-  return (<Shell><section className="section"><div className="wrap" style={{ maxWidth: 720 }}><span className="eyebrow">Merch</span><h1 className="h2" style={{ margin: "10px 0 12px" }}>Wear the <em>Fightback</em></h1><p className="lede">Tees, quarter zips, crews, caps and beanies. Same gear, same store.</p><div style={{ marginTop: 22 }}><a className="btn btn--red btn--lg" href="https://shop.farmersfightback.com/?utm_source=farmersvotes&utm_medium=website&utm_campaign=shop" rel="noopener">Open the shop ›</a></div></div></section></Shell>);
-}
-function AboutPage() {
-  const cfg = useConfig();
-  return (<Shell><section className="section"><div className="wrap" style={{ maxWidth: 760 }}><span className="eyebrow">About</span><h1 className="h2" style={{ margin: "10px 0 12px" }}>Who we are</h1><p className="lede">Farmers Votes is run by the people behind Farmers Fightback. We rate members and candidates on the issues that decide whether farming families survive, and we show our sources. Donation terms, privacy and the full policy method will be published here before launch.</p><p className="lede" style={{ marginTop: 14 }}>{cfg.site.authorisation}. Contact: <a href={`mailto:${cfg.site.support_email}`} style={{ textDecoration: "underline" }}>{cfg.site.support_email}</a>.</p></div></section></Shell>);
-}
-function HomePage() {
-  const cfg = useConfig();
-  const st = cfg.states[cfg.site.default_jurisdiction];
-  const days = st.election && st.election.date ? Math.max(0, Math.ceil((new Date(st.election.date) - Date.now()) / 86400000)) : null;
-  const rel = useFetch("/api/releases?limit=3", []);
-  return (
-    <Shell>
-      <section className="hero"><div className="wrap hero-grid">
-        <div className="light-text">
-          <span className="eyebrow eyebrow--light">{st.name} votes {days !== null ? `in ${days} days` : "soon"}</span>
-          <h1 className="h1" style={{ margin: "12px 0 16px" }}>Where does <em>your</em> MP stand on farming?</h1>
-          <p className="lede">Enter your postcode. See how every candidate in your seat rates on the issues that decide whether farming families survive, with the evidence.</p>
-        </div>
-        <Lookup />
-      </div></section>
-      <section className="section"><div className="wrap">
-        <span className="eyebrow">How it works</span>
-        <h2 className="h2" style={{ marginTop: 10 }}>Three steps. Twenty seconds.</h2>
-        <div className="steps">
-          <div className="step"><b>1</b><h3 className="h3">Find your seat</h3><p>Postcode or address. We work out your lower and upper house seats.</p></div>
-          <div className="step"><b>2</b><h3 className="h3">See the scorecard</h3><p>Every candidate, traffic-light rated on each issue, sources one tap away.</p></div>
-          <div className="step"><b>3</b><h3 className="h3">Vote for the bush</h3><p>Rank your issues and we'll tell you who to put first. Then share it.</p></div>
-        </div>
-      </div></section>
-      <section className="section" style={{ paddingTop: 0 }}><div className="wrap band-inner"><div><span className="eyebrow">The parties</span><h2 className="h2" style={{ marginTop: 10 }}>Labor, Liberal, National, Greens, One Nation, side by side</h2></div><Link to="/parties" className="btn btn--outline btn--lg">Compare the parties ›</Link></div></section>
-      <DonateBand />
-      {rel.data && rel.data.items.length > 0 && <section className="section"><div className="wrap"><span className="eyebrow">Latest</span><h2 className="h2" style={{ margin: "10px 0 18px" }}>Media releases</h2><div className="releases">{rel.data.items.map((i) => <div className="release" key={i.slug}><time>{new Date(i.date).toLocaleDateString("en-AU", { day: "numeric", month: "long" })}</time><h3 className="h3"><Link to={`/media/${i.slug}`}>{i.title}</Link></h3><p>{i.summary}</p></div>)}</div></div></section>}
-    </Shell>
-  );
-}
-
-// ---------- /issues: "Why put Labor last" ----------
-// Built from the Claude Design handoff (Issues.dc.html + SiteHeader/SiteFooter).
-// Copy, photos and source links live in /content/issues.json. The page carries
-// its own header and footer from the design; the rest of the site keeps Nav/Footer.
-const ISS_ICON = {
-  farmers: "M4 20h16v-2H4v2zm1-9 2.3-6.9c.2-.6.8-1.1 1.4-1.1h6.6c.6 0 1.2.4 1.4 1.1L19 11h1v2h-1.2l-.6 4H5.8l-.6-4H4v-2h1zm2.1 0h9.8l-1.6-5H8.7L7.1 11zM9 15.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm6 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
-  cities: "M3 21V9l5-3 5 3v3h3V7l5 2v12H3zm2-2h3v-3H5v3zm0-5h3v-3H5v3zm5 5h3v-3h-3v3zm0-5h3v-3h-3v3zm6 5h3v-3h-3v3zm0-5h3v-3h-3v3z",
-  tick: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z",
-  swap: "M6.99 11 3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z",
-};
-const Ico = ({ d, size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={d} fill="currentColor" /></svg>;
 function useWidth() {
   const [w, setW] = useState(window.innerWidth);
   useEffect(() => { const r = () => setW(window.innerWidth); window.addEventListener("resize", r); return () => window.removeEventListener("resize", r); }, []);
   return w;
 }
-function VotesHeader() {
+const useTitle = (t) => useEffect(() => { document.title = t ? `${t} · Farmers Fightback Votes` : "Farmers Fightback Votes · Save our farmers. Put Labor Last."; }, [t]);
+
+// ---------- dates ----------
+const TZ = "Australia/Melbourne";
+const dayOf = (iso) => new Date(String(iso).slice(0, 10) + "T12:00:00");
+const fmt = (d, o) => d.toLocaleDateString("en-AU", { timeZone: TZ, ...o });
+function useElection() {
   const cfg = useConfig();
+  return ((cfg.states || {})[cfg.site.default_jurisdiction] || {}).election || {};
+}
+const dayMonth = (iso) => fmt(dayOf(iso), { day: "numeric", month: "long" });
+
+// ---------- shared bits ----------
+const ICON = {
+  farmers: "M4 20h16v-2H4v2zm1-9 2.3-6.9c.2-.6.8-1.1 1.4-1.1h6.6c.6 0 1.2.4 1.4 1.1L19 11h1v2h-1.2l-.6 4H5.8l-.6-4H4v-2h1zm2.1 0h9.8l-1.6-5H8.7L7.1 11zM9 15.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm6 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
+  cities: "M3 21V9l5-3 5 3v3h3V7l5 2v12H3zm2-2h3v-3H5v3zm0-5h3v-3H5v3zm5 5h3v-3h-3v3zm0-5h3v-3h-3v3zm6 5h3v-3h-3v3zm0-5h3v-3h-3v3z",
+  tick: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z",
+  swap: "M6.99 11 3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z",
+  photo: "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z",
+};
+const Ico = ({ d, size = 24 }) => <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={d} fill="currentColor" /></svg>;
+
+// Platform share links with brand colours and marks (share-links.js in the design).
+function shareLinks(url, msg, subject) {
+  const e = encodeURIComponent;
+  return [
+    { label: "Facebook", bg: "#1877F2", href: `https://www.facebook.com/sharer/sharer.php?u=${e(url)}`,
+      icon: "M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07" },
+    { label: "Messenger", bg: "#0084FF", href: `fb-messenger://share/?link=${e(url)}`,
+      icon: "M.001 11.639C.001 4.949 5.241 0 12.001 0S24 4.95 24 11.639c0 6.689-5.24 11.638-12 11.638-1.21 0-2.38-.16-3.47-.46a.96.96 0 00-.64.05l-2.39 1.05a.96.96 0 01-1.35-.85l-.07-2.14a.97.97 0 00-.32-.68A11.39 11.389 0 01.002 11.64zm8.32-2.19l-3.52 5.6c-.35.53.32 1.139.82.75l3.79-2.87c.26-.2.6-.2.87 0l2.8 2.1c.84.63 2.04.4 2.6-.48l3.52-5.6c.35-.53-.32-1.13-.82-.75l-3.79 2.87c-.25.2-.6.2-.86 0l-2.8-2.1a1.8 1.8 0 00-2.61.48z" },
+    { label: "WhatsApp", bg: "#25D366", href: `https://wa.me/?text=${e(msg)}`,
+      icon: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" },
+    { label: "X", bg: "#000000", href: `https://twitter.com/intent/tweet?text=${e(msg)}`,
+      icon: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" },
+    { label: "Email", bg: "#5B574E", href: `mailto:?subject=${e(subject)}&body=${e(msg)}`,
+      icon: "M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.24l-8 5-8-5V6.5l8 5 8-5z" },
+    { label: "Text", bg: "#2E7D32", href: `sms:?&body=${e(msg)}`,
+      icon: "M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zM7 11.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" },
+  ];
+}
+function ShareGrid({ url, msg, subject, label }) {
+  return (
+    <div className="v-share">
+      {shareLinks(url, msg, subject).map((s) => (
+        <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`Share on ${s.label}`} style={{ background: s.bg }} onClick={() => track("Share", { content_name: label || "", method: s.label })}>
+          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d={s.icon} fill="#fff" /></svg>
+          <span>{s.label}</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+const seatPath = (state, name) => `/seat/${state}/${encodeURIComponent(name)}`;
+const seatShare = (state, name) => {
+  const r = store.get("fv_reminder");
+  return `${window.location.origin}${seatPath(state, name)}${r && r.referral_code ? `?ref=${r.referral_code}` : ""}`;
+};
+const seatMsg = (name, url) => `Save our farmers: Put Labor Last. Here's how to vote in ${name}: ${url}`;
+
+// Postcode → seat. Answers one of: invalid, unknown, outside, multi, one.
+async function findSeat(pc) {
+  if (!/^\d{4}$/.test(pc)) return { kind: "invalid" };
+  const r = await fetch(`/api/lookup?postcode=${pc}`);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) return { kind: "error", message: j.error || "Lookup failed. Try again." };
+  try { sessionStorage.setItem("fv_last_seat", JSON.stringify({ postcode: pc })); } catch {}
+  track("Search", { search_string: "postcode", content_category: "lookup" });
+  if (!j.supported) return j.reason === "Unknown postcode" ? { kind: "unknown" } : { kind: "outside" };
+  const region = (j.options.council || [])[0] || "";
+  if (j.resolved === false) return { kind: "multi", state: j.state, postcode: pc, region, options: j.options.assembly };
+  return { kind: "one", state: j.state, postcode: pc, region, name: j.options.assembly[0].name };
+}
+const LOOKUP_MSG = {
+  invalid: "Enter the four digits of your postcode.",
+  unknown: "We can't find that postcode. Check the four digits.",
+};
+
+function SeatOptions({ result, places }) {
+  const split = (((places || {}).split_postcodes) || {})[result.postcode] || {};
+  return (
+    <div className="v-multi">
+      <p className="v-multi-q">Postcode {result.postcode} covers more than one electorate. Tap yours.</p>
+      <div className="v-multi-grid">
+        {result.options.map((o) => (
+          <Link key={o.code} to={seatPath(result.state, o.name)} className="v-multi-opt">
+            <span className="v-multi-name">{o.name}</span>
+            <span className="v-multi-places">{(split[o.name] || []).join(", ") || `${Math.round(o.share * 100)}% of the postcode`}</span>
+            <span className="v-multi-go">This is mine →</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+function OutsideBox() {
+  return (
+    <div className="v-notice">
+      <p className="v-notice-h">That postcode is outside Victoria.</p>
+      <p>Only Victorians vote on 28 November, but you can still read why Labor goes last and pass it on.</p>
+      <Link to="/issues" className="v-osw-link">Read the issues →</Link>
+    </div>
+  );
+}
+function PostcodeForm({ onSubmit, busy, value, onChange, buttonClass = "v-btn v-btn--navy" }) {
+  return (
+    <form className="v-pc-form" onSubmit={onSubmit}>
+      <input className="v-pc-input" value={value} onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" pattern="[0-9]*" maxLength={4} placeholder="Your postcode" aria-label="Your postcode" autoComplete="postal-code" />
+      <button type="submit" className={buttonClass} disabled={busy}>{busy ? "Looking up…" : "Find my candidates"}</button>
+    </form>
+  );
+}
+
+// ---------- chrome ----------
+function VotesHeader({ donateTo = "/donate" }) {
+  const el = useElection();
   const width = useWidth();
   const [open, setOpen] = useState(false);
-  const el = ((cfg.states || {})[cfg.site.default_jurisdiction] || {}).election || {};
   const now = new Date();
-  const early = el.early_voting_from ? new Date(el.early_voting_from + "T00:00:00") : null;
-  const day = el.date ? new Date(el.date + "T00:00:00") : null;
+  const early = el.early_voting_from ? dayOf(el.early_voting_from) : null;
+  const day = el.date ? dayOf(el.date) : null;
   let strip = "Put Labor Last.";
   if (early && day && now >= early && now < day) strip = "Early voting is open. Put Labor Last.";
   else if (day && now >= day) strip = "Vote today. Put Labor Last.";
   else if (early) strip = `${Math.max(1, Math.ceil((early - now) / 86400000))} days until early voting opens`;
-  const dayLabel = day ? day.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }) : "";
+  const dayLabel = day ? fmt(day, { weekday: "long", day: "numeric", month: "long" }) : "";
   const isMobile = width < 860;
   const links = [["/seat", "Who to vote for"], ["/issues", "Issues"], ["/about", "About"]];
   return (
@@ -438,7 +190,7 @@ function VotesHeader() {
           <Link to="/" className="iss-logo"><img src="/assets/logo-votes.png" alt="Farmers Fightback Votes" /></Link>
           {!isMobile && <nav className="iss-nav">{links.map(([to, l]) => <Link key={to} to={to}>{l}</Link>)}</nav>}
           <div className="iss-header-cta">
-            <Link to="/donate" className="iss-donate-gold">Donate</Link>
+            <Link to={donateTo} className="iss-donate-gold">Donate</Link>
             {isMobile && <button type="button" className="iss-burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>☰</button>}
           </div>
         </div>
@@ -469,26 +221,469 @@ function VotesFooter() {
     </footer>
   );
 }
-function IssueSlot({ it }) {
-  if (it.image) return <div className="iss-slot"><img src={it.image} alt={it.caption || it.face || ""} loading="lazy" /></div>;
+function Page({ children, donateTo, footer }) {
+  return <div className="fv"><VotesHeader donateTo={donateTo} /><main className="v-main">{children}</main>{footer || <VotesFooter />}</div>;
+}
+
+function WhenWhere() {
+  const el = useElection();
+  const early = el.early_voting_from ? dayOf(el.early_voting_from) : null;
+  const lastEarly = el.date ? new Date(dayOf(el.date).getTime() - 86400000) : null;
+  const enrol = el.enrolment_close ? new Date(el.enrolment_close) : null;
+  const vec = el.commission_url || "https://www.vec.vic.gov.au";
   return (
-    <div className="iss-slot" role="img" aria-label={it.face}>
-      <div className="iss-slot-empty">
-        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z" fill="currentColor" /></svg>
-        <span>{it.face}</span>
+    <section className="v-sec v-sec--paper">
+      <div className="v-wrap v-pad">
+        <h2 className="v-h2">When and where to vote</h2>
+        <div className="v-tiles">
+          <div className="v-tile v-tile--red"><p className="v-tile-h">Election day</p><p className="v-tile-big">{el.date ? fmt(dayOf(el.date), { weekday: "long", day: "numeric", month: "long" }) : ""}</p><p>8am to 6pm</p></div>
+          <div className="v-tile"><p className="v-tile-h">Early voting</p><p className="v-tile-big">{early && lastEarly ? `${fmt(early, { weekday: "short", day: "numeric" })} to ${fmt(lastEarly, { weekday: "short", day: "numeric", month: "long" })}` : ""}</p><p>9am to 8pm. Closed Sunday. Closes 6pm on the last Friday.</p></div>
+          <div className="v-tile"><p className="v-tile-h">Enrolment closes</p><p className="v-tile-big">{enrol ? `${enrol.toLocaleTimeString("en-AU", { timeZone: TZ, hour: "numeric" }).replace(" ", "")}, ${fmt(enrol, { weekday: "long", day: "numeric", month: "long" })}` : ""}</p><p><a href="https://www.vec.vic.gov.au/enrolment" target="_blank" rel="noopener noreferrer">Check or update your enrolment</a></p></div>
+        </div>
+        <div className="v-row">
+          <a href={vec} target="_blank" rel="noopener noreferrer" className="v-btn v-btn--outline">Find a voting centre (VEC)</a>
+          <a href={vec} target="_blank" rel="noopener noreferrer" className="v-btn v-btn--outline">Apply for a postal vote</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------- home ----------
+const PRESETS = [35, 65, 135, 265, 550, 1500];
+const CAP = 5190;
+const money = (n) => "$" + Number(n).toLocaleString("en-AU");
+
+function HomeLookup() {
+  const [pc, setPc] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  const [seat, setSeat] = useState(null);
+  const places = useFetch("/content/places.json", []);
+  const submit = async (e) => {
+    e.preventDefault(); setRes(null); setSeat(null); setBusy(true);
+    try {
+      const r = await findSeat(pc);
+      setRes(r);
+      if (r.kind === "one") {
+        const s = await fetch(`/api/seat?state=${r.state}&district=${encodeURIComponent(r.name)}`).then((x) => x.json()).catch(() => null);
+        setSeat(s && s.seat ? s : null);
+      }
+    } catch { setRes({ kind: "error", message: "Lookup failed. Try again." }); } finally { setBusy(false); }
+  };
+  const msg = res && (LOOKUP_MSG[res.kind] || res.message);
+  const url = res && res.kind === "one" ? seatShare(res.state, res.name) : "";
+  return (
+    <section id="find" className="v-sec v-find">
+      <div className="v-wrap v-narrow v-pad">
+        <p className="v-kicker">★ Help put Labor last</p>
+        <h2 className="v-h2 v-h2--find">Find your electorate and candidates</h2>
+        <PostcodeForm value={pc} onChange={(v) => { setPc(v); setRes(null); }} onSubmit={submit} busy={busy} />
+        {msg && <div className="v-notice"><p className="v-notice-h">{msg}</p><Link to="/issues">Read the issues</Link></div>}
+        {res && res.kind === "outside" && <OutsideBox />}
+        {res && res.kind === "multi" && <SeatOptions result={res} places={places.data} />}
+        {res && res.kind === "one" && (
+          <div className="v-result">
+            <p className="v-result-k">Your electorate</p>
+            <p className="v-result-name">{res.name}</p>
+            {seat && <p className="v-result-hook">{seat.copy.hook}</p>}
+            <div className="v-row"><Link to={seatPath(res.state, res.name)} className="v-btn v-btn--red v-btn--grow">See candidates and how to vote</Link></div>
+            <p className="v-result-k v-result-k--share">Tell your mates in {res.name}</p>
+            <ShareGrid url={url} msg={seatMsg(res.name, url)} subject={`How to vote in ${res.name}`} label={res.name} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+function DonateMatrix() {
+  const [amount, setAmount] = useState(135);
+  const [other, setOther] = useState("");
+  const [showOther, setShowOther] = useState(false);
+  const value = showOther ? (parseInt(other, 10) || 0) : amount;
+  return (
+    <section id="donate" className="v-sec v-matrix">
+      <div className="v-wrap v-narrow v-pad v-pad--lg">
+        <p className="v-kicker v-kicker--pink">★ Every dollar goes on the ground</p>
+        <h2 className="v-h2 v-h2--light">Back the farmers. Chip in.</h2>
+        <p className="v-gold-line">Every $100 helps reach 100 voters.</p>
+        <p className="v-matrix-lede">No party money. No corporate money. Just Australians standing up for farming families.</p>
+        <div className="v-matrix-grid">
+          {PRESETS.map((v, i) => (
+            <button type="button" key={v} aria-pressed={!showOther && amount === v} style={{ gridColumn: (i % 3) + 1, gridRow: i < 3 ? 1 : 2 }} onClick={() => { setAmount(v); setShowOther(false); }}>{money(v)}</button>
+          ))}
+          <button type="button" aria-pressed={showOther} style={{ gridColumn: 4, gridRow: "1 / 3" }} onClick={() => setShowOther(true)}>Other amount</button>
+        </div>
+        {showOther && (
+          <div className="v-other v-other--light">
+            <span>$</span>
+            <input value={other} onChange={(e) => setOther(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="Other amount" aria-label="Other amount" autoFocus />
+          </div>
+        )}
+        <Link to={`/donate?amount=${value || ""}`} className="v-btn v-btn--red v-btn--xl v-btn--block">{value ? `Give ${money(value)} now` : "Enter an amount"}</Link>
+        <p className="v-matrix-fine">Victorian law caps gifts at {money(CAP)} per donor for this election. Donations are not tax deductible.</p>
+      </div>
+    </section>
+  );
+}
+function HomeFooter() {
+  const cfg = useConfig();
+  return (
+    <footer className="iss-footer">
+      <div className="iss-wrap v-home-foot">
+        <img src="/assets/logo-votes-white.png" alt="Farmers Fightback Votes" />
+        <p>Farmers Fightback Votes is a special election vehicle set up for this campaign. It is separate from Farmers Fightback and from the Wallaloo and Gre Gre District Association.</p>
+        <p className="v-home-foot-auth">{cfg.site.authorisation}</p>
+        <p>Contact: <a href={`mailto:${cfg.site.support_email}`}>{cfg.site.support_email}</a></p>
+      </div>
+    </footer>
+  );
+}
+function HomePage() {
+  useTitle("");
+  const el = useElection();
+  const width = useWidth();
+  const issues = useFetch("/content/issues.json", []);
+  const city = new URLSearchParams(window.location.search).get("a") === "city";
+  return (
+    <Page donateTo="#donate" footer={<HomeFooter />}>
+      <section id="top" className="v-hero">
+        <div className="v-hero-shade" />
+        <div className="v-wrap v-hero-inner">
+          <h1 className="v-hero-h1"><span>{city ? "Save your power bill." : "Save our farmers."}</span><span className="v-pink">Put Labor Last.</span></h1>
+          <p className="v-hero-lede">{el.date ? dayMonth(el.date) : "Election day"} is the only chance we get to stop them. Make it count.</p>
+          <div className="v-row v-row--hero">
+            <a href="#donate" className="v-btn v-btn--red v-btn--lg">Chip in now</a>
+            <a href="#find" className="v-btn v-btn--ghost v-btn--lg">Find my candidates</a>
+          </div>
+        </div>
+      </section>
+      <HomeLookup />
+      <section className="v-sec v-sec--paper">
+        <div className="v-wrap v-pad-top">
+          <h2 className="v-h2 v-h2--story"><span className="v-red">Labor has devastated Aussie farmers.</span> This is our only chance to stop them.</h2>
+        </div>
+        <div className="v-wrap v-story">
+          <div className="v-story-img"><img src="/assets/issues/mary-colin.jpg" alt="Mary and Colin at their farm gate" /></div>
+          <div>
+            <p className="v-kicker">★ Fined at their own gate</p>
+            <h2 className="v-h2 v-h2--mc">Mary and Colin are 80. Labor fined them $814 for defending their own farm.</h2>
+            <p className="v-story-p">Twelve farmers have been fined so far. Labor handed the line to a Spanish multinational to build, own and operate.</p>
+            <Link to="/issues#issue-1" className="v-underline">Read their story →</Link>
+          </div>
+        </div>
+      </section>
+      <section className="v-sec v-redband">
+        <div className="v-wrap v-band">
+          <p>Help get rid of Labor. Give to get this campaign in front of more Victorians.</p>
+          <a href="#donate" className="v-btn v-btn--gold v-btn--band">Donate</a>
+        </div>
+      </section>
+      <section id="issues" className="v-sec v-sec--paper">
+        <div className="v-wrap v-pad v-pad--issues">
+          <h2 className="v-h2 v-h2--issues">Why Labor goes last</h2>
+          {issues.data && issues.data.groups.map((g) => (
+            <div className="v-issue-row" key={g.key}>
+              <p className="v-rule"><span>★ {g.home_label}</span><span className="v-rule-line" /></p>
+              <div className="v-cards">
+                {g.issues.map((it) => (
+                  <Link key={it.id} to={`/issues#${it.id}`} className="v-card">
+                    <IssueSlot it={it} />
+                    <span className="v-card-t">{it.title}</span>
+                    <span className="v-card-s">{it.teaser}</span>
+                    <span className="v-card-more">Read more →</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <DonateMatrix />
+      {width < 860 && (
+        <div className="v-sticky"><a href="#donate" className="v-btn v-btn--red v-btn--block v-btn--sticky">Donate</a></div>
+      )}
+    </Page>
+  );
+}
+
+// ---------- find ----------
+function FindPage() {
+  useTitle("Find your candidates");
+  const [pc, setPc] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  const places = useFetch("/content/places.json", []);
+  const submit = async (e) => {
+    e.preventDefault(); setRes(null); setBusy(true);
+    try {
+      const r = await findSeat(pc);
+      if (r.kind === "one") return nav(seatPath(r.state, r.name));
+      setRes(r);
+    } catch { setRes({ kind: "error", message: "Lookup failed. Try again." }); } finally { setBusy(false); }
+  };
+  const msg = res && (LOOKUP_MSG[res.kind] || res.message);
+  return (
+    <Page>
+      <section className="v-sec v-find-page">
+        <div className="v-wrap v-narrow v-pad">
+          <p className="v-kicker">★ Find your candidates</p>
+          <h1 className="v-h1 v-h1--navy">Find your electorate and candidates</h1>
+          <PostcodeForm value={pc} onChange={(v) => { setPc(v); setRes(null); }} onSubmit={submit} busy={busy} />
+          <p className="v-hint">Just the four digits. We never ask for or store your street address.</p>
+          {msg && <p className="v-err">{msg}</p>}
+          {res && res.kind === "outside" && <OutsideBox />}
+          {res && res.kind === "multi" && <SeatOptions result={res} places={places.data} />}
+        </div>
+      </section>
+      <WhenWhere />
+    </Page>
+  );
+}
+
+// ---------- result ----------
+const initials = (n) => n.split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 3).join("").toUpperCase();
+const isLabor = (p) => /labor/i.test(p || "");
+function profileLine(c, seatName) {
+  if (c.retiring) return `Sitting ${c.party} member for ${seatName}. Retiring at this election.`;
+  if (c.incumbent) return `Sitting ${c.party} member for ${seatName}.`;
+  return `Declared ${c.party} candidate.`;
+}
+function HTVCard({ electorate, rows, drawDate }) {
+  const cfg = useConfig();
+  const live = rows && rows.length > 0;
+  return (
+    <div className="v-htv-wrap">
+      <div className="v-htv">
+        <div className="v-htv-top"><img src="/assets/logo-votes.png" alt="Farmers Fightback Votes" /><span>{electorate}</span></div>
+        <h2 className="v-htv-h">Save our farmers:<br /><span>Put Labor Last</span></h2>
+        <p className="v-htv-k">How to vote in {electorate} · Lower house</p>
+        {live ? (
+          <>
+            <div className="v-htv-ballot">
+              {rows.map((r, i) => (
+                <div className="v-htv-row" key={r.name}>
+                  <span className={"v-htv-box" + (isLabor(r.party) ? " is-labor" : "")}>{i + 1}</span>
+                  <span className="v-htv-who"><span className="v-htv-name">{r.name}</span><span className="v-htv-party">{r.party}</span></span>
+                </div>
+              ))}
+            </div>
+            <p className="v-htv-every">Number every box</p>
+          </>
+        ) : (
+          <div className="v-htv-pending"><p>Your how-to-vote card goes live on {drawDate ? dayMonth(drawDate) : "the ballot draw"}</p></div>
+        )}
+        <p className="v-htv-auth">{cfg.site.authorisation}. {window.location.host}</p>
       </div>
     </div>
   );
 }
+function SeatMap({ state, name }) {
+  const { data } = useFetch(`/api/boundary?state=${state}&district=${encodeURIComponent(name)}`, [state, name]);
+  if (!data) return <div className="v-map" aria-hidden="true" />;
+  const [x0, y0, x1, y1] = data.bbox;
+  const k = Math.cos(((y0 + y1) / 2) * Math.PI / 180);
+  const W = (x1 - x0) * k, H = y1 - y0, pad = Math.max(W, H) * 0.06;
+  const d = data.rings.map((r) => "M" + r.map(([x, y]) => `${((x - x0) * k).toFixed(5)},${(y1 - y).toFixed(5)}`).join("L") + "Z").join("");
+  return (
+    <div className="v-map">
+      <svg viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`Boundary map of ${name}`}>
+        <path d={d} fill="rgba(20,62,101,0.18)" stroke="#143E65" strokeWidth={Math.max(W, H) * 0.006} strokeLinejoin="round" />
+      </svg>
+      <span className="v-map-credit">Boundary: ABS ASGS 2024, CC BY 4.0</span>
+    </div>
+  );
+}
+function Reminder({ seat, state }) {
+  const saved = store.get("fv_reminder");
+  const [mobile, setMobile] = useState("");
+  const [done, setDone] = useState(saved && saved.mobile ? saved.mobile : "");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const name = seat.seat.name;
+  const submit = async (e) => {
+    e.preventDefault(); setErr("");
+    const d = mobile.replace(/\s/g, "");
+    if (!/^04\d{8}$/.test(d)) return setErr("Enter an Australian mobile number, like 0412 345 678.");
+    setBusy(true);
+    try {
+      const last = (() => { try { return JSON.parse(sessionStorage.getItem("fv_last_seat") || "{}"); } catch { return {}; } })();
+      const attr = getAttribution();
+      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mobile: d, consent_sms: true, postcode: last.postcode || "", seat_state: name, seat_region: seat.region ? seat.region.name : "", jurisdiction: state, source: "Reminder", ref: attr.ref || "", utm: attr }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
+      store.set("fv_reminder", { mobile, referral_code: j.referral_code || null, at: Date.now() });
+      track("Lead", { content_name: "Election day reminder" });
+      setDone(mobile);
+    } catch (ex) { setErr(ex.message); } finally { setBusy(false); }
+  };
+  const url = seatShare(state, name);
+  return (
+    <section className="v-sec v-remind">
+      <div className="v-wrap v-narrow v-pad-md">
+        {!done ? (
+          <>
+            <h2 className="v-h2 v-h2--light v-h2--md">Don't forget on the day. We'll text you.</h2>
+            <form className="v-pc-form" onSubmit={submit}>
+              <input className="v-pc-input v-pc-input--tel" value={mobile} onChange={(e) => { setMobile(e.target.value.replace(/[^\d ]/g, "").slice(0, 12)); setErr(""); }} inputMode="tel" type="tel" autoComplete="tel" placeholder="Mobile number" aria-label="Mobile number" />
+              <button type="submit" className="v-btn v-btn--navy" disabled={busy}>{busy ? "One sec…" : "Remind me on election day"}</button>
+            </form>
+            {err && <p className="v-remind-err">{err}</p>}
+            <p className="v-remind-fine">We'll text you on {dayMonth(seat.election.date)} with your how-to-vote card. Reply STOP to opt out.</p>
+          </>
+        ) : (
+          <>
+            <p className="v-kicker v-kicker--pink">★ You're on the list</p>
+            <h2 className="v-h2 v-h2--light v-h2--md">We'll text {done} on {dayMonth(seat.election.date)}.</h2>
+            <p className="v-remind-p">Now the bit that wins it. Most people in {name} haven't heard any of this. Send them this page.</p>
+            <ShareGrid url={url} msg={seatMsg(name, url)} subject={`How to vote in ${name}`} label={name} />
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+function SeatPage({ state, district }) {
+  const { loading, data, error } = useFetch(state && district ? `/api/seat?state=${state}&district=${encodeURIComponent(district)}` : null, [state, district]);
+  useTitle(data ? `How to vote in ${data.seat.name}` : "Your electorate");
+  useEffect(() => { if (data) track("ViewContent", { content_name: `Seat ${data.seat.name}`, content_category: "how-to-vote" }); }, [data]);
+  if (!state || !district) return <FindPage />;
+  if (error) return <Page><section className="v-sec"><div className="v-wrap v-narrow v-pad"><h1 className="v-h1 v-h1--navy">We couldn't find that electorate.</h1><p className="v-lede-dark">{error}</p><Link to="/seat" className="v-btn v-btn--navy">Look up your postcode</Link></div></section></Page>;
+  if (loading || !data) return <Page><section className="v-sec v-res-head"><div className="v-wrap v-pad"><div className="v-skel" /></div></section></Page>;
+
+  const name = data.seat.name, region = data.region ? data.region.name : "";
+  const ballot = data.copy.ballot || [];
+  const after = ballot.length > 0;
+  const stances = data.copy.stances || {};
+  const byName = Object.fromEntries(data.lower.map((c) => [c.name, c]));
+  const list = after
+    ? ballot.map((b) => ({ ...(byName[b.name] || {}), ...b }))
+    : [...data.lower].sort((a, b) => (b.incumbent ? 1 : 0) - (a.incumbent ? 1 : 0));
+  const url = seatShare(state, name);
+  return (
+    <Page>
+      <section className="v-sec v-res-head">
+        <div className="v-wrap v-pad-head">
+          <p className="v-res-k">Your electorate{region ? ` · ${region} Region` : ""}</p>
+          <h1 className="v-res-name">{name}</h1>
+          <p className="v-res-hook">{data.copy.hook}</p>
+          <p className="v-res-pll">Put Labor Last</p>
+        </div>
+      </section>
+      <Reminder seat={data} state={state} />
+      <section className="v-sec v-sec--paper">
+        <div className="v-wrap v-pad v-htv-grid">
+          <div>
+            <h2 className="v-h2">How to vote in {name}</h2>
+            {after ? (
+              <>
+                <p className="v-p">Lower house (the small green ballot): number every box, Labor last. Copy the card, or save it to your phone.</p>
+                <div className="v-row v-row--mb">
+                  <Link to={`/card/${state}/${encodeURIComponent(name)}`} className="v-btn v-btn--navy v-btn--md">Save card to phone</Link>
+                  <Link to={`/card/${state}/${encodeURIComponent(name)}?print=1`} className="v-btn v-btn--outline v-btn--md">Print A5</Link>
+                </div>
+              </>
+            ) : (
+              <p className="v-p v-p--mb">Candidates aren't final until the ballot draw on {data.copy.ballot_draw ? fmt(dayOf(data.copy.ballot_draw), { weekday: "long", day: "numeric", month: "long" }) : "nominations close"}. Sign up above and we'll text you the finished card.</p>
+            )}
+            {region && (
+              <div className="v-tile v-tile--plain">
+                <p className="v-tile-h v-tile-h--sm">Upper house · {region} Region</p>
+                <p>The big white ballot. Group voting tickets are gone this election, so your numbers decide. Number <strong>at least five</strong> groups above the line, in your own order, and put Labor's group last of the ones you number.</p>
+                <p className="v-muted">Our recommended order for {region} will be published after the ballot draw.</p>
+              </div>
+            )}
+          </div>
+          <HTVCard electorate={name} rows={after ? list : []} drawDate={data.copy.ballot_draw} />
+        </div>
+      </section>
+      <section className="v-sec v-sec--white">
+        <div className="v-wrap v-pad">
+          <h2 className="v-h2 v-h2--tight">{after ? `Candidates in ${name}` : `Who's standing in ${name} so far`}</h2>
+          <p className="v-muted v-mb">{after ? "In how-to-vote order. Labor last." : `Sitting MP and declared candidates. The full list comes after the ballot draw${data.copy.ballot_draw ? ` on ${dayMonth(data.copy.ballot_draw)}` : ""}.`}</p>
+          {list.length ? (
+            <div className="v-cands">
+              {list.map((c, i) => (
+                <article key={c.name} className={"v-cand" + (isLabor(c.party) ? " is-labor" : "")}>
+                  <div className="v-cand-top">
+                    <div className="v-cand-ini">{initials(c.name)}</div>
+                    <div className="v-cand-id">
+                      {after && <span className="v-cand-num">Vote {i + 1}</span>}
+                      <p className="v-cand-name">{c.name}</p>
+                      <p className="v-cand-party">{c.party}</p>
+                    </div>
+                  </div>
+                  <p className="v-cand-prof">{profileLine(c, name)}</p>
+                  {stances[c.name] && <p className="v-cand-stance"><strong>On the transmission lines:</strong> {stances[c.name]}</p>}
+                </article>
+              ))}
+            </div>
+          ) : <p className="v-p">No candidates announced yet for {name}.</p>}
+        </div>
+      </section>
+      <section className="v-sec v-sec--paper">
+        <div className="v-wrap v-pad v-map-grid">
+          <SeatMap state={state} name={name} />
+          <div>
+            <h2 className="v-h2 v-h2--tight">The {name} electorate</h2>
+            {data.copy.places.length > 0 && <><p className="v-p">Main towns and suburbs:</p><p className="v-places">{data.copy.places.join(", ")}</p></>}
+            <p className="v-muted v-mt"><Link to="/seat">Not your electorate? Look up another postcode.</Link></p>
+          </div>
+        </div>
+      </section>
+      <section className="v-sec v-navy">
+        <div className="v-wrap v-narrow v-pad-md">
+          <h2 className="v-h2 v-h2--light v-h2--md">Share with your friends in {name}</h2>
+          <p className="v-share-lede">They get this page and the how-to-vote card. One tap.</p>
+          <ShareGrid url={url} msg={seatMsg(name, url)} subject={`How to vote in ${name}`} label={name} />
+        </div>
+      </section>
+      <WhenWhere />
+    </Page>
+  );
+}
+
+// ---------- how-to-vote card on its own (save / print) ----------
+function CardPage({ state, district }) {
+  const { data, error } = useFetch(`/api/seat?state=${state}&district=${encodeURIComponent(district)}`, [state, district]);
+  useTitle(data ? `How-to-vote card: ${data.seat.name}` : "How-to-vote card");
+  const printing = new URLSearchParams(window.location.search).get("print") === "1";
+  useEffect(() => { if (data && printing) setTimeout(() => window.print(), 400); }, [data]);
+  if (error) return <Page><section className="v-sec"><div className="v-wrap v-narrow v-pad"><p className="v-p">{error}</p></div></section></Page>;
+  if (!data) return null;
+  const byName = Object.fromEntries(data.lower.map((c) => [c.name, c]));
+  const rows = (data.copy.ballot || []).map((b) => ({ ...(byName[b.name] || {}), ...b }));
+  return (
+    <div className="fv v-card-page">
+      <HTVCard electorate={data.seat.name} rows={rows} drawDate={data.copy.ballot_draw} />
+      <div className="v-row v-card-actions">
+        <button type="button" className="v-btn v-btn--navy" onClick={() => window.print()}>Print A5</button>
+        <Link to={seatPath(state, data.seat.name)} className="v-btn v-btn--outline">Back to {data.seat.name}</Link>
+      </div>
+      <p className="v-hint v-card-tip">To save it to your phone, take a screenshot of the card.</p>
+    </div>
+  );
+}
+
+// ---------- issues: "Why put Labor last" ----------
+// Copy, photos and source links live in /content/issues.json.
+function IssueSlot({ it }) {
+  if (it.image) return <div className="iss-slot"><img src={it.image} alt={it.caption || it.face || ""} loading="lazy" /></div>;
+  return (
+    <div className="iss-slot" role="img" aria-label={it.face}>
+      <div className="iss-slot-empty"><Ico d={ICON.photo} size={28} /><span>{it.face}</span></div>
+    </div>
+  );
+}
 function IssuesPage() {
+  useTitle("Why put Labor last");
   const { loading, data: c, error } = useFetch("/content/issues.json", []);
   const width = useWidth();
-  const [track, setTrack] = useState(null);
+  const [trk, setTrk] = useState(null);
   const pending = useRef(null);
   useEffect(() => {
-    document.title = "Why put Labor last · Farmers Votes";
     const h = window.location.hash;
-    if (window.innerWidth < 900) { if (/issue-[123]/.test(h)) setTrack("farmers"); if (/issue-[456]/.test(h)) setTrack("cities"); }
+    if (window.innerWidth < 900) { if (/issue-[123]/.test(h)) setTrk("farmers"); if (/issue-[456]/.test(h)) setTrk("cities"); }
   }, []);
   useEffect(() => {
     if (!c) return;
@@ -496,9 +691,9 @@ function IssuesPage() {
     if (id) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: "smooth" }); return; }
     const h = window.location.hash.slice(1);
     if (h) { const el = document.getElementById(h); if (el) el.scrollIntoView(); }
-  }, [c, track]);
+  }, [c, trk]);
   const narrow = width < 900;
-  const cur = track || (narrow ? "farmers" : "both");
+  const cur = trk || (narrow ? "farmers" : "both");
   const focused = cur !== "both";
   const groups = c ? c.groups : [];
   const visible = focused ? groups.filter((g) => g.key === cur) : groups;
@@ -506,12 +701,11 @@ function IssuesPage() {
   const other = curG ? groups.find((g) => g.key !== curG.key) : null;
   const go = (g) => {
     const id = g.issues[0].id;
-    if (g.key === track) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: "smooth" }); return; }
-    pending.current = id; setTrack(g.key);
+    if (g.key === trk) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: "smooth" }); return; }
+    pending.current = id; setTrk(g.key);
   };
   return (
-    <div className="iss">
-      <VotesHeader />
+    <Page>
       {error && <section className="iss-intro"><div className="iss-wrap"><h1 className="iss-h1">We couldn't load this page.</h1><p className="iss-lede">{error}</p></div></section>}
       {c && (
         <>
@@ -526,9 +720,9 @@ function IssuesPage() {
                   const on = cur === g.key;
                   return (
                     <button type="button" key={g.key} className="iss-tab" aria-pressed={on} onClick={() => go(g)}>
-                      <Ico d={ISS_ICON[g.key]} size={44} />
+                      <Ico d={ICON[g.key]} size={44} />
                       <span className="iss-tab-text"><span className="iss-tab-label">{g.label}</span><span className="iss-tab-sub">{g.sub}</span></span>
-                      <span className="iss-tab-check">{on && <Ico d={ISS_ICON.tick} size={22} />}</span>
+                      <span className="iss-tab-check">{on && <Ico d={ICON.tick} size={22} />}</span>
                     </button>
                   );
                 })}
@@ -538,8 +732,8 @@ function IssuesPage() {
           {focused && curG && other && (
             <div className="iss-switch">
               <div className="iss-wrap">
-                <span className="iss-switch-cur"><Ico d={ISS_ICON[curG.key]} size={22} />{curG.label}</span>
-                <button type="button" className="iss-switch-btn" onClick={() => go(other)}>Switch to {other.key} <Ico d={ISS_ICON.swap} size={18} /></button>
+                <span className="iss-switch-cur"><Ico d={ICON[curG.key]} size={22} />{curG.label}</span>
+                <button type="button" className="iss-switch-btn" onClick={() => go(other)}>Switch to {other.key} <Ico d={ICON.swap} size={18} /></button>
               </div>
             </div>
           )}
@@ -586,9 +780,188 @@ function IssuesPage() {
           </section>
         </>
       )}
-      {loading && <div style={{ flex: 1 }} />}
-      <VotesFooter />
-    </div>
+      {loading && <div style={{ minHeight: "60vh" }} />}
+    </Page>
+  );
+}
+
+// ---------- donate ----------
+function DonateThanks({ amount, email }) {
+  const [pc, setPc] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  const places = useFetch("/content/places.json", []);
+  const url = window.location.origin;
+  const submit = async (e) => {
+    e.preventDefault(); setRes(null); setBusy(true);
+    try { const r = await findSeat(pc); if (r.kind === "one") return nav(seatPath(r.state, r.name)); setRes(r); }
+    catch { setRes({ kind: "error", message: "Lookup failed. Try again." }); } finally { setBusy(false); }
+  };
+  const msg = res && (LOOKUP_MSG[res.kind] || res.message);
+  return (
+    <>
+      <section className="v-sec v-navy">
+        <div className="v-wrap v-narrow v-pad-thanks">
+          <p className="v-kicker v-kicker--pink">★ Thank you</p>
+          <h1 className="v-h1 v-h1--light">{amount ? `${money(amount)} on the ground.` : "That's on the ground."} You beauty.</h1>
+          <p className="v-thanks-p">Your receipt is on its way to {email || "your inbox"}. Keep it for four years. Now do the thing that money can't: tell people.</p>
+          <ShareGrid url={url} msg={`I just chipped in to Save our farmers: Put Labor Last. Find your candidates: ${url}`} subject="Put Labor Last" label="Donate thanks" />
+        </div>
+      </section>
+      <section className="v-sec v-sec--white">
+        <div className="v-wrap v-narrow v-pad-thanks2">
+          <h2 className="v-h2 v-h2--md">Now find your candidates</h2>
+          <PostcodeForm value={pc} onChange={(v) => { setPc(v); setRes(null); }} onSubmit={submit} busy={busy} />
+          {msg && <p className="v-err">{msg}</p>}
+          {res && res.kind === "outside" && <OutsideBox />}
+          {res && res.kind === "multi" && <SeatOptions result={res} places={places.data} />}
+        </div>
+      </section>
+    </>
+  );
+}
+function DonatePage() {
+  useTitle("Donate");
+  const cfg = useConfig();
+  const q = new URLSearchParams(window.location.search);
+  const sessionId = q.get("session_id");
+  const preset = parseInt(q.get("amount"), 10);
+  const [amount, setAmount] = useState(PRESETS.includes(preset) ? preset : 135);
+  const [showOther, setShowOther] = useState(preset > 0 && !PRESETS.includes(preset));
+  const [other, setOther] = useState(preset > 0 && !PRESETS.includes(preset) ? String(preset) : "");
+  const [f, setF] = useState({ name: "", address: "", email: "", mobile: "" });
+  const [errors, setErrors] = useState({});
+  const [declared, setDeclared] = useState(false);
+  const [declError, setDeclError] = useState(false);
+  const [amountError, setAmountError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const thanks = useFetch(sessionId ? `/api/donate?session_id=${encodeURIComponent(sessionId)}` : null, [sessionId]);
+  useEffect(() => { if (thanks.data && thanks.data.paid) track("Purchase", { value: thanks.data.amount, currency: "AUD" }); }, [thanks.data]);
+
+  if (sessionId) return <Page>{thanks.loading ? <section className="v-sec v-navy"><div className="v-wrap v-narrow v-pad-thanks"><div className="v-skel" /></div></section> : <DonateThanks amount={thanks.data && thanks.data.amount} email={thanks.data && thanks.data.email} />}</Page>;
+
+  const value = showOther ? (parseInt(other, 10) || 0) : amount;
+  const over = value > CAP;
+  const fields = [
+    ["name", "Full name", "text", "text", "name", "As it appears on the electoral roll"],
+    ["address", "Residential address", "text", "text", "street-address", "Street, suburb, postcode"],
+    ["email", "Email", "email", "email", "email", "For your receipt"],
+    ["mobile", "Mobile", "tel", "tel", "tel", "04.."],
+  ];
+  const submit = async (e) => {
+    e.preventDefault(); setErr("");
+    const er = {};
+    if (!f.name.trim()) er.name = "We need your full name.";
+    if (!f.address.trim()) er.address = "We need your residential address.";
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) er.email = "Enter a valid email for your receipt.";
+    if (!/^04\d{8}$/.test(f.mobile.replace(/\s/g, ""))) er.mobile = "Enter an Australian mobile, like 0412 345 678.";
+    setErrors(er); setAmountError(!value); setDeclError(!declared);
+    if (!value || over || !declared || Object.keys(er).length) return;
+    setBusy(true);
+    const attr = getAttribution();
+    const [first, ...rest] = f.name.trim().split(/\s+/);
+    fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ first_name: first, last_name: rest.join(" "), email: f.email, mobile: f.mobile.replace(/\s/g, ""), consent_email: true, source: "Donate", ref: attr.ref || "", utm: attr }) }).catch(() => {});
+    try {
+      const r = await fetch("/api/donate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: value, ...f, declared, attribution: attr }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.url) throw new Error(j.error || "Could not start checkout. Please try again.");
+      track("InitiateCheckout", { value, currency: "AUD" });
+      window.location.href = j.url;
+    } catch (ex) { setErr(ex.message); setBusy(false); }
+  };
+  return (
+    <Page>
+      <section className="v-sec v-sec--paper">
+        <div className="v-wrap v-donate v-pad-donate">
+          <p className="v-kicker">★ Paid for by farmers and the people who back them</p>
+          <h1 className="v-h1 v-h1--navy">Back the farmers. Chip in.</h1>
+          <p className="v-donate-lede">No party money. No corporate money. Every dollar goes on ads, texts and how-to-vote cards in the seats that decide it.</p>
+          <form onSubmit={submit} noValidate className="v-donate-form">
+            <fieldset className="v-fs">
+              <legend>1. Your amount</legend>
+              <div className="v-amounts">
+                {PRESETS.map((v) => <button type="button" key={v} aria-pressed={!showOther && amount === v} onClick={() => { setAmount(v); setShowOther(false); setAmountError(false); }}>{money(v)}</button>)}
+                <button type="button" aria-pressed={showOther} onClick={() => { setShowOther(true); setAmountError(false); }}>Other</button>
+              </div>
+              {showOther && (
+                <div className="v-other">
+                  <span>$</span>
+                  <input value={other} onChange={(e) => { setOther(e.target.value.replace(/\D/g, "")); setAmountError(false); }} inputMode="numeric" placeholder="Other amount" aria-label="Other amount" />
+                </div>
+              )}
+              {over && <div className="v-alert"><p className="v-alert-h">That's over the legal limit.</p><p>Victorian law caps donations at {money(CAP)} per donor in total between 15 April and 28 November 2026. We can't accept more than that, even in instalments. Pick {money(CAP)} or less.</p></div>}
+              {amountError && <p className="v-err">Pick an amount or enter your own.</p>}
+            </fieldset>
+            <fieldset className="v-fs">
+              <legend>2. Your details</legend>
+              <p className="v-muted v-fs-note">The law requires them on every gift. No anonymous donations.</p>
+              {fields.map(([k, label, type, im, auto, ph]) => (
+                <label key={k} className="v-field">
+                  <span>{label}</span>
+                  <input className={errors[k] ? "is-err" : ""} value={f[k]} onChange={(e) => { setF((s) => ({ ...s, [k]: e.target.value })); setErrors((s) => ({ ...s, [k]: "" })); }} type={type} inputMode={im} autoComplete={auto} placeholder={ph} />
+                  {errors[k] && <span className="v-field-err">{errors[k]}</span>}
+                </label>
+              ))}
+            </fieldset>
+            <fieldset className="v-fs">
+              <legend>3. Payment</legend>
+              <div className="v-pay"><p>You'll enter your card on Stripe's secure payment page next. Your card details never touch this site.</p></div>
+            </fieldset>
+            <div className="v-give">
+              <button type="submit" className="v-btn v-btn--red v-btn--xl" disabled={busy}>{busy ? "One moment…" : value ? `Give ${money(value)}` : "Give"}</button>
+              {err && <div className="v-alert"><p className="v-alert-h">{err}</p></div>}
+              {declError && <div className="v-alert"><p className="v-alert-h">We can't take your gift without the declaration. Tick the box below to continue.</p></div>}
+              <div className="v-terms">
+                <label className={"v-decl" + (declError ? " is-err" : "")}>
+                  <input type="checkbox" checked={declared} onChange={(e) => { setDeclared(e.target.checked); setDeclError(false); }} />
+                  <span><strong>Donor declaration.</strong> I confirm I am an Australian citizen or resident, or I am giving for an organisation that has an ABN. This is my own money. Counting this gift, I have given Farmers Fightback Votes no more than {money(CAP)} since 15 April 2026.</span>
+                </label>
+                <p><strong>Donation terms.</strong> Your gift goes to [entity legal name], the election vehicle behind Farmers Fightback Votes. It is a third-party campaigner at the 2026 Victorian state election and is separate from Farmers Fightback and WAGGDA. Your gift pays for campaigning at that election.</p>
+                <p>Victorian law caps donations at {money(CAP)} per donor between 15 April and 28 November 2026 and bans foreign donations. If your gifts to us reach $1,290 or more in a financial year, you must disclose them to the Victorian Electoral Commission within 21 days, and so must we.</p>
+                <p>Donations are not tax deductible. Donations are final. If you gave by mistake, email {cfg.site.support_email} within 2 working days of your receipt. A gift the law does not let us accept may have to be forfeited to the Victorian Electoral Commission.</p>
+                <p>We use your details to meet electoral law and to keep you up to date with the campaign.</p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+    </Page>
+  );
+}
+
+// ---------- about ----------
+function AboutPage() {
+  useTitle("About");
+  const cfg = useConfig();
+  return (
+    <Page>
+      <section className="v-sec v-sec--paper">
+        <div className="v-wrap v-narrow v-about">
+          <div>
+            <h1 className="v-h1 v-h1--navy">What Farmers Fightback Votes is</h1>
+            <p>Farmers Fightback started at the farm gate. Farming families in the Wimmera and across western Victoria stood up to Labor's transmission lines, the fines, and a government that would not listen.</p>
+            <p>Farmers Fightback Votes is the election arm of that fight. It exists for one event: the Victorian state election on Saturday 28 November 2026. It is paid for by farmers and by the Australians who back them. Not a party, not a union, not a corporation.</p>
+            <p>It is separate from Farmers Fightback and from the Wallaloo and Gre Gre District Association (WAGGDA).</p>
+          </div>
+          <div>
+            <h2 className="v-h2 v-h2--red">Our goal</h2>
+            <p className="v-about-goal">Put Labor last in every electorate in Victoria, and get them out of government.</p>
+            <p>Labor has devastated farming families and is now sending the bill to every Victorian household. This election is the only chance to stop it.</p>
+            <p>To do that, we will tell every voter what Labor has done, show them exactly how to number their ballot so Labor goes last, and put a how-to-vote card in as many hands as donations allow.</p>
+          </div>
+          <div className="v-tile v-tile--red v-tile--plain">
+            <h2 className="v-tile-h">Authorisation</h2>
+            <p className="v-strong">{cfg.site.authorisation}</p>
+            <p>Contact: <a href={`mailto:${cfg.site.support_email}`}>{cfg.site.support_email}</a></p>
+          </div>
+          <div className="v-row">
+            <Link to="/seat" className="v-btn v-btn--navy">Find my candidates</Link>
+            <Link to="/donate" className="v-btn v-btn--red">Donate</Link>
+          </div>
+        </div>
+      </section>
+    </Page>
   );
 }
 
@@ -602,14 +975,12 @@ function App() {
   if (!cfg) return null;
   const path = window.location.pathname.replace(/\/$/, "") || "/";
   const parts = path.split("/").filter(Boolean);
+  const seatArgs = { state: (parts[1] || "").toUpperCase(), district: parts[2] ? decodeURIComponent(parts[2]) : "" };
   let view;
   if (path === "/") view = <HomePage />;
-  else if (parts[0] === "seat") view = <SeatPage state={(parts[1] || "").toUpperCase()} district={parts[2] ? decodeURIComponent(parts[2]) : ""} />;
-  else if (parts[0] === "parties") view = <PartiesPage />;
-  else if (parts[0] === "media") view = <MediaPage slug={parts[1] ? decodeURIComponent(parts[1]) : ""} />;
+  else if (parts[0] === "seat") view = <SeatPage key={path} {...seatArgs} />;
+  else if (parts[0] === "card" && seatArgs.district) view = <CardPage {...seatArgs} />;
   else if (parts[0] === "donate") view = <DonatePage />;
-  else if (parts[0] === "quiz") view = <QuizPage />;
-  else if (parts[0] === "shop") view = <ShopPage />;
   else if (parts[0] === "issues") view = <IssuesPage />;
   else if (parts[0] === "about") view = <AboutPage />;
   else view = <HomePage />;

@@ -116,7 +116,7 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     finally { if (saved !== undefined) process.env.GOOGLE_MAPS_KEY = saved; }
   });
 
-  console.log("api/seat, api/parties, api/capture, api/releases (Airtable not configured)");
+  console.log("api/seat, api/capture, api/boundary, api/donate");
   await test("seat scorecard joins boundary, candidates and placeholder ratings", async () => {
     const seat = require("../api/seat");
     const r = res(); await seat({ method: "GET", query: { state: "VIC", district: "Ripon" } }, r);
@@ -130,20 +130,65 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     const bad = res(); await seat({ method: "GET", query: { state: "VIC", district: "Nowhere" } }, bad); assert.strictEqual(bad.code, 404); assert.ok(bad.body.options.includes("Ripon"));
     const off = res(); await seat({ method: "GET", query: { state: "NSW", district: "Albury" } }, off); assert.strictEqual(off.code, 404);
   });
+  await test("seat carries the result page copy: own hook, default hook, stances and towns", async () => {
+    const seat = require("../api/seat");
+    const r = res(); await seat({ method: "GET", query: { state: "VIC", district: "Ripon" } }, r);
+    assert.match(r.body.copy.hook, /Mary and Colin/);
+    assert.ok(r.body.copy.stances["Martha Haylett"], "Ripon's sitting member has a stance line");
+    assert.deepStrictEqual(r.body.copy.ballot, [], "no how-to-vote order before the ballot draw");
+    assert.ok(r.body.copy.places.includes("Maryborough") && r.body.copy.places.length <= 9);
+    assert.strictEqual(r.body.seat.held_by, "Labor");
+    const other = res(); await seat({ method: "GET", query: { state: "VIC", district: "Lowan" } }, other);
+    const copy = require("../content/seats.json");
+    assert.ok([copy.default_hook_labor, copy.default_hook_other].includes(other.body.copy.hook), "a seat with no entry gets a default hook");
+    assert.strictEqual(other.body.copy.hook, other.body.seat.held_by === "Labor" ? copy.default_hook_labor : copy.default_hook_other);
+  });
+  await test("every seat named in seats.json and every ballot name is real", () => {
+    const copy = require("../content/seats.json");
+    const cands = require("../data/candidates/vic-2026.json").candidates.filter((c) => c.house === "assembly");
+    const names = new Set(E.listSeats("VIC", "assembly").map((s) => s.name));
+    for (const [seat, v] of Object.entries(copy.seats)) {
+      assert.ok(names.has(seat), seat + " is not a district");
+      for (const n of Object.keys(v.stances || {})) assert.ok(cands.some((c) => c.electorate === seat && c.name === n), `${seat}: no candidate called ${n}`);
+      for (const b of v.ballot || []) assert.ok(b.name && b.party, `${seat}: ballot rows need name and party`);
+      if ((v.ballot || []).length) assert.ok(/labor/i.test(v.ballot[v.ballot.length - 1].party), `${seat}: Labor goes last on the card`);
+    }
+  });
+  await test("places cover all 88 districts and split postcodes name real districts", () => {
+    const pl = require("../content/places.json");
+    const names = E.listSeats("VIC", "assembly").map((s) => s.name);
+    assert.deepStrictEqual(Object.keys(pl.seats).sort(), [...names].sort());
+    for (const [pc, parts] of Object.entries(pl.split_postcodes)) for (const s of Object.keys(parts)) assert.ok(names.includes(s), `${pc}: ${s}`);
+    assert.ok(pl.split_postcodes["3350"].Wendouree.includes("Alfredton"));
+  });
+  await test("boundary gives the outline of one seat, and 404s on anything else", async () => {
+    const b = require("../api/boundary");
+    const r = res(); await b({ method: "GET", query: { state: "VIC", district: "ripon" } }, r);
+    assert.strictEqual(r.code, 200); assert.strictEqual(r.body.name, "Ripon");
+    assert.ok(r.body.rings.length >= 1 && r.body.rings[0].length > 20);
+    const [x0, y0, x1, y1] = r.body.bbox; assert.ok(x0 < 143.5 && x1 > 143.5 && y0 < -37 && y1 > -37, "Ripon sits around 143.5E, 37S");
+    assert.ok(JSON.stringify(r.body).length < 60000, "small enough to ship to a phone");
+    const bad = res(); await b({ method: "GET", query: { state: "VIC", district: "Nowhere" } }, bad); assert.strictEqual(bad.code, 404);
+  });
+  await test("donate validates the gift and the law, and says so plainly without a Stripe key", async () => {
+    const d = require("../api/donate");
+    const saved = process.env.STRIPE_FV_SECRET_KEY; delete process.env.STRIPE_FV_SECRET_KEY;
+    const ok = { amount: 135, name: "Jo Bloggs", address: "1 Main St, Marnoo VIC 3387", email: "jo@example.com", mobile: "0412345678", declared: true };
+    try {
+      let r = res(); await d({ method: "POST", headers: {}, body: { ...ok, amount: 0 } }, r); assert.strictEqual(r.code, 400);
+      r = res(); await d({ method: "POST", headers: {}, body: { ...ok, amount: 5191 } }, r); assert.strictEqual(r.code, 400); assert.match(r.body.error, /5,190/);
+      r = res(); await d({ method: "POST", headers: {}, body: { ...ok, address: "" } }, r); assert.strictEqual(r.code, 400);
+      r = res(); await d({ method: "POST", headers: {}, body: { ...ok, declared: false } }, r); assert.strictEqual(r.code, 400);
+      r = res(); await d({ method: "POST", headers: {}, body: { ...ok, amount: 5190 } }, r); assert.strictEqual(r.code, 503, "valid gift, no key: not open yet");
+      r = res(); await d({ method: "GET", headers: {}, query: { session_id: "nope" } }, r); assert.strictEqual(r.code, 400);
+    } finally { if (saved !== undefined) process.env.STRIPE_FV_SECRET_KEY = saved; }
+  });
   await test("retiring members are flagged on the card from the retiring list", async () => {
     const seat = require("../api/seat");
     const r = res(); await seat({ method: "GET", query: { state: "VIC", district: "Bayswater" } }, r);
     assert.ok(r.body.lower.length > 0);
     // Jackson Taylor retired from Bayswater; he should not appear as a running incumbent
     assert.ok(!r.body.lower.some((m) => m.name === "Jackson Taylor" && m.incumbent && !m.retiring), "a retiring MP is never shown as a live incumbent");
-  });
-  await test("party grid lists the majors and the rest separately", async () => {
-    const parties = require("../api/parties");
-    const r = res(); await parties({ method: "GET", query: { state: "VIC" } }, r);
-    assert.strictEqual(r.code, 200);
-    assert.deepStrictEqual(r.body.majors.map((x) => x.party), ["Labor", "Liberal", "National", "Greens", "One Nation"]);
-    assert.ok(r.body.others.length >= 5); assert.ok(r.body.issues.length >= 5);
-    assert.ok(r.body.majors.every((m) => Object.values(m.ratings).every((x) => x.rating === "Unknown")), "placeholders are grey, not invented");
   });
   await test("capture validates input and lets the voter through when Airtable is not configured", async () => {
     const capture = require("../api/capture");
@@ -157,13 +202,6 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
       assert.strictEqual(r.code, 202); assert.strictEqual(r.body.ok, true); assert.strictEqual(r.body.stored, false);
     } finally { [process.env.AIRTABLE_FV_BASE_ID, process.env.AIRTABLE_API_KEY, process.env.AIRTABLE_TOKEN] = saved; for (const k of ["AIRTABLE_FV_BASE_ID", "AIRTABLE_API_KEY", "AIRTABLE_TOKEN"]) if (process.env[k] === undefined) delete process.env[k]; }
   });
-  await test("releases answers an empty, cacheable list when Airtable is not configured", async () => {
-    const releases = require("../api/releases");
-    const saved = process.env.AIRTABLE_FV_BASE_ID; delete process.env.AIRTABLE_FV_BASE_ID;
-    try { const r = res(); await releases({ method: "GET", query: {} }, r); assert.strictEqual(r.code, 200); assert.deepStrictEqual(r.body.items, []); assert.match(r.headers["Cache-Control"], /s-maxage/); }
-    finally { if (saved !== undefined) process.env.AIRTABLE_FV_BASE_ID = saved; }
-  });
-
   console.log("candidates");
   await test("the Victorian candidate list covers every district and carries sources", () => {
     const file = require(path.join(__dirname, "..", "data", "candidates", "vic-2026.json"));
@@ -193,7 +231,7 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     assert.ok(wv.some((x) => x.name === "Sarah Mansfield" && x.party === "Greens"), "Western Victoria: Mansfield is Greens, so the bands are aligned");
   });
 
-  console.log("issues page");
+  console.log("pages");
 
   await test("/issues content has two groups of three issues, each with proofs", () => {
     const c = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "content", "issues.json"), "utf8"));
@@ -213,16 +251,18 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     for (const f of ["assets/logo-votes.png", "assets/logo-votes-white.png"]) assert.ok(fs.existsSync(path.join(__dirname, "..", f)), f + " missing");
   });
 
-  await test("/issues is routed and reachable", () => {
+  await test("every page is routed and the retired ones redirect", () => {
     const v = require("../vercel.json");
-    assert.ok(v.rewrites.some((r) => r.source === "/issues" && r.destination === "/"), "vercel.json needs the /issues rewrite");
+    for (const src of ["/seat", "/seat/:state/:district", "/card/:state/:district", "/donate", "/issues", "/about"]) assert.ok(v.rewrites.some((r) => r.source === src && r.destination === "/"), "vercel.json needs a rewrite for " + src);
+    for (const src of ["/parties", "/quiz", "/media", "/shop"]) assert.ok(v.redirects.some((r) => r.source === src), src + " should redirect, not 404");
     const app = fs.readFileSync(path.join(__dirname, "..", "app.jsx"), "utf8");
-    assert.ok(/parts\[0\] === "issues"\) view = <IssuesPage \/>/.test(app), "router must mount IssuesPage");
-    assert.ok(/\["\/issues", "Why Labor last"\]/.test(app), "site nav links to /issues");
+    for (const [route, comp] of [["seat", "SeatPage"], ["card", "CardPage"], ["donate", "DonatePage"], ["issues", "IssuesPage"], ["about", "AboutPage"]]) assert.ok(new RegExp(`parts\\[0\\] === "${route}".*view = <${comp}`).test(app), `router must mount ${comp}`);
+    assert.ok(/\["\/issues", "Issues"\]/.test(app), "site nav links to /issues");
+    for (const f of ["assets/hero.jpg"]) assert.ok(fs.existsSync(path.join(__dirname, "..", f)), f + " missing");
     const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
     assert.ok(/family=Oswald/.test(html) && /family=Source\+Sans\+3/.test(html), "index.html loads Oswald and Source Sans 3");
     const css = fs.readFileSync(path.join(__dirname, "..", "styles.css"), "utf8");
-    for (const sel of [".iss .iss-h1", ".iss .iss-tab[aria-pressed=\"true\"]", ".iss .iss-switch", ".iss .iss-card", ".iss .iss-band", ".iss .iss-footer"]) assert.ok(css.includes(sel), "styles.css missing " + sel);
+    for (const sel of [".fv .iss-h1", ".fv .iss-tab[aria-pressed=\"true\"]", ".fv .iss-switch", ".fv .iss-card", ".fv .iss-band", ".fv .iss-footer", ".fv .v-hero", ".fv .v-matrix-grid", ".fv .v-htv", ".fv .v-cand", ".fv .v-amounts"]) assert.ok(css.includes(sel), "styles.css missing " + sel);
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

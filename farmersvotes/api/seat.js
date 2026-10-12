@@ -4,6 +4,10 @@
 // its upper-house region, the candidates and sitting members in both, and a
 // rating per issue for each of them.
 //
+// Copy for the result page (hook, stances, how-to-vote order) comes from
+// content/seats.json, with a default hook for seats that have no entry,
+// and the main towns from content/places.json.
+//
 // Ratings come from Airtable (Positions, Party Positions, Issues) when the
 // base is configured, and are "Unknown" otherwise, so the page works from
 // day one and fills in as the research lands. Candidates come from the
@@ -15,6 +19,8 @@ const fs = require("fs");
 const { listSeats, splitName } = require("../lib/electorates");
 const CONFIG = require("../config/jurisdictions.json");
 const { fetchRatings } = require("../lib/airtable");
+const SEAT_COPY = require("../content/seats.json");
+const PLACES = require("../content/places.json");
 
 const PLACEHOLDER_ISSUES = [
   { slug: "issue-1", title: "Issue one (placeholder)", order: 1 },
@@ -82,11 +88,22 @@ module.exports = async function handler(req, res) {
   try { ratings = await fetchRatings(stateKey); } catch (e) { console.error("ratings unavailable:", e.message); }
   const issues = ratings.issues.length ? ratings.issues : PLACEHOLDER_ISSUES;
 
+  const own = (SEAT_COPY.seats || {})[seat.name] || {};
+  const heldBy = (lower.find((c) => c.held_by) || {}).held_by || null;
+  const copy = {
+    hook: own.hook || (heldBy === "Labor" ? SEAT_COPY.default_hook_labor : SEAT_COPY.default_hook_other),
+    stances: own.stances || {},
+    ballot: own.ballot || [],
+    ballot_draw: SEAT_COPY.ballot_draw || null,
+    places: (PLACES.seats || {})[seat.name] || [],
+  };
+
   const decorate = (m) => { const by = ratingsFor(m, issues, ratings); return { ...m, ratings: by, overall: overall(by) }; };
   res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=3600");
   return res.status(200).json({
     state: stateKey, state_name: st.name, election: st.election,
-    seat: { name: seat.name, code: seat.code, house: st.houses.assembly.name },
+    seat: { name: seat.name, code: seat.code, house: st.houses.assembly.name, held_by: heldBy },
+    copy,
     region: region ? { name: region, house: st.houses.council.name, members: st.houses.council.per_voter } : null,
     issues,
     lower: lower.map(decorate),

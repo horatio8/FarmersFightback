@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy for /issues (the 'Why put Labor last' page). Edit text, photos and source links here; the page reads this file at load. An issue with no image shows the grey placeholder with its 'face' caption. proofs[].href of '#' renders a Source link that goes nowhere until a real URL is pasted in.",
+  "_comment": "Copy for /issues (the 'Why put Labor last' page). Edit text, photos and source links here; the page reads this file at load. An issue with no image shows the grey placeholder with its 'face' caption. proofs[].href of '#' renders a Source link that goes nowhere until a real URL is pasted in. teaser and home_label feed the six cards on the home page.",
   "title": "Why put Labor last",
   "lede": "Six reasons we cannot miss this chance to vote Labor out.",
   "step_eyebrow": "★ Step one",
@@ -24,10 +24,20 @@
           "title": "Labor is devastating Aussie farmers",
           "body": "Mary and Colin are 80. They stood at their own gate and Labor's agency fined them $814. Twelve farmers have been fined. Then Labor handed VNI West to Iberdrola, a Spanish multinational, to build, own and operate.",
           "proofs": [
-            { "text": "Twelve farmers fined by VicGrid for standing on their own land.", "href": "#" },
-            { "text": "Mary and Colin's infringement notice: $814.", "href": "#" },
-            { "text": "VNI West handed to Iberdrola to build, own and operate.", "href": "https://www.abc.net.au/news" }
-          ]
+            {
+              "text": "Twelve farmers fined by VicGrid for standing on their own land.",
+              "href": "#"
+            },
+            {
+              "text": "Mary and Colin's infringement notice: $814.",
+              "href": "#"
+            },
+            {
+              "text": "VNI West handed to Iberdrola to build, own and operate.",
+              "href": "https://www.abc.net.au/news"
+            }
+          ],
+          "teaser": "Twelve farmers fined. VNI West handed to a Spanish multinational."
         },
         {
           "id": "issue-2",
@@ -37,26 +47,47 @@
           "title": "Labor never listens",
           "body": "Buloke, Gannawarra and Northern Grampians councils formally oppose VNI West. 534 submissions went to the inquiry, 493 from locals and farming families. Labor removed third-party appeal rights in March 2024. Asked to fix the fines, the Minister said it was \"not my remit\".",
           "proofs": [
-            { "text": "Three councils formally oppose VNI West.", "href": "#" },
-            { "text": "534 inquiry submissions, 493 from locals.", "href": "#" },
-            { "text": "Third-party appeal rights removed, March 2024.", "href": "#" },
-            { "text": "Minister: fixing the fines is \"not my remit\".", "href": "#" }
-          ]
+            {
+              "text": "Three councils formally oppose VNI West.",
+              "href": "#"
+            },
+            {
+              "text": "534 inquiry submissions, 493 from locals.",
+              "href": "#"
+            },
+            {
+              "text": "Third-party appeal rights removed, March 2024.",
+              "href": "#"
+            },
+            {
+              "text": "Minister: fixing the fines is \"not my remit\".",
+              "href": "#"
+            }
+          ],
+          "teaser": "Three councils and 493 local submissions against it. Appeal rights removed."
         },
         {
           "id": "issue-3",
           "face": "Photo: farmer alone in a paddock, towers behind",
           "caption": "The counselling is paid for by the agency sending the fines.",
-          "image": "",
+          "image": "/assets/issues/drone-farmland.jpg",
           "help": true,
           "title": "Labor is evil: destroying family farmers and then paying for counselling",
           "body": "The farmer mental health program is \"funded by VicGrid\". That is the same agency sending the fines and the towers. Break them, then pay someone to talk to them about it.",
           "proofs": [
-            { "text": "Farmer mental health program \"funded by VicGrid\".", "href": "#" },
-            { "text": "VicGrid issues the infringement notices.", "href": "#" }
-          ]
+            {
+              "text": "Farmer mental health program \"funded by VicGrid\".",
+              "href": "#"
+            },
+            {
+              "text": "VicGrid issues the infringement notices.",
+              "href": "#"
+            }
+          ],
+          "teaser": "The mental health program is funded by the agency sending the fines."
         }
-      ]
+      ],
+      "home_label": "For the country"
     },
     {
       "key": "cities",
@@ -71,37 +102,62 @@
           "title": "Labor will bankrupt Victoria",
           "body": "A 200% cost increase on VNI West alone. It was $3.9 billion when it was sold to Victorians. It is now $7.6 billion and as much as $11.4 billion. The Western Renewables Link was $479 million in 2019. It is $4 billion now.",
           "proofs": [
-            { "text": "VNI West now $7.6 billion to $11.4 billion. ABC, 1 August 2025.", "href": "https://www.abc.net.au/news" },
-            { "text": "Western Renewables Link: $479 million (2019) to $4 billion.", "href": "#" }
-          ]
+            {
+              "text": "VNI West now $7.6 billion to $11.4 billion. ABC, 1 August 2025.",
+              "href": "https://www.abc.net.au/news"
+            },
+            {
+              "text": "Western Renewables Link: $479 million (2019) to $4 billion.",
+              "href": "#"
+            }
+          ],
+          "teaser": "VNI West: $3.9 billion promised, up to $11.4 billion now. A 200% blowout."
         },
         {
           "id": "issue-5",
           "face": "Photo: the Premier at a press conference, or the Gazette notice",
           "caption": "Two numbers for the same line: $1.5 billion here, $4 billion in New York.",
-          "image": "",
+          "image": "/assets/issues/police-farmers.jpg",
           "title": "Labor lied about their renewables policies",
           "body": "In September the government was still telling Victorians the Western Renewables Link would cost $1.5 billion. Its owner had already told the New York Stock Exchange $4 billion. The Premier ordered a cost review on 15 September that reports after the election. The planning approval was gazetted on 30 September anyway.",
           "proofs": [
-            { "text": "Owner's filing to the New York Stock Exchange: $4 billion.", "href": "#" },
-            { "text": "Cost review ordered 15 September, reports after the election.", "href": "#" },
-            { "text": "Planning approval gazetted 30 September. Gazette S554, Amendment GC209.", "href": "https://www.gazette.vic.gov.au" }
-          ]
+            {
+              "text": "Owner's filing to the New York Stock Exchange: $4 billion.",
+              "href": "#"
+            },
+            {
+              "text": "Cost review ordered 15 September, reports after the election.",
+              "href": "#"
+            },
+            {
+              "text": "Planning approval gazetted 30 September. Gazette S554, Amendment GC209.",
+              "href": "https://www.gazette.vic.gov.au"
+            }
+          ],
+          "teaser": "$1.5 billion to Victorians. $4 billion to the New York Stock Exchange."
         },
         {
           "id": "issue-6",
           "face": "Photo: a family at the checkout or reading a power bill",
           "caption": "The $275 power bill promise. Still waiting.",
-          "image": "",
+          "image": "/assets/hero.jpg",
           "extra_from": "farmland_figure",
           "title": "Labor is pushing up your power bill and your groceries",
           "body": "The cost of the transmission lines lands on every power bill in Victoria. The $275 power bill cut Labor promised? Still waiting. And less farmland means dearer food on the shelf.",
           "proofs": [
-            { "text": "Transmission costs are recovered through network charges on every bill.", "href": "#" },
-            { "text": "The $275 power bill promise.", "href": "#" }
-          ]
+            {
+              "text": "Transmission costs are recovered through network charges on every bill.",
+              "href": "#"
+            },
+            {
+              "text": "The $275 power bill promise.",
+              "href": "#"
+            }
+          ],
+          "teaser": "Transmission costs land on every bill. Less farmland means dearer food."
         }
-      ]
+      ],
+      "home_label": "For the city"
     }
   ]
 }

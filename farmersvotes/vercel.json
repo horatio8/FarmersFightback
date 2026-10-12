@@ -31,11 +31,11 @@
       ]
     },
     {
-      "source": "/api/releases",
+      "source": "/api/boundary",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, s-maxage=300, stale-while-revalidate=3600"
+          "value": "public, s-maxage=86400, stale-while-revalidate=604800"
         }
       ]
     }
@@ -50,7 +50,10 @@
     "api/capture.js": {
       "maxDuration": 15
     },
-    "api/releases.js": {
+    "api/boundary.js": {
+      "maxDuration": 10
+    },
+    "api/donate.js": {
       "maxDuration": 15
     }
   },
@@ -64,27 +67,11 @@
       "destination": "/"
     },
     {
-      "source": "/parties",
-      "destination": "/"
-    },
-    {
-      "source": "/media",
-      "destination": "/"
-    },
-    {
-      "source": "/media/:slug",
+      "source": "/card/:state/:district",
       "destination": "/"
     },
     {
       "source": "/donate",
-      "destination": "/"
-    },
-    {
-      "source": "/quiz",
-      "destination": "/"
-    },
-    {
-      "source": "/shop",
       "destination": "/"
     },
     {
@@ -94,6 +81,33 @@
     {
       "source": "/about",
       "destination": "/"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/parties",
+      "destination": "/issues",
+      "permanent": false
+    },
+    {
+      "source": "/quiz",
+      "destination": "/seat",
+      "permanent": false
+    },
+    {
+      "source": "/media",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/media/:slug",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/shop",
+      "destination": "https://shop.farmersfightback.com/?utm_source=farmersvotes&utm_medium=website&utm_campaign=shop",
+      "permanent": false
     }
   ]
 }

@@ -1,0 +1,3674 @@
+{
+ "_comment": "Towns and suburbs per Legislative Assembly district, largest first, and for postcodes split across districts the localities in each part. Built from the FF Votes electorate data (postcode_locality_electorate.csv, VEC elector counts).",
+ "seats": {
+  "Albert Park": [
+   "Port Melbourne",
+   "St Kilda",
+   "Southbank",
+   "South Melbourne",
+   "Albert Park",
+   "Middle Park",
+   "St Kilda West",
+   "Docklands",
+   "Elwood"
+  ],
+  "Ashwood": [
+   "Mount Waverley",
+   "Glen Iris",
+   "Ashburton",
+   "Ashwood",
+   "Burwood",
+   "Chadstone",
+   "Burwood East",
+   "Camberwell"
+  ],
+  "Bass": [
+   "Clyde",
+   "Cowes",
+   "Inverloch",
+   "Wonthaggi",
+   "Koo Wee Rup",
+   "North Wonthaggi",
+   "Pearcedale",
+   "Lang Lang",
+   "Cape Woolamai"
+  ],
+  "Bayswater": [
+   "Boronia",
+   "Ferntree Gully",
+   "Wantirna",
+   "Bayswater",
+   "Wantirna South",
+   "The Basin",
+   "Knoxfield"
+  ],
+  "Bellarine": [
+   "Ocean Grove",
+   "Leopold",
+   "Clifton Springs",
+   "St Leonards",
+   "Drysdale",
+   "Portarlington",
+   "Point Lonsdale",
+   "Barwon Heads",
+   "Curlewis"
+  ],
+  "Benambra": [
+   "Wodonga",
+   "West Wodonga",
+   "Beechworth",
+   "Baranduda",
+   "Rutherglen",
+   "Yackandandah",
+   "Leneva",
+   "Chiltern",
+   "Killara"
+  ],
+  "Bendigo East": [
+   "Strathfieldsaye",
+   "Strathdale",
+   "Kennington",
+   "Eaglehawk",
+   "Epsom",
+   "Huntly",
+   "Junortoun",
+   "Flora Hill",
+   "White Hills"
+  ],
+  "Bendigo West": [
+   "Kangaroo Flat",
+   "Golden Square",
+   "Castlemaine",
+   "Maiden Gully",
+   "Bendigo",
+   "Long Gully",
+   "North Bendigo",
+   "Campbells Creek",
+   "Marong"
+  ],
+  "Bentleigh": [
+   "Bentleigh East",
+   "Bentleigh",
+   "Cheltenham",
+   "Moorabbin",
+   "McKinnon",
+   "Ormond",
+   "Highett",
+   "Brighton East"
+  ],
+  "Berwick": [
+   "Berwick",
+   "Clyde North",
+   "Beaconsfield",
+   "Beaconsfield Upper",
+   "Harkaway",
+   "Guys Hill",
+   "Narre Warren South"
+  ],
+  "Box Hill": [
+   "Box Hill North",
+   "Blackburn",
+   "Box Hill",
+   "Blackburn South",
+   "Box Hill South",
+   "Burwood",
+   "Mont Albert North",
+   "Surrey Hills",
+   "Mont Albert"
+  ],
+  "Brighton": [
+   "Brighton",
+   "Brighton East",
+   "Elwood",
+   "Hampton",
+   "Hampton East"
+  ],
+  "Broadmeadows": [
+   "Glenroy",
+   "Fawkner",
+   "Broadmeadows",
+   "Oak Park",
+   "Hadfield",
+   "Dallas",
+   "Campbellfield",
+   "Coolaroo",
+   "Jacana"
+  ],
+  "Brunswick": [
+   "Brunswick",
+   "Brunswick East",
+   "Fitzroy North",
+   "Brunswick West",
+   "Carlton North",
+   "Princes Hill"
+  ],
+  "Bulleen": [
+   "Doncaster",
+   "Templestowe",
+   "Templestowe Lower",
+   "Bulleen",
+   "Doncaster East"
+  ],
+  "Bundoora": [
+   "Bundoora",
+   "Greensborough",
+   "Mill Park",
+   "Watsonia",
+   "Macleod",
+   "Watsonia North",
+   "Kingsbury",
+   "Yallambie",
+   "Briar Hill"
+  ],
+  "Carrum": [
+   "Carrum Downs",
+   "Seaford",
+   "Patterson Lakes",
+   "Skye",
+   "Lyndhurst",
+   "Bonbeach",
+   "Sandhurst",
+   "Carrum",
+   "Bangholme"
+  ],
+  "Caulfield": [
+   "Caulfield North",
+   "Caulfield South",
+   "Elsternwick",
+   "St Kilda East",
+   "Caulfield",
+   "Balaclava",
+   "Glen Huntly",
+   "Ormond",
+   "Ripponlea"
+  ],
+  "Clarinda": [
+   "Springvale South",
+   "Dingley Village",
+   "Clayton South",
+   "Cheltenham",
+   "Clarinda",
+   "Mentone",
+   "Keysborough",
+   "Oakleigh South",
+   "Noble Park"
+  ],
+  "Cranbourne": [
+   "Cranbourne East",
+   "Cranbourne",
+   "Cranbourne West",
+   "Botanic Ridge",
+   "Clyde North",
+   "Clyde",
+   "Cranbourne South",
+   "Junction Village",
+   "Devon Meadows"
+  ],
+  "Croydon": [
+   "Croydon",
+   "Kilsyth",
+   "Bayswater North",
+   "Croydon North",
+   "Croydon Hills",
+   "Croydon South",
+   "Mooroolbark",
+   "Kilsyth South",
+   "Ringwood"
+  ],
+  "Dandenong": [
+   "Dandenong",
+   "Dandenong North",
+   "Noble Park",
+   "Keysborough",
+   "Doveton",
+   "Eumemmerring",
+   "Dandenong South"
+  ],
+  "Eildon": [
+   "Healesville",
+   "Mansfield",
+   "Hurstbridge",
+   "Yarra Glen",
+   "Alexandra",
+   "Yarra Junction",
+   "Woori Yallock",
+   "Launching Place",
+   "Warburton"
+  ],
+  "Eltham": [
+   "Eltham",
+   "Diamond Creek",
+   "Montmorency",
+   "Eltham North",
+   "Greensborough",
+   "Lower Plenty",
+   "St Helena",
+   "Research",
+   "Briar Hill"
+  ],
+  "Essendon": [
+   "Essendon",
+   "Moonee Ponds",
+   "Ascot Vale",
+   "Strathmore",
+   "Flemington",
+   "Essendon North",
+   "Travancore",
+   "Strathmore Heights"
+  ],
+  "Eureka": [
+   "Darley",
+   "Bacchus Marsh",
+   "Ballarat East",
+   "Maddingley",
+   "Brown Hill",
+   "Canadian",
+   "Buninyong",
+   "Ballan",
+   "Mount Clear"
+  ],
+  "Euroa": [
+   "Benalla",
+   "Kilmore",
+   "Seymour",
+   "Broadford",
+   "Euroa",
+   "Heathcote",
+   "Nagambie",
+   "Rushworth",
+   "Avenel"
+  ],
+  "Evelyn": [
+   "Lilydale",
+   "Mooroolbark",
+   "Mount Evelyn",
+   "Chirnside Park",
+   "Montrose",
+   "Wandin North",
+   "Seville",
+   "Coldstream",
+   "Gruyere"
+  ],
+  "Footscray": [
+   "Footscray",
+   "Yarraville",
+   "Maribyrnong",
+   "West Footscray",
+   "Maidstone",
+   "Seddon",
+   "Kingsville"
+  ],
+  "Frankston": [
+   "Frankston",
+   "Frankston South",
+   "Seaford",
+   "Frankston North"
+  ],
+  "Geelong": [
+   "Newtown",
+   "Belmont",
+   "Geelong West",
+   "Bannockburn",
+   "Geelong",
+   "St Albans Park",
+   "Newcomb",
+   "East Geelong",
+   "Whittington"
+  ],
+  "Gippsland East": [
+   "Bairnsdale",
+   "Maffra",
+   "Lakes Entrance",
+   "Paynesville",
+   "Stratford",
+   "Eastwood",
+   "Orbost",
+   "Metung",
+   "Wy Yung"
+  ],
+  "Gippsland South": [
+   "Sale",
+   "Leongatha",
+   "Korumburra",
+   "Mirboo North",
+   "Yarram",
+   "Foster",
+   "Rosedale",
+   "Longford",
+   "Nyora"
+  ],
+  "Glen Waverley": [
+   "Glen Waverley",
+   "Vermont South",
+   "Vermont",
+   "Forest Hill",
+   "Wheelers Hill",
+   "Burwood East",
+   "Blackburn South"
+  ],
+  "Greenvale": [
+   "Greenvale",
+   "Roxburgh Park",
+   "Meadow Heights",
+   "Craigieburn",
+   "Westmeadows",
+   "Attwood",
+   "Somerton"
+  ],
+  "Hastings": [
+   "Langwarrin",
+   "Somerville",
+   "Hastings",
+   "Bittern",
+   "Tyabb",
+   "Crib Point",
+   "Balnarring",
+   "Baxter",
+   "Somers"
+  ],
+  "Hawthorn": [
+   "Hawthorn",
+   "Camberwell",
+   "Hawthorn East",
+   "Surrey Hills",
+   "Canterbury",
+   "Glen Iris"
+  ],
+  "Ivanhoe": [
+   "Ivanhoe",
+   "Rosanna",
+   "Heidelberg Heights",
+   "Heidelberg",
+   "Viewbank",
+   "Heidelberg West",
+   "Macleod",
+   "Eaglemont",
+   "Ivanhoe East"
+  ],
+  "Kalkallo": [
+   "Craigieburn",
+   "Mickleham",
+   "Wallan",
+   "Kalkallo",
+   "Beveridge",
+   "Yuroke",
+   "Oaklands Junction",
+   "Bulla"
+  ],
+  "Kew": [
+   "Kew",
+   "Balwyn North",
+   "Balwyn",
+   "Kew East",
+   "Canterbury",
+   "Surrey Hills",
+   "Deepdene",
+   "Mont Albert",
+   "Camberwell"
+  ],
+  "Kororoit": [
+   "Caroline Springs",
+   "Deer Park",
+   "Aintree",
+   "Kings Park",
+   "Derrimut",
+   "Burnside",
+   "Truganina",
+   "Burnside Heights",
+   "Albanvale"
+  ],
+  "Lara": [
+   "Lara",
+   "Corio",
+   "Norlane",
+   "Hamlyn Heights",
+   "Bell Park",
+   "Bell Post Hill",
+   "Lovely Banks",
+   "North Geelong",
+   "Rippleside"
+  ],
+  "Laverton": [
+   "Truganina",
+   "Sunshine West",
+   "Braybrook",
+   "Sunshine",
+   "Williams Landing",
+   "Laverton",
+   "Albion",
+   "Ardeer",
+   "Tarneit"
+  ],
+  "Lowan": [
+   "Horsham",
+   "Hamilton",
+   "Stawell",
+   "Warracknabeal",
+   "Nhill",
+   "Dimboola",
+   "Casterton",
+   "Haven",
+   "Mortlake"
+  ],
+  "Macedon": [
+   "Gisborne",
+   "Kyneton",
+   "Woodend",
+   "Romsey",
+   "Riddells Creek",
+   "Lancefield",
+   "Daylesford",
+   "New Gisborne",
+   "Macedon"
+  ],
+  "Malvern": [
+   "Malvern East",
+   "Toorak",
+   "Malvern",
+   "Glen Iris",
+   "Armadale",
+   "Kooyong"
+  ],
+  "Melbourne": [
+   "Melbourne",
+   "North Melbourne",
+   "Kensington",
+   "Carlton",
+   "Docklands",
+   "West Melbourne",
+   "Parkville",
+   "East Melbourne"
+  ],
+  "Melton": [
+   "Harkness",
+   "Melton South",
+   "Kurunjang",
+   "Brookfield",
+   "Melton West",
+   "Melton",
+   "Strathtulloh",
+   "Weir Views",
+   "Thornhill Park"
+  ],
+  "Mildura": [
+   "Mildura",
+   "Irymple",
+   "Red Cliffs",
+   "Merbein",
+   "Robinvale",
+   "Nichols Point",
+   "Donald",
+   "Ouyen",
+   "Charlton"
+  ],
+  "Mill Park": [
+   "Mill Park",
+   "South Morang",
+   "Epping",
+   "Wollert"
+  ],
+  "Monbulk": [
+   "Ferntree Gully",
+   "Upwey",
+   "Emerald",
+   "Cockatoo",
+   "Belgrave",
+   "Monbulk",
+   "Upper Ferntree Gully",
+   "Gembrook",
+   "The Basin"
+  ],
+  "Mordialloc": [
+   "Keysborough",
+   "Parkdale",
+   "Mordialloc",
+   "Chelsea",
+   "Aspendale",
+   "Edithvale",
+   "Aspendale Gardens",
+   "Chelsea Heights",
+   "Waterways"
+  ],
+  "Mornington": [
+   "Mornington",
+   "Mount Martha",
+   "Mount Eliza",
+   "Moorooduc",
+   "Tuerong",
+   "Baxter"
+  ],
+  "Morwell": [
+   "Traralgon",
+   "Morwell",
+   "Moe",
+   "Newborough",
+   "Churchill",
+   "Traralgon East",
+   "Yallourn North",
+   "Hazelwood North",
+   "Glengarry"
+  ],
+  "Mulgrave": [
+   "Mulgrave",
+   "Springvale",
+   "Wheelers Hill",
+   "Noble Park",
+   "Noble Park North",
+   "Dandenong North"
+  ],
+  "Murray Plains": [
+   "Echuca",
+   "Swan Hill",
+   "Kyabram",
+   "Kerang",
+   "Rochester",
+   "Cohuna",
+   "Tongala",
+   "Koondrook",
+   "Lake Boga"
+  ],
+  "Narracan": [
+   "Warragul",
+   "Drouin",
+   "Trafalgar",
+   "Bunyip",
+   "Longwarry",
+   "Yarragon",
+   "Garfield",
+   "Neerim South",
+   "Nar Nar Goon"
+  ],
+  "Narre Warren North": [
+   "Narre Warren",
+   "Endeavour Hills",
+   "Hallam",
+   "Narre Warren North",
+   "Berwick",
+   "Lysterfield South",
+   "Harkaway"
+  ],
+  "Narre Warren South": [
+   "Narre Warren South",
+   "Hampton Park",
+   "Cranbourne North",
+   "Lynbrook"
+  ],
+  "Nepean": [
+   "Rosebud",
+   "Rye",
+   "Dromana",
+   "Safety Beach",
+   "Capel Sound",
+   "McCrae",
+   "Blairgowrie",
+   "Tootgarook",
+   "Sorrento"
+  ],
+  "Niddrie": [
+   "Keilor East",
+   "Avondale Heights",
+   "Airport West",
+   "Niddrie",
+   "Keilor",
+   "Essendon",
+   "Aberfeldie",
+   "Taylors Lakes",
+   "Gowanbrae"
+  ],
+  "Northcote": [
+   "Northcote",
+   "Thornbury",
+   "Preston",
+   "Alphington",
+   "Fairfield"
+  ],
+  "Oakleigh": [
+   "Carnegie",
+   "Murrumbeena",
+   "Clayton",
+   "Oakleigh",
+   "Hughesdale",
+   "Oakleigh East",
+   "Oakleigh South",
+   "Mount Waverley",
+   "Chadstone"
+  ],
+  "Ovens Valley": [
+   "Wangaratta",
+   "Yarrawonga",
+   "Cobram",
+   "Myrtleford",
+   "Bright",
+   "Glenrowan",
+   "Porepunkah",
+   "Tawonga South",
+   "Waldara"
+  ],
+  "Pakenham": [
+   "Pakenham",
+   "Officer",
+   "Officer South",
+   "Pakenham Upper",
+   "Beaconsfield Upper",
+   "Pakenham South",
+   "Dewhurst",
+   "Nar Nar Goon North",
+   "Cardinia"
+  ],
+  "Pascoe Vale": [
+   "Coburg",
+   "Pascoe Vale",
+   "Pascoe Vale South",
+   "Coburg North",
+   "Brunswick West",
+   "Hadfield",
+   "Oak Park"
+  ],
+  "Point Cook": [
+   "Point Cook",
+   "Altona Meadows",
+   "Seabrook",
+   "Werribee South"
+  ],
+  "Polwarth": [
+   "Torquay",
+   "Colac",
+   "Jan Juc",
+   "Anglesea",
+   "Camperdown",
+   "Elliminyt",
+   "Winchelsea",
+   "Cobden",
+   "Apollo Bay"
+  ],
+  "Prahran": [
+   "South Yarra",
+   "Prahran",
+   "Melbourne",
+   "Windsor",
+   "St Kilda",
+   "St Kilda East",
+   "Southbank",
+   "South Melbourne",
+   "Armadale"
+  ],
+  "Preston": [
+   "Reservoir",
+   "Preston",
+   "Coburg North",
+   "Coburg"
+  ],
+  "Richmond": [
+   "Richmond",
+   "Fitzroy",
+   "Collingwood",
+   "Abbotsford",
+   "Clifton Hill",
+   "Cremorne",
+   "Burnley",
+   "Fitzroy North"
+  ],
+  "Ringwood": [
+   "Mitcham",
+   "Ringwood",
+   "Nunawading",
+   "Ringwood East",
+   "Heathmont",
+   "Blackburn",
+   "Forest Hill",
+   "Vermont",
+   "Blackburn North"
+  ],
+  "Ripon": [
+   "Maryborough",
+   "Ararat",
+   "Lucas",
+   "Miners Rest",
+   "Creswick",
+   "St Arnaud",
+   "Smythes Creek",
+   "Clunes",
+   "Beaufort"
+  ],
+  "Rowville": [
+   "Rowville",
+   "Wantirna South",
+   "Knoxfield",
+   "Lysterfield",
+   "Scoresby",
+   "Ferntree Gully"
+  ],
+  "Sandringham": [
+   "Beaumaris",
+   "Sandringham",
+   "Highett",
+   "Mentone",
+   "Cheltenham",
+   "Black Rock",
+   "Hampton",
+   "Hampton East",
+   "Moorabbin"
+  ],
+  "Shepparton": [
+   "Shepparton",
+   "Kialla",
+   "Mooroopna",
+   "Tatura",
+   "Numurkah",
+   "Nathalia",
+   "Shepparton North",
+   "Shepparton East",
+   "Strathmerton"
+  ],
+  "South Barwon": [
+   "Highton",
+   "Armstrong Creek",
+   "Grovedale",
+   "Mount Duneed",
+   "Belmont",
+   "Charlemont",
+   "Waurn Ponds",
+   "Wandana Heights",
+   "Marshall"
+  ],
+  "South-West Coast": [
+   "Warrnambool",
+   "Portland",
+   "Port Fairy",
+   "Koroit",
+   "Terang",
+   "Dennington",
+   "Heywood",
+   "Allansford",
+   "Portland North"
+  ],
+  "St Albans": [
+   "St Albans",
+   "Sunshine North",
+   "Keilor Downs",
+   "Cairnlea",
+   "Kealba",
+   "Ardeer",
+   "Deer Park",
+   "Albion"
+  ],
+  "Sunbury": [
+   "Sunbury",
+   "Gladstone Park",
+   "Diggers Rest",
+   "Tullamarine",
+   "Westmeadows",
+   "Bulla",
+   "Oaklands Junction",
+   "Wildwood",
+   "Keilor"
+  ],
+  "Sydenham": [
+   "Hillside",
+   "Fraser Rise",
+   "Taylors Hill",
+   "Taylors Lakes",
+   "Sydenham",
+   "Delahey",
+   "Deanside",
+   "Caroline Springs",
+   "Bonnie Brook"
+  ],
+  "Tarneit": [
+   "Tarneit",
+   "Hoppers Crossing",
+   "Mount Cottrell"
+  ],
+  "Thomastown": [
+   "Wollert",
+   "Lalor",
+   "Thomastown",
+   "Epping",
+   "Bundoora"
+  ],
+  "Warrandyte": [
+   "Doncaster East",
+   "Donvale",
+   "Ringwood North",
+   "Warrandyte",
+   "Warranwood",
+   "Chirnside Park",
+   "Park Orchards",
+   "Wonga Park",
+   "North Warrandyte"
+  ],
+  "Wendouree": [
+   "Alfredton",
+   "Sebastopol",
+   "Wendouree",
+   "Winter Valley",
+   "Ballarat Central",
+   "Delacombe",
+   "Ballarat North",
+   "Redan",
+   "Lake Wendouree"
+  ],
+  "Werribee": [
+   "Werribee",
+   "Wyndham Vale",
+   "Manor Lakes",
+   "Mambourin",
+   "Little River",
+   "Tarneit",
+   "Quandong"
+  ],
+  "Williamstown": [
+   "Williamstown",
+   "Newport",
+   "Altona North",
+   "Altona",
+   "Spotswood",
+   "Yarraville",
+   "South Kingsville",
+   "Seaholme",
+   "Williamstown North"
+  ],
+  "Yan Yean": [
+   "Doreen",
+   "Mernda",
+   "Donnybrook",
+   "Whittlesea",
+   "Wallan",
+   "Plenty",
+   "South Morang",
+   "Yarrambat",
+   "Eden Park"
+  ]
+ },
+ "split_postcodes": {
+  "3006": {
+   "Albert Park": [
+    "Southbank",
+    "South Wharf"
+   ],
+   "Prahran": [
+    "Southbank"
+   ]
+  },
+  "3008": {
+   "Melbourne": [
+    "Docklands"
+   ],
+   "Albert Park": [
+    "Docklands"
+   ]
+  },
+  "3012": {
+   "Footscray": [
+    "West Footscray",
+    "Maidstone",
+    "Kingsville"
+   ],
+   "Williamstown": [
+    "Brooklyn"
+   ],
+   "Laverton": [
+    "Brooklyn",
+    "Tottenham"
+   ]
+  },
+  "3013": {
+   "Footscray": [
+    "Yarraville"
+   ],
+   "Williamstown": [
+    "Yarraville"
+   ]
+  },
+  "3020": {
+   "Laverton": [
+    "Sunshine West",
+    "Sunshine",
+    "Albion"
+   ],
+   "St Albans": [
+    "Sunshine North",
+    "Albion"
+   ]
+  },
+  "3021": {
+   "St Albans": [
+    "St Albans",
+    "Kealba"
+   ],
+   "Kororoit": [
+    "Kings Park",
+    "Albanvale"
+   ]
+  },
+  "3022": {
+   "Laverton": [
+    "Ardeer"
+   ],
+   "St Albans": [
+    "Ardeer"
+   ]
+  },
+  "3023": {
+   "Kororoit": [
+    "Caroline Springs",
+    "Deer Park",
+    "Burnside",
+    "Burnside Heights",
+    "Ravenhall"
+   ],
+   "St Albans": [
+    "Cairnlea",
+    "Deer Park"
+   ],
+   "Sydenham": [
+    "Caroline Springs"
+   ]
+  },
+  "3024": {
+   "Werribee": [
+    "Wyndham Vale",
+    "Manor Lakes",
+    "Mambourin"
+   ],
+   "Tarneit": [
+    "Mount Cottrell"
+   ],
+   "Melton": [
+    "Mount Cottrell"
+   ],
+   "Kororoit": [
+    "Mount Cottrell",
+    "Fieldstone"
+   ]
+  },
+  "3026": {
+   "Kororoit": [
+    "Derrimut"
+   ],
+   "Laverton": [
+    "Laverton North",
+    "Derrimut"
+   ]
+  },
+  "3028": {
+   "Point Cook": [
+    "Altona Meadows",
+    "Seabrook"
+   ],
+   "Laverton": [
+    "Laverton"
+   ]
+  },
+  "3029": {
+   "Tarneit": [
+    "Tarneit",
+    "Hoppers Crossing"
+   ],
+   "Laverton": [
+    "Truganina",
+    "Tarneit",
+    "Hoppers Crossing"
+   ],
+   "Kororoit": [
+    "Truganina"
+   ],
+   "Werribee": [
+    "Tarneit"
+   ]
+  },
+  "3030": {
+   "Point Cook": [
+    "Point Cook",
+    "Werribee South"
+   ],
+   "Werribee": [
+    "Werribee",
+    "Quandong"
+   ]
+  },
+  "3031": {
+   "Melbourne": [
+    "Kensington"
+   ],
+   "Essendon": [
+    "Flemington"
+   ]
+  },
+  "3032": {
+   "Essendon": [
+    "Ascot Vale",
+    "Travancore"
+   ],
+   "Footscray": [
+    "Maribyrnong"
+   ]
+  },
+  "3036": {
+   "Niddrie": [
+    "Keilor"
+   ],
+   "Sunbury": [
+    "Keilor"
+   ],
+   "Sydenham": [
+    "Keilor North"
+   ]
+  },
+  "3038": {
+   "Sydenham": [
+    "Taylors Lakes"
+   ],
+   "St Albans": [
+    "Keilor Downs"
+   ],
+   "Niddrie": [
+    "Taylors Lakes",
+    "Keilor Lodge"
+   ]
+  },
+  "3039": {
+   "Essendon": [
+    "Moonee Ponds"
+   ],
+   "Niddrie": [
+    "Moonee Ponds"
+   ]
+  },
+  "3040": {
+   "Essendon": [
+    "Essendon"
+   ],
+   "Niddrie": [
+    "Essendon",
+    "Aberfeldie",
+    "Essendon West"
+   ]
+  },
+  "3041": {
+   "Essendon": [
+    "Strathmore",
+    "Essendon North",
+    "Strathmore Heights"
+   ],
+   "Niddrie": [
+    "Strathmore Heights"
+   ]
+  },
+  "3043": {
+   "Sunbury": [
+    "Gladstone Park",
+    "Tullamarine"
+   ],
+   "Niddrie": [
+    "Gowanbrae",
+    "Tullamarine"
+   ]
+  },
+  "3044": {
+   "Pascoe Vale": [
+    "Pascoe Vale",
+    "Pascoe Vale South"
+   ],
+   "Broadmeadows": [
+    "Pascoe Vale"
+   ]
+  },
+  "3046": {
+   "Broadmeadows": [
+    "Glenroy",
+    "Oak Park",
+    "Hadfield"
+   ],
+   "Pascoe Vale": [
+    "Hadfield",
+    "Oak Park"
+   ]
+  },
+  "3048": {
+   "Greenvale": [
+    "Meadow Heights"
+   ],
+   "Broadmeadows": [
+    "Coolaroo"
+   ]
+  },
+  "3049": {
+   "Greenvale": [
+    "Westmeadows",
+    "Attwood"
+   ],
+   "Sunbury": [
+    "Westmeadows"
+   ]
+  },
+  "3055": {
+   "Brunswick": [
+    "Brunswick West"
+   ],
+   "Pascoe Vale": [
+    "Brunswick West"
+   ]
+  },
+  "3058": {
+   "Pascoe Vale": [
+    "Coburg",
+    "Coburg North"
+   ],
+   "Preston": [
+    "Coburg North",
+    "Coburg"
+   ]
+  },
+  "3063": {
+   "Sunbury": [
+    "Oaklands Junction"
+   ],
+   "Kalkallo": [
+    "Yuroke",
+    "Oaklands Junction"
+   ]
+  },
+  "3064": {
+   "Kalkallo": [
+    "Craigieburn",
+    "Mickleham",
+    "Kalkallo"
+   ],
+   "Greenvale": [
+    "Roxburgh Park",
+    "Craigieburn"
+   ],
+   "Yan Yean": [
+    "Donnybrook"
+   ]
+  },
+  "3068": {
+   "Brunswick": [
+    "Fitzroy North"
+   ],
+   "Richmond": [
+    "Clifton Hill",
+    "Fitzroy North"
+   ]
+  },
+  "3072": {
+   "Preston": [
+    "Preston"
+   ],
+   "Northcote": [
+    "Preston"
+   ]
+  },
+  "3076": {
+   "Mill Park": [
+    "Epping"
+   ],
+   "Thomastown": [
+    "Epping"
+   ]
+  },
+  "3082": {
+   "Mill Park": [
+    "Mill Park"
+   ],
+   "Bundoora": [
+    "Mill Park"
+   ]
+  },
+  "3083": {
+   "Bundoora": [
+    "Bundoora",
+    "Kingsbury"
+   ],
+   "Thomastown": [
+    "Bundoora"
+   ]
+  },
+  "3085": {
+   "Ivanhoe": [
+    "Macleod",
+    "Yallambie"
+   ],
+   "Bundoora": [
+    "Macleod",
+    "Yallambie"
+   ]
+  },
+  "3087": {
+   "Bundoora": [
+    "Watsonia",
+    "Watsonia North"
+   ],
+   "Ivanhoe": [
+    "Watsonia"
+   ]
+  },
+  "3088": {
+   "Bundoora": [
+    "Greensborough",
+    "Briar Hill"
+   ],
+   "Eltham": [
+    "Greensborough",
+    "St Helena",
+    "Briar Hill"
+   ]
+  },
+  "3091": {
+   "Yan Yean": [
+    "Yarrambat"
+   ],
+   "Eildon": [
+    "Yarrambat"
+   ]
+  },
+  "3097": {
+   "Eildon": [
+    "Kangaroo Ground",
+    "Bend Of Islands",
+    "Watsons Creek"
+   ],
+   "Eltham": [
+    "Kangaroo Ground"
+   ]
+  },
+  "3104": {
+   "Kew": [
+    "Balwyn North"
+   ],
+   "Box Hill": [
+    "Balwyn North"
+   ]
+  },
+  "3106": {
+   "Bulleen": [
+    "Templestowe"
+   ],
+   "Warrandyte": [
+    "Templestowe"
+   ]
+  },
+  "3108": {
+   "Bulleen": [
+    "Doncaster"
+   ],
+   "Warrandyte": [
+    "Doncaster"
+   ]
+  },
+  "3109": {
+   "Warrandyte": [
+    "Doncaster East"
+   ],
+   "Bulleen": [
+    "Doncaster East"
+   ]
+  },
+  "3111": {
+   "Warrandyte": [
+    "Donvale"
+   ],
+   "Ringwood": [
+    "Donvale"
+   ]
+  },
+  "3115": {
+   "Warrandyte": [
+    "Wonga Park"
+   ],
+   "Croydon": [
+    "Wonga Park"
+   ]
+  },
+  "3116": {
+   "Evelyn": [
+    "Chirnside Park"
+   ],
+   "Warrandyte": [
+    "Chirnside Park"
+   ]
+  },
+  "3124": {
+   "Hawthorn": [
+    "Camberwell"
+   ],
+   "Ashwood": [
+    "Camberwell"
+   ],
+   "Kew": [
+    "Camberwell"
+   ]
+  },
+  "3125": {
+   "Ashwood": [
+    "Burwood"
+   ],
+   "Box Hill": [
+    "Burwood"
+   ]
+  },
+  "3126": {
+   "Hawthorn": [
+    "Canterbury"
+   ],
+   "Kew": [
+    "Canterbury"
+   ]
+  },
+  "3127": {
+   "Hawthorn": [
+    "Surrey Hills"
+   ],
+   "Box Hill": [
+    "Surrey Hills",
+    "Mont Albert"
+   ],
+   "Kew": [
+    "Surrey Hills",
+    "Mont Albert"
+   ]
+  },
+  "3130": {
+   "Box Hill": [
+    "Blackburn",
+    "Blackburn South",
+    "Blackburn North"
+   ],
+   "Ringwood": [
+    "Blackburn",
+    "Blackburn North"
+   ],
+   "Glen Waverley": [
+    "Blackburn South"
+   ]
+  },
+  "3131": {
+   "Ringwood": [
+    "Nunawading",
+    "Forest Hill"
+   ],
+   "Glen Waverley": [
+    "Forest Hill"
+   ]
+  },
+  "3133": {
+   "Glen Waverley": [
+    "Vermont South",
+    "Vermont"
+   ],
+   "Ringwood": [
+    "Vermont"
+   ]
+  },
+  "3134": {
+   "Ringwood": [
+    "Ringwood"
+   ],
+   "Warrandyte": [
+    "Ringwood North",
+    "Warranwood",
+    "Ringwood",
+    "Warrandyte South"
+   ],
+   "Croydon": [
+    "Ringwood"
+   ]
+  },
+  "3136": {
+   "Croydon": [
+    "Croydon",
+    "Croydon North",
+    "Croydon Hills",
+    "Croydon South"
+   ],
+   "Warrandyte": [
+    "Croydon",
+    "Croydon Hills"
+   ]
+  },
+  "3137": {
+   "Croydon": [
+    "Kilsyth",
+    "Kilsyth South"
+   ],
+   "Monbulk": [
+    "Kilsyth"
+   ],
+   "Evelyn": [
+    "Kilsyth"
+   ]
+  },
+  "3138": {
+   "Evelyn": [
+    "Mooroolbark"
+   ],
+   "Croydon": [
+    "Mooroolbark"
+   ]
+  },
+  "3139": {
+   "Evelyn": [
+    "Wandin North",
+    "Seville",
+    "Seville East"
+   ],
+   "Eildon": [
+    "Woori Yallock",
+    "Launching Place",
+    "Hoddles Creek",
+    "Don Valley",
+    "Yellingbo",
+    "Beenak"
+   ],
+   "Monbulk": [
+    "Wandin East",
+    "Seville",
+    "Yellingbo"
+   ]
+  },
+  "3143": {
+   "Malvern": [
+    "Armadale"
+   ],
+   "Prahran": [
+    "Armadale"
+   ]
+  },
+  "3145": {
+   "Malvern": [
+    "Malvern East"
+   ],
+   "Caulfield": [
+    "Caulfield East"
+   ]
+  },
+  "3146": {
+   "Ashwood": [
+    "Glen Iris"
+   ],
+   "Malvern": [
+    "Glen Iris"
+   ],
+   "Hawthorn": [
+    "Glen Iris"
+   ]
+  },
+  "3148": {
+   "Ashwood": [
+    "Chadstone"
+   ],
+   "Oakleigh": [
+    "Chadstone"
+   ]
+  },
+  "3149": {
+   "Ashwood": [
+    "Mount Waverley"
+   ],
+   "Oakleigh": [
+    "Mount Waverley"
+   ]
+  },
+  "3150": {
+   "Glen Waverley": [
+    "Glen Waverley",
+    "Wheelers Hill"
+   ],
+   "Mulgrave": [
+    "Wheelers Hill"
+   ],
+   "Oakleigh": [
+    "Glen Waverley"
+   ]
+  },
+  "3151": {
+   "Glen Waverley": [
+    "Burwood East"
+   ],
+   "Ashwood": [
+    "Burwood East"
+   ],
+   "Box Hill": [
+    "Burwood East"
+   ]
+  },
+  "3152": {
+   "Rowville": [
+    "Wantirna South"
+   ],
+   "Bayswater": [
+    "Wantirna",
+    "Wantirna South"
+   ]
+  },
+  "3153": {
+   "Bayswater": [
+    "Bayswater"
+   ],
+   "Croydon": [
+    "Bayswater North"
+   ]
+  },
+  "3154": {
+   "Monbulk": [
+    "The Basin"
+   ],
+   "Bayswater": [
+    "The Basin"
+   ]
+  },
+  "3155": {
+   "Bayswater": [
+    "Boronia"
+   ],
+   "Monbulk": [
+    "Boronia"
+   ]
+  },
+  "3156": {
+   "Bayswater": [
+    "Ferntree Gully"
+   ],
+   "Monbulk": [
+    "Ferntree Gully",
+    "Upper Ferntree Gully",
+    "Lysterfield"
+   ],
+   "Rowville": [
+    "Lysterfield",
+    "Ferntree Gully"
+   ],
+   "Narre Warren North": [
+    "Lysterfield South"
+   ]
+  },
+  "3163": {
+   "Oakleigh": [
+    "Carnegie",
+    "Murrumbeena"
+   ],
+   "Caulfield": [
+    "Glen Huntly"
+   ]
+  },
+  "3167": {
+   "Oakleigh": [
+    "Oakleigh South"
+   ],
+   "Clarinda": [
+    "Oakleigh South"
+   ]
+  },
+  "3173": {
+   "Mordialloc": [
+    "Keysborough"
+   ],
+   "Dandenong": [
+    "Keysborough"
+   ],
+   "Clarinda": [
+    "Keysborough"
+   ]
+  },
+  "3174": {
+   "Dandenong": [
+    "Noble Park"
+   ],
+   "Mulgrave": [
+    "Noble Park",
+    "Noble Park North"
+   ],
+   "Clarinda": [
+    "Noble Park"
+   ]
+  },
+  "3175": {
+   "Dandenong": [
+    "Dandenong",
+    "Dandenong North",
+    "Dandenong South"
+   ],
+   "Mulgrave": [
+    "Dandenong North"
+   ],
+   "Carrum": [
+    "Bangholme",
+    "Dandenong South"
+   ],
+   "Mordialloc": [
+    "Bangholme"
+   ]
+  },
+  "3180": {
+   "Rowville": [
+    "Knoxfield"
+   ],
+   "Bayswater": [
+    "Knoxfield"
+   ]
+  },
+  "3182": {
+   "Albert Park": [
+    "St Kilda",
+    "St Kilda West"
+   ],
+   "Prahran": [
+    "St Kilda"
+   ],
+   "Caulfield": [
+    "St Kilda"
+   ]
+  },
+  "3183": {
+   "Caulfield": [
+    "St Kilda East",
+    "Balaclava"
+   ],
+   "Prahran": [
+    "St Kilda East"
+   ]
+  },
+  "3184": {
+   "Brighton": [
+    "Elwood"
+   ],
+   "Albert Park": [
+    "Elwood"
+   ]
+  },
+  "3187": {
+   "Brighton": [
+    "Brighton East"
+   ],
+   "Bentleigh": [
+    "Brighton East"
+   ]
+  },
+  "3188": {
+   "Brighton": [
+    "Hampton",
+    "Hampton East"
+   ],
+   "Sandringham": [
+    "Hampton",
+    "Hampton East"
+   ]
+  },
+  "3189": {
+   "Bentleigh": [
+    "Moorabbin"
+   ],
+   "Sandringham": [
+    "Moorabbin"
+   ]
+  },
+  "3190": {
+   "Sandringham": [
+    "Highett"
+   ],
+   "Bentleigh": [
+    "Highett"
+   ]
+  },
+  "3192": {
+   "Clarinda": [
+    "Cheltenham"
+   ],
+   "Bentleigh": [
+    "Cheltenham"
+   ],
+   "Sandringham": [
+    "Cheltenham"
+   ]
+  },
+  "3194": {
+   "Sandringham": [
+    "Mentone"
+   ],
+   "Clarinda": [
+    "Mentone",
+    "Moorabbin Airport"
+   ],
+   "Mordialloc": [
+    "Mentone"
+   ]
+  },
+  "3196": {
+   "Mordialloc": [
+    "Chelsea",
+    "Edithvale",
+    "Chelsea Heights"
+   ],
+   "Carrum": [
+    "Bonbeach"
+   ]
+  },
+  "3198": {
+   "Carrum": [
+    "Seaford"
+   ],
+   "Frankston": [
+    "Seaford"
+   ]
+  },
+  "3204": {
+   "Bentleigh": [
+    "Bentleigh",
+    "McKinnon",
+    "Ormond"
+   ],
+   "Caulfield": [
+    "Ormond"
+   ],
+   "Oakleigh": [
+    "Ormond"
+   ]
+  },
+  "3205": {
+   "Albert Park": [
+    "South Melbourne"
+   ],
+   "Prahran": [
+    "South Melbourne"
+   ]
+  },
+  "3211": {
+   "Werribee": [
+    "Little River"
+   ],
+   "Lara": [
+    "Little River"
+   ]
+  },
+  "3213": {
+   "Lara": [
+    "Lovely Banks",
+    "Anakie",
+    "Batesford",
+    "Moorabool"
+   ],
+   "Geelong": [
+    "Batesford"
+   ],
+   "Eureka": [
+    "Anakie"
+   ]
+  },
+  "3216": {
+   "South Barwon": [
+    "Highton",
+    "Grovedale",
+    "Belmont",
+    "Waurn Ponds",
+    "Wandana Heights",
+    "Marshall"
+   ],
+   "Geelong": [
+    "Belmont"
+   ]
+  },
+  "3217": {
+   "South Barwon": [
+    "Armstrong Creek",
+    "Mount Duneed",
+    "Charlemont",
+    "Freshwater Creek"
+   ],
+   "Polwarth": [
+    "Freshwater Creek"
+   ]
+  },
+  "3224": {
+   "Bellarine": [
+    "Leopold"
+   ],
+   "Geelong": [
+    "Moolap"
+   ]
+  },
+  "3227": {
+   "Bellarine": [
+    "Barwon Heads",
+    "Connewarre"
+   ],
+   "South Barwon": [
+    "Connewarre",
+    "Breamlea"
+   ]
+  },
+  "3240": {
+   "South Barwon": [
+    "Moriac",
+    "Mount Moriac"
+   ],
+   "Polwarth": [
+    "Gherang",
+    "Modewarre",
+    "Buckley",
+    "Paraparap"
+   ]
+  },
+  "3265": {
+   "South-West Coast": [
+    "Panmure",
+    "Noorat",
+    "Cudgee",
+    "Garvoc",
+    "Framlingham",
+    "Laang"
+   ],
+   "Polwarth": [
+    "Ecklin South",
+    "Dixie",
+    "Boorcan",
+    "Taroon"
+   ],
+   "Lowan": [
+    "Ellerslie",
+    "The Sisters",
+    "Kolora",
+    "Glenormiston North",
+    "Noorat"
+   ]
+  },
+  "3268": {
+   "Polwarth": [
+    "Timboon",
+    "Cooriemungle",
+    "Brucknell",
+    "Curdievale",
+    "Newfield",
+    "Timboon West"
+   ],
+   "South-West Coast": [
+    "Nullawarre",
+    "Nirranda South",
+    "Nirranda",
+    "Nullawarre North",
+    "Curdievale",
+    "Ayrford"
+   ]
+  },
+  "3270": {
+   "South-West Coast": [
+    "Peterborough"
+   ],
+   "Polwarth": [
+    "Peterborough"
+   ]
+  },
+  "3271": {
+   "Lowan": [
+    "Dundonnell",
+    "Darlington",
+    "Pura Pura"
+   ],
+   "Polwarth": [
+    "Darlington"
+   ]
+  },
+  "3274": {
+   "Lowan": [
+    "Caramut"
+   ],
+   "South-West Coast": [
+    "Caramut"
+   ]
+  },
+  "3289": {
+   "Lowan": [
+    "Penshurst",
+    "Tabor",
+    "Gazette",
+    "Purdeet"
+   ],
+   "South-West Coast": [
+    "Gerrigerrup",
+    "Penshurst",
+    "Purdeet",
+    "Gazette"
+   ]
+  },
+  "3301": {
+   "Lowan": [
+    "Tarrington",
+    "Yulecart",
+    "Wannon",
+    "Byaduk",
+    "Strathkellar",
+    "Bochara"
+   ],
+   "South-West Coast": [
+    "Broadwater",
+    "Byaduk"
+   ]
+  },
+  "3302": {
+   "Lowan": [
+    "Branxholme",
+    "Grassdale"
+   ],
+   "South-West Coast": [
+    "Branxholme"
+   ]
+  },
+  "3303": {
+   "South-West Coast": [
+    "Condah",
+    "Wallacedale",
+    "Breakaway Creek",
+    "Hotspur",
+    "Lake Condah"
+   ],
+   "Lowan": [
+    "Hotspur",
+    "Condah"
+   ]
+  },
+  "3304": {
+   "South-West Coast": [
+    "Heywood",
+    "Drumborg",
+    "Bessiebelle",
+    "Myamyn",
+    "Milltown",
+    "Greenwald"
+   ],
+   "Lowan": [
+    "Dartmoor",
+    "Mumbannar",
+    "Drik Drik",
+    "Lyons"
+   ]
+  },
+  "3321": {
+   "Eureka": [
+    "Inverleigh",
+    "Wingeel",
+    "Hesse"
+   ],
+   "Polwarth": [
+    "Inverleigh",
+    "Wingeel"
+   ]
+  },
+  "3322": {
+   "Polwarth": [
+    "Cressy"
+   ],
+   "Eureka": [
+    "Cressy"
+   ]
+  },
+  "3329": {
+   "Eureka": [
+    "Shelford",
+    "Barunah Park"
+   ],
+   "Polwarth": [
+    "Barunah Plains"
+   ]
+  },
+  "3331": {
+   "Geelong": [
+    "Bannockburn",
+    "Gheringhap",
+    "Sutherlands Creek",
+    "Russells Bridge"
+   ],
+   "Eureka": [
+    "Maude",
+    "She Oaks",
+    "Steiglitz"
+   ]
+  },
+  "3335": {
+   "Melton": [
+    "Thornhill Park",
+    "Grangefields"
+   ],
+   "Kororoit": [
+    "Rockbank",
+    "Grangefields"
+   ],
+   "Sydenham": [
+    "Bonnie Brook",
+    "Plumpton"
+   ]
+  },
+  "3336": {
+   "Sydenham": [
+    "Fraser Rise",
+    "Deanside"
+   ],
+   "Kororoit": [
+    "Aintree",
+    "Deanside"
+   ]
+  },
+  "3337": {
+   "Melton": [
+    "Harkness",
+    "Kurunjang",
+    "Melton West",
+    "Melton",
+    "Toolern Vale"
+   ],
+   "Macedon": [
+    "Toolern Vale"
+   ]
+  },
+  "3340": {
+   "Eureka": [
+    "Darley",
+    "Bacchus Marsh",
+    "Maddingley",
+    "Rowsley",
+    "Balliang East",
+    "Parwan"
+   ],
+   "Melton": [
+    "Hopetoun Park",
+    "Merrimu",
+    "Long Forest",
+    "Parwan"
+   ],
+   "Macedon": [
+    "Coimadai"
+   ],
+   "Lara": [
+    "Balliang",
+    "Staughton Vale"
+   ]
+  },
+  "3341": {
+   "Eureka": [
+    "Greendale",
+    "Myrniong",
+    "Pentland Hills",
+    "Korobeit"
+   ],
+   "Macedon": [
+    "Dales Creek",
+    "Greendale"
+   ]
+  },
+  "3350": {
+   "Wendouree": [
+    "Alfredton",
+    "Ballarat Central",
+    "Ballarat North",
+    "Redan",
+    "Lake Wendouree",
+    "Soldiers Hill"
+   ],
+   "Eureka": [
+    "Ballarat East",
+    "Brown Hill",
+    "Canadian",
+    "Mount Clear",
+    "Mount Helen",
+    "Golden Point"
+   ],
+   "Ripon": [
+    "Lucas",
+    "Nerrina",
+    "Brown Hill"
+   ]
+  },
+  "3351": {
+   "Ripon": [
+    "Smythes Creek",
+    "Haddon",
+    "Ross Creek",
+    "Smythesdale",
+    "Snake Valley",
+    "Scarsdale"
+   ],
+   "Lowan": [
+    "Lake Bolac",
+    "Streatham",
+    "Westmere",
+    "Mininera",
+    "Nerrin Nerrin"
+   ],
+   "Eureka": [
+    "Berringa",
+    "Cape Clear",
+    "Staffordshire Reef",
+    "Springdallah",
+    "Illabarook",
+    "Rokewood Junction"
+   ]
+  },
+  "3352": {
+   "Ripon": [
+    "Miners Rest",
+    "Cardigan",
+    "Invermay",
+    "Cardigan Village",
+    "Napoleons",
+    "Learmonth"
+   ],
+   "Wendouree": [
+    "Bonshaw"
+   ],
+   "Eureka": [
+    "Mount Egerton",
+    "Warrenheip",
+    "Dereel",
+    "Lal Lal",
+    "Enfield",
+    "Durham Lead"
+   ],
+   "Polwarth": [
+    "Werneth"
+   ]
+  },
+  "3355": {
+   "Wendouree": [
+    "Wendouree",
+    "Lake Gardens"
+   ],
+   "Ripon": [
+    "Mitchell Park"
+   ]
+  },
+  "3360": {
+   "Ripon": [
+    "Linton",
+    "Happy Valley",
+    "Pittong"
+   ],
+   "Eureka": [
+    "Mannibadar",
+    "Willowvale"
+   ]
+  },
+  "3361": {
+   "Ripon": [
+    "Skipton",
+    "Carranballac"
+   ],
+   "Polwarth": [
+    "Bradvale"
+   ]
+  },
+  "3364": {
+   "Ripon": [
+    "Smeaton",
+    "Broomfield",
+    "Newlyn North",
+    "Blampied",
+    "Kingston",
+    "Allendale"
+   ],
+   "Eureka": [
+    "Barkstead"
+   ],
+   "Bendigo West": [
+    "Werona",
+    "Strathlea",
+    "Campbelltown",
+    "Joyces Creek"
+   ]
+  },
+  "3377": {
+   "Ripon": [
+    "Ararat",
+    "Cathcart",
+    "Crowlands",
+    "Armstrong",
+    "Warrak",
+    "Norval"
+   ],
+   "Lowan": [
+    "Moyston",
+    "Rhymney",
+    "Maroona",
+    "Rossbridge",
+    "Bulgana",
+    "Dunneworthy"
+   ]
+  },
+  "3378": {
+   "Lowan": [
+    "Tatyoon",
+    "Yalla-Y-Poora"
+   ],
+   "Ripon": [
+    "Tatyoon",
+    "Yalla-Y-Poora"
+   ]
+  },
+  "3384": {
+   "Ripon": [
+    "Landsborough",
+    "Navarre",
+    "Barkly",
+    "Landsborough West",
+    "Frenchmans",
+    "Joel Joel"
+   ],
+   "Lowan": [
+    "Concongella",
+    "Joel South",
+    "Joel Joel"
+   ]
+  },
+  "3387": {
+   "Ripon": [
+    "Marnoo",
+    "Greens Creek",
+    "Callawadda",
+    "Wallaloo East",
+    "Marnoo West",
+    "Campbells Bridge"
+   ],
+   "Lowan": [
+    "Callawadda",
+    "Greens Creek",
+    "Germania",
+    "Campbells Bridge"
+   ]
+  },
+  "3388": {
+   "Lowan": [
+    "Rupanyup"
+   ],
+   "Ripon": [
+    "Banyena",
+    "Rupanyup"
+   ]
+  },
+  "3393": {
+   "Lowan": [
+    "Warracknabeal",
+    "Lah",
+    "Bangerang",
+    "Cannum",
+    "Crymelon",
+    "Kellalac"
+   ],
+   "Mildura": [
+    "Wilkur"
+   ]
+  },
+  "3395": {
+   "Mildura": [
+    "Beulah",
+    "Reedy Dam",
+    "Rosebery"
+   ],
+   "Lowan": [
+    "Beulah",
+    "Kenmare"
+   ]
+  },
+  "3424": {
+   "Lowan": [
+    "Rainbow"
+   ],
+   "Mildura": [
+    "Yaapeet",
+    "Rainbow"
+   ]
+  },
+  "3428": {
+   "Sunbury": [
+    "Bulla"
+   ],
+   "Kalkallo": [
+    "Bulla"
+   ]
+  },
+  "3430": {
+   "Macedon": [
+    "Clarkefield"
+   ],
+   "Sunbury": [
+    "Clarkefield"
+   ]
+  },
+  "3435": {
+   "Macedon": [
+    "Lancefield",
+    "Goldie",
+    "Benloch"
+   ],
+   "Euroa": [
+    "Nulla Vale"
+   ]
+  },
+  "3444": {
+   "Macedon": [
+    "Kyneton",
+    "Tylden",
+    "Lauriston",
+    "Spring Hill",
+    "Pipers Creek",
+    "Kyneton South"
+   ],
+   "Euroa": [
+    "Redesdale",
+    "Mia Mia",
+    "Glenhope"
+   ],
+   "Bendigo East": [
+    "Lyal"
+   ]
+  },
+  "3451": {
+   "Bendigo West": [
+    "Campbells Creek",
+    "McKenzie Hill",
+    "Chewton",
+    "Muckleford",
+    "Barkers Creek",
+    "Guildford"
+   ],
+   "Macedon": [
+    "Fryerstown",
+    "Vaughan",
+    "Glenluce",
+    "Guildford",
+    "Tarilta",
+    "Irishtown"
+   ]
+  },
+  "3453": {
+   "Bendigo West": [
+    "Harcourt",
+    "Ravenswood",
+    "Harcourt North",
+    "Ravenswood South"
+   ],
+   "Bendigo East": [
+    "Ravenswood",
+    "Harcourt North"
+   ]
+  },
+  "3461": {
+   "Macedon": [
+    "Hepburn",
+    "Glenlyon",
+    "Hepburn Springs",
+    "Coomoora",
+    "Drummond",
+    "Wheatsheaf"
+   ],
+   "Bendigo West": [
+    "Strangways",
+    "Yandoit Hills",
+    "Franklinford"
+   ],
+   "Eureka": [
+    "Spargo Creek"
+   ]
+  },
+  "3463": {
+   "Bendigo West": [
+    "Maldon",
+    "Walmer",
+    "Baringhup",
+    "Tarrengower",
+    "Gower",
+    "Nuggetty"
+   ],
+   "Ripon": [
+    "Laanecoorie",
+    "Woodstock West"
+   ]
+  },
+  "3464": {
+   "Ripon": [
+    "Carisbrook"
+   ],
+   "Bendigo West": [
+    "Carisbrook"
+   ]
+  },
+  "3472": {
+   "Ripon": [
+    "Dunolly",
+    "Bet Bet",
+    "Betley",
+    "Eddington",
+    "Moliagul",
+    "Bromley"
+   ],
+   "Bendigo West": [
+    "Eddington"
+   ]
+  },
+  "3477": {
+   "Ripon": [
+    "Stuart Mill",
+    "Redbank",
+    "St Arnaud East",
+    "Carapooee",
+    "Slaty Creek",
+    "St Arnaud North"
+   ],
+   "Mildura": [
+    "Coonooer Bridge"
+   ]
+  },
+  "3478": {
+   "Ripon": [
+    "St Arnaud",
+    "Moonambel",
+    "Percydale",
+    "Tanwood",
+    "Warrenmang"
+   ],
+   "Mildura": [
+    "Dooboobetic",
+    "Yawong Hills"
+   ]
+  },
+  "3480": {
+   "Mildura": [
+    "Donald",
+    "Litchfield",
+    "Jeffcott",
+    "Corack",
+    "Cope Cope",
+    "Gil Gil"
+   ],
+   "Ripon": [
+    "Rich Avon West",
+    "Rich Avon East",
+    "Swanwater West",
+    "Cope Cope"
+   ],
+   "Lowan": [
+    "Areegra",
+    "Laen",
+    "Lawler"
+   ]
+  },
+  "3482": {
+   "Mildura": [
+    "Watchem",
+    "Warmur",
+    "Watchem West",
+    "Massey",
+    "Morton Plains"
+   ],
+   "Lowan": [
+    "Watchem West"
+   ]
+  },
+  "3515": {
+   "Bendigo West": [
+    "Marong",
+    "Shelbourne",
+    "Wilsons Hill"
+   ],
+   "Ripon": [
+    "Marong"
+   ]
+  },
+  "3516": {
+   "Ripon": [
+    "Bridgewater On Loddon",
+    "Bridgewater",
+    "Bridgewater North",
+    "Leichardt",
+    "Derby",
+    "Yarraberb"
+   ],
+   "Bendigo West": [
+    "Leichardt"
+   ],
+   "Bendigo East": [
+    "Yarraberb"
+   ]
+  },
+  "3517": {
+   "Ripon": [
+    "Inglewood",
+    "Kingower",
+    "Kurting",
+    "Rheola",
+    "Powlett Plains",
+    "Salisbury West"
+   ],
+   "Bendigo East": [
+    "Serpentine",
+    "Bears Lagoon"
+   ],
+   "Murray Plains": [
+    "Jarklin"
+   ]
+  },
+  "3518": {
+   "Ripon": [
+    "Wedderburn",
+    "Borung",
+    "Berrimal",
+    "Wehla",
+    "Fentons Creek",
+    "Wedderburn Junction"
+   ],
+   "Murray Plains": [
+    "Fernihurst",
+    "Mysia"
+   ],
+   "Mildura": [
+    "Woosang",
+    "Richmond Plains"
+   ]
+  },
+  "3525": {
+   "Mildura": [
+    "Charlton",
+    "Yeungroon",
+    "Buckrabanyule",
+    "Wooroonook",
+    "Nareewillock",
+    "Barrakee"
+   ],
+   "Ripon": [
+    "Wychitella",
+    "Buckrabanyule"
+   ],
+   "Murray Plains": [
+    "Lake Marmal",
+    "Terrappee",
+    "Wychitella North",
+    "Buckrabanyule"
+   ]
+  },
+  "3527": {
+   "Mildura": [
+    "Wycheproof",
+    "Dumosa",
+    "Teddywaddy",
+    "Bunguluke",
+    "Teddywaddy West",
+    "Wycheproof South"
+   ],
+   "Murray Plains": [
+    "Ninyeunook"
+   ]
+  },
+  "3533": {
+   "Mildura": [
+    "Sea Lake",
+    "Nandaly",
+    "Nyarrin",
+    "Myall",
+    "Tyrrell Downs",
+    "Tyrrell"
+   ],
+   "Murray Plains": [
+    "Tyrrell"
+   ]
+  },
+  "3542": {
+   "Murray Plains": [
+    "Lalbert",
+    "Tittybong"
+   ],
+   "Mildura": [
+    "Cokum"
+   ]
+  },
+  "3544": {
+   "Murray Plains": [
+    "Ultima",
+    "Waitchie",
+    "Murnungin",
+    "Gowanford",
+    "Ultima East",
+    "Chinangin"
+   ],
+   "Mildura": [
+    "Springfield"
+   ]
+  },
+  "3550": {
+   "Bendigo East": [
+    "Strathdale",
+    "Kennington",
+    "Flora Hill",
+    "White Hills",
+    "Spring Gully",
+    "Quarry Hill"
+   ],
+   "Bendigo West": [
+    "Bendigo",
+    "Long Gully",
+    "North Bendigo",
+    "Ironbark",
+    "West Bendigo"
+   ]
+  },
+  "3551": {
+   "Bendigo East": [
+    "Strathfieldsaye",
+    "Epsom",
+    "Huntly",
+    "Junortoun",
+    "Ascot",
+    "Axedale"
+   ],
+   "Bendigo West": [
+    "Maiden Gully",
+    "Lockwood South",
+    "Lockwood"
+   ],
+   "Ripon": [
+    "Newbridge",
+    "Tarnagulla",
+    "Arnold",
+    "Llanelly",
+    "Waanyarra",
+    "Murphys Creek"
+   ],
+   "Euroa": [
+    "Toolleen",
+    "Axedale",
+    "Kimbolton",
+    "Creek View",
+    "Cornella",
+    "Myola"
+   ],
+   "Macedon": [
+    "Myrtle Creek"
+   ]
+  },
+  "3555": {
+   "Bendigo West": [
+    "Kangaroo Flat",
+    "Golden Square",
+    "Big Hill"
+   ],
+   "Bendigo East": [
+    "Golden Square",
+    "Kangaroo Flat",
+    "Golden Gully",
+    "Big Hill"
+   ]
+  },
+  "3556": {
+   "Bendigo East": [
+    "Eaglehawk",
+    "California Gully",
+    "Jackass Flat",
+    "Sailors Gully",
+    "Woodvale",
+    "Sebastian"
+   ],
+   "Bendigo West": [
+    "California Gully",
+    "Eaglehawk",
+    "Myers Flat",
+    "Woodvale"
+   ],
+   "Ripon": [
+    "Campbells Forest"
+   ]
+  },
+  "3557": {
+   "Bendigo East": [
+    "Goornong",
+    "Fosterville",
+    "Barnadown"
+   ],
+   "Euroa": [
+    "Muskerry"
+   ]
+  },
+  "3558": {
+   "Bendigo East": [
+    "Elmore",
+    "Hunter"
+   ],
+   "Euroa": [
+    "Runnymede",
+    "Burnewang"
+   ]
+  },
+  "3559": {
+   "Euroa": [
+    "Colbinabbin",
+    "Corop",
+    "Burramboot",
+    "Gobarup"
+   ],
+   "Bendigo East": [
+    "Avonmore"
+   ],
+   "Murray Plains": [
+    "Corop"
+   ]
+  },
+  "3572": {
+   "Murray Plains": [
+    "Tennyson",
+    "Milloo"
+   ],
+   "Bendigo East": [
+    "Prairie"
+   ]
+  },
+  "3573": {
+   "Murray Plains": [
+    "Calivil",
+    "Mitiamo",
+    "Pine Grove",
+    "Terrick Terrick East"
+   ],
+   "Bendigo East": [
+    "Calivil"
+   ]
+  },
+  "3596": {
+   "Murray Plains": [
+    "Wood Wood"
+   ],
+   "Mildura": [
+    "Towan",
+    "Wood Wood"
+   ]
+  },
+  "3614": {
+   "Shepparton": [
+    "Toolamba",
+    "Toolamba West"
+   ],
+   "Euroa": [
+    "Toolamba"
+   ]
+  },
+  "3616": {
+   "Shepparton": [
+    "Tatura",
+    "Tatura East",
+    "Mooroopna North West",
+    "Gillieston"
+   ],
+   "Euroa": [
+    "Tatura",
+    "Harston",
+    "Girgarre East",
+    "Cooma",
+    "Waranga",
+    "Gillieston"
+   ],
+   "Murray Plains": [
+    "Gillieston",
+    "Mooroopna North West"
+   ]
+  },
+  "3618": {
+   "Euroa": [
+    "Merrigum"
+   ],
+   "Murray Plains": [
+    "Merrigum"
+   ]
+  },
+  "3620": {
+   "Murray Plains": [
+    "Kyabram",
+    "Lancaster",
+    "Wyuna",
+    "Wyuna East",
+    "St Germains"
+   ],
+   "Euroa": [
+    "Kyabram",
+    "Kyabram South"
+   ]
+  },
+  "3629": {
+   "Shepparton": [
+    "Mooroopna",
+    "Ardmona",
+    "Coomboona",
+    "Mooroopna North"
+   ],
+   "Murray Plains": [
+    "Undera",
+    "Coomboona",
+    "Mooroopna North"
+   ]
+  },
+  "3630": {
+   "Shepparton": [
+    "Shepparton"
+   ],
+   "Euroa": [
+    "Caniambo"
+   ]
+  },
+  "3631": {
+   "Shepparton": [
+    "Kialla",
+    "Shepparton North",
+    "Shepparton East",
+    "Grahamvale",
+    "Kialla West",
+    "Orrvale"
+   ],
+   "Euroa": [
+    "Arcadia",
+    "Arcadia South",
+    "Karramomus"
+   ]
+  },
+  "3634": {
+   "Shepparton": [
+    "Tallygaroopna",
+    "Katandra West",
+    "Bunbartha",
+    "Zeerust",
+    "Katandra",
+    "Marionvale"
+   ],
+   "Ovens Valley": [
+    "Marungi"
+   ]
+  },
+  "3636": {
+   "Shepparton": [
+    "Numurkah",
+    "Drumanure",
+    "Invergordon"
+   ],
+   "Ovens Valley": [
+    "Invergordon",
+    "Naring",
+    "Numurkah"
+   ]
+  },
+  "3640": {
+   "Shepparton": [
+    "Katunga"
+   ],
+   "Ovens Valley": [
+    "Katunga"
+   ]
+  },
+  "3644": {
+   "Ovens Valley": [
+    "Cobram",
+    "Yarroweyah",
+    "Koonoomoo",
+    "Cobram East",
+    "Muckatah"
+   ],
+   "Shepparton": [
+    "Koonoomoo"
+   ]
+  },
+  "3646": {
+   "Shepparton": [
+    "Dookie",
+    "Nalinga",
+    "Mount Major"
+   ],
+   "Ovens Valley": [
+    "Yabba North",
+    "Waggarandall",
+    "Youanmite",
+    "Yabba South"
+   ],
+   "Euroa": [
+    "Nalinga"
+   ]
+  },
+  "3658": {
+   "Euroa": [
+    "Broadford",
+    "Sunday Creek",
+    "Clonbinane",
+    "Sugarloaf Creek",
+    "Waterford Park",
+    "Reedy Creek"
+   ],
+   "Eildon": [
+    "Strath Creek"
+   ],
+   "Yan Yean": [
+    "Clonbinane"
+   ]
+  },
+  "3660": {
+   "Euroa": [
+    "Seymour",
+    "Whiteheads Creek",
+    "Hilldene",
+    "Northwood",
+    "Trawool",
+    "Highlands"
+   ],
+   "Eildon": [
+    "Highlands",
+    "Kerrisdale",
+    "Caveat",
+    "Dropmore",
+    "Trawool"
+   ]
+  },
+  "3666": {
+   "Euroa": [
+    "Euroa",
+    "Strathbogie",
+    "Miepoll",
+    "Creightons Creek",
+    "Ruffy",
+    "Gooram"
+   ],
+   "Eildon": [
+    "Ruffy"
+   ]
+  },
+  "3673": {
+   "Euroa": [
+    "Tatong",
+    "Swanpool",
+    "Lurg",
+    "Lima East",
+    "Molyullah",
+    "Upper Lurg"
+   ],
+   "Ovens Valley": [
+    "Upper Lurg"
+   ],
+   "Eildon": [
+    "Lima South"
+   ]
+  },
+  "3675": {
+   "Ovens Valley": [
+    "Glenrowan",
+    "Greta West",
+    "Hansonville",
+    "Greta South",
+    "Greta",
+    "Boweya North"
+   ],
+   "Euroa": [
+    "Taminick",
+    "Glenrowan West",
+    "Mount Bruno",
+    "Boweya",
+    "Glenrowan"
+   ]
+  },
+  "3682": {
+   "Ovens Valley": [
+    "Springhurst",
+    "Boralma"
+   ],
+   "Benambra": [
+    "Norong",
+    "Lilliput"
+   ]
+  },
+  "3685": {
+   "Benambra": [
+    "Rutherglen",
+    "Browns Plains",
+    "Carlyle",
+    "Gooramadda",
+    "Brimin"
+   ],
+   "Ovens Valley": [
+    "Boorhaman North"
+   ]
+  },
+  "3691": {
+   "Benambra": [
+    "Baranduda",
+    "Leneva",
+    "Killara",
+    "Tangambalanga",
+    "Bethanga",
+    "Bandiana"
+   ],
+   "Ovens Valley": [
+    "Dederang",
+    "Upper Gundowring",
+    "Coral Bank",
+    "Kancoona",
+    "Kergunyah South",
+    "Glen Creek"
+   ]
+  },
+  "3701": {
+   "Benambra": [
+    "Eskdale",
+    "Tallangatta Valley",
+    "Mitta Mitta",
+    "Tallangatta South",
+    "Dartmouth",
+    "Granya"
+   ],
+   "Gippsland East": [
+    "Dartmouth"
+   ]
+  },
+  "3707": {
+   "Benambra": [
+    "Corryong",
+    "Towong",
+    "Nariel Valley",
+    "Thowgla Valley",
+    "Colac Colac",
+    "Biggara"
+   ],
+   "Gippsland East": [
+    "Nariel Valley"
+   ]
+  },
+  "3723": {
+   "Eildon": [
+    "Tolmie",
+    "Merrijig",
+    "Jamieson",
+    "Goughs Bay",
+    "Maindample",
+    "Barjarg"
+   ],
+   "Ovens Valley": [
+    "Tolmie",
+    "Archerton"
+   ],
+   "Euroa": [
+    "Tolmie",
+    "Archerton"
+   ]
+  },
+  "3725": {
+   "Euroa": [
+    "Goorambat",
+    "Chesney Vale",
+    "Stewarton",
+    "Boxwood",
+    "Major Plains"
+   ],
+   "Shepparton": [
+    "Major Plains",
+    "Stewarton",
+    "Boxwood"
+   ]
+  },
+  "3737": {
+   "Ovens Valley": [
+    "Myrtleford",
+    "Buffalo River",
+    "Mudgegonga",
+    "Merriang",
+    "Gapsted",
+    "Rosewhite"
+   ],
+   "Benambra": [
+    "Mudgegonga"
+   ]
+  },
+  "3747": {
+   "Benambra": [
+    "Beechworth",
+    "Stanley",
+    "Wooragee"
+   ],
+   "Ovens Valley": [
+    "Murmungee"
+   ]
+  },
+  "3750": {
+   "Thomastown": [
+    "Wollert"
+   ],
+   "Mill Park": [
+    "Wollert"
+   ],
+   "Yan Yean": [
+    "Wollert"
+   ]
+  },
+  "3752": {
+   "Mill Park": [
+    "South Morang"
+   ],
+   "Yan Yean": [
+    "South Morang"
+   ]
+  },
+  "3753": {
+   "Kalkallo": [
+    "Beveridge"
+   ],
+   "Yan Yean": [
+    "Beveridge"
+   ]
+  },
+  "3754": {
+   "Yan Yean": [
+    "Doreen",
+    "Mernda"
+   ],
+   "Eildon": [
+    "Doreen"
+   ]
+  },
+  "3755": {
+   "Yan Yean": [
+    "Yan Yean"
+   ],
+   "Eildon": [
+    "Yan Yean"
+   ]
+  },
+  "3756": {
+   "Kalkallo": [
+    "Wallan"
+   ],
+   "Yan Yean": [
+    "Wallan",
+    "Upper Plenty"
+   ],
+   "Macedon": [
+    "Darraweit Guim",
+    "Chintin"
+   ]
+  },
+  "3757": {
+   "Yan Yean": [
+    "Whittlesea",
+    "Eden Park",
+    "Humevale"
+   ],
+   "Eildon": [
+    "Kinglake West",
+    "Kinglake Central",
+    "Pheasant Creek",
+    "Humevale"
+   ]
+  },
+  "3758": {
+   "Yan Yean": [
+    "Wandong",
+    "Heathcote Junction"
+   ],
+   "Euroa": [
+    "Wandong"
+   ]
+  },
+  "3762": {
+   "Euroa": [
+    "Bylands"
+   ],
+   "Macedon": [
+    "Bylands"
+   ]
+  },
+  "3764": {
+   "Euroa": [
+    "Kilmore",
+    "Kilmore East",
+    "Willowmavin",
+    "Glenaroua",
+    "Moranding",
+    "Forbes"
+   ],
+   "Macedon": [
+    "Tantaraboo"
+   ]
+  },
+  "3765": {
+   "Evelyn": [
+    "Montrose"
+   ],
+   "Monbulk": [
+    "Montrose"
+   ]
+  },
+  "3766": {
+   "Monbulk": [
+    "Kalorama"
+   ],
+   "Evelyn": [
+    "Kalorama"
+   ]
+  },
+  "3783": {
+   "Monbulk": [
+    "Gembrook"
+   ],
+   "Narracan": [
+    "Gembrook"
+   ]
+  },
+  "3795": {
+   "Monbulk": [
+    "Silvan"
+   ],
+   "Evelyn": [
+    "Silvan"
+   ]
+  },
+  "3804": {
+   "Narre Warren North": [
+    "Narre Warren North"
+   ],
+   "Monbulk": [
+    "Narre Warren East"
+   ]
+  },
+  "3805": {
+   "Narre Warren South": [
+    "Narre Warren South"
+   ],
+   "Narre Warren North": [
+    "Narre Warren"
+   ],
+   "Berwick": [
+    "Narre Warren South"
+   ]
+  },
+  "3806": {
+   "Berwick": [
+    "Berwick",
+    "Harkaway"
+   ],
+   "Narre Warren North": [
+    "Berwick",
+    "Harkaway"
+   ]
+  },
+  "3808": {
+   "Berwick": [
+    "Beaconsfield Upper"
+   ],
+   "Pakenham": [
+    "Beaconsfield Upper",
+    "Dewhurst"
+   ]
+  },
+  "3810": {
+   "Pakenham": [
+    "Pakenham",
+    "Pakenham Upper",
+    "Pakenham South",
+    "Rythdale"
+   ],
+   "Narracan": [
+    "Pakenham South"
+   ]
+  },
+  "3812": {
+   "Narracan": [
+    "Nar Nar Goon",
+    "Nar Nar Goon North",
+    "Maryknoll"
+   ],
+   "Pakenham": [
+    "Nar Nar Goon North"
+   ],
+   "Monbulk": [
+    "Nar Nar Goon North"
+   ]
+  },
+  "3824": {
+   "Narracan": [
+    "Trafalgar",
+    "Trafalgar East",
+    "Trafalgar South",
+    "Narracan",
+    "Childers",
+    "Thorpdale South"
+   ],
+   "Morwell": [
+    "Narracan"
+   ],
+   "Gippsland South": [
+    "Thorpdale South"
+   ]
+  },
+  "3825": {
+   "Morwell": [
+    "Moe",
+    "Newborough",
+    "Yallourn North",
+    "Moe South",
+    "Hernes Oak",
+    "Tanjil South"
+   ],
+   "Narracan": [
+    "Willow Grove",
+    "Tanjil South",
+    "Rawson",
+    "Erica",
+    "Westbury",
+    "Hill End"
+   ]
+  },
+  "3840": {
+   "Morwell": [
+    "Morwell",
+    "Hazelwood North",
+    "Hazelwood South",
+    "Hazelwood",
+    "Driffield",
+    "Maryvale"
+   ],
+   "Gippsland South": [
+    "Jeeralang Junction",
+    "Jeeralang"
+   ]
+  },
+  "3844": {
+   "Morwell": [
+    "Traralgon",
+    "Traralgon East",
+    "Tyers",
+    "Traralgon South",
+    "Callignee",
+    "Flynn"
+   ],
+   "Gippsland South": [
+    "Carrajung Lower",
+    "Carrajung",
+    "Flynn",
+    "Blackwarry",
+    "Carrajung South",
+    "Callignee North"
+   ]
+  },
+  "3851": {
+   "Gippsland South": [
+    "Longford",
+    "Loch Sport",
+    "Golden Beach",
+    "Seaspray",
+    "Paradise Beach",
+    "Stradbroke"
+   ],
+   "Gippsland East": [
+    "Bundalaguah",
+    "Airly",
+    "Clydebank",
+    "Cobains",
+    "Montgomery",
+    "Myrtlebank"
+   ]
+  },
+  "3854": {
+   "Morwell": [
+    "Glengarry",
+    "Glengarry North",
+    "Glengarry West"
+   ],
+   "Gippsland South": [
+    "Glengarry"
+   ]
+  },
+  "3857": {
+   "Gippsland South": [
+    "Cowwarr"
+   ],
+   "Gippsland East": [
+    "Cowwarr"
+   ]
+  },
+  "3858": {
+   "Gippsland East": [
+    "Heyfield",
+    "Glenmaggie",
+    "Seaton",
+    "Dawson",
+    "Licola",
+    "Licola North"
+   ],
+   "Gippsland South": [
+    "Denison",
+    "Winnindoo",
+    "Heyfield"
+   ]
+  },
+  "3871": {
+   "Gippsland South": [
+    "Mirboo North",
+    "Mirboo",
+    "Baromi",
+    "Allambee South",
+    "Darlimurla",
+    "Dollar"
+   ],
+   "Narracan": [
+    "Allambee Reserve",
+    "Delburn"
+   ]
+  },
+  "3898": {
+   "Gippsland East": [
+    "Omeo",
+    "Cobungra",
+    "Cassilis",
+    "Hinnomunjie",
+    "Glen Valley",
+    "Anglers Rest"
+   ],
+   "Ovens Valley": [
+    "Dinner Plain"
+   ]
+  },
+  "3911": {
+   "Hastings": [
+    "Baxter",
+    "Langwarrin South"
+   ],
+   "Mornington": [
+    "Baxter"
+   ]
+  },
+  "3912": {
+   "Hastings": [
+    "Somerville",
+    "Pearcedale"
+   ],
+   "Bass": [
+    "Pearcedale"
+   ]
+  },
+  "3915": {
+   "Hastings": [
+    "Hastings"
+   ],
+   "Mornington": [
+    "Tuerong"
+   ]
+  },
+  "3926": {
+   "Hastings": [
+    "Balnarring",
+    "Balnarring Beach",
+    "Merricks Beach"
+   ],
+   "Nepean": [
+    "Merricks North"
+   ]
+  },
+  "3933": {
+   "Mornington": [
+    "Moorooduc"
+   ],
+   "Hastings": [
+    "Moorooduc"
+   ]
+  },
+  "3934": {
+   "Mornington": [
+    "Mount Martha"
+   ],
+   "Nepean": [
+    "Mount Martha"
+   ]
+  },
+  "3945": {
+   "Gippsland South": [
+    "Loch",
+    "Jeetho",
+    "Krowera"
+   ],
+   "Bass": [
+    "Loch",
+    "Krowera",
+    "Woodleigh"
+   ]
+  },
+  "3950": {
+   "Gippsland South": [
+    "Korumburra",
+    "Kardella South",
+    "Strzelecki",
+    "Korumburra South",
+    "Whitelaw"
+   ],
+   "Narracan": [
+    "Strzelecki"
+   ]
+  },
+  "3951": {
+   "Gippsland South": [
+    "Outtrim",
+    "Kongwak",
+    "Kardella",
+    "Jumbunna",
+    "Arawata",
+    "Ranceby"
+   ],
+   "Bass": [
+    "Kongwak",
+    "Outtrim"
+   ]
+  },
+  "3953": {
+   "Gippsland South": [
+    "Leongatha",
+    "Leongatha South",
+    "Nerrena",
+    "Mardan",
+    "Leongatha North",
+    "Ruby"
+   ],
+   "Narracan": [
+    "Trida"
+   ]
+  },
+  "3975": {
+   "Carrum": [
+    "Lyndhurst"
+   ],
+   "Narre Warren South": [
+    "Lynbrook"
+   ]
+  },
+  "3977": {
+   "Cranbourne": [
+    "Cranbourne East",
+    "Cranbourne",
+    "Cranbourne West",
+    "Botanic Ridge",
+    "Cranbourne South",
+    "Junction Village"
+   ],
+   "Narre Warren South": [
+    "Cranbourne North"
+   ],
+   "Carrum": [
+    "Skye",
+    "Sandhurst"
+   ],
+   "Bass": [
+    "Cranbourne South",
+    "Devon Meadows",
+    "Cannons Creek"
+   ]
+  },
+  "3978": {
+   "Berwick": [
+    "Clyde North"
+   ],
+   "Bass": [
+    "Clyde",
+    "Cardinia"
+   ],
+   "Cranbourne": [
+    "Clyde North",
+    "Clyde"
+   ],
+   "Pakenham": [
+    "Cardinia"
+   ]
+  },
+  "3981": {
+   "Bass": [
+    "Koo Wee Rup",
+    "Bayles",
+    "Catani",
+    "Yannathan",
+    "Dalmore",
+    "Heath Hill"
+   ],
+   "Narracan": [
+    "Heath Hill",
+    "Koo Wee Rup North"
+   ]
+  },
+  "3984": {
+   "Bass": [
+    "Lang Lang",
+    "Coronet Bay",
+    "Corinella",
+    "Grantville",
+    "Pioneer Bay",
+    "The Gurdies"
+   ],
+   "Gippsland South": [
+    "Lang Lang"
+   ]
+  },
+  "3987": {
+   "Gippsland South": [
+    "Nyora"
+   ],
+   "Bass": [
+    "Nyora"
+   ],
+   "Narracan": [
+    "Nyora"
+   ]
+  },
+  "3988": {
+   "Gippsland South": [
+    "Poowong",
+    "Poowong North",
+    "Poowong East"
+   ],
+   "Narracan": [
+    "Mountain View",
+    "Poowong East",
+    "Poowong North"
+   ]
+  },
+  "3996": {
+   "Bass": [
+    "Inverloch",
+    "Pound Creek"
+   ],
+   "Gippsland South": [
+    "Pound Creek",
+    "Inverloch"
+   ]
+  }
+ }
+}
