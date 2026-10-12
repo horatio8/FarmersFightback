@@ -215,7 +215,7 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
 
   await test("/issues is routed and reachable", () => {
     const v = require("../vercel.json");
-    assert.ok(v.rewrites.some((r) => r.source === "/issues" && r.destination === "/index.html"), "vercel.json needs the /issues rewrite");
+    assert.ok(v.rewrites.some((r) => r.source === "/issues" && r.destination === "/"), "vercel.json needs the /issues rewrite");
     const app = fs.readFileSync(path.join(__dirname, "..", "app.jsx"), "utf8");
     assert.ok(/parts\[0\] === "issues"\) view = <IssuesPage \/>/.test(app), "router must mount IssuesPage");
     assert.ok(/\["\/issues", "Why Labor last"\]/.test(app), "site nav links to /issues");

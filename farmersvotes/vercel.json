@@ -57,43 +57,43 @@
   "rewrites": [
     {
       "source": "/seat",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/seat/:state/:district",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/parties",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/media",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/media/:slug",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/donate",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/quiz",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/shop",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/issues",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/about",
-      "destination": "/index.html"
+      "destination": "/"
     }
   ]
 }
