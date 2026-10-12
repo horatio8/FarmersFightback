@@ -340,7 +340,7 @@ function HomePage() {
       <HomeLookup />
       <section className="v-sec v-sec--paper">
         <div className="v-wrap v-pad-top">
-          <h2 className="v-h2 v-h2--story"><span className="v-red">Labor has devastated Aussie farmers.</span> This is our only chance to stop them.</h2>
+          <h2 className="v-h2 v-h2--story"><span className="v-red">Labor has devastated Aussie farmers.</span> <span>This is our only chance to stop them.</span></h2>
         </div>
         <div className="v-wrap v-story">
           <div className="v-story-img"><img src="/assets/issues/mary-colin.jpg" alt="Mary and Colin at their farm gate" /></div>
