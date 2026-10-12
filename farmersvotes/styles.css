@@ -216,7 +216,7 @@ html { scroll-behavior: smooth; }
 .fv .v-hero-h1 span { display: block; }
 /* Same face as "farmers" and "our future" in the farmersfightback.com hero:
    Source Serif 4, bold italic, sentence case. */
-.fv .v-hero-serif { font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif; font-style: italic; font-weight: 700; text-transform: none; letter-spacing: -0.025em; line-height: 1; color: #FFD6D6; margin-top: .06em; }
+.fv .v-hero-serif { font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif; font-style: italic; font-weight: 700; text-transform: none; letter-spacing: -0.025em; line-height: 1; color: #FF2B2B; margin-top: .06em; text-shadow: 0 2px 12px rgba(14,45,74,.55); }
 .fv .v-hero-lede { margin: 20px 0 0; font-size: clamp(20px, 2.6vw, 28px); font-weight: 600; max-width: 640px; }
 
 /* home: lookup */
