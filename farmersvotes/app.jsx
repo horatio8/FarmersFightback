@@ -354,7 +354,7 @@ function HomePage() {
       </section>
       <section className="v-sec v-redband">
         <div className="v-wrap v-band">
-          <p>Help get rid of Labor. Give to get this campaign in front of more Victorians.</p>
+          <p>Help get rid of Labor.</p>
           <a href="#donate" className="v-btn v-btn--gold v-btn--band">Donate</a>
         </div>
       </section>
