@@ -1,0 +1,34 @@
+# Temporary: downloads AI-generated issue images (Higgsfield) into the repo,
+# because the build container that made them cannot reach the image CDN.
+# Runs only on this throwaway branch.
+name: fetch issue images
+on:
+  push:
+    branches: [tmp/fetch-issue-images]
+    paths: [".github/workflows/fetch-issue-images.yml"]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: download
+        run: |
+          set -e
+          mkdir -p farmersvotes/assets/issues/hf
+          base=https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh
+          curl -fsSL -o farmersvotes/assets/issues/hf/1.png $base/hf_20261012_232205_c999e820-9500-46d8-a2a8-ea4506c7e192.png
+          curl -fsSL -o farmersvotes/assets/issues/hf/2.png $base/hf_20261012_232204_b5dd61bf-2012-4eb4-ba92-4ca921eab770.png
+          curl -fsSL -o farmersvotes/assets/issues/hf/3.png $base/hf_20261012_232204_6f47e13f-b41a-4923-b2f3-e562851004e9.png
+          curl -fsSL -o farmersvotes/assets/issues/hf/4.png $base/hf_20261012_232204_6a1027bd-8c82-411f-a31f-5f129197a80c.png
+          curl -fsSL -o farmersvotes/assets/issues/hf/5.png $base/hf_20261012_232205_9130b067-d062-4d1c-834c-1260f8093dc7.png
+          curl -fsSL -o farmersvotes/assets/issues/hf/6.png $base/hf_20261012_232205_1437acea-0355-4029-8c78-2c6e69b61e8a.png
+          ls -la farmersvotes/assets/issues/hf
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add farmersvotes/assets/issues/hf
+          git commit -m "tmp: fetched issue images"
+          git push
