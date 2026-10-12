@@ -28,7 +28,7 @@ const track = (name, data) => { try { if (window.fbq) window.fbq("track", name, 
 
 const Config = createContext(null);
 const useConfig = () => useContext(Config);
-const nav = (to) => { window.history.pushState({}, "", to); window.dispatchEvent(new PopStateEvent("popstate")); window.scrollTo(0, 0); };
+const nav = (to, replace) => { window.history[replace ? "replaceState" : "pushState"]({}, "", to); window.dispatchEvent(new PopStateEvent("popstate")); window.scrollTo(0, 0); };
 const Link = ({ to, className, children, onClick, ...rest }) => (
   <a href={to} className={className} {...rest} onClick={(e) => {
     if (onClick) onClick(e);
@@ -254,44 +254,23 @@ const PRESETS = [35, 65, 135, 265, 550, 1500];
 const CAP = 5190;
 const money = (n) => "$" + Number(n).toLocaleString("en-AU");
 
+// The yellow band: postcode in, straight on to the lookup page, which offers
+// a pick list for split postcodes or goes on to the electorate.
 function HomeLookup() {
   const [pc, setPc] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [res, setRes] = useState(null);
-  const [seat, setSeat] = useState(null);
-  const places = useFetch("/content/places.json", []);
-  const submit = async (e) => {
-    e.preventDefault(); setRes(null); setSeat(null); setBusy(true);
-    try {
-      const r = await findSeat(pc);
-      setRes(r);
-      if (r.kind === "one") {
-        const s = await fetch(`/api/seat?state=${r.state}&district=${encodeURIComponent(r.name)}`).then((x) => x.json()).catch(() => null);
-        setSeat(s && s.seat ? s : null);
-      }
-    } catch { setRes({ kind: "error", message: "Lookup failed. Try again." }); } finally { setBusy(false); }
+  const [err, setErr] = useState("");
+  const submit = (e) => {
+    e.preventDefault();
+    if (!/^\d{4}$/.test(pc)) return setErr(LOOKUP_MSG.invalid);
+    nav(`/seat?postcode=${pc}`);
   };
-  const msg = res && (LOOKUP_MSG[res.kind] || res.message);
-  const url = res && res.kind === "one" ? seatShare(res.state, res.name) : "";
   return (
     <section id="find" className="v-sec v-find">
       <div className="v-wrap v-narrow v-pad">
-        <p className="v-kicker">★ Help put Labor last</p>
-        <h2 className="v-h2 v-h2--find">Find your electorate and candidates</h2>
-        <PostcodeForm value={pc} onChange={(v) => { setPc(v); setRes(null); }} onSubmit={submit} busy={busy} />
-        {msg && <div className="v-notice"><p className="v-notice-h">{msg}</p><Link to="/issues">Read the issues</Link></div>}
-        {res && res.kind === "outside" && <OutsideBox />}
-        {res && res.kind === "multi" && <SeatOptions result={res} places={places.data} />}
-        {res && res.kind === "one" && (
-          <div className="v-result">
-            <p className="v-result-k">Your electorate</p>
-            <p className="v-result-name">{res.name}</p>
-            {seat && <p className="v-result-hook">{seat.copy.hook}</p>}
-            <div className="v-row"><Link to={seatPath(res.state, res.name)} className="v-btn v-btn--red v-btn--grow">See candidates and how to vote</Link></div>
-            <p className="v-result-k v-result-k--share">Tell your mates in {res.name}</p>
-            <ShareGrid url={url} msg={seatMsg(res.name, url)} subject={`How to vote in ${res.name}`} label={res.name} />
-          </div>
-        )}
+        <h2 className="v-h2 v-h2--find">How to Vote Labor Out:</h2>
+        <p className="v-find-lede">Enter your postcode to see who's running in your electorate and how to number your ballot.</p>
+        <PostcodeForm value={pc} onChange={(v) => { setPc(v); setErr(""); }} onSubmit={submit} />
+        {err && <p className="v-err">{err}</p>}
       </div>
     </section>
   );
@@ -410,25 +389,30 @@ function HomePage() {
 // ---------- find ----------
 function FindPage() {
   useTitle("Find your candidates");
-  const [pc, setPc] = useState("");
+  const given = (new URLSearchParams(window.location.search).get("postcode") || "").replace(/\D/g, "").slice(0, 4);
+  const [pc, setPc] = useState(given);
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState(null);
   const places = useFetch("/content/places.json", []);
-  const submit = async (e) => {
-    e.preventDefault(); setRes(null); setBusy(true);
+  const run = async (code) => {
+    setRes(null); setBusy(true);
     try {
-      const r = await findSeat(pc);
-      if (r.kind === "one") return nav(seatPath(r.state, r.name));
+      const r = await findSeat(code);
+      // One electorate: go straight there, replacing this step so Back
+      // returns to where they typed the postcode.
+      if (r.kind === "one") return nav(seatPath(r.state, r.name), !!given);
       setRes(r);
     } catch { setRes({ kind: "error", message: "Lookup failed. Try again." }); } finally { setBusy(false); }
   };
+  useEffect(() => { if (given) run(given); }, []);
+  const submit = (e) => { e.preventDefault(); run(pc); };
   const msg = res && (LOOKUP_MSG[res.kind] || res.message);
   return (
     <Page>
       <section className="v-sec v-find-page">
         <div className="v-wrap v-narrow v-pad">
           <p className="v-kicker">★ Find your candidates</p>
-          <h1 className="v-h1 v-h1--navy">Find your electorate and candidates</h1>
+          <h1 className="v-h1 v-h1--navy">How to Vote Labor Out</h1>
           <PostcodeForm value={pc} onChange={(v) => { setPc(v); setRes(null); }} onSubmit={submit} busy={busy} />
           <p className="v-hint">Just the four digits. We never ask for or store your street address.</p>
           {msg && <p className="v-err">{msg}</p>}
@@ -478,63 +462,98 @@ function HTVCard({ electorate, rows, drawDate }) {
     </div>
   );
 }
-function SeatMap({ state, name }) {
-  const { data } = useFetch(`/api/boundary?state=${state}&district=${encodeURIComponent(name)}`, [state, name]);
-  if (!data) return <div className="v-map" aria-hidden="true" />;
-  const [x0, y0, x1, y1] = data.bbox;
-  const k = Math.cos(((y0 + y1) / 2) * Math.PI / 180);
-  const W = (x1 - x0) * k, H = y1 - y0, pad = Math.max(W, H) * 0.06;
-  const d = data.rings.map((r) => "M" + r.map(([x, y]) => `${((x - x0) * k).toFixed(5)},${(y1 - y).toFixed(5)}`).join("L") + "Z").join("");
-  return (
-    <div className="v-map">
-      <svg viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`Boundary map of ${name}`}>
-        <path d={d} fill="rgba(20,62,101,0.18)" stroke="#143E65" strokeWidth={Math.max(W, H) * 0.006} strokeLinejoin="round" />
-      </svg>
-      <span className="v-map-credit">Boundary: ABS ASGS 2024, CC BY 4.0</span>
-    </div>
-  );
+// Party colours, close to each party's own.
+const PARTY_COLOURS = [
+  [/labor/i, "#E13A3A"], [/liberal|coalition/i, "#1C4F9C"], [/national/i, "#006644"], [/greens/i, "#10A34A"],
+  [/one nation/i, "#F36C21"], [/socialist/i, "#B0122A"], [/family first/i, "#6B2C91"], [/animal justice/i, "#0B7F8A"],
+  [/sustainable/i, "#2E7D32"], [/western victoria/i, "#C99700"], [/libertarian/i, "#D4A20B"], [/shooters|farmers/i, "#8B5A2B"],
+  [/cannabis/i, "#3E8E41"],
+];
+const partyColour = (p) => (PARTY_COLOURS.find(([re]) => re.test(p || "")) || [null, "#5B574E"])[1];
+
+// Real maps: Leaflet over CARTO's OpenStreetMap tiles, with the seat's
+// boundary from /api/boundary on top. "hero" is a fixed, tinted backdrop;
+// "full" is the interactive map lower down the page.
+const TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const TILE_CREDIT = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+function SeatLeaflet({ boundary, variant, label }) {
+  const el = useRef(null);
+  useEffect(() => {
+    if (!boundary || !el.current || !window.L) return;
+    const L = window.L, hero = variant === "hero";
+    const map = L.map(el.current, {
+      zoomControl: !hero, attributionControl: !hero, dragging: !hero && !L.Browser.mobile, touchZoom: !hero,
+      scrollWheelZoom: false, doubleClickZoom: !hero, boxZoom: false, keyboard: !hero, tap: false, zoomSnap: 0.25,
+    });
+    L.tileLayer(TILES, { attribution: TILE_CREDIT, subdomains: "abcd", maxZoom: 18, detectRetina: true }).addTo(map);
+    const shape = L.polygon(boundary.rings.map((r) => r.map(([x, y]) => [y, x])), hero
+      ? { color: "#fff", weight: 3, fillColor: "#5FA8FF", fillOpacity: 0.28, interactive: false }
+      : { color: "#143E65", weight: 3, fillColor: "#143E65", fillOpacity: 0.16 }).addTo(map);
+    // On wide screens the hero shape sits in the right half, clear of the headline.
+    const fit = () => {
+      map.invalidateSize();
+      const wide = el.current.clientWidth >= 860;
+      map.fitBounds(shape.getBounds(), !hero ? { padding: [24, 24] } : wide ? { paddingTopLeft: [Math.round(el.current.clientWidth * 0.5), 30], paddingBottomRight: [40, 30] } : { padding: [30, 30] });
+    };
+    fit();
+    const again = setTimeout(fit, 250);
+    window.addEventListener("resize", fit);
+    return () => { clearTimeout(again); window.removeEventListener("resize", fit); map.remove(); };
+  }, [boundary, variant]);
+  return <div ref={el} className={`v-leaflet v-leaflet--${variant}`} role="img" aria-label={label} />;
 }
+// The page's main ask: first name and mobile for an election-day text.
+// Postcode comes from the lookup; anyone who arrived on a shared link is
+// asked for it here.
 function Reminder({ seat, state }) {
   const saved = store.get("fv_reminder");
-  const [mobile, setMobile] = useState("");
-  const [done, setDone] = useState(saved && saved.mobile ? saved.mobile : "");
+  const last = (() => { try { return JSON.parse(sessionStorage.getItem("fv_last_seat") || "{}"); } catch { return {}; } })();
+  const knownPc = /^\d{4}$/.test(last.postcode || "") ? last.postcode : "";
+  const [f, setF] = useState({ first_name: "", mobile: "", postcode: knownPc });
+  const [done, setDone] = useState(saved && saved.mobile ? saved : null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const name = seat.seat.name;
+  const up = (k, clean) => (e) => { setF((s) => ({ ...s, [k]: clean(e.target.value) })); setErr(""); };
   const submit = async (e) => {
     e.preventDefault(); setErr("");
-    const d = mobile.replace(/\s/g, "");
+    const d = f.mobile.replace(/\s/g, "");
+    if (!f.first_name.trim()) return setErr("Your first name, please.");
     if (!/^04\d{8}$/.test(d)) return setErr("Enter an Australian mobile number, like 0412 345 678.");
+    if (!/^\d{4}$/.test(f.postcode)) return setErr("Enter your four-digit postcode.");
     setBusy(true);
     try {
-      const last = (() => { try { return JSON.parse(sessionStorage.getItem("fv_last_seat") || "{}"); } catch { return {}; } })();
       const attr = getAttribution();
-      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mobile: d, consent_sms: true, postcode: last.postcode || "", seat_state: name, seat_region: seat.region ? seat.region.name : "", jurisdiction: state, source: "Reminder", ref: attr.ref || "", utm: attr }) });
+      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ first_name: f.first_name.trim(), mobile: d, postcode: f.postcode, consent_sms: true, seat_state: name, seat_region: seat.region ? seat.region.name : "", jurisdiction: state, source: "Reminder", ref: attr.ref || "", utm: attr }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
-      store.set("fv_reminder", { mobile, referral_code: j.referral_code || null, at: Date.now() });
+      const rec = { first_name: f.first_name.trim(), mobile: f.mobile, referral_code: j.referral_code || null, at: Date.now() };
+      store.set("fv_reminder", rec);
       track("Lead", { content_name: "Election day reminder" });
-      setDone(mobile);
+      setDone(rec);
     } catch (ex) { setErr(ex.message); } finally { setBusy(false); }
   };
   const url = seatShare(state, name);
   return (
-    <section className="v-sec v-remind">
+    <section className="v-sec v-remind" id="remind">
       <div className="v-wrap v-narrow v-pad-md">
         {!done ? (
           <>
             <h2 className="v-h2 v-h2--light v-h2--md">Don't forget on the day. We'll text you.</h2>
-            <form className="v-pc-form" onSubmit={submit}>
-              <input className="v-pc-input v-pc-input--tel" value={mobile} onChange={(e) => { setMobile(e.target.value.replace(/[^\d ]/g, "").slice(0, 12)); setErr(""); }} inputMode="tel" type="tel" autoComplete="tel" placeholder="Mobile number" aria-label="Mobile number" />
-              <button type="submit" className="v-btn v-btn--navy" disabled={busy}>{busy ? "One sec…" : "Remind me on election day"}</button>
+            <p className="v-remind-p">Tell us your first name and mobile and we'll text you on {dayMonth(seat.election.date)} with exactly how to vote Labor out in {name}.</p>
+            <form className="v-remind-form" onSubmit={submit} noValidate>
+              <input className="v-pc-input v-remind-in" value={f.first_name} onChange={up("first_name", (v) => v.slice(0, 60))} autoComplete="given-name" placeholder="First name" aria-label="First name" />
+              <input className="v-pc-input v-remind-in" value={f.mobile} onChange={up("mobile", (v) => v.replace(/[^\d ]/g, "").slice(0, 12))} inputMode="tel" type="tel" autoComplete="tel" placeholder="Mobile number" aria-label="Mobile number" />
+              {!knownPc && <input className="v-pc-input v-remind-in" value={f.postcode} onChange={up("postcode", (v) => v.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" autoComplete="postal-code" placeholder="Postcode" aria-label="Postcode" />}
+              <button type="submit" className="v-btn v-btn--navy v-remind-btn" disabled={busy}>{busy ? "One sec…" : "Remind me on election day"}</button>
             </form>
             {err && <p className="v-remind-err">{err}</p>}
-            <p className="v-remind-fine">We'll text you on {dayMonth(seat.election.date)} with your how-to-vote card. Reply STOP to opt out.</p>
+            <p className="v-remind-fine">One text on election day with your how-to-vote card. Reply STOP to opt out.</p>
           </>
         ) : (
           <>
             <p className="v-kicker v-kicker--pink">★ You're on the list</p>
-            <h2 className="v-h2 v-h2--light v-h2--md">We'll text {done} on {dayMonth(seat.election.date)}.</h2>
+            <h2 className="v-h2 v-h2--light v-h2--md">Thanks{done.first_name ? `, ${done.first_name}` : ""}. We'll text {done.mobile} on {dayMonth(seat.election.date)}.</h2>
             <p className="v-remind-p">Now the bit that wins it. Most people in {name} haven't heard any of this. Send them this page.</p>
             <ShareGrid url={url} msg={seatMsg(name, url)} subject={`How to vote in ${name}`} label={name} />
           </>
@@ -545,6 +564,7 @@ function Reminder({ seat, state }) {
 }
 function SeatPage({ state, district }) {
   const { loading, data, error } = useFetch(state && district ? `/api/seat?state=${state}&district=${encodeURIComponent(district)}` : null, [state, district]);
+  const boundary = useFetch(state && district ? `/api/boundary?state=${state}&district=${encodeURIComponent(district)}` : null, [state, district]).data;
   useTitle(data ? `How to vote in ${data.seat.name}` : "Your electorate");
   useEffect(() => { if (data) track("ViewContent", { content_name: `Seat ${data.seat.name}`, content_category: "how-to-vote" }); }, [data]);
   if (!state || !district) return <FindPage />;
@@ -563,7 +583,9 @@ function SeatPage({ state, district }) {
   return (
     <Page>
       <section className="v-sec v-res-head">
-        <div className="v-wrap v-pad-head">
+        <SeatLeaflet boundary={boundary} variant="hero" label={`Map of the ${name} electorate`} />
+        <div className="v-res-tint" />
+        <div className="v-wrap v-pad-head v-res-inner">
           <p className="v-res-k">Your electorate{region ? ` · ${region} Region` : ""}</p>
           <h1 className="v-res-name">{name}</h1>
           <p className="v-res-hook">{data.copy.hook}</p>
@@ -571,6 +593,30 @@ function SeatPage({ state, district }) {
         </div>
       </section>
       <Reminder seat={data} state={state} />
+      <section className="v-sec v-sec--white">
+        <div className="v-wrap v-narrow v-pad">
+          <h2 className="v-h2 v-h2--tight">{after ? `Candidates in ${name}` : `Who's standing in ${name} so far`}</h2>
+          <p className="v-muted v-mb">{after ? "In how-to-vote order. Labor last." : `Sitting MP and declared candidates. The full list comes after the ballot draw${data.copy.ballot_draw ? ` on ${dayMonth(data.copy.ballot_draw)}` : ""}.`}</p>
+          {list.length ? (
+            <div className="v-cands">
+              {list.map((c, i) => (
+                <article key={c.name} className="v-cand" style={{ "--party": partyColour(c.party) }}>
+                  <div className="v-cand-top">
+                    <div className="v-cand-ini">{initials(c.name)}</div>
+                    <div className="v-cand-id">
+                      {after && <span className="v-cand-num">Vote {i + 1}</span>}
+                      <p className="v-cand-name">{c.name}</p>
+                      <p className="v-cand-party">{c.party}</p>
+                    </div>
+                  </div>
+                  <p className="v-cand-prof">{profileLine(c, name)}</p>
+                  {stances[c.name] && <p className="v-cand-stance"><strong>On the transmission lines:</strong> {stances[c.name]}</p>}
+                </article>
+              ))}
+            </div>
+          ) : <p className="v-p">No candidates announced yet for {name}.</p>}
+        </div>
+      </section>
       <section className="v-sec v-sec--paper">
         <div className="v-wrap v-pad v-htv-grid">
           <div>
@@ -597,33 +643,12 @@ function SeatPage({ state, district }) {
           <HTVCard electorate={name} rows={after ? list : []} drawDate={data.copy.ballot_draw} />
         </div>
       </section>
-      <section className="v-sec v-sec--white">
-        <div className="v-wrap v-pad">
-          <h2 className="v-h2 v-h2--tight">{after ? `Candidates in ${name}` : `Who's standing in ${name} so far`}</h2>
-          <p className="v-muted v-mb">{after ? "In how-to-vote order. Labor last." : `Sitting MP and declared candidates. The full list comes after the ballot draw${data.copy.ballot_draw ? ` on ${dayMonth(data.copy.ballot_draw)}` : ""}.`}</p>
-          {list.length ? (
-            <div className="v-cands">
-              {list.map((c, i) => (
-                <article key={c.name} className={"v-cand" + (isLabor(c.party) ? " is-labor" : "")}>
-                  <div className="v-cand-top">
-                    <div className="v-cand-ini">{initials(c.name)}</div>
-                    <div className="v-cand-id">
-                      {after && <span className="v-cand-num">Vote {i + 1}</span>}
-                      <p className="v-cand-name">{c.name}</p>
-                      <p className="v-cand-party">{c.party}</p>
-                    </div>
-                  </div>
-                  <p className="v-cand-prof">{profileLine(c, name)}</p>
-                  {stances[c.name] && <p className="v-cand-stance"><strong>On the transmission lines:</strong> {stances[c.name]}</p>}
-                </article>
-              ))}
-            </div>
-          ) : <p className="v-p">No candidates announced yet for {name}.</p>}
-        </div>
-      </section>
       <section className="v-sec v-sec--paper">
         <div className="v-wrap v-pad v-map-grid">
-          <SeatMap state={state} name={name} />
+          <div className="v-map-real">
+            <SeatLeaflet boundary={boundary} variant="full" label={`Map of the ${name} electorate`} />
+            <span className="v-map-credit">Boundary: ABS ASGS 2024, CC BY 4.0</span>
+          </div>
           <div>
             <h2 className="v-h2 v-h2--tight">The {name} electorate</h2>
             {data.copy.places.length > 0 && <><p className="v-p">Main towns and suburbs:</p><p className="v-places">{data.copy.places.join(", ")}</p></>}
