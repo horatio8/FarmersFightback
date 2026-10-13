@@ -240,7 +240,7 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
     const issues = c.groups.flatMap((g) => g.issues);
     assert.deepStrictEqual(issues.map((i) => i.id), ["issue-1", "issue-2", "issue-3", "issue-4", "issue-5", "issue-6"]);
     for (const i of issues) { assert.ok(i.title && i.body && i.face, i.id + " needs title, body and face caption"); assert.ok(i.proofs.length >= 2, i.id + " needs at least two proofs"); for (const p of i.proofs) assert.ok(p.text && p.href, i.id + " proof needs text and href"); }
-    assert.ok(issues.find((i) => i.id === "issue-3").help, "issue 3 carries the help line");
+    assert.ok(issues.every((i) => i.punch && i.image), "every issue has a punch line and an image");
     assert.strictEqual(issues.find((i) => i.id === "issue-6").extra_from, "farmland_figure");
     assert.strictEqual(typeof c.farmland_figure, "string");
   });

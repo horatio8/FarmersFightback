@@ -79,6 +79,7 @@ html { scroll-behavior: smooth; }
 .fv .iss-slot-empty span { max-width: 90%; }
 .fv .iss-card-body { display: flex; flex-direction: column; gap: 14px; padding: 4px 22px 24px; }
 .fv .iss-h3 { margin: 0; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; line-height: 1; font-size: clamp(26px, 3.4vw, 38px); color: #143E65; text-wrap: balance; letter-spacing: 0; }
+.fv .iss-punch { margin: 0; font-family: "Source Serif 4", Georgia, serif; font-style: italic; font-weight: 700; color: #D61F1F; font-size: clamp(20px, 2.4vw, 24px); line-height: 1.25; }
 .fv .iss-body { margin: 0; font-size: 19px; }
 .fv .iss-proofs { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .fv .iss-proof { display: flex; gap: 12px; padding: 10px 12px; background: #FBF7EE; border-radius: 4px; border-top: 3px solid #143E65; font-size: 16px; }

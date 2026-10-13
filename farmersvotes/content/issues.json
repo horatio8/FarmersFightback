@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy for /issues (the 'Why put Labor last' page). Edit text, photos and source links here; the page reads this file at load. An issue with no image shows the grey placeholder with its 'face' caption. proofs[].href of '#' renders a Source link that goes nowhere until a real URL is pasted in. teaser and home_label feed the six cards on the home page. tab_label and tab_order set the City / Country toggle.",
+  "_comment": "Copy for /issues and the six home cards. Each issue: title, punch (one angry line under the title), body, teaser (home card), image, face (alt text and placeholder caption), proofs [{text, href}]. Every proof links a source checked on 13 Oct 2026. tab_label and tab_order set the City / Country toggle; extra_from shows a site-wide figure under an issue when set.",
   "title": "Why put Labor last",
   "lede": "Six reasons we cannot miss this chance to vote Labor out.",
   "step_eyebrow": "★ Step one",
@@ -14,77 +14,87 @@
     {
       "key": "farmers",
       "label": "Devastating farmers",
-      "sub": "Fines, towers and a Spanish multinational on your land",
+      "sub": "Towers, fines and foreign giants on your land",
       "issues": [
         {
           "id": "issue-1",
-          "face": "Photo: Mary and Colin at their gate",
-          "caption": "Mary and Colin, both 80. Fined $814 at their own gate.",
-          "image": "/assets/issues/mary-colin.jpg",
-          "title": "Labor is devastating Aussie farmers",
-          "body": "Mary and Colin are 80. They stood at their own gate and Labor's agency fined them $814. Twelve farmers have been fined. Then Labor handed VNI West to Iberdrola, a Spanish multinational, to build, own and operate.",
+          "title": "Labor has devastated 180 years of generational Aussie farming",
+          "punch": "Families have farmed this land since 1834. Labor's ripping it up for towers.",
+          "body": "Labor took away your right to appeal renewable projects at VCAT, then gave its agency the power to fine you for blocking your own gate. VNI West has blown out from $3.6 billion to $7.6 billion, and AEMO warns it could hit $11.4 billion. Labor has even admitted one renewable energy zone was \"no longer required\" and scrapped it.",
+          "teaser": "Appeal rights gone, entry fines in, and VNI West costing double.",
+          "image": "/assets/issues/country-heritage.jpg",
+          "face": "An old bluestone homestead and shed with transmission towers marching across the wheat behind it",
+          "caption": "Generations of farming, cut through for a transmission line.",
           "proofs": [
             {
-              "text": "Twelve farmers fined by VicGrid for standing on their own land.",
-              "href": "#"
+              "text": "14 March 2024: Labor removed third party appeals at VCAT for all new renewable projects.",
+              "href": "https://www.premier.vic.gov.au/faster-approvals-more-jobs-and-lower-power-prices"
             },
             {
-              "text": "Mary and Colin's infringement notice: $814.",
-              "href": "#"
+              "text": "Landholders who block VicGrid entry now face a penalty of up to $8,000.",
+              "href": "https://www.weeklytimesnow.com.au/news/politics/landholder-penalties-curbed-as-vicgrid-bill-passes/news-story/a75176400e735b3013f7f6ea2daa02e3"
             },
             {
-              "text": "VNI West handed to Iberdrola to build, own and operate.",
-              "href": "https://www.abc.net.au/news"
+              "text": "AEMO: VNI West estimate more than doubled to $7.6 billion, and could reach $11.4 billion.",
+              "href": "https://esdnews.com.au/vni-west-costs-projected-to-double-to-more-than-7-billion/"
+            },
+            {
+              "text": "The Minister scrapped the central north renewable energy zone as \"no longer required\".",
+              "href": "https://www.portnews.com.au/story/9350906/major-transmission-project-paused-after-public-outcry/"
             }
-          ],
-          "teaser": "Twelve farmers fined. VNI West handed to a Spanish multinational."
+          ]
         },
         {
           "id": "issue-2",
-          "face": "Photo: farmer at a council meeting or inquiry",
-          "caption": "534 submissions. 493 from locals and farming families.",
-          "image": "/assets/issues/parliament-steps.jpg",
-          "title": "Labor never listens",
-          "body": "Buloke, Gannawarra and Northern Grampians councils formally oppose VNI West. 534 submissions went to the inquiry, 493 from locals and farming families. Labor removed third-party appeal rights in March 2024. Asked to fix the fines, the Minister said it was \"not my remit\".",
+          "title": "Labor is sacrificing Aussie farms to foreign corporations",
+          "punch": "Aussie paddocks. Spanish and Canadian profits. Your power bill pays.",
+          "body": "VNI West is being developed by Spanish giant Iberdrola, lined up to build, own and operate it. The Western Renewables Link belongs to AusNet, owned by a consortium led by Canada's Brookfield, which told its own investors the line is a roughly $4 billion project with \"potential returns\". Farmers lose their land while foreign shareholders get their snouts in the trough.",
+          "teaser": "Spanish and Canadian giants own the lines. Snouts in the trough.",
+          "image": "/assets/issues/country-foreign.jpg",
+          "face": "Pigs with their snouts in a feed trough, wind turbines on the skyline",
+          "caption": "Snouts in the trough.",
           "proofs": [
             {
-              "text": "Three councils formally oppose VNI West.",
-              "href": "#"
+              "text": "VicGrid: if Iberdrola meets expectations, it will be appointed to build, own and operate VNI West.",
+              "href": "https://www.vicgrid.com.au/about/news/news-stories/iberdrola-australia-appointed-to-help-delivery-of-vni-west"
             },
             {
-              "text": "534 inquiry submissions, 493 from locals.",
-              "href": "#"
+              "text": "AusNet, owner of most of Victoria's transmission network, sold to a Canadian Brookfield led consortium.",
+              "href": "https://www.pv-magazine-australia.com/2022/01/31/ausnet-shareholders-overwhelmingly-approve-18-billion-sale/"
             },
             {
-              "text": "Third-party appeal rights removed, March 2024.",
-              "href": "#"
-            },
-            {
-              "text": "Minister: fixing the fines is \"not my remit\".",
-              "href": "#"
+              "text": "Brookfield fund report: the Western Renewables Link is a \"~A$4 billion\" project, with \"potential returns\".",
+              "href": "https://privatewealth.brookfield.com/sites/default/files/funds/tender-offer-funds/financial-reports/brookfield-infrastructure-income-fund-annual-report.pdf"
             }
-          ],
-          "teaser": "Three councils and 493 local submissions against it. Appeal rights removed."
+          ]
         },
         {
           "id": "issue-3",
-          "face": "Photo: farmer alone in a paddock, towers behind",
-          "caption": "The counselling is paid for by the agency sending the fines.",
-          "image": "/assets/issues/drone-farmland.jpg",
-          "help": true,
-          "title": "Labor is evil: destroying family farmers and then paying for counselling",
-          "body": "The farmer mental health program is \"funded by VicGrid\". That is the same agency sending the fines and the towers. Break them, then pay someone to talk to them about it.",
+          "title": "Labor downright ignored farmers",
+          "punch": "More than 10,000 emails to the Premier. His answer? Fines.",
+          "body": "Farmers and the Victorians who back them have sent more than 10,000 emails to Premier Ben Carroll's office. As one of his first acts as Premier, twelve farmers opposing VNI West were hit with $814 fines for refusing VicGrid access to their own land. Dingwall farmers Mary and Colin Fenton, in their eighties, were among them.",
+          "teaser": "More than 10,000 emails to the Premier. Twelve farmers fined $814 anyway.",
+          "image": "/assets/issues/country-ignored.jpg",
+          "face": "A padlocked farm gate with a notice tied to it and a survey flag in the paddock",
+          "caption": "Ignored, then fined at their own gate.",
           "proofs": [
             {
-              "text": "Farmer mental health program \"funded by VicGrid\".",
-              "href": "#"
+              "text": "Ben Carroll became Victoria's Premier on 28 July 2026.",
+              "href": "https://www.thenewdaily.com.au/news/state/vic/2026/07/28/carroll-new-victorian-premier"
             },
             {
-              "text": "VicGrid issues the infringement notices.",
-              "href": "#"
+              "text": "Twelve farmers opposing VNI West fined $814 for refusing VicGrid access.",
+              "href": "https://www.emmakealy.com/media/cruel-first-act-from-new-premier/"
+            },
+            {
+              "text": "Twelve landholders, including Mary and Colin Fenton, refuse to pay the $814 fines.",
+              "href": "https://www.stockandland.com.au/story/9337697/victorian-landholders-will-not-pay-fines-issued-by-government/"
+            },
+            {
+              "text": "More than 10,000 emails sent to the Premier's office.",
+              "href": "https://www.farmersfightback.com/everyvictorian"
             }
-          ],
-          "teaser": "The mental health program is funded by the agency sending the fines."
+          ]
         }
       ],
       "home_label": "For the country",
@@ -94,69 +104,92 @@
     {
       "key": "cities",
       "label": "Devastating cities",
-      "sub": "Power bills, groceries and an $11 billion blowout",
+      "sub": "Debt, broken promises and a fragile food supply",
       "issues": [
         {
           "id": "issue-4",
-          "face": "Photo: transmission towers over farmland",
-          "caption": "VNI West: $3.9 billion promised. Up to $11.4 billion now.",
-          "image": "/assets/issues/vni-construction.jpg",
-          "title": "Labor will bankrupt Victoria",
-          "body": "A 200% cost increase on VNI West alone. It was $3.9 billion when it was sold to Victorians. It is now $7.6 billion and as much as $11.4 billion. The Western Renewables Link was $479 million in 2019. It is $4 billion now.",
+          "title": "Labor has bankrupted Victoria and you will pay",
+          "punch": "$175 billion in debt. About $24 million a day in interest.",
+          "body": "Labor's own budget has net debt hitting $175.6 billion this financial year and $199.3 billion by 2030, with interest of $8.9 billion this year rising to more than $32 million a day. The West Gate Tunnel blew out from $5.5 billion to $10.2 billion. Victoria has been downgraded by S&P and Moody's, and Labor replaced the fire services levy with a bigger emergency services levy on every property.",
+          "teaser": "Net debt heading to $199 billion. Interest over $32 million a day.",
+          "image": "/assets/issues/city-bankrupt.jpg",
+          "face": "Unpaid bills, a calculator and an empty wallet on a kitchen table",
+          "caption": "Billions in debt, and you pay the interest.",
           "proofs": [
             {
-              "text": "VNI West now $7.6 billion to $11.4 billion. ABC, 1 August 2025.",
-              "href": "https://www.abc.net.au/news"
+              "text": "2026/27 Budget: net debt $175.6b (2026/27) rising to $199.3b (2029/30); interest $8.9b rising to $11.8b, over $32m a day.",
+              "href": "https://www.canberratimes.com.au/story/9239306/downside-risks-warning-as-state-debt-edges-to-200b/"
             },
             {
-              "text": "Western Renewables Link: $479 million (2019) to $4 billion.",
-              "href": "#"
+              "text": "West Gate Tunnel: initially $5.5 billion, blown out to $10.2 billion.",
+              "href": "https://www.abc.net.au/news/2025-12-14/west-gate-tunnel-opens-melbourne-western-suburbs/106140782"
+            },
+            {
+              "text": "S&P cut Victoria from AAA to AA; Moody's stripped the AAA, then cut again to Aa2.",
+              "href": "https://www.canberratimes.com.au/story/7756978/victorias-credit-rating-downgraded-again/"
+            },
+            {
+              "text": "PBO: Suburban Rail Loop East and North put at $200.3 billion to build and operate.",
+              "href": "https://pbo.vic.gov.au/response/2820"
             }
-          ],
-          "teaser": "VNI West: $3.9 billion promised, up to $11.4 billion now. A 200% blowout."
+          ]
         },
         {
           "id": "issue-5",
-          "face": "Photo: the Premier at a press conference, or the Gazette notice",
-          "caption": "Two numbers for the same line: $1.5 billion here, $4 billion in New York.",
-          "image": "/assets/issues/police-farmers.jpg",
-          "title": "Labor lied about their renewables policies",
-          "body": "In September the government was still telling Victorians the Western Renewables Link would cost $1.5 billion. Its owner had already told the New York Stock Exchange $4 billion. The Premier ordered a cost review on 15 September that reports after the election. The planning approval was gazetted on 30 September anyway.",
+          "title": "Labor lied about its renewables policies",
+          "punch": "$1.5 billion to you. $4 billion to the owner's investors.",
+          "body": "Labor kept quoting $1.53 billion for the Western Renewables Link, while the owner's Canadian parent told its investors about $4 billion. On 15 September the Premier ordered a cost review that reports after the election, then the planning approval was gazetted on 30 September anyway. Labor promised the SEC would keep bills down, yet electricity prices rose 13.2% in the year to August.",
+          "teaser": "$1.5 billion here. About $4 billion to the owner's investors. Approved anyway.",
+          "image": "/assets/issues/city-renewables.jpg",
+          "face": "Giant transmission towers right behind a row of suburban houses",
+          "caption": "The renewables promise, broken.",
           "proofs": [
             {
-              "text": "Owner's filing to the New York Stock Exchange: $4 billion.",
-              "href": "#"
+              "text": "Premier orders a Western Renewables Link cost review on 15 September, reporting by the end of 2026; PwC put the cost at $1.53b.",
+              "href": "https://www.portnews.com.au/story/9350906/major-transmission-project-paused-after-public-outcry/"
             },
             {
-              "text": "Cost review ordered 15 September, reports after the election.",
-              "href": "#"
+              "text": "Brookfield fund annual report: the line is a \"~A$4 billion\" project.",
+              "href": "https://privatewealth.brookfield.com/sites/default/files/funds/tender-offer-funds/financial-reports/brookfield-infrastructure-income-fund-annual-report.pdf"
             },
             {
-              "text": "Planning approval gazetted 30 September. Gazette S554, Amendment GC209.",
-              "href": "https://www.gazette.vic.gov.au"
+              "text": "Western Renewables Link planning approval gazetted 30 September 2026.",
+              "href": "https://www.westernrenewableslink.com.au/planning/planning-scheme-amendment/"
+            },
+            {
+              "text": "ABS: electricity prices up 13.2% in the year to August 2026.",
+              "href": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release"
             }
-          ],
-          "teaser": "$1.5 billion to Victorians. $4 billion to the New York Stock Exchange."
+          ]
         },
         {
           "id": "issue-6",
-          "face": "Photo: a family at the checkout or reading a power bill",
-          "caption": "The $275 power bill promise. Still waiting.",
-          "image": "/assets/hero.jpg",
           "extra_from": "farmland_figure",
-          "title": "Labor is pushing up your power bill and your groceries",
-          "body": "The cost of the transmission lines lands on every power bill in Victoria. The $275 power bill cut Labor promised? Still waiting. And less farmland means dearer food on the shelf.",
+          "title": "Labor has put Victoria's food supply under threat",
+          "punch": "Pave the paddocks, string up the towers, then wonder why shelves empty.",
+          "body": "Victoria is Australia's biggest food and fibre exporter, 28% of the national total. Yet the VFF estimates more than 100,000 hectares of farmland has gone to housing in ten years, while Labor declares renewable energy zones and runs transmission over prime country. When panic buying hit in March, shelves emptied fast: our food chain is fragile, and Labor keeps chipping away at the farms that feed it.",
+          "teaser": "Australia's biggest food exporter, losing farmland to housing estates and power lines.",
+          "image": "/assets/issues/city-food.jpg",
+          "face": "A supermarket aisle of empty shelves and an abandoned trolley",
+          "caption": "A fragile food chain, and fewer farms to feed it.",
           "proofs": [
             {
-              "text": "Transmission costs are recovered through network charges on every bill.",
-              "href": "#"
+              "text": "Victoria: Australia's largest food and fibre exporter, $22.1 billion, 28% of the national total.",
+              "href": "https://djsir.vic.gov.au/news-and-articles/victorian-food-and-fibre-exports-lead-the-nation-again"
             },
             {
-              "text": "The $275 power bill promise.",
-              "href": "#"
+              "text": "VFF: more than 100,000 hectares of farmland lost to housing in the past 10 years.",
+              "href": "https://www.sheepcentral.com/victorian-farmers-seek-community-support-with-petition/"
+            },
+            {
+              "text": "Five renewable energy zones declared, plus an offshore zone.",
+              "href": "https://www.vicgrid.com.au/transmission-planning/renewable-energy-zones"
+            },
+            {
+              "text": "March 2026: panic buying emptied fuel bowsers and supermarket shelves.",
+              "href": "https://www.abc.net.au/news/2026-03-24/panic-buying-fuel-groceries-iran-covid-playing-it-safe/106489580"
             }
-          ],
-          "teaser": "Transmission costs land on every bill. Less farmland means dearer food."
+          ]
         }
       ],
       "home_label": "For the city",
