@@ -1,0 +1,21 @@
+name: fetch
+on:
+  push:
+    branches: [tmp/fetch-photo-images]
+permissions:
+  contents: write
+jobs:
+  f:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p img
+          curl -fsSL -o img/1.png https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh/hf_20261013_000410_928ddbc2-1b9f-431b-b341-29286503cad5.png
+          curl -fsSL -o img/2.png https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh/hf_20261013_000410_fb5914ae-c09c-4224-bbeb-7deb6eeda926.png
+          curl -fsSL -o img/3.png https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh/hf_20261013_000411_084b2348-cc50-400e-b74c-2b58354edc65.png
+          curl -fsSL -o img/4.png https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh/hf_20261013_000410_7848a0fd-ffad-4b8a-9217-4e231fb647cc.png
+          curl -fsSL -o img/5.png https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh/hf_20261013_000410_ca4809f0-f2cf-4140-b1e1-f4c6ebb776e0.png
+          curl -fsSL -o img/6.png https://d8j0ntlcm91z4.cloudfront.net/user_3E4SG58FMXDgySHYCaVgc0Meahh/hf_20261013_000410_e69048d4-24be-4af8-91bd-19d0e709eea1.png
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git add img && git commit -m "images" && git push
