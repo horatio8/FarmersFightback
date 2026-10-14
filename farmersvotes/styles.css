@@ -218,7 +218,7 @@ html { scroll-behavior: smooth; }
 .fv .v-hero-h1 span { display: block; }
 /* Same face as "farmers" and "our future" in the farmersfightback.com hero:
    Source Serif 4, bold italic, sentence case. */
-.fv .v-hero-serif { font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif; font-style: italic; font-weight: 700; text-transform: none; letter-spacing: -0.025em; line-height: 1; color: #FF2B2B; margin-top: .06em; text-shadow: 0 2px 12px rgba(14,45,74,.55); }
+.fv .v-hero-serif { font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif; font-style: italic; font-weight: 700; text-transform: none; letter-spacing: -0.025em; line-height: 1; color: #A11D33; margin-top: .06em; text-shadow: 0 2px 12px rgba(14,45,74,.55); }
 .fv .v-hero-lede { margin: 20px 0 0; font-size: clamp(20px, 2.6vw, 28px); font-weight: 600; max-width: 640px; }
 
 /* home: lookup */
@@ -303,7 +303,7 @@ html { scroll-behavior: smooth; }
 .fv .v-res-name { margin: 0; font-family: Oswald, sans-serif; font-weight: 700; text-transform: uppercase; line-height: .95; font-size: clamp(46px, 9vw, 92px); letter-spacing: 0; }
 .fv .v-res-hook { margin: 12px 0 0; font-size: clamp(19px, 2.4vw, 24px); max-width: 760px; text-wrap: pretty; }
 /* "Put Labor Last in" over the seat name, in the home hero's red serif italic. */
-.fv .v-res-pll { display: block; margin: 0 0 .12em; font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif; font-style: italic; font-weight: 700; text-transform: none; letter-spacing: -0.02em; line-height: 1.05; font-size: clamp(30px, 5.2vw, 58px); color: #FF2B2B; }
+.fv .v-res-pll { display: block; margin: 0 0 .12em; font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif; font-style: italic; font-weight: 700; text-transform: none; letter-spacing: -0.02em; line-height: 1.05; font-size: clamp(30px, 5.2vw, 58px); color: #A11D33; }
 /* Sign-up panel: the home page's yellow band. */
 .fv .v-remind { background: #F7C325; color: #143E65; border-bottom: 6px solid #143E65; }
 .fv .v-remind .v-h2 { color: #143E65; }

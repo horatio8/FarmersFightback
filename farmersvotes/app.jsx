@@ -428,7 +428,18 @@ function FindPage() {
 // ---------- result ----------
 const initials = (n) => n.split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 3).join("").toUpperCase();
 const isLabor = (p) => /labor/i.test(p || "");
-const isOneNation = (p) => (/one nation/i.test(p || "") ? 1 : 0);
+// Display order on every seat page: One Nation, Liberal (and Coalition),
+// National, everyone else, Labor, Greens. Ties keep the sitting member first.
+const partyRank = (p) => {
+  const s = String(p || "");
+  if (/one nation/i.test(s)) return 0;
+  if (/liberal|coalition/i.test(s) && !/libertarian/i.test(s)) return 1;
+  if (/national/i.test(s)) return 2;
+  if (/labor/i.test(s)) return 4;
+  if (/greens/i.test(s)) return 5;
+  return 3;
+};
+const byPartyRank = (a, b) => (partyRank(a.party) - partyRank(b.party)) || ((b.incumbent ? 1 : 0) - (a.incumbent ? 1 : 0));
 function profileLine(c, seatName) {
   if (c.retiring) return `Sitting ${c.party} member for ${seatName}. Retiring at this election.`;
   if (c.incumbent) return `Sitting ${c.party} member for ${seatName}.`;
@@ -581,9 +592,7 @@ function SeatPage({ state, district }) {
   const after = ballot.length > 0;
   const stances = data.copy.stances || {};
   const byName = Object.fromEntries(data.lower.map((c) => [c.name, c]));
-  const list = after
-    ? ballot.map((b) => ({ ...(byName[b.name] || {}), ...b }))
-    : [...data.lower].sort((a, b) => (isOneNation(b.party) - isOneNation(a.party)) || ((b.incumbent ? 1 : 0) - (a.incumbent ? 1 : 0)));
+  const list = (after ? ballot.map((b) => ({ ...(byName[b.name] || {}), ...b })) : [...data.lower]).sort(byPartyRank);
   return (
     <Page>
       <section className="v-sec v-res-head">
