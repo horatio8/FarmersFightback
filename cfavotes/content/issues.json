@@ -1,0 +1,171 @@
+{
+  "_comment": "Copy for /issues and the six home cards. Same shape as Farmers Votes. Every proof links a source checked on 14 Oct 2026. Claims that come from CFA Volunteers Group are attributed to them in the text. Images are AI-generated illustrations: label them as such in any paid ad.",
+  "title": "Why scrap the fire tax",
+  "lede": "Six reasons the Emergency Services and Volunteers Fund levy has to go.",
+  "step_eyebrow": "★ Step one",
+  "step_question": "Where do you live?",
+  "farmland_figure": "",
+  "help_line": "If this is hitting hard: Lifeline 13 11 14 · Beyond Blue 1300 22 4636",
+  "cta_find": "Who backs volunteers?",
+  "cta_donate": "Donate",
+  "band_heading": "Angry? Good. Make it count.",
+  "band_cta": "Donate",
+  "groups": [
+    {
+      "key": "volunteers",
+      "label": "Taxing our volunteers",
+      "tab_label": "Country",
+      "tab_order": 1,
+      "home_label": "Taxing the people who protect us",
+      "sub": "Brigades, farms and country towns",
+      "issues": [
+        {
+          "id": "issue-1",
+          "title": "Volunteers are paying to protect you",
+          "punch": "They give their time for free. The government sends them a bill.",
+          "body": "The levy lands on every property, including the homes and farms of the volunteers who turn out to fires. There is a rebate, but volunteers say it is hard to get and not everyone qualifies.",
+          "teaser": "A tax on the people who fight our fires for nothing.",
+          "image": "/assets/issues/tax.jpg",
+          "face": "A volunteer firefighter in yellow gear reading a rates notice at a farmhouse kitchen table",
+          "caption": "Illustration.",
+          "proofs": [
+            {
+              "text": "Grassmere captain John Houston: the volunteer rebate application is \"17 pages long\", and some volunteers don't qualify.",
+              "href": "https://www.standard.net.au/story/9036785/cfa-volunteers-silent-protest-against-fire-levy-in-port-fairy/"
+            },
+            {
+              "text": "CFA Volunteers Group: people who joined the CFA after 31 May 2025 can't claim the rebate, and the farm rebate is capped at $1,710.",
+              "href": "https://cfavolunteersgroupinc.com.au/"
+            },
+            {
+              "text": "The government's own rebate page: one rebate per person per year, claimed through the CFA portal.",
+              "href": "https://service.vic.gov.au/find-services/housing-and-property/eligible-volunteers-rebate-scheme"
+            }
+          ]
+        },
+        {
+          "id": "issue-2",
+          "title": "Crews still go to fires in outdated trucks",
+          "punch": "Billions raised. Single-cab tankers still on the road.",
+          "body": "A large share of the south-west's fleet is still single-cab tankers. The 2026 budget put $148.8 million into CFA upgrades over ten years. Volunteers say that's what's needed every year, and that much of it refurbishes old trucks.",
+          "teaser": "Ten years of funding for what's needed every year.",
+          "image": "/assets/issues/tanker.jpg",
+          "face": "An ageing single-cab fire tanker parked outside a corrugated-iron shed",
+          "caption": "Illustration.",
+          "proofs": [
+            {
+              "text": "October 2026: volunteers warn ageing single-cab tankers put crews at risk going into the 2026-27 season.",
+              "href": "https://www.standard.net.au/story/9364043/cfa-volunteers-warn-ageing-fleet-leaves-them-expendable/"
+            },
+            {
+              "text": "April 2026 budget: $148.8 million for CFA upgrades. Volunteers called it \"a slap in the face\": about 15 to 20 tankers a year.",
+              "href": "https://www.standard.net.au/story/9232262/cfa-volunteers-slam-state-budget-spend-for-new-trucks-stations/"
+            },
+            {
+              "text": "ABC: it is not clear how much of the new CFA funding comes from the levy.",
+              "href": "https://www.abc.net.au/news/2026-04-23/victorian-government-announces-new-cfa-funding/106594188"
+            }
+          ]
+        },
+        {
+          "id": "issue-3",
+          "title": "Farmers were hit hardest",
+          "punch": "They tried to triple it. They only backed off when the trucks rolled in.",
+          "body": "In 2025 the government planned to triple the levy on farmers. After the rallies it backflipped and froze the farm rate. Volunteers don't trust the freeze to survive the election.",
+          "teaser": "A planned tripling, a backflip, and a freeze nobody trusts.",
+          "image": "/assets/issues/volunteers.jpg",
+          "face": "A line of volunteer firefighters holding hoses against a grass fire at dusk",
+          "caption": "Illustration.",
+          "proofs": [
+            {
+              "text": "The government intended to triple the farm levy in 2025 and backflipped after the public outcry.",
+              "href": "https://www.stockandland.com.au/story/9292032/cfa-volunteers-hundreds-rally-in-bendigo-against-emergency-services-tax/"
+            },
+            {
+              "text": "The farm rate freeze runs to at least mid-2030. John Houston: \"To claim they're going to freeze it and keep it frozen, that's not going to happen.\"",
+              "href": "https://www.bordermail.com.au/story/9289791/jacinta-allan-bendigo-rally-pushes-to-axe-emergency-levy/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cities",
+      "label": "Every Victorian pays",
+      "tab_label": "City",
+      "tab_order": 2,
+      "home_label": "It's on your rates notice too",
+      "sub": "Suburbs, towns and every ratepayer",
+      "issues": [
+        {
+          "id": "issue-4",
+          "title": "It's on your rates notice too",
+          "punch": "A state tax, collected by your council, on every property in Victoria.",
+          "body": "The levy replaced the old fire services levy and widened it. Councils are forced to collect it on their rates notices. The money goes straight to the state, with no promise it comes back to your local brigade.",
+          "teaser": "Your council collects it. The state keeps it.",
+          "image": "/assets/issues/city.jpg",
+          "face": "A suburban Melbourne letterbox with a rates notice under a smoky orange sky",
+          "caption": "Illustration.",
+          "proofs": [
+            {
+              "text": "The government says scrapping the levy would take more than $1.6 billion a year out of the budget. That's what it takes from Victorians.",
+              "href": "https://www.premier.vic.gov.au/liberals-and-nationals-will-cut-cfa"
+            },
+            {
+              "text": "Indigo Shire: councils are legally required to collect it, all of it goes to the state, and there's no guarantee money raised locally supports local services.",
+              "href": "https://engage.indigoshire.vic.gov.au/state-government-proposed-volunteers-levy/faqs"
+            },
+            {
+              "text": "Victoria's councils formally opposed being made the collector of the levy.",
+              "href": "https://www.sheepcentral.com/councils-stop-short-of-refusing-to-collect-controversial-fire-levy/"
+            }
+          ]
+        },
+        {
+          "id": "issue-5",
+          "title": "Where does the money go?",
+          "punch": "It carries the volunteers' name. Volunteers say they see little of it.",
+          "body": "The government says every dollar goes back into emergency services. Volunteers want to see the breakdown: how much reaches the CFA, how much is new money, and how much is just relabelled.",
+          "teaser": "Called a volunteers fund. Volunteers want the receipts.",
+          "image": "/assets/issues/shed.jpg",
+          "face": "Volunteer firefighters at a brigade meeting in a country fire shed",
+          "caption": "Illustration.",
+          "proofs": [
+            {
+              "text": "CFA Volunteers Group estimates only about 20 cents in every dollar raised goes to the CFA, and says it costs $12 million to administer.",
+              "href": "https://cfavolunteersgroupinc.com.au/"
+            },
+            {
+              "text": "The government's line: \"Every dollar of the Fund is invested back into the emergency services that help keep Victorians safe.\"",
+              "href": "https://www.premier.vic.gov.au/more-funding-our-emergency-services"
+            },
+            {
+              "text": "Volunteers have called for transparency on how much funding is genuinely new versus raised through the levy.",
+              "href": "https://www.standard.net.au/story/9232262/cfa-volunteers-slam-state-budget-spend-for-new-trucks-stations/"
+            }
+          ]
+        },
+        {
+          "id": "issue-6",
+          "title": "After the 2026 fires, they still won't listen",
+          "punch": "Thousands of firefighters on the steps of Parliament. The levy stays.",
+          "body": "After the 2026 summer fires, 12,500 people signed a petition in under three weeks and Parliament opened an inquiry into fire services funding. Volunteers rallied again on 9 October. The levy is still on every rates notice.",
+          "teaser": "An inquiry, a petition and three rallies later, nothing's changed.",
+          "image": "/assets/issues/rally.jpg",
+          "face": "Volunteer firefighters and farmers rallying on the steps of Parliament House in Melbourne",
+          "caption": "Illustration.",
+          "proofs": [
+            {
+              "text": "February 2026: a petition with more than 12,500 signatures in under three weeks; Parliament opens an inquiry into the summer fires and fire services funding.",
+              "href": "https://pakenhamnews.starcommunity.com.au/news/2026-02-07/call-for-cfa-volunteers-submissions-bush-fire-parliamentary-inquiry/"
+            },
+            {
+              "text": "9 October 2026: volunteers rally at Parliament House for safer trucks and the removal of the levy.",
+              "href": "https://cranbournenews.starcommunity.com.au/news/2026-10-09/cfa-volunteers-travel-from-officer-to-parliament-rally/"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4987 @@
+{
+ "source": "https://en.wikipedia.org/wiki/Candidates_of_the_2026_Victorian_state_election",
+ "fetched_at": "2026-09-12T06:21:11.963Z",
+ "candidates": [
+  {
+   "house": "assembly",
+   "electorate": "Albert Park",
+   "held_by": "Labor",
+   "name": "Nina Taylor",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Albert Park",
+   "held_by": "Labor",
+   "name": "Sonya Semmens",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/sonya-semmens"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Albert Park",
+   "held_by": "Labor",
+   "name": "Tammy Lindrum",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/tammy-lindrum"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Albert Park",
+   "held_by": "Labor",
+   "name": "Colleen Bolger",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/colleen-bolger"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ashwood",
+   "held_by": "Labor",
+   "name": "Matt Fregon",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ashwood",
+   "held_by": "Labor",
+   "name": "Theo Zographos",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/backroom-baz-jess-wilsons-public-snub-reveals-deep-party-division/news-story/87d9022c55a6f2f61ef9f0ed48ac3935?amp&nk=28f5a6a5d1966c2f77da070e0c1a7035-1779153598"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ashwood",
+   "held_by": "Labor",
+   "name": "Tim Randall",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/tim-randall"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ashwood",
+   "held_by": "Labor",
+   "name": "Jacob van der Eynden",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/jacob-van-der-eynden"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ashwood",
+   "held_by": "Labor",
+   "name": "Hitendra Joshi",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.joshi4ashwood.au/news/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bass",
+   "held_by": "Labor",
+   "name": "Chris Buckingham",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.sgst.com.au/news/labor-names-chris-buckingham-as-its-candidate-for-bass"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bass",
+   "held_by": "Labor",
+   "name": "Rochelle Halstead",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.sgst.com.au/liberals-rochelle-halstead-aims-to-take-care-of-unfinished-business/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bass",
+   "held_by": "Labor",
+   "name": "Sophie Thorn",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/sophie-thorn"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bass",
+   "held_by": "Labor",
+   "name": "Nikole Schellekens",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/nikole-schellekens"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bass",
+   "held_by": "Labor",
+   "name": "Chris Jobe",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/chris-jobe"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bayswater",
+   "held_by": "Labor",
+   "name": "Julie Buxton",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/JacksonTaylorMP/posts/ive-got-some-exciting-news-meet-julie-buxton-shes-labors-candidate-for-bayswater/1466501571933900/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bayswater",
+   "held_by": "Labor",
+   "name": "David Kitchen",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/david-kitchen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bayswater",
+   "held_by": "Labor",
+   "name": "Jess Kennedy",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/jess-kennedy"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bayswater",
+   "held_by": "Labor",
+   "name": "Alec Ferguson",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/alec-ferguson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bayswater",
+   "held_by": "Labor",
+   "name": "Gary Coombs",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bellarine",
+   "held_by": "Labor",
+   "name": "Alison Marchant",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bellarine",
+   "held_by": "Labor",
+   "name": "Callum Whitehead",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://timesnewsgroup.com.au/surfcoasttimes/news/new-liberal-challenger-takes-aim-at-bellarine/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bellarine",
+   "held_by": "Labor",
+   "name": "Mitch Pope",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/mitch-pope"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bellarine",
+   "held_by": "Labor",
+   "name": "Dom Williams",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/GeelongSocialistAlliance/posts/pfbid02P8pkTy5tUVHJKYbo66EngeEDh6FoExTBdffhmVToT9PMup4qCeDiqHNhnGTso2P9l"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Benambra",
+   "held_by": "Liberal",
+   "name": "Steve Martin",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.wangarattachronicle.com.au/news/politics-and-government/libs-choose-steve-martin-for-benambra-tmtzgaqr"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Benambra",
+   "held_by": "Liberal",
+   "name": "Graham Parton",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/graham-parton"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Benambra",
+   "held_by": "Liberal",
+   "name": "Alex Vangalen",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/alex-vangalen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Benambra",
+   "held_by": "Liberal",
+   "name": "Lachie McKeeman",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://drlachiemckeeman.com.au/",
+    "https://vic.animaljusticeparty.org/mike-fuery"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Benambra",
+   "held_by": "Liberal",
+   "name": "Mike Fruery",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://drlachiemckeeman.com.au/",
+    "https://vic.animaljusticeparty.org/mike-fuery"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo East",
+   "held_by": "Labor",
+   "name": "Andrew Lethlean",
+   "party": "National",
+   "incumbent": false,
+   "sources": [
+    "https://www.abc.net.au/news/2026-04-04/andrew-lethlean-to-challenge-jacinta-allan-victorian-election/106531610"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo East",
+   "held_by": "Labor",
+   "name": "Michael Tolhurst",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/michael-tolhurst"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo East",
+   "held_by": "Labor",
+   "name": "Cheryl Hawken",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/cheryl-hawken"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo East",
+   "held_by": "Labor",
+   "name": "Denali Norsen",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/denali-norsen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo West",
+   "held_by": "Labor",
+   "name": "Liza Shaw",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/liza-shaw"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo West",
+   "held_by": "Labor",
+   "name": "Tayne Shalevski",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/tayne-shalevski"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bentleigh",
+   "held_by": "Labor",
+   "name": "Nick Staikos",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bentleigh",
+   "held_by": "Labor",
+   "name": "Tynan Putt",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/tynan-putt"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bentleigh",
+   "held_by": "Labor",
+   "name": "Liam Kruger",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/liam-kruger"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Berwick",
+   "held_by": "Liberal",
+   "name": "Rana Khan",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/rana-khan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Berwick",
+   "held_by": "Liberal",
+   "name": "Brad Battin",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Berwick",
+   "held_by": "Liberal",
+   "name": "Roshan De Silva",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/RoshanDeSilvaGreens"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Berwick",
+   "held_by": "Liberal",
+   "name": "Michael Piastrino",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/nalinda-amarasiri-gunawardana"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Berwick",
+   "held_by": "Liberal",
+   "name": "||Nalinda Amarasiri Gunawardana",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/nalinda-amarasiri-gunawardana"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Berwick",
+   "held_by": "Liberal",
+   "name": "Vincenzo De Paolis",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.familyfirstparty.org.au/de_paolis_2026"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Paul Hamer",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Sally Houguet",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/sally-houguet"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Aaron Qin",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/aaron-qin"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Jamie Baker",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/jamie-baker"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Saravina Afaj",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/saravina-afaj"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Heena Sinha Cheung",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://heena4boxhill.com.au/about",
+    "https://alliesincolour.substack.com/p/the-real-australiaindia-relationship",
+    "https://www.familyfirstparty.org.au/vic_2026"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Box Hill",
+   "held_by": "Labor",
+   "name": "Peter Fagg",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://heena4boxhill.com.au/about",
+    "https://alliesincolour.substack.com/p/the-real-australiaindia-relationship",
+    "https://www.familyfirstparty.org.au/vic_2026"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brighton",
+   "held_by": "Liberal",
+   "name": "Bridget Mullahy",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/bridget-mullahy"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brighton",
+   "held_by": "Liberal",
+   "name": "James Newbury",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brighton",
+   "held_by": "Liberal",
+   "name": "Ebony Bain",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/ebony-bain"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brighton",
+   "held_by": "Liberal",
+   "name": "Jessica Smith",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/jessica-smith"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Broadmeadows",
+   "held_by": "Labor",
+   "name": "Kathleen Matthews-Ward",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Broadmeadows",
+   "held_by": "Labor",
+   "name": "Maryam Nasim",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://www.instagram.com/p/Db2PuUuOIhT/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Broadmeadows",
+   "held_by": "Labor",
+   "name": "Mutullah Can Yolbulan",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/mutullah-can-yolbulan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Broadmeadows",
+   "held_by": "Labor",
+   "name": "Sue Bolton",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/photo?fbid=1357585603067352&set=pb.100064477760752.-2207520000",
+    "https://vic.animaljusticeparty.org/lower-house"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Broadmeadows",
+   "held_by": "Labor",
+   "name": "Candace Feild",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/photo?fbid=1357585603067352&set=pb.100064477760752.-2207520000",
+    "https://vic.animaljusticeparty.org/lower-house"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brunswick",
+   "held_by": "Greens",
+   "name": "Gabriel Steger",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://brunswickvoice.com.au/labor-opts-for-fresh-face-in-battle-for-brunswick/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brunswick",
+   "held_by": "Greens",
+   "name": "Adam Pulford",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://www.instagram.com/reels/DVzXgb2E_7u/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brunswick",
+   "held_by": "Greens",
+   "name": "Naomi Farmer",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/naomi-farmer"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bulleen",
+   "held_by": "Liberal",
+   "name": "Matthew Guy",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bulleen",
+   "held_by": "Liberal",
+   "name": "Tomas Lightbody",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/tomas-lightbody"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bulleen",
+   "held_by": "Liberal",
+   "name": "Dimitrios Tafidis",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/dimitrios-tafidis"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bundoora",
+   "held_by": "Labor",
+   "name": "Colin Brooks",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bundoora",
+   "held_by": "Labor",
+   "name": "Chris Parr",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/chris-parr"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bundoora",
+   "held_by": "Labor",
+   "name": "Nina Laitala",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/nina-laitala"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bundoora",
+   "held_by": "Labor",
+   "name": "Sagar Sanyal",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/sagar-sanyal"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bundoora",
+   "held_by": "Labor",
+   "name": "Melissa Murphy-Webster",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://melissamurphywebster.com.au/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Carrum",
+   "held_by": "Labor",
+   "name": "Sonya Kilkenny",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/cookie-monster-union-how-a-backroom-deal-for-victoria-s-upper-house-got-pushed-out-to-2026-20251009-p5n1ga.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Carrum",
+   "held_by": "Labor",
+   "name": "Jeff Shelley",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/jeff-shelley"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Carrum",
+   "held_by": "Labor",
+   "name": "Reema Ababneh",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/reema-ababneh"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Caulfield",
+   "held_by": "Liberal",
+   "name": "Mikaela Stafrace",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/johnbergermp/posts/it-was-great-to-join-labor-candidate-mikaela-stafrace-at-the-caufield-campaign-l/956988920429651/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Caulfield",
+   "held_by": "Liberal",
+   "name": "David Southwick",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Caulfield",
+   "held_by": "Liberal",
+   "name": "Angel Dolejsí",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/angel-dolejsi"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Caulfield",
+   "held_by": "Liberal",
+   "name": "Malak Ababneh",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/malak-ababneh"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Caulfield",
+   "held_by": "Liberal",
+   "name": "Geneviève Gilbert",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Clarinda",
+   "held_by": "Labor",
+   "name": "Meng Heang Tak",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Clarinda",
+   "held_by": "Labor",
+   "name": "Conor Boyd-Eedle",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/conor-boyd-eedle"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Clarinda",
+   "held_by": "Labor",
+   "name": "Kit Message",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/kit-message"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Cranbourne",
+   "held_by": "Labor",
+   "name": "Pauline Richards",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Cranbourne",
+   "held_by": "Labor",
+   "name": "Annalise Mercer",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/annalise-mercer"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Cranbourne",
+   "held_by": "Labor",
+   "name": "Reem Yunis",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/reem-yunis"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Cranbourne",
+   "held_by": "Labor",
+   "name": "Shane Foreman",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Croydon",
+   "held_by": "Liberal",
+   "name": "Richard Farr",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.instagram.com/p/DXaO8XDkuo1/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Croydon",
+   "held_by": "Liberal",
+   "name": "Grant Hutchinson",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/grant-hutchinson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Croydon",
+   "held_by": "Liberal",
+   "name": "Lini Fernando",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/lini-fernando"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Croydon",
+   "held_by": "Liberal",
+   "name": "Beth Grimshaw",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/beth-grimshaw"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Croydon",
+   "held_by": "Liberal",
+   "name": "David Vanderwolf",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Dandenong",
+   "held_by": "Labor",
+   "name": "Gabrielle Williams",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Dandenong",
+   "held_by": "Labor",
+   "name": "Catherine D'Arcy",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://endeavourhillshallamdoveton.starcommunity.com.au/news/2026-08-19/dandenong-rally-calls-for-solidarity-against-rising-racism/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Dandenong",
+   "held_by": "Labor",
+   "name": "Glenda Wright",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/glenda-wright"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Dandenong",
+   "held_by": "Labor",
+   "name": "Jack McMahon",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/jack-mcmahon"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eildon",
+   "held_by": "Liberal",
+   "name": "Cindy McLeish",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eildon",
+   "held_by": "Liberal",
+   "name": "Talia Gulpilil",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/talia-gulpilil"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eildon",
+   "held_by": "Liberal",
+   "name": "Chloe Bond",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/chloe-bond"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eltham",
+   "held_by": "Labor",
+   "name": "Vicki Ward",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eltham",
+   "held_by": "Labor",
+   "name": "Paul Byrnes",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/paul-byrnes"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eltham",
+   "held_by": "Labor",
+   "name": "Rachel Busbridge",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/rachel-busbridge"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eltham",
+   "held_by": "Labor",
+   "name": "Jessie Weatherly",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eltham",
+   "held_by": "Labor",
+   "name": "Maeve Riches",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/maeve-riches"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "held_by": "Labor",
+   "name": "Katerine Theodosis",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/katerine-theodosis"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "held_by": "Labor",
+   "name": "Tommy Le Deux",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.instagram.com/p/DXkqhxej9JV/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "held_by": "Labor",
+   "name": "James Williams",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/james-williams"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "held_by": "Labor",
+   "name": "John Barnes",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://www.news24.com.au/politics/australian-politics/former-essendon-premiership-player-john-barnes-tops-latest-list-of-one-nations-victorian-election-candidates/news-story/d046fce8f931f1e91b896e145ca398ab"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "held_by": "Labor",
+   "name": "Michal Kedem",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/michal-kedem"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "held_by": "Labor",
+   "name": "Oscar Yildiz",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.theaustralian.com.au/commentary/victoria-ink/the-jacinta-allanjess-wilson-meeting-that-never-happened/news-story/49af1b88a278e8458b4b4057e56c1ca5"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Michaela Settle",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Emma Muir",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/JessWilsonMP/videos/with-emma-muir-on-my-team-here-in-eureka-we-will-deliver-a-5-billion-roads-plan-/27702665569387315/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Sam McColl",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/sam-mccoll"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Paul Ballinger",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/paul-ballinger"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Andy Raven",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/andy-raven"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Wendy Morrison",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/wendy-morrison"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Eureka",
+   "held_by": "Labor",
+   "name": "Ian Harkness",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/wendy-morrison"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Euroa",
+   "held_by": "National",
+   "name": "Annabelle Cleeland",
+   "party": "National",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Euroa",
+   "held_by": "National",
+   "name": "Alysia Regan",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/alysia-regan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Euroa",
+   "held_by": "National",
+   "name": "Steve Campbell",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/steve-campbell"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Evelyn",
+   "held_by": "Liberal",
+   "name": "Analise Sherlock",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://x.com/Maggie_Perry6/status/2092034501283328049"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Evelyn",
+   "held_by": "Liberal",
+   "name": "Bridget Vallence",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Evelyn",
+   "held_by": "Liberal",
+   "name": "Andrew Henley",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/andrew-henley"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Evelyn",
+   "held_by": "Liberal",
+   "name": "Jan Heald",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/jan-heald"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Footscray",
+   "held_by": "Labor",
+   "name": "Katie Hall",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Footscray",
+   "held_by": "Labor",
+   "name": "Elena Pereyra",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/elena-pereyra"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Footscray",
+   "held_by": "Labor",
+   "name": "Alexander Lopez",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/alexander-lopez"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Footscray",
+   "held_by": "Labor",
+   "name": "Jasmine Duff",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/jasmine-duff"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Footscray",
+   "held_by": "Labor",
+   "name": "Minh Quan Nguyen",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/",
+    "https://web.archive.org/web/20260706203544/https://thewestparty.org.au/local-representation/",
+    "https://www.theage.com.au/politics/victoria/independents-target-labor-heartland-as-major-party-support-slumps-20260713-p60ews.html",
+    "https://jessmarsh.com.au/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Footscray",
+   "held_by": "Labor",
+   "name": "Jess Marsh",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/",
+    "https://web.archive.org/web/20260706203544/https://thewestparty.org.au/local-representation/",
+    "https://www.theage.com.au/politics/victoria/independents-target-labor-heartland-as-major-party-support-slumps-20260713-p60ews.html",
+    "https://jessmarsh.com.au/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Frankston",
+   "held_by": "Labor",
+   "name": "Paul Edbrooke",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Frankston",
+   "held_by": "Labor",
+   "name": "Bree Ambry",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/bree-ambry"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Frankston",
+   "held_by": "Labor",
+   "name": "Katie Goulas",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/katie-goulas"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Frankston",
+   "held_by": "Labor",
+   "name": "Andrew Cheeseman",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/andrew-cheeseman"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Frankston",
+   "held_by": "Labor",
+   "name": "Chrysten Abraham",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://chrysten4fkn.com",
+    "https://vic.animaljusticeparty.org/julie-harman"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Frankston",
+   "held_by": "Labor",
+   "name": "Julie Harman",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://chrysten4fkn.com",
+    "https://vic.animaljusticeparty.org/julie-harman"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Geelong",
+   "held_by": "Labor",
+   "name": "Christine Couzens",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Geelong",
+   "held_by": "Labor",
+   "name": "Andy Pobjoy",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Geelong",
+   "held_by": "Labor",
+   "name": "Emilie Flynn",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://timesnewsgroup.com.au/geelongtimes/news/greens-lock-in-geelong-challenger/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Geelong",
+   "held_by": "Labor",
+   "name": "Bree Vanderpol",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/bree-vanderpol"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Geelong",
+   "held_by": "Labor",
+   "name": "Brenden Grull",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland East",
+   "held_by": "National",
+   "name": "Sonny Stephens",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/sonny-stephens"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland East",
+   "held_by": "National",
+   "name": "Gemma Rendell",
+   "party": "National",
+   "incumbent": false,
+   "sources": [
+    "https://vic.nationals.org.au/candidates-gemma-rendell/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland East",
+   "held_by": "National",
+   "name": "Ash Munro",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/ash-munro"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland East",
+   "held_by": "National",
+   "name": "Steve Goodman",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/steve-goodman"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland South",
+   "held_by": "National",
+   "name": "Danny O'Brien",
+   "party": "National",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland South",
+   "held_by": "National",
+   "name": "Zave Evans",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/zave-evans"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland South",
+   "held_by": "National",
+   "name": "Bianca Wilke",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/bianca-wilke"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Glen Waverley",
+   "held_by": "Labor",
+   "name": "John Mullahy",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Glen Waverley",
+   "held_by": "Labor",
+   "name": "Jacky Sun",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/watch/?v=1677439927113045"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Glen Waverley",
+   "held_by": "Labor",
+   "name": "Toyo White",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/toyo-white"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Glen Waverley",
+   "held_by": "Labor",
+   "name": "Nicholas Siow",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/nicholas-siow"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Greenvale",
+   "held_by": "Labor",
+   "name": "Iwan Walters",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Greenvale",
+   "held_by": "Labor",
+   "name": "Jim Overend",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/jim-overend"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Greenvale",
+   "held_by": "Labor",
+   "name": "Kirill Smelov",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/kirill-smelov"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hastings",
+   "held_by": "Labor",
+   "name": "Paul Mercurio",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hastings",
+   "held_by": "Labor",
+   "name": "Frank Schiefler",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/frank-schiefler"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hastings",
+   "held_by": "Labor",
+   "name": "Isaac Willoughby",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/isaac-willoughby"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hastings",
+   "held_by": "Labor",
+   "name": "Chloe Coulson",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/chloe-coulson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hawthorn",
+   "held_by": "Liberal",
+   "name": "Clive Crosby",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/clive-crosby"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hawthorn",
+   "held_by": "Liberal",
+   "name": "John Pesutto",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hawthorn",
+   "held_by": "Liberal",
+   "name": "Kylie Rocha",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/kylie-rocha"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hawthorn",
+   "held_by": "Liberal",
+   "name": "Tess McEnearney",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/tess-mcenearney"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Hawthorn",
+   "held_by": "Liberal",
+   "name": "Shima Ibuki",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/she-once-backed-liberal-leader-john-pesutto-now-shima-ibuki-plans-to-take-his-seat-20260421-p5zpsm.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ivanhoe",
+   "held_by": "Labor",
+   "name": "Anthony Carbines",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ivanhoe",
+   "held_by": "Labor",
+   "name": "Oscar Lopez",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/oscar-lopez"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ivanhoe",
+   "held_by": "Labor",
+   "name": "Nina Crawley",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/nina-crawley"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ivanhoe",
+   "held_by": "Labor",
+   "name": "Ben Milne",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/ben-milne"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ivanhoe",
+   "held_by": "Labor",
+   "name": "Michelle Kennedy",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kalkallo",
+   "held_by": "Labor",
+   "name": "Ros Spence",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kalkallo",
+   "held_by": "Labor",
+   "name": "Courtney Millett",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/courtney-millett"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kew",
+   "held_by": "Liberal",
+   "name": "David Sun",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/david-sun?sourcePage=/our-team/david-sun"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kew",
+   "held_by": "Liberal",
+   "name": "Jess Wilson",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kew",
+   "held_by": "Liberal",
+   "name": "Jackie Carter",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/jackie-carter"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kew",
+   "held_by": "Liberal",
+   "name": "Samantha Lincolne",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/samantha-lincolne"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kew",
+   "held_by": "Liberal",
+   "name": "Sophie Torney",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/wilson-faces-fresh-teal-threat-as-voters-abandon-major-parties-20260319-p5qb6e.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kew",
+   "held_by": "Liberal",
+   "name": "Ann Seeley",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/wilson-faces-fresh-teal-threat-as-voters-abandon-major-parties-20260319-p5qb6e.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kororoit",
+   "held_by": "Labor",
+   "name": "Luba Grigorovitch",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kororoit",
+   "held_by": "Labor",
+   "name": "Joyce McDonald",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/joyce-mcdonald"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Kororoit",
+   "held_by": "Labor",
+   "name": "Rayan Hassan",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/rayan-hassan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Lara",
+   "held_by": "Labor",
+   "name": "Ella George",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Lara",
+   "held_by": "Labor",
+   "name": "Theresa Slater",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/theresa-slater"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Lara",
+   "held_by": "Labor",
+   "name": "Oliver Randall",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/oliver-randall"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Lara",
+   "held_by": "Labor",
+   "name": "Sarah Hathway",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Laverton",
+   "held_by": "Labor",
+   "name": "Sarah Connolly",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Laverton",
+   "held_by": "Labor",
+   "name": "Lucy Nguyen",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/lucy-nguyen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Laverton",
+   "held_by": "Labor",
+   "name": "Van Thanh Rudd",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/van-thanh-rudd"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Lowan",
+   "held_by": "National",
+   "name": "Emma Kealy",
+   "party": "National",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Lowan",
+   "held_by": "National",
+   "name": "Lee Ann Elms",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Macedon",
+   "held_by": "Labor",
+   "name": "Annette Death",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/annette-death"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Macedon",
+   "held_by": "Labor",
+   "name": "Kate Kendall",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://midlandexpress.com.au/latest-news/2026/07/21/macedon-ranges-mayor-kate-kendall-has-been-announced-the-victorian-liberal-candidate-for-the-seat-of-macedon-at-novembers-state-election/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Macedon",
+   "held_by": "Labor",
+   "name": "Marley McRae McLeod",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/marley-mcrae-mcleod"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Macedon",
+   "held_by": "Labor",
+   "name": "Catherine Wilson",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/catherine-wilson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Macedon",
+   "held_by": "Labor",
+   "name": "Natalie Korinfsky",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/natalie-korinfsky"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Malvern",
+   "held_by": "Liberal",
+   "name": "Amelia Hamer",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/amelia-hamer-holds-off-rivals-to-win-malvern-preselection-20251123-p5nhon.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Malvern",
+   "held_by": "Liberal",
+   "name": "Georgia Katsikis",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/georgia-katsikis"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Malvern",
+   "held_by": "Liberal",
+   "name": "Gavin Leonard",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/gavin-leonard"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melbourne",
+   "held_by": "Greens",
+   "name": "Davydd Griffiths",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/councillordavyddgriffiths/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melbourne",
+   "held_by": "Greens",
+   "name": "Ellen Sandell",
+   "party": "Greens",
+   "incumbent": true,
+   "sources": [
+    "https://greens.org.au/vic/candidates",
+    "https://web.archive.org/web/20260203010328/https://greens.org.au/vic/candidates"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melbourne",
+   "held_by": "Greens",
+   "name": "Jordan van den Lamb",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/victorian-socialist-candidate-for-melbourne-jordan-van-den-lamb-pushing-to-fix-broken-housing-system/news-story/cfbb401944f573b44124b96dc3420110",
+    "https://www.victoriansocialists.org.au/candidates/jordan-van-den-lamb"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melbourne",
+   "held_by": "Greens",
+   "name": "Naomi Jones",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/naomi-jones"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "held_by": "Labor",
+   "name": "Broden Borg",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/JacintaAllanBendigoEast/posts/im-proud-to-announce-broden-borg-labor-for-melton-is-our-victorian-labor-candida/1422234416377249/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "held_by": "Labor",
+   "name": "Jarrod Bingham",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/jarrod-bingham"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "held_by": "Labor",
+   "name": "Veronika Levchenkova",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/veronika-levchenkova"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "held_by": "Labor",
+   "name": "Matthew Katselis",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "held_by": "Labor",
+   "name": "Fiona Adin-Jones",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/fiona-adinjames"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "held_by": "Labor",
+   "name": "Marlene West",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/fiona-adinjames"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mildura",
+   "held_by": "National",
+   "name": "Jade Benham",
+   "party": "National",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mildura",
+   "held_by": "National",
+   "name": "Katie Clements",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/katie-clements"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mildura",
+   "held_by": "National",
+   "name": "Guy Cooper",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/guy-cooper"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mildura",
+   "held_by": "National",
+   "name": "Renee Nayef",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/renee-nayef"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mildura",
+   "held_by": "National",
+   "name": "Ali Cupper",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.abc.net.au/news/2026-08-07/changes-flagged-for-victorian-councillors-seeking-election/106837080"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mill Park",
+   "held_by": "Labor",
+   "name": "Elizabeth Nealy",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/elizabeth-nealy"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mill Park",
+   "held_by": "Labor",
+   "name": "Joel Drysdale",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/joel-drysdale"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mill Park",
+   "held_by": "Labor",
+   "name": "Jesse Lambourn",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/jesse-lambourn"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Monbulk",
+   "held_by": "Labor",
+   "name": "Daniela De Martino",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Monbulk",
+   "held_by": "Labor",
+   "name": "Clare Fitzmaurice",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.miragenews.com/fitzmaurice-chosen-as-liberal-candidate-for-1639945/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Monbulk",
+   "held_by": "Labor",
+   "name": "Merran Blair",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/dr-merran-blair"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Monbulk",
+   "held_by": "Labor",
+   "name": "Alyssa Wormald",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/alyssa-wormald"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Monbulk",
+   "held_by": "Labor",
+   "name": "Craig Manners",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/alyssa-wormald"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mordialloc",
+   "held_by": "Labor",
+   "name": "Tim Richardson",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mordialloc",
+   "held_by": "Labor",
+   "name": "Paul O'Halloran",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/paul-ohalloran"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mordialloc",
+   "held_by": "Labor",
+   "name": "Alex Breskin",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/alex-breskin"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mordialloc",
+   "held_by": "Labor",
+   "name": "Mahee Hossain",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/mahee-hossain"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mornington",
+   "held_by": "Liberal",
+   "name": "Chris Crewther",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mornington",
+   "held_by": "Liberal",
+   "name": "Ashli Beards",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/ashli-beards"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Morwell",
+   "held_by": "National",
+   "name": "Tracie Lund",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://latrobevalleyexpress.com.au/news/2026/05/05/lund-officially-running-for-labor/",
+    "https://web.archive.org/web/20260519014717/https://latrobevalleyexpress.com.au/news/2026/05/05/lund-officially-running-for-labor/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Morwell",
+   "held_by": "National",
+   "name": "Martin Cameron",
+   "party": "National",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Morwell",
+   "held_by": "National",
+   "name": "Rochelle Hine",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/rochelle-hine"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mulgrave",
+   "held_by": "Labor",
+   "name": "Eden Foster",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mulgrave",
+   "held_by": "Labor",
+   "name": "Charles Tran",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mulgrave",
+   "held_by": "Labor",
+   "name": "Paul Schofield",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/paul-schofield"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mulgrave",
+   "held_by": "Labor",
+   "name": "Connor Buchanan",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/connor-buchanan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Murray Plains",
+   "held_by": "National",
+   "name": "Brett Hosking",
+   "party": "National",
+   "incumbent": false,
+   "sources": [
+    "https://www.loddonherald.com.au/it-s-official-hosking-gets-nationals-nod-2026-04-22"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Murray Plains",
+   "held_by": "National",
+   "name": "Zoe Cook",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/zoe-cook"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Murray Plains",
+   "held_by": "National",
+   "name": "Garner Smith",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narracan",
+   "held_by": "Liberal",
+   "name": "Jannette Langley",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.thegazette.com.au/jannette-langley-running-for-narracan/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narracan",
+   "held_by": "Liberal",
+   "name": "Wayne Farnham",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narracan",
+   "held_by": "Liberal",
+   "name": "Alyssa Weaver",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/candidates/narracan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narracan",
+   "held_by": "Liberal",
+   "name": "Ben Lucas",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narracan",
+   "held_by": "Liberal",
+   "name": "Moss Page",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/moss-page"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narracan",
+   "held_by": "Liberal",
+   "name": "Geoff Dethlefs",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren North",
+   "held_by": "Labor",
+   "name": "Belinda Wilson",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren North",
+   "held_by": "Labor",
+   "name": "Hayley Perry",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/hayley-perry"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren North",
+   "held_by": "Labor",
+   "name": "Sebastian Crutchfield",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/sebastian-crutchfield"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren South",
+   "held_by": "Labor",
+   "name": "Stefan Koomen",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/stefan-koomen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren South",
+   "held_by": "Labor",
+   "name": "Norliah Peterson",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/norliah-peterson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren South",
+   "held_by": "Labor",
+   "name": "Jill Nambu",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/jill-nambu"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren South",
+   "held_by": "Labor",
+   "name": "Trevor Hammond",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren South",
+   "held_by": "Labor",
+   "name": "Bailey McCracken",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/bailey-mccracken"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Narre Warren South",
+   "held_by": "Labor",
+   "name": "Scott Watson",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://cranbournenews.starcommunity.com.au/news/2026-06-29/independent-bid-for-narre-warren-south/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Nepean",
+   "held_by": "Liberal",
+   "name": "Anthony Marsh",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": [
+    "https://vic.liberal.org.au/team/anthony-marsh"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Nepean",
+   "held_by": "Liberal",
+   "name": "Sianan Healy",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/sianan-healy"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Nepean",
+   "held_by": "Liberal",
+   "name": "Darren Hercus",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://www.abc.net.au/news/2026-05-02/victoria-nepean-by-election-results/106633600",
+    "https://web.archive.org/web/20260505025819/https://www.abc.net.au/news/2026-05-02/victoria-nepean-by-election-results/106633600"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Niddrie",
+   "held_by": "Labor",
+   "name": "Ben Carroll",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Niddrie",
+   "held_by": "Labor",
+   "name": "Samantha Byrne",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/samantha-byrne"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Niddrie",
+   "held_by": "Labor",
+   "name": "Brendan Laws",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/brendan-laws"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Niddrie",
+   "held_by": "Labor",
+   "name": "Elisabetta Celata",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/elisabettacelata/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Northcote",
+   "held_by": "Labor",
+   "name": "Kat Theophanous",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Northcote",
+   "held_by": "Labor",
+   "name": "Lynda Awad",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/BernadetteKhouryNMR/posts/i-was-extremely-honoured-to-have-attended-together-with-my-colleague-lynda-awad-/122122201268737088/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Northcote",
+   "held_by": "Labor",
+   "name": "Campbell Gome",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/backroom-baz-shortage-of-quality-election-candidates-has-senior-libs-starting-to-panic/news-story/19bca42e3998db7a0a6c052734044345"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Northcote",
+   "held_by": "Labor",
+   "name": "Kath Larkin",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/kath-larkin"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Northcote",
+   "held_by": "Labor",
+   "name": "Jim Penman",
+   "party": "Libertarian",
+   "incumbent": false,
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/jim-penman-endorsed-by-the-libertarian-party-to-run-in-northcote-against-labors-kat-theophanous/news-story/c80ab81c34973a867edfa0525272e2a5?amp"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Oakleigh",
+   "held_by": "Labor",
+   "name": "Steve Dimopoulos",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Oakleigh",
+   "held_by": "Labor",
+   "name": "Martin Jung",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/martin-jung"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Oakleigh",
+   "held_by": "Labor",
+   "name": "Hsiang Han-Hsieh",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/hsiang-han-hsieh"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Oakleigh",
+   "held_by": "Labor",
+   "name": "Rowdy Bugter",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/rowdy-bugter"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ovens Valley",
+   "held_by": "National",
+   "name": "Tim McCurdy",
+   "party": "National",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ovens Valley",
+   "held_by": "National",
+   "name": "Ben Gilbert",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/ben-gilbert"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ovens Valley",
+   "held_by": "National",
+   "name": "Steve Manning",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.wangarattachronicle.com.au/news/ovens-valley-seat-no-longer-safe-independent-candidate-w17r44qz"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "held_by": "Labor",
+   "name": "Alessandra Soliven",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://pakenhamnews.starcommunity.com.au/news/2025-11-06/labor-chose-gen-z-go-getter-to-hold-pakenham-in-2026-state-election/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "held_by": "Labor",
+   "name": "Radmila Dyson",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/radmila-dyson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "held_by": "Labor",
+   "name": "Nasser Yawari",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/nasser-yawari"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "held_by": "Labor",
+   "name": "Warren Pickering",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/warren-pickering"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "held_by": "Labor",
+   "name": "Stephanie Grigg",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/stephanie-grigg"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "held_by": "Labor",
+   "name": "Raymond French",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://pakenhamnews.starcommunity.com.au/news/2026-06-19/new-independent-enters-the-election-battleground-claims-seat-could-decide-victorias-next-government/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pascoe Vale",
+   "held_by": "Labor",
+   "name": "Anthony Cianflone",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pascoe Vale",
+   "held_by": "Labor",
+   "name": "Angelica Panopoulos",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://brunswickvoice.com.au/greens-lock-in-candidates-for-next-years-state-election/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pascoe Vale",
+   "held_by": "Labor",
+   "name": "Yasemin Shamsili",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/yasemin-shamsili"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pascoe Vale",
+   "held_by": "Labor",
+   "name": "Jacob Andrewartha",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/photo/?fbid=1357591489733430&set=pb.100064477760752.-2207520000"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pascoe Vale",
+   "held_by": "Labor",
+   "name": "Kathrine Ashton",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/photo/?fbid=1357591489733430&set=pb.100064477760752.-2207520000"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Point Cook",
+   "held_by": "Labor",
+   "name": "Mathew Hilakari",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Point Cook",
+   "held_by": "Labor",
+   "name": "Raja Reddy",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.wyndhamtv.com.au/reddy-to-challenge-hilakari/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Point Cook",
+   "held_by": "Labor",
+   "name": "Ponraj Krishna Pandi",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/ponraj-krishna-pandi"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Point Cook",
+   "held_by": "Labor",
+   "name": "Taylor Laine",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/taylor-laine"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Polwarth",
+   "held_by": "Liberal",
+   "name": "Hutch Hussein",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://timesnewsgroup.com.au/surfcoasttimes/news/hussein-back-in-fight-for-polwarth/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Polwarth",
+   "held_by": "Liberal",
+   "name": "Richard Riordan",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Polwarth",
+   "held_by": "Liberal",
+   "name": "Jesse Holden",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/jesse-holden"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Prahran",
+   "held_by": "Liberal",
+   "name": "Meghan Hopper",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/photo.php?fbid=1518538103164938&set=a.360651605620266&type=3"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Prahran",
+   "held_by": "Liberal",
+   "name": "Rachel Westaway",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Prahran",
+   "held_by": "Liberal",
+   "name": "Angelica Di Camillo",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/news/media-release/local-environmental-engineer-back-take-divided-liberals-prahran-offering"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Prahran",
+   "held_by": "Liberal",
+   "name": "Clayton Doueihi",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/clayton-doueihi"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Preston",
+   "held_by": "Labor",
+   "name": "Nathan Lambert",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Preston",
+   "held_by": "Labor",
+   "name": "Loki Sangarya",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/loki-sangarya"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Preston",
+   "held_by": "Labor",
+   "name": "Serena Ashmore",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/serena-ashmore"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Preston",
+   "held_by": "Labor",
+   "name": "Rachel Unicomb",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/rachel-unicomb"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Richmond",
+   "held_by": "Greens",
+   "name": "Sarah McKenzie",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.instagram.com/reels/DVhe1snio7I/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Richmond",
+   "held_by": "Greens",
+   "name": "Gabrielle de Vietri",
+   "party": "Greens",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Richmond",
+   "held_by": "Greens",
+   "name": "Harrison Rindfleish",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/harrison-rindfleish"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Richmond",
+   "held_by": "Greens",
+   "name": "Chris Dite",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/chris-dite"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ringwood",
+   "held_by": "Independent",
+   "name": "Rachel Halse",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/rachelforringwood"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ringwood",
+   "held_by": "Independent",
+   "name": "Nick McGowan",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ringwood",
+   "held_by": "Independent",
+   "name": "Amy Mills",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/amy-mills"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ringwood",
+   "held_by": "Independent",
+   "name": "Jack Gardner",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ringwood",
+   "held_by": "Independent",
+   "name": "Prue Cutts",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.easternmelburnian.com.au/p/independent-candidates-croydon-ringwood-victorian-election-2026"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ripon",
+   "held_by": "Labor",
+   "name": "Martha Haylett",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ripon",
+   "held_by": "Labor",
+   "name": "Jo Armstrong",
+   "party": "National",
+   "incumbent": false,
+   "sources": [
+    "https://www.westvicnews.com.au/nationals-unveil-their-candidate-for-2026-04-14",
+    "https://vic.liberal.org.au/team/megan-read"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ripon",
+   "held_by": "Labor",
+   "name": "Megan Read",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.westvicnews.com.au/nationals-unveil-their-candidate-for-2026-04-14",
+    "https://vic.liberal.org.au/team/megan-read"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ripon",
+   "held_by": "Labor",
+   "name": "Tim Drylie",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/tim-drylie"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ripon",
+   "held_by": "Labor",
+   "name": "Donna Buxton",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/donna-buxton"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Ripon",
+   "held_by": "Labor",
+   "name": "Taylah Brennan-Jones",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/taylah-brennan-jones"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Rowville",
+   "held_by": "Liberal",
+   "name": "Muhammad Shahbaz",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/muhammad-shahbaz"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Rowville",
+   "held_by": "Liberal",
+   "name": "Max Williams",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/VicYoungLiberals/photos/lets-go-max-from-the-yls-to-candidacy-you-will-be-a-powerful-voice-for-young-vic/1275171577970438/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Rowville",
+   "held_by": "Liberal",
+   "name": "Lars Hiemstra",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/lars-hiemstra"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sandringham",
+   "held_by": "Liberal",
+   "name": "Anastasia Sagris-Desmond",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/anastasia-sagris-desmond"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sandringham",
+   "held_by": "Liberal",
+   "name": "Brad Rowswell",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sandringham",
+   "held_by": "Liberal",
+   "name": "Timon Fotakis",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/timon-fotakis"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sandringham",
+   "held_by": "Liberal",
+   "name": "Lauren Stevenson",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/lauren-stevenson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Shepparton",
+   "held_by": "National",
+   "name": "Cayla Fin",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/cayla-fin"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Shepparton",
+   "held_by": "National",
+   "name": "Grace Verney",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://www.instagram.com/p/DXoIebHEeVk/?img_index=1"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Shepparton",
+   "held_by": "National",
+   "name": "Phillip Bryant",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/phillip-bryant"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "Rebecca Thistleton",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://timesnewsgroup.com.au/surfcoasttimes/news/labor-south-barwon-thistleton/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "Libby Pettit",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "Izzy Scherrer",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/izzy-scherrer"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "Josh Geard",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/josh-geard",
+    "https://www.victoriansocialists.org.au/candidates/madilyn-gorman"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "||Madilyn Gorman",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/josh-geard",
+    "https://www.victoriansocialists.org.au/candidates/madilyn-gorman"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "Freya Hedley",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://timesnewsgroup.com.au/surfcoasttimes/news/nelson-to-run-as-independent-in-south-barwon/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South Barwon",
+   "held_by": "Independent",
+   "name": "Ron Nelson",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://timesnewsgroup.com.au/surfcoasttimes/news/nelson-to-run-as-independent-in-south-barwon/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South-West Coast",
+   "held_by": "Liberal",
+   "name": "Andrew Govanstone",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.viclabor.org.au/our-team/andrew-govanstone"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South-West Coast",
+   "held_by": "Liberal",
+   "name": "Roma Britnell",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "South-West Coast",
+   "held_by": "Liberal",
+   "name": "Silver Rose",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/silver-rose"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "South-West Coast",
+   "held_by": "Liberal",
+   "name": "Hera Sheppard",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/hera-sheppard"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "St Albans",
+   "held_by": "Labor",
+   "name": "Natalie Suleyman",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "St Albans",
+   "held_by": "Labor",
+   "name": "Bao Huynh",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/bao-huynh"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "St Albans",
+   "held_by": "Labor",
+   "name": "Leanna Nguyen",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/leanna-nguyen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "St Albans",
+   "held_by": "Labor",
+   "name": "Luận Walker",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/luan-walker/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sunbury",
+   "held_by": "Labor",
+   "name": "Josh Bull",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sunbury",
+   "held_by": "Labor",
+   "name": "Simmone Cottom",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/watch/?v=850982047896133"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sunbury",
+   "held_by": "Labor",
+   "name": "Elita Dabrowski",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sunbury",
+   "held_by": "Labor",
+   "name": "Adam Bremner",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/adam-bremner"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sunbury",
+   "held_by": "Labor",
+   "name": "Bruce Lancashire",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sydenham",
+   "held_by": "Labor",
+   "name": "Uros Rasic",
+   "party": "Labor",
+   "incumbent": false,
+   "sources": [
+    "https://www.facebook.com/photo/?fbid=1523060449379370&set=a.360651605620266"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sydenham",
+   "held_by": "Labor",
+   "name": "Nathalie Moussi",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/nathalie-moussi"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sydenham",
+   "held_by": "Labor",
+   "name": "Maggie Jane",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/maggie-jane"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sydenham",
+   "held_by": "Labor",
+   "name": "Shania Khan",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/shania-khan"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Tarneit",
+   "held_by": "Labor",
+   "name": "Dylan Wight",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Tarneit",
+   "held_by": "Labor",
+   "name": "Rifai Raheem",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/rifai-raheem"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Tarneit",
+   "held_by": "Labor",
+   "name": "Leah Van Koulen",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/leah-van-keulen"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Tarneit",
+   "held_by": "Labor",
+   "name": "Andrew Elsbury",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/andrewelsbury/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Thomastown",
+   "held_by": "Labor",
+   "name": "Bronwyn Halfpenny",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Thomastown",
+   "held_by": "Labor",
+   "name": "Priya Reddy",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/priya-reddy"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Warrandyte",
+   "held_by": "Liberal",
+   "name": "Nicole Werner",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Warrandyte",
+   "held_by": "Liberal",
+   "name": "John Stanley",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/john-stanley"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Wendouree",
+   "held_by": "Labor",
+   "name": "Juliana Addison",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Wendouree",
+   "held_by": "Labor",
+   "name": "Ellen Burns",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/Ellen-Burns"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Wendouree",
+   "held_by": "Labor",
+   "name": "Stuart Robinson",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/stuart-robinson"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Wendouree",
+   "held_by": "Labor",
+   "name": "Chris Meagher",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/chris-meagher"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Wendouree",
+   "held_by": "Labor",
+   "name": "Melissa Collins",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/Melissa-Collins"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Werribee",
+   "held_by": "Labor",
+   "name": "John Lister",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Werribee",
+   "held_by": "Labor",
+   "name": "Reece Clark",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/reece-clark"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Werribee",
+   "held_by": "Labor",
+   "name": "Tushar Kumar",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/tushar-kumar"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Werribee",
+   "held_by": "Labor",
+   "name": "Sue Munro",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/sue-munro"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Werribee",
+   "held_by": "Labor",
+   "name": "Paul Hopper",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/paul-hopper/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Williamstown",
+   "held_by": "Labor",
+   "name": "Melissa Horne",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Williamstown",
+   "held_by": "Labor",
+   "name": "Paul Lindemann",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vic.liberal.org.au/team/paul-lindemann"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Williamstown",
+   "held_by": "Labor",
+   "name": "Ben Hocking",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/Ben-Hocking"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Williamstown",
+   "held_by": "Labor",
+   "name": "Oskar Martin",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/oskar-martin"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Williamstown",
+   "held_by": "Labor",
+   "name": "Gil Gannon",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/gill-gannon/",
+    "https://briffaindependent.com.au/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Williamstown",
+   "held_by": "Labor",
+   "name": "Tony Briffa",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://thewestparty.org.au/local-representation/gill-gannon/",
+    "https://briffaindependent.com.au/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Yan Yean",
+   "held_by": "Labor",
+   "name": "Lauren Kathage",
+   "party": "Labor",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Yan Yean",
+   "held_by": "Labor",
+   "name": "Amanda Dow",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://vicliberal.org.au/team/amanda-dow"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Yan Yean",
+   "held_by": "Labor",
+   "name": "Gufran Mohammed",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://greens.org.au/vic/person/gufran-mohammed"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Yan Yean",
+   "held_by": "Labor",
+   "name": "Jeremy Johnson",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Yan Yean",
+   "held_by": "Labor",
+   "name": "Andrew Bell",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/andrew-bell"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Renee Heath",
+   "party": "Coalition",
+   "incumbent": true,
+   "sources": [
+    "https://www.gippslandtimes.com.au/news/2026/03/25/renee-heath-endorsed-by-libs/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 2,
+   "name": "Melina Bath",
+   "party": "Coalition",
+   "incumbent": true,
+   "sources": [
+    "https://www.thegazette.com.au/legislation-a-focus-for-green/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 3,
+   "name": "Matt Green",
+   "party": "Coalition",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Mat Morgan",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://www.sgst.com.au/news/bass-coast-cr-mat-morgan-to-lead-the-greens-in-eastern-victoria"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Greg Hansford",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://www.gippslandtimes.com.au/news/2026/08/04/hansford-to-stand-for-one-nation-this-november/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Helen Jaeges",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/helen-jeges"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Michael Brown",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.familyfirstparty.org.au/mike_brown_vic_2026"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Max Forward",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/max-forward"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Reade Smith",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_eastern_victoria_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "ticket_position": 1,
+   "name": "Antoinette Pitt",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.gippslandtimes.com.au/news/2026/06/17/nurse-antoinette-pitt-will-run-as-an-independent-for-the-upper-house/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Richard Welch",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 2,
+   "name": "Deirdre Diamante",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 3,
+   "name": "John Pyrros",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Aiv Puglielli",
+   "party": "Greens",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Chloe Nicolosi",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/chloe-nicolosi"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Natalie Adams",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Lucas Deviesseux",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/lucas-deviesseux"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 2,
+   "name": "Heather Maltby",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/heather-maltby"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Jack Corcoran",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_north_eastern_metropolitan_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "North Eastern Metropolitan",
+   "ticket_position": 2,
+   "name": "William Clow",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Evan Mulholland",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 2,
+   "name": "Bernadette Khoury",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Anasina Gray-Barberio",
+   "party": "Greens",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Omar Hassan",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/omar-hassan"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 2,
+   "name": "Louisa Bassini",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/louisa-bassini"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Imad Hirmiz",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.familyfirstparty.org.au/hirmiz_vic_2026"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Peita Collard",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/peita-collard"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Mark Nicholson",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Bert Jessup",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_northern_metropolitan_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 2,
+   "name": "Daryl Budgeon",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 1,
+   "name": "Meredith Lawrence",
+   "party": "Socialist Alliance",
+   "incumbent": false,
+   "sources": [
+    "https://socialist-alliance.org/elections/fighting-people-not-billionaires-2026-victorian-state-election"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 2,
+   "name": "Chloe Beaton",
+   "party": "Socialist Alliance",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Metropolitan",
+   "ticket_position": 3,
+   "name": "Darren Saffin",
+   "party": "Socialist Alliance",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 1,
+   "name": "Steve Brooks",
+   "party": "Coalition",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 2,
+   "name": "Gaelle Broad",
+   "party": "Coalition",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 3,
+   "name": "Amanda Millar",
+   "party": "Coalition",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 1,
+   "name": "Cate Sinclair",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://ferntreegully.mailcommunity.com.au/news/2025-10-25/greens-dr-cate-sinclair-the-first-new-prospective-pollie-for-northern-victoria/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 1,
+   "name": "Rikkie-Lee Tyrrell",
+   "party": "One Nation",
+   "incumbent": true,
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/one-nation-announce-eight-upper-house-candidates-to-contest-the-state-election/news-story/d21d9a76d82715d3f63d879cfb3f49cd"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 1,
+   "name": "Michael White",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.familyfirstparty.org.au/michael_white_vic_2026"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "ticket_position": 1,
+   "name": "Georgie Purcell",
+   "party": "Animal Justice",
+   "incumbent": true,
+   "sources": [
+    "https://www.instagram.com/p/DRl7E3Rk4tn/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Phillip Pease",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.theage.com.au/national/victoria/conservative-liberal-mp-rolled-for-top-spot-amid-fiery-preselection-battles-20260322-p5rmhn.html"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 2,
+   "name": "Ann-Marie Hermans",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Matthew Kirwan",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://cranbournenews.starcommunity.com.au/news/2025-11-06/kirwan-vows-to-prioritise-cranbourne/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Jane Foreman",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.miragenews.com/jane-foreman-backed-for-upper-house-in-vic-1514713/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Colleen Harkin",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Tamara Champion",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/tamara-champion"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Kelly Cvetkova",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/kelly-cvetkova"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "South Eastern Metropolitan",
+   "ticket_position": 1,
+   "name": "Brandon Hoult",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_south_eastern_metropolitan_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 1,
+   "name": "David Davis",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": [
+    "https://vic.liberal.org.au/media-releases/2026-03-17-victorian-liberal-party-endorses-new-upper-house-candidates?topic="
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 2,
+   "name": "Georgie Crozier",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 3,
+   "name": "Xavier Boffa",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 1,
+   "name": "Katherine Copsey",
+   "party": "Greens",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 1,
+   "name": "Daniel O'Neill",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/daniel-oneill"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 1,
+   "name": "Bettina Terry",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_southern_metropolitan_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 1,
+   "name": "Aaron Sanford",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Southern Metropolitan",
+   "ticket_position": 1,
+   "name": "Catherine Holder",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/catherine-holder"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Roshena Campbell",
+   "party": "Liberal",
+   "incumbent": false,
+   "sources": [
+    "https://www.abc.net.au/news/2026-08-07/liberal-party-deputy-melbourne-mayor-roshena-campbell/107008954"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 2,
+   "name": "Trung Luu",
+   "party": "Liberal",
+   "incumbent": true,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/moira-deeming-dumped-mp-loses-liberal-preselection-battle-20260324-p5u8w9.html"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Brittney Henderson",
+   "party": "Greens",
+   "incumbent": false,
+   "sources": [
+    "https://nit.com.au/20-09-2025/20353/exclusive-24-year-old-wiradjuri-bunurong-candidate-brittney-henderson-announced-greens-upper-house-pre-selection-for-2026-polls"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Anneke Demanuele",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/anneke-demanuele"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 2,
+   "name": "Jorge Jorquera",
+   "party": "Victorian Socialists",
+   "incumbent": false,
+   "sources": [
+    "https://www.victoriansocialists.org.au/candidates/jorge-jorquera"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Matthew Emerson",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.familyfirstparty.org.au/vic_2026",
+    "https://web.archive.org/web/20260706202538/https://www.familyfirstparty.org.au/vic_2026"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 2,
+   "name": "Moira Deeming",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.abc.net.au/news/2026-09-10/moira-deeming-joins-family-first-party/107136754"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Fiona Lopez",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Shohre Mansouri",
+   "party": "Animal Justice",
+   "incumbent": false,
+   "sources": [
+    "https://vic.animaljusticeparty.org/shohre-mansouri"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Dennis Bilic",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_western_metropolitan_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 1,
+   "name": "Joe Garra",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/for-decades-labor-has-owned-melbourne-s-west-a-new-party-plans-to-change-that-20251204-p5nkyo.html"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 2,
+   "name": "Sahana Ramesh",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "ticket_position": 3,
+   "name": "Brett Patrikeos",
+   "party": "Western Victoria Party",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 1,
+   "name": "Bev McArthur",
+   "party": "Coalition",
+   "incumbent": true,
+   "sources": [
+    "https://timesnewsgroup.com.au/geelongtimes/news/sullivan-loses-bid-for-top-spot-on-liberal-ticket/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 2,
+   "name": "Graham Watt",
+   "party": "Coalition",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 1,
+   "name": "Sarah Mansfield",
+   "party": "Greens",
+   "incumbent": true,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 1,
+   "name": "Chris Burson",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 2,
+   "name": "Vaughan Williams",
+   "party": "One Nation",
+   "incumbent": false,
+   "sources": [
+    "https://vic.onenation.org.au/vaughan-williams"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 1,
+   "name": "Dianne Colbert",
+   "party": "Family First",
+   "incumbent": false,
+   "sources": [
+    "https://www.familyfirstparty.org.au/dianne_colbert_vic_2026"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 1,
+   "name": "Madeleine Wearne",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": [
+    "https://www.sustainableaustralia.org.au/2026_victorian_election_western_victoria_region_candidates"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 2,
+   "name": "Ian Chivers",
+   "party": "Sustainable Australia",
+   "incumbent": false,
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "ticket_position": 1,
+   "name": "Aleta Moriarty",
+   "party": "Independent",
+   "incumbent": false,
+   "sources": [
+    "https://www.aletamoriarty.com/"
+   ]
+  }
+ ],
+ "retiring": [
+  {
+   "house": "assembly",
+   "electorate": "Bayswater",
+   "name": "Jackson Taylor",
+   "party": "Labor",
+   "announced": "23 September 2025",
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/retiring-mps-leave-labor-exposed-in-two-marginal-seats-20250923-p5mxck.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Melton",
+   "name": "Steve McGhie",
+   "party": "Labor",
+   "announced": "23 September 2025",
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Pakenham",
+   "name": "Emma Vulin",
+   "party": "Labor",
+   "announced": "30 September 2025",
+   "sources": [
+    "https://pakenhamnews.starcommunity.com.au/news/2025-10-01/vulin-will-not-re-contest-pakenham-seat-in-2026-mp-announces/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bass",
+   "name": "Jordan Crugnale",
+   "party": "Labor",
+   "announced": "2 October 2025",
+   "sources": [
+    "https://www.basscoastpost.com/news/crugnale-to-step-down"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Sydenham",
+   "name": "Natalie Hutchins",
+   "party": "Labor",
+   "announced": "16 October 2025",
+   "sources": [
+    "https://meltonmoorabool.starweekly.com.au/news/sydenham-mp-to-step-down/"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "North-Eastern Metropolitan",
+   "name": "Shaun Leane",
+   "party": "Labor",
+   "announced": "1 December 2025",
+   "sources": [
+    "https://x.com/ShaunLeaneMP/status/1995301955300962511?s=20"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Essendon",
+   "name": "Danny Pearson",
+   "party": "Labor",
+   "announced": "10 April 2026",
+   "sources": [
+    "https://www.theaustralian.com.au/nation/up-to-four-ministers-to-quit-as-allan-resets-cabinet/news-story/7c9d068e161a642124157dd421008026?amp&nk=fad2e8b520636ccfda29dc31706338b4-1775792932"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Macedon",
+   "name": "Mary-Anne Thomas",
+   "party": "Labor",
+   "announced": "10 April 2026",
+   "sources": []
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "name": "Gayle Tierney",
+   "party": "Labor",
+   "announced": "10 April 2026",
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Mill Park",
+   "name": "Lily D'Ambrosio",
+   "party": "Labor",
+   "announced": "30 July 2026",
+   "sources": [
+    "https://www.abc.net.au/news/2026-07-30/victorian-mp-harriet-shing-retirement/106977588?utm_campaign=abc_news_web&utm_content=link&utm_medium=content_shared&utm_source=abc_news_web"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Eastern Victoria",
+   "name": "Harriet Shing",
+   "party": "Labor",
+   "announced": "30 July 2026",
+   "sources": []
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo East",
+   "name": "Jacinta Allan",
+   "party": "Labor",
+   "announced": "14 August 2026",
+   "sources": [
+    "https://www.abc.net.au/news/2026-08-14/jacinta-allan-former-victorian-premier-quitting-politics/106791250"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Bendigo West",
+   "name": "Maree Edwards",
+   "party": "Labor",
+   "announced": "27 August 2026",
+   "sources": [
+    "https://www.bendigoadvertiser.com.au/story/9338911/labors-bendigo-election-fight-in-tatters-after-two-mps-quit/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Benambra",
+   "name": "Bill Tilley",
+   "party": "Liberal",
+   "announced": "13 March 2024",
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/bill-tilley-is-battling-leukaemia/news-story/af7af5fb5186c5e9237d558e40196764"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Croydon",
+   "name": "David Hodgett",
+   "party": "Liberal",
+   "announced": "6 August 2025",
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/time-for-me-to-leave-outgoing-senior-victorian-liberal-david-hodgett-throws-support-behind-leader-brad-battin/news-story/7368e382cae2c0465803fefa8df5bcdf"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Malvern",
+   "name": "Michael O'Brien",
+   "party": "Liberal",
+   "announced": "9 September 2025",
+   "sources": [
+    "https://www.theage.com.au/politics/victoria/former-liberal-leader-michael-o-brien-to-quit-parliament-20250909-p5mtjh.html"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Rowville",
+   "name": "Kim Wells",
+   "party": "Liberal",
+   "announced": "14 September 2025",
+   "sources": [
+    "https://www.heraldsun.com.au/news/victoria/longtime-mp-kim-wells-quits-after-three-decades/news-story/79711b53ab0788b303a73aaae4925b20"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Northern Victoria",
+   "name": "Wendy Lovell",
+   "party": "Liberal",
+   "announced": "5 January 2026",
+   "sources": [
+    "https://www.theage.com.au/national/victoria/liberal-deputy-sam-groth-announces-retirement-20260105-p5nrn8.html"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Victoria",
+   "name": "Joe McCracken",
+   "party": "Liberal",
+   "announced": "12 January 2026",
+   "sources": [
+    "https://www.skynews.com.au/australia-news/politics/victorian-liberals-hit-with-another-resignation-as-joe-mccracken-becomes-second-first-term-mp-to-quit-parliament-in-as-many-weeks/news-story/38a44464ec15ee63f432e62356f0684e"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Murray Plains",
+   "name": "Peter Walsh",
+   "party": "National",
+   "announced": "26 November 2024",
+   "sources": [
+    "https://www.abc.net.au/news/2024-11-26/peter-walsh-retires-nationals-leader-victoria/104646474"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Gippsland East",
+   "name": "Tim Bull",
+   "party": "National",
+   "announced": "19 May 2026",
+   "sources": [
+    "https://www.abc.net.au/news/2026-05-19/tim-bull-east-gippsland-mp-victorian-election-nationals-mp/106695848"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Shepparton",
+   "name": "Kim O'Keeffe",
+   "party": "National",
+   "announced": "21 July 2026",
+   "sources": [
+    "https://www.sheppnews.com.au/news/kim-okeeffe-will-not-recontest-her-seat/"
+   ]
+  },
+  {
+   "house": "assembly",
+   "electorate": "Brunswick",
+   "name": "Tim Read",
+   "party": "Greens",
+   "announced": "29 January 2026",
+   "sources": [
+    "https://www.abc.net.au/news/2026-01-29/brunswick-greens-mp-tim-read-reveals-cancer-diagnosis/106278032"
+   ]
+  },
+  {
+   "house": "council",
+   "electorate": "Western Metropolitan",
+   "name": "David Ettershank",
+   "party": "Legalise Cannabis",
+   "announced": "2 June 2026",
+   "sources": [
+    "https://www.cannabiz.com.au/legalise-cannabis-victoria-mp-david-ettershank-confirms-political-exit/"
+   ]
+  }
+ ]
+}

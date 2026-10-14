@@ -1,0 +1,23 @@
+{
+  "_comment": "The volunteer scorecard. parties: the fallback light for anyone in that party. candidates: keyed by exact candidate name, from the candidate survey; a candidate's own answer always beats their party. rating is Green (backs scrapping the levy), Red (backs keeping it) or Unknown. Every Green or Red needs a source. Checked 14 Oct 2026.",
+  "question": "Will you vote to scrap the Emergency Services and Volunteers Fund levy?",
+  "unknown_line": "We've asked. They haven't told us where they stand on the fire tax.",
+  "parties": {
+    "Labor": {
+      "rating": "Red",
+      "line": "Labor brought in the levy and is campaigning to keep it.",
+      "source": "https://www.premier.vic.gov.au/liberals-and-nationals-will-cut-cfa"
+    },
+    "Liberal": {
+      "rating": "Green",
+      "line": "The Liberals and Nationals have committed to scrap the levy if elected.",
+      "source": "https://www.bendigoadvertiser.com.au/story/9291909/cfa-volunteers-rally-against-state-levy-in-premiers-home-town/"
+    },
+    "National": {
+      "rating": "Green",
+      "line": "The Liberals and Nationals have committed to scrap the levy if elected.",
+      "source": "https://www.bendigoadvertiser.com.au/story/9291909/cfa-volunteers-rally-against-state-levy-in-premiers-home-town/"
+    }
+  },
+  "candidates": {}
+}

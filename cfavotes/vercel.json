@@ -1,0 +1,113 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/api/lookup",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/content/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/seat",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=300, stale-while-revalidate=3600"
+        }
+      ]
+    },
+    {
+      "source": "/api/boundary",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=86400, stale-while-revalidate=604800"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/lookup.js": {
+      "maxDuration": 10
+    },
+    "api/seat.js": {
+      "maxDuration": 15
+    },
+    "api/capture.js": {
+      "maxDuration": 15
+    },
+    "api/boundary.js": {
+      "maxDuration": 10
+    },
+    "api/donate.js": {
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/seat",
+      "destination": "/"
+    },
+    {
+      "source": "/seat/:state/:district",
+      "destination": "/"
+    },
+    {
+      "source": "/card/:state/:district",
+      "destination": "/"
+    },
+    {
+      "source": "/donate",
+      "destination": "/"
+    },
+    {
+      "source": "/issues",
+      "destination": "/"
+    },
+    {
+      "source": "/about",
+      "destination": "/"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/parties",
+      "destination": "/issues",
+      "permanent": false
+    },
+    {
+      "source": "/quiz",
+      "destination": "/seat",
+      "permanent": false
+    },
+    {
+      "source": "/media",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/media/:slug",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/shop",
+      "destination": "https://cfavolunteersgroupinc.com.au/",
+      "permanent": false
+    }
+  ]
+}

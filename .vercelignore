@@ -12,3 +12,6 @@ node_modules
 # The Farmers Votes site lives in this repo but deploys as its own Vercel
 # project (Root Directory = farmersvotes). The FF deploy must not ship it.
 farmersvotes
+
+# Scrap the Fire Tax (CFA volunteers) deploys as its own Vercel project too.
+cfavotes

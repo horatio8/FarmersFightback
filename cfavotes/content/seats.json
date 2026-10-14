@@ -1,0 +1,7 @@
+{
+  "_comment": "Per-seat copy for /seat/VIC/<District>. Every district works without an entry: the hook falls back to default_hook_labor or default_hook_other. Add an entry to give a seat its own hook, a quote per candidate (stances, keyed by exact candidate name, from the survey), or after the ballot draw the ballot order (ballot: [{name, party}]), which switches the seat to the printable scorecard.",
+  "ballot_draw": "2026-11-09",
+  "default_hook_labor": "Held by Labor, the party that put the fire tax on every rates notice in Victoria and is campaigning to keep it.",
+  "default_hook_other": "The fire tax is on every rates notice in this seat. 28 November is the chance to scrap it.",
+  "seats": {}
+}
