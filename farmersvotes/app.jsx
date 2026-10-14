@@ -89,7 +89,7 @@ function shareLinks(url, msg, subject) {
       icon: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" },
     { label: "X", bg: "#000000", href: `https://twitter.com/intent/tweet?text=${e(msg)}`,
       icon: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" },
-    { label: "Email", bg: "#5B574E", href: `mailto:?subject=${e(subject)}&body=${e(msg)}`,
+    { label: "Email", bg: "#F7C325", fg: "#143E65", href: `mailto:?subject=${e(subject)}&body=${e(msg)}`,
       icon: "M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.24l-8 5-8-5V6.5l8 5 8-5z" },
     { label: "Text", bg: "#2E7D32", href: `sms:?&body=${e(msg)}`,
       icon: "M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zM7 11.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" },
@@ -99,8 +99,8 @@ function ShareGrid({ url, msg, subject, label }) {
   return (
     <div className="v-share">
       {shareLinks(url, msg, subject).map((s) => (
-        <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`Share on ${s.label}`} style={{ background: s.bg }} onClick={() => track("Share", { content_name: label || "", method: s.label })}>
-          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d={s.icon} fill="#fff" /></svg>
+        <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`Share on ${s.label}`} style={{ background: s.bg, color: s.fg || "#fff" }} onClick={() => track("Share", { content_name: label || "", method: s.label })}>
+          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d={s.icon} fill={s.fg || "#fff"} /></svg>
           <span>{s.label}</span>
         </a>
       ))}
@@ -971,6 +971,98 @@ function AboutPage() {
 }
 
 // ---------- app ----------
+// ---------- ad landing (/join) and share (/share) ----------
+// /join is where the digital ads point: one form, nothing else to click.
+// Every sign-up goes on to /share, which asks them to bring others in.
+function LandingShell({ children }) {
+  const cfg = useConfig();
+  return (
+    <div className="fv">
+      <header className="iss-header">
+        <div className="iss-header-inner v-land-head">
+          <span className="iss-logo"><img src="/assets/logo-votes.png" alt="Farmers Fightback Votes" /></span>
+        </div>
+      </header>
+      <main className="v-main">{children}</main>
+      <footer className="iss-footer v-land-foot"><div className="iss-wrap"><p>{cfg.site.authorisation}</p></div></footer>
+    </div>
+  );
+}
+const joinShare = () => {
+  const r = store.get("fv_reminder");
+  return `${window.location.origin}/join${r && r.referral_code ? `?ref=${r.referral_code}` : ""}`;
+};
+function JoinPage() {
+  useTitle("Vote Labor Out");
+  const el = useElection();
+  const [f, setF] = useState({ first_name: "", mobile: "", postcode: "" });
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { track("ViewContent", { content_name: "Join", content_category: "landing" }); }, []);
+  const up = (k, clean) => (e) => { setF((s) => ({ ...s, [k]: clean(e.target.value) })); setErr(""); };
+  const submit = async (e) => {
+    e.preventDefault(); setErr("");
+    const d = f.mobile.replace(/\s/g, "");
+    if (!f.first_name.trim()) return setErr("Your first name, please.");
+    if (!/^04\d{8}$/.test(d)) return setErr("Enter an Australian mobile number, like 0412 345 678.");
+    if (!/^\d{4}$/.test(f.postcode)) return setErr("Enter the four digits of your postcode.");
+    setBusy(true);
+    try {
+      const seat = await findSeat(f.postcode).catch(() => ({ kind: "error" }));
+      if (seat.kind === "unknown") throw new Error(LOOKUP_MSG.unknown);
+      const attr = getAttribution();
+      const r = await fetch("/api/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ first_name: f.first_name.trim(), mobile: d, postcode: f.postcode, consent_sms: true, seat_state: seat.kind === "one" ? seat.name : "", seat_region: seat.region || "", jurisdiction: seat.state || "VIC", source: "Join", ref: attr.ref || "", utm: attr }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
+      store.set("fv_reminder", { first_name: f.first_name.trim(), mobile: f.mobile, referral_code: j.referral_code || null, at: Date.now() });
+      if (seat.kind === "one") store.set("fv_join_seat", { state: seat.state, name: seat.name });
+      track("Lead", { content_name: "Join" });
+      nav("/share");
+    } catch (ex) { setErr(ex.message); setBusy(false); }
+  };
+  return (
+    <LandingShell>
+      <section className="v-sec v-hero v-land-hero">
+        <div className="v-hero-shade" />
+        <div className="v-wrap v-hero-inner v-land-inner">
+          <h1 className="v-hero-h1"><span>Save our farmers.</span><span className="v-hero-serif">Vote Labor Out.</span></h1>
+          <p className="v-hero-lede">{el.date ? dayMonth(el.date) : "Election day"} is our only chance to stop them. Add your name and we'll text you exactly how to vote Labor out in your electorate.</p>
+          <form className="v-land-form" onSubmit={submit} noValidate>
+            <input className="v-pc-input v-remind-in" value={f.first_name} onChange={up("first_name", (v) => v.slice(0, 60))} autoComplete="given-name" placeholder="First name" aria-label="First name" />
+            <input className="v-pc-input v-remind-in" value={f.mobile} onChange={up("mobile", (v) => v.replace(/[^\d ]/g, "").slice(0, 12))} inputMode="tel" type="tel" autoComplete="tel" placeholder="Mobile number" aria-label="Mobile number" />
+            <input className="v-pc-input v-remind-in" value={f.postcode} onChange={up("postcode", (v) => v.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" autoComplete="postal-code" placeholder="Postcode" aria-label="Postcode" />
+            <button type="submit" className="v-btn v-btn--red v-btn--lg v-land-btn" disabled={busy}>{busy ? "One sec…" : "I'm in"}</button>
+            {err && <p className="v-land-err" role="alert">{err}</p>}
+            <p className="v-land-fine">We'll text you on election day with your how-to-vote card. Reply STOP to opt out.</p>
+          </form>
+        </div>
+      </section>
+    </LandingShell>
+  );
+}
+function SharePage() {
+  useTitle("Share");
+  const me = store.get("fv_reminder") || {};
+  const seat = store.get("fv_join_seat");
+  const el = useElection();
+  const url = joinShare();
+  const msg = `Help our farmers. Labor is ripping up our farmland, and ${el.date ? dayMonth(el.date) : "election day"} is our only chance to stop them. Add your name here: ${url}`;
+  useEffect(() => { track("ViewContent", { content_name: "Share", content_category: "share" }); }, []);
+  return (
+    <LandingShell>
+      <section className="v-sec v-remind v-land-share">
+        <div className="v-wrap v-narrow v-pad-md">
+          {me.first_name && <p className="v-kicker v-kicker--pink">★ Thanks, {me.first_name}. You're on the list.</p>}
+          <h1 className="v-h2 v-h2--md v-land-share-h">Help our farmers: get your friends and family to vote</h1>
+          <p className="v-remind-p">Most people haven't heard what Labor is doing to our farms. Send them this. It takes ten seconds and it's how we win.</p>
+          <ShareGrid url={url} msg={msg} subject="Help our farmers" label="Join share" />
+          {seat && seat.name && <p className="v-land-next"><Link to={seatPath(seat.state, seat.name)}>See who's standing in {seat.name} →</Link></p>}
+        </div>
+      </section>
+    </LandingShell>
+  );
+}
+
 function App() {
   const [cfg, setCfg] = useState(null); const [err, setErr] = useState(null);
   const [, force] = useState(0);
@@ -988,6 +1080,8 @@ function App() {
   else if (parts[0] === "donate") view = <DonatePage />;
   else if (parts[0] === "issues") view = <IssuesPage />;
   else if (parts[0] === "about") view = <AboutPage />;
+  else if (parts[0] === "join") view = <JoinPage />;
+  else if (parts[0] === "share") view = <SharePage />;
   else view = <HomePage />;
   return <Config.Provider value={cfg}>{view}</Config.Provider>;
 }

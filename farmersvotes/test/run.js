@@ -253,7 +253,7 @@ const byHouse = (seats, h) => seats.find((s) => s.house === h);
 
   await test("every page is routed and the retired ones redirect", () => {
     const v = require("../vercel.json");
-    for (const src of ["/seat", "/seat/:state/:district", "/card/:state/:district", "/donate", "/issues", "/about"]) assert.ok(v.rewrites.some((r) => r.source === src && r.destination === "/"), "vercel.json needs a rewrite for " + src);
+    for (const src of ["/seat", "/seat/:state/:district", "/card/:state/:district", "/donate", "/issues", "/about", "/join", "/share"]) assert.ok(v.rewrites.some((r) => r.source === src && r.destination === "/"), "vercel.json needs a rewrite for " + src);
     for (const src of ["/parties", "/quiz", "/media", "/shop"]) assert.ok(v.redirects.some((r) => r.source === src), src + " should redirect, not 404");
     const app = fs.readFileSync(path.join(__dirname, "..", "app.jsx"), "utf8");
     for (const [route, comp] of [["seat", "SeatPage"], ["card", "CardPage"], ["donate", "DonatePage"], ["issues", "IssuesPage"], ["about", "AboutPage"]]) assert.ok(new RegExp(`parts\\[0\\] === "${route}".*view = <${comp}`).test(app), `router must mount ${comp}`);

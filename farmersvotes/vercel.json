@@ -81,6 +81,14 @@
     {
       "source": "/about",
       "destination": "/"
+    },
+    {
+      "source": "/join",
+      "destination": "/"
+    },
+    {
+      "source": "/share",
+      "destination": "/"
     }
   ],
   "redirects": [

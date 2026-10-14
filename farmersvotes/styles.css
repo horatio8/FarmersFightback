@@ -408,3 +408,20 @@ html { scroll-behavior: smooth; }
 
 /* Soft white glow behind the maroon serif lines so they read on the dark hero. */
 .fv .v-hero-serif, .fv .v-res-pll { color: #A80A0A; text-shadow: 0 0 2px rgba(255,255,255,.95), 0 0 8px rgba(255,255,255,.85), 0 0 18px rgba(255,255,255,.6), 0 0 32px rgba(255,255,255,.35); }
+
+/* Ad landing (/join) and share (/share) */
+.fv .v-land-head { justify-content: center; }
+.fv .v-land-hero { min-height: calc(100vh - 80px); align-items: center; }
+.fv .v-land-inner { padding-top: 40px; padding-bottom: 48px; }
+.fv .v-land-hero .v-hero-h1 { font-size: clamp(44px, 9vw, 104px); }
+.fv .v-land-form { display: grid; gap: 12px; max-width: 520px; margin-top: 24px; }
+.fv .v-land-btn { width: 100%; min-height: 60px; font-size: 22px; }
+.fv .v-land-err { margin: 0; padding: 10px 14px; background: #fff; color: #A80A0A; border-radius: 4px; font-weight: 700; }
+.fv .v-land-fine { margin: 0; font-size: 14px; color: rgba(255,255,255,.85); }
+.fv .v-land-share { min-height: calc(100vh - 160px); border-bottom: 0; }
+.fv .v-land-share-h { margin-bottom: 12px; }
+.fv .v-land-next { margin: 24px 0 0; font-weight: 700; }
+.fv .v-land-next a { color: #143E65; }
+.fv .v-land-foot { padding: 20px 0; font-size: 13px; }
+.fv .v-land-foot p { margin: 0; }
+.fv .v-share a[aria-label="Share on Email"] { border-color: #143E65; }
