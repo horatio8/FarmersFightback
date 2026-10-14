@@ -545,7 +545,7 @@ function Reminder({ seat, state }) {
       <div className="v-wrap v-narrow v-pad-md">
         {!done ? (
           <>
-            <h2 className="v-h2 v-h2--light v-h2--md">Don't forget on the day. We'll text you.</h2>
+            <h2 className="v-h2 v-h2--light v-h2--md">Don't miss out. We'll remind you on the day.</h2>
             <p className="v-remind-p">Tell us your first name and mobile and we'll text you on {dayMonth(seat.election.date)} with exactly how to vote Labor out in {name}.</p>
             <form className="v-remind-form" onSubmit={submit} noValidate>
               <input className="v-pc-input v-remind-in" value={f.first_name} onChange={up("first_name", (v) => v.slice(0, 60))} autoComplete="given-name" placeholder="First name" aria-label="First name" />
