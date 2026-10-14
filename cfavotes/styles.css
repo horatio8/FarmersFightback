@@ -432,3 +432,5 @@ html { scroll-behavior: smooth; }
 .fv .v-light.is-red .v-light-h { color: #A00C24; }
 .fv .v-light-p { margin: 4px 0 0; font-size: 16px; }
 .fv .v-light-src { font-size: 15px; font-weight: 600; }
+.fv .v-hero-h1 .v-hero-dump { display: inline-block; align-self: flex-start; margin-top: .18em; padding: .06em .28em .02em; background: #C8102E; color: #fff; font-size: .62em; line-height: 1.05; }
+.fv .v-hero-h1 { font-size: clamp(46px, 10vw, 88px); }
