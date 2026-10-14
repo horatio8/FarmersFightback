@@ -405,3 +405,8 @@ html { scroll-behavior: smooth; }
 .fv .v-about .v-tile p { font-size: 18px; margin: 0; }
 .fv .v-about .v-tile p + p { margin-top: 8px; }
 .fv .v-about-goal { font-weight: 600; color: #143E65; }
+
+/* White label behind the maroon serif lines so they read on the dark hero. */
+.fv .v-hero-serif, .fv .v-res-pll { display: block; width: fit-content; max-width: 100%; color: #8E1630; background: #fff; padding: .04em .22em .1em .16em; border-radius: 3px; text-shadow: none; box-shadow: 0 6px 24px rgba(14,45,74,.35); box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.fv .v-hero-serif { margin-top: .12em; }
+.fv .v-res-pll { margin-bottom: .22em; }
