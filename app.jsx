@@ -1549,6 +1549,13 @@ function ShopPage() {
 // Homepage strip: a handful of featured items and one button to /shop. It
 // renders nothing at all if the catalogue is unavailable, so a Shopify
 // outage cannot leave a hole on the homepage.
+// With shop.enabled off in site.json the nav, footer and homepage strip drop
+// the shop, and anyone landing on /shop from an old link is sent home.
+function ShopClosed() {
+  useEffect(() => { window.location.replace("/"); }, []);
+  return null;
+}
+
 function ShopBand() {
   const c = useContent().shop || {};
   const { data } = useShopCatalogue();
@@ -5620,7 +5627,7 @@ function App() {
   else if (page === "contact") view = <ContactPage />;
   else if (page === "media") view = <MediaPage />;
   else if (page === "donate") view = <DonorPage />;
-  else if (page === "shop") view = <ShopPage />;
+  else if (page === "shop") view = content.shop && content.shop.enabled ? <ShopPage /> : <ShopClosed />;
   else if (page === "won") view = (
     <DonorPage
       override={WON_PAGE}

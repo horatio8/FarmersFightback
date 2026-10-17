@@ -54,11 +54,6 @@
         "active": false
       },
       {
-        "label": "Shop",
-        "href": "/shop",
-        "active": false
-      },
-      {
         "label": "Contact Us",
         "href": "/contact",
         "active": false
@@ -342,23 +337,6 @@
           {
             "label": "Volunteer",
             "href": "/take-action/volunteer"
-          }
-        ]
-      },
-      {
-        "heading": "Shop",
-        "links": [
-          {
-            "label": "Merch",
-            "href": "/shop"
-          },
-          {
-            "label": "Apparel",
-            "href": "/shop#apparel"
-          },
-          {
-            "label": "Signs & stickers",
-            "href": "/shop#signage-stickers"
           }
         ]
       }
@@ -1180,7 +1158,7 @@
     "href": "/askjess"
   },
   "shop": {
-    "enabled": true,
+    "enabled": false,
     "storeUrl": "https://shop.farmersfightback.com",
     "storeName": "Farmers Fightback shop",
     "eyebrow": "Official merch",
@@ -1188,7 +1166,7 @@
     "lede": "Tees, quarter zips, crew sweats, caps, beanies and fence signs. And more to come.",
     "heroImage": "https://cdn.shopify.com/s/files/1/0744/3641/1623/files/Farmers_still_Don_T_have_justice-5.png?v=1788746438&width=2000&format=jpg",
     "note": "Orders are packed and posted by our volunteers from the Wimmera. Sold at cost plus a small margin for the fight.",
-    "homepageBand": true,
+    "homepageBand": false,
     "homepageHeading": "Wear the fight",
     "homepageLede": "New merch is in. Every sale helps keep the pressure on the Government.",
     "featured": [

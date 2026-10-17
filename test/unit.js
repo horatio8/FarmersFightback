@@ -2052,14 +2052,23 @@ async function run() {
     return res;
   };
 
-  await test("the shop page exists, is routed, and is linked from the nav and footer", () => {
+  await test("the shop page exists and one switch shows or hides it everywhere", () => {
     assert.ok(exists("shop.html"), "shop.html shell is missing");
     assert.includes(fsx.readFileSync(path.join(ROOT, "shop.html"), "utf8"), 'data-page="shop"', "shell must route to the shop view");
     assert.includes(app, 'page === "shop"', "app.jsx has no shop route");
-    assert.ok(site.nav.items.some((i) => i.href === "/shop"), "Shop is not in the nav");
-    assert.ok(site.footer.columns.some((c) => c.links.some((l) => l.href === "/shop")), "Shop is not in the footer");
-    assert.equal(site.shop && site.shop.enabled, true, "site.json shop.enabled should be on");
     assert.includes(app, "<ShopBand />", "homepage merch strip is not mounted");
+    const linked = (href) => /^\/shop\b/.test(href || "");
+    const inNav = site.nav.items.some((i) => linked(i.href) || (i.children || []).some((c) => linked(c.href)));
+    const inFooter = site.footer.columns.some((c) => c.links.some((l) => linked(l.href)));
+    if (site.shop && site.shop.enabled) {
+      assert.ok(inNav, "shop is on but Shop is not in the nav");
+      assert.ok(inFooter, "shop is on but Shop is not in the footer");
+    } else {
+      assert.ok(!inNav, "shop is off but the nav still links to it");
+      assert.ok(!inFooter, "shop is off but the footer still links to it");
+      assert.ok(!site.shop || !site.shop.homepageBand, "shop is off but the homepage strip is still switched on");
+      assert.ok(/page === "shop"\) view = content\.shop && content\.shop\.enabled \? <ShopPage \/> : <ShopClosed \/>/.test(app), "with the shop off, /shop must send visitors home");
+    }
   });
 
   await test("the catalogue endpoint reshapes Shopify's feed and caches at the edge", async () => {
@@ -2216,8 +2225,9 @@ async function run() {
     // What this session changed must read back correctly.
     const by = Object.fromEntries(res.body.features.map((f) => [f.key, f]));
     assert.equal(by.signup_sms.on, true, "signup texts were reinstated on 1 Sep 2026");
-    assert.equal(by.shop_page.on, true, "the merch shop is on");
-    assert.equal(by.shop_homepage_band.on, true, "the homepage merch strip is on");
+    // The shop was switched off on 17 Oct 2026; the register must follow site.json.
+    assert.equal(by.shop_page.on, !!site.shop.enabled, "the shop register entry follows shop.enabled");
+    assert.equal(by.shop_homepage_band.on, !!(site.shop.enabled && site.shop.homepageBand), "the homepage strip entry follows shop.homepageBand");
     assert.equal(by.stripe_fundraising_cutover.on, true, "the account cutover is in the past");
     assert.equal(by.ticket_sales.on, false, "ticket sales closed on 26 Aug 2026");
     assert.equal(by.top_banner.on, true, "the signature banner is enabled in site.json");
