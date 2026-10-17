@@ -14,7 +14,7 @@ Pages (one React bundle, `app.jsx`, routed on pathname), built from the Claude D
 | `/donate` | Amount, donor details, declaration, then Stripe Checkout; thank-you on return |
 | `/about` | What Farmers Fightback Votes is |
 
-`/parties`, `/quiz`, `/media` and `/shop` from the first version redirect.
+`/parties`, `/quiz` and `/media` from the first version redirect. There is no shop on this site.
 
 Copy lives in `content/`: `issues.json` (the six issues), `seats.json` (per-seat hook, stances, and after the ballot draw the how-to-vote order, which switches a seat to the numbered card), `places.json` (towns per seat and per split postcode).
 

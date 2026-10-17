@@ -111,11 +111,6 @@
       "source": "/media/:slug",
       "destination": "/",
       "permanent": false
-    },
-    {
-      "source": "/shop",
-      "destination": "https://shop.farmersfightback.com/?utm_source=farmersvotes&utm_medium=website&utm_campaign=shop",
-      "permanent": false
     }
   ]
 }
