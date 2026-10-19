@@ -139,12 +139,17 @@ async function alreadyQueued(hash, template) {
 // Called from petition-signup after a successful signup. Never throws.
 // Skips: no mobile, existing donors (they get WS5 treatment), opted-out
 // contacts, and anyone who has ever been queued a signup text.
-// Switched off by owner decision on 28 Aug 2026, and reinstated by owner
-// decision on 1 Sep 2026 -- so the default is back to sending. The kill
-// switch survives the change and only changes polarity: SIGNUP_SMS_ENABLED=0
-// stops the texts again without a code change. Vercel bakes env vars at build
-// time, so either direction needs a redeploy before it takes effect.
-const SIGNUP_SMS_ENABLED = process.env.SIGNUP_SMS_ENABLED !== "0";
+// Supporter follow-up texts (the signup text and the +24h donation nudge).
+// History: off 28 Aug 2026, back on 1 Sep 2026, OFF AGAIN by owner decision
+// on 19 Oct 2026. Off is now the default and does not depend on any env var
+// already set in Vercel: only FOLLOWUP_SMS_ENABLED=1 turns them back on.
+// SIGNUP_SMS_ENABLED=0 / DONATION_LAPSE_SMS_ENABLED=0 can still hold one of
+// the two off while the other runs. Vercel bakes env vars at build time, so
+// any change needs a redeploy. Rows already queued are suppressed, not sent.
+// Internal alerts (the CPA alert text) are not follow-ups and are unaffected.
+const FOLLOWUP_SMS_ENABLED = process.env.FOLLOWUP_SMS_ENABLED === "1";
+const SIGNUP_SMS_ENABLED = FOLLOWUP_SMS_ENABLED && process.env.SIGNUP_SMS_ENABLED !== "0";
+const DONATION_LAPSE_SMS_ENABLED = FOLLOWUP_SMS_ENABLED && process.env.DONATION_LAPSE_SMS_ENABLED !== "0";
 
 async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
   try {
@@ -213,6 +218,7 @@ async function enqueueSignupSMS({ contactFields, mobile, first_name }) {
 // Queue the +24h donation-lapse nudge (WS4.4). Dedupe per phone+template.
 async function enqueueDonationLapseSMS({ mobile, first_name, referral_code, baseTime }) {
   try {
+    if (!DONATION_LAPSE_SMS_ENABLED) return { skipped: "donation lapse sms switched off" };
     const phone = normPhone(mobile);
     if (!phone || !phone.startsWith("+")) return { skipped: "no valid mobile" };
     const contact = await findContactByMobile(phone).catch(() => null);
@@ -275,12 +281,15 @@ async function dispatchDueSMS({ maxRows = 25, deadlineMs = 60000 } = {}) {
       continue;
     }
 
-    // Only while the kill switch is set: drain any still-queued signup rows
-    // as suppressed rather than sending them late. Normally a no-op.
+    // While a follow-up is switched off, drain its still-queued rows as
+    // suppressed rather than sending them late.
     const template = f.template?.name || f.template;
-    if (!SIGNUP_SMS_ENABLED && template === "signup_ab") {
+    const offReason = template === "signup_ab" && !SIGNUP_SMS_ENABLED ? "signup sms switched off"
+      : template === "donation_lapse_24h" && !DONATION_LAPSE_SMS_ENABLED ? "donation lapse sms switched off"
+      : null;
+    if (offReason) {
       // eslint-disable-next-line no-await-in-loop
-      await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: "signup sms switched off" });
+      await updateRow(SMS_SENDS_TABLE, row.id, { status: "suppressed", error: offReason });
       results.suppressed++;
       continue;
     }

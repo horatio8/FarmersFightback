@@ -1572,46 +1572,60 @@ async function run() {
       "a cached verdict would glue an edge's visitors to one arm");
   });
 
-  group("signup SMS is on, with a kill switch");
-  // Reinstated by owner decision 1 Sep 2026, after being off since 28 Aug.
-  // Both directions are pinned: the default must send, and one env var must
-  // still be able to stop it without a code change. An invalid mobile is the
-  // probe, so the switch can be read off the skip reason without any network.
-  const smsSwitch = async (envVal) => {
-    const saved = process.env.SIGNUP_SMS_ENABLED;
-    if (envVal === undefined) delete process.env.SIGNUP_SMS_ENABLED;
-    else process.env.SIGNUP_SMS_ENABLED = envVal;
+  group("supporter follow-up texts are off, with one switch to restore them");
+  // Off by owner decision 19 Oct 2026 (previously off 28 Aug, back 1 Sep).
+  // Off must not depend on anything already set in Vercel, so only a new
+  // variable, FOLLOWUP_SMS_ENABLED=1, can turn them back on. An invalid
+  // mobile is the probe, so the switch reads off the skip reason with no network.
+  const SMS_ENV = ["FOLLOWUP_SMS_ENABLED", "SIGNUP_SMS_ENABLED", "DONATION_LAPSE_SMS_ENABLED"];
+  const withSmsEnv = async (env, fn) => {
+    const saved = Object.fromEntries(SMS_ENV.map((k) => [k, process.env[k]]));
+    for (const k of SMS_ENV) { if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k]; }
     delete require.cache[path.join(ROOT, "api/_cellcast.js")];
     const realFetch = global.fetch;
     let fetched = 0;
     global.fetch = async () => { fetched += 1; throw new Error("nothing should be called"); };
     try {
-      const cc = R("api/_cellcast.js");
-      const out = await cc.enqueueSignupSMS({
-        contactFields: { referral_code: "ABC123" },
-        mobile: "not-a-phone", first_name: "Jo",
-      });
+      const out = await fn(R("api/_cellcast.js"));
       return { out, fetched };
     } finally {
       global.fetch = realFetch;
-      if (saved === undefined) delete process.env.SIGNUP_SMS_ENABLED;
-      else process.env.SIGNUP_SMS_ENABLED = saved;
+      for (const k of SMS_ENV) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
       delete require.cache[path.join(ROOT, "api/_cellcast.js")];
     }
   };
+  const signupProbe = (cc) => cc.enqueueSignupSMS({ contactFields: { referral_code: "ABC123" }, mobile: "not-a-phone", first_name: "Jo" });
+  const lapseProbe = (cc) => cc.enqueueDonationLapseSMS({ mobile: "not-a-phone", first_name: "Jo", referral_code: "ABC123" });
 
-  await test("by default a signup gets past the switch", async () => {
-    const { out } = await smsSwitch(undefined);
-    assert.notEqual(out.skipped, "signup sms switched off",
-      "the texts are reinstated: nothing may stop a signup at the switch");
-    assert.equal(out.skipped, "no valid mobile",
-      "it should fall through to the ordinary guards instead");
+  await test("by default neither follow-up text is sent or queued", async () => {
+    const a = await withSmsEnv({}, signupProbe);
+    assert.equal(a.out.skipped, "signup sms switched off");
+    const b = await withSmsEnv({}, lapseProbe);
+    assert.equal(b.out.skipped, "donation lapse sms switched off");
+    assert.equal(a.fetched + b.fetched, 0, "no Cellcast call, no Airtable queue row");
   });
 
-  await test("SIGNUP_SMS_ENABLED=0 still stops them dead", async () => {
-    const { out, fetched } = await smsSwitch("0");
+  await test("an old SIGNUP_SMS_ENABLED=1 in Vercel cannot turn them back on", async () => {
+    const { out, fetched } = await withSmsEnv({ SIGNUP_SMS_ENABLED: "1" }, signupProbe);
     assert.equal(out.skipped, "signup sms switched off");
-    assert.equal(fetched, 0, "no Cellcast call, no Airtable queue row — nothing at all");
+    assert.equal(fetched, 0);
+  });
+
+  await test("FOLLOWUP_SMS_ENABLED=1 restores both, and each can still be held off", async () => {
+    const a = await withSmsEnv({ FOLLOWUP_SMS_ENABLED: "1" }, signupProbe);
+    assert.equal(a.out.skipped, "no valid mobile", "with the switch on, a signup falls through to the ordinary guards");
+    const b = await withSmsEnv({ FOLLOWUP_SMS_ENABLED: "1" }, lapseProbe);
+    assert.equal(b.out.skipped, "no valid mobile");
+    const c = await withSmsEnv({ FOLLOWUP_SMS_ENABLED: "1", SIGNUP_SMS_ENABLED: "0" }, signupProbe);
+    assert.equal(c.out.skipped, "signup sms switched off");
+    const d = await withSmsEnv({ FOLLOWUP_SMS_ENABLED: "1", DONATION_LAPSE_SMS_ENABLED: "0" }, lapseProbe);
+    assert.equal(d.out.skipped, "donation lapse sms switched off");
+  });
+
+  await test("queued follow-ups are suppressed, not sent late, while switched off", async () => {
+    const src = fsx.readFileSync(path.join(ROOT, "api/_cellcast.js"), "utf8");
+    assert.ok(/template === "signup_ab" && !SIGNUP_SMS_ENABLED/.test(src) && /template === "donation_lapse_24h" && !DONATION_LAPSE_SMS_ENABLED/.test(src),
+      "the dispatcher must suppress both templates when they are off");
   });
 
   group("ticket sales close");
@@ -2224,7 +2238,9 @@ async function run() {
     assert.includes(text.body, "## SMS", "text format groups by area");
     // What this session changed must read back correctly.
     const by = Object.fromEntries(res.body.features.map((f) => [f.key, f]));
-    assert.equal(by.signup_sms.on, true, "signup texts were reinstated on 1 Sep 2026");
+    assert.equal(by.signup_sms.on, process.env.FOLLOWUP_SMS_ENABLED === "1", "signup texts are off unless FOLLOWUP_SMS_ENABLED=1 (19 Oct 2026)");
+    assert.ok(by.donation_lapse_sms, "the donation nudge has its own register entry");
+    assert.equal(by.donation_lapse_sms.on, process.env.FOLLOWUP_SMS_ENABLED === "1", "the donation nudge is off unless FOLLOWUP_SMS_ENABLED=1");
     // The shop was switched off on 17 Oct 2026; the register must follow site.json.
     assert.equal(by.shop_page.on, !!site.shop.enabled, "the shop register entry follows shop.enabled");
     assert.equal(by.shop_homepage_band.on, !!(site.shop.enabled && site.shop.homepageBand), "the homepage strip entry follows shop.homepageBand");
