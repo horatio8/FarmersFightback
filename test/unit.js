@@ -169,7 +169,7 @@ async function run() {
     assert.equal(seen[1].hasBody, true, "POST must still carry one");
   });
 
-  await test("a bulk UID push carries the CRM alias, never custom1", async () => {
+  await test("a bulk UID push carries the CRM aliases (tel_uid and the legacy one), never custom1", async () => {
     // The merge tag %recipient.FarmersFightback_UID% reads the CRM alias
     // column. custom1 is a different column: probed against production on
     // 31 Aug 2026, writing custom1 leaves the alias null. Sending it there
@@ -189,8 +189,10 @@ async function run() {
     } finally { global.fetch = realFetch; }
     for (const [i, body] of bodies.entries()) {
       const row = body[0];
+      assert.equal(row.tel_uid, "ABC123",
+        `row ${i}: Teller UID (tel_uid, renamed 28 Oct 2026) must carry the code, uppercased`);
       assert.equal(row.FarmersFightback_UID, "ABC123",
-        `row ${i}: the alias must carry the code, uppercased`);
+        `row ${i}: the legacy alias still backs older templates and must stay current`);
       assert.equal(row.custom1, undefined,
         `row ${i}: custom1 does not back the merge tag — writing it is a silent no-op`);
     }

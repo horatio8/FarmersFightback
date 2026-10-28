@@ -66,7 +66,18 @@ async function cnFetch(path, body, method = "POST", opts = {}) {
 // profile body, not nested under `fields` — sending `fields: {…}` is accepted
 // with a 200 but silently leaves the column null. They come back on read under
 // the same top-level key. /profiles/match both matches and updates it.
-const CN_UID_FIELD = "FarmersFightback_UID";
+//
+// 28 Oct 2026: the field was renamed to "Teller UID", alias tel_uid (probed on
+// a live profile: tel_uid persists via /profiles/match and reads back under
+// the same top-level key). New emails merge %recipient.tel_uid%. The old
+// FarmersFightback_UID column still exists and older templates still merge
+// it, so every push writes the same code to both.
+const CN_UID_FIELD = "tel_uid";
+const CN_UID_LEGACY_FIELD = "FarmersFightback_UID";
+const uidFields = (uid) => {
+  const v = String(uid).toUpperCase();
+  return { [CN_UID_FIELD]: v, [CN_UID_LEGACY_FIELD]: v };
+};
 
 // Match-or-create a CN profile. `profile` uses CN's field names:
 // first_name, last_name, email, mobile/phone, zip, tags[], custom1..10, plus
@@ -90,7 +101,7 @@ function cnSetUid({ first_name, last_name, email, mobile, uid }) {
     last_name: last_name || undefined,
     email: email || undefined,
     mobile: mobile || undefined,
-    [CN_UID_FIELD]: String(uid).toUpperCase(),
+    ...uidFields(uid),
   });
 }
 
@@ -138,7 +149,7 @@ function bulkRow(r, slim) {
     return {
       email,
       mobile: email ? undefined : r.mobile,
-      [CN_UID_FIELD]: String(r.uid).toUpperCase(),
+      ...uidFields(r.uid),
     };
   }
   return {
@@ -146,7 +157,7 @@ function bulkRow(r, slim) {
     last_name: r.last_name || undefined,
     email,
     mobile: r.mobile || undefined,
-    [CN_UID_FIELD]: String(r.uid).toUpperCase(),
+    ...uidFields(r.uid),
   };
 }
 
@@ -269,5 +280,5 @@ async function cnFunSignup({ first_name, last_name, email, phone, postcode, rout
 
 module.exports = {
   cnFetch, cnProfileMatch, cnAutomationAdd, cnSetUid, cnSetUidBulk, cnSetUidBulkSafe,
-  cnFormEntry, cnFunSignup, CN_UID_FIELD, CN_FUN_FORM_ID,
+  cnFormEntry, cnFunSignup, CN_UID_FIELD, CN_UID_LEGACY_FIELD, CN_FUN_FORM_ID,
 };

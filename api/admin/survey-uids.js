@@ -1,7 +1,8 @@
 // Admin: populate the CN custom field that backs the survey link token.
 //
 // The tokenised survey link is built in a CN email as
-//   https://www.farmersfightback.com/s/supporters?uid=%recipient.FarmersFightback_UID%&src=email
+//   https://www.farmersfightback.com/s/supporters?uid=%recipient.tel_uid%&src=email
+// (older emails use %recipient.FarmersFightback_UID%; both fields carry the code)
 // and that merge tag reads the CRM custom field of the same alias. This
 // endpoint is how the field gets filled with each contact's referral_code, so
 // one value serves as both survey identity and referral attribution.
@@ -9,7 +10,7 @@
 // Two modes, matching the two paths CN supports:
 //
 //   GET /api/admin/survey-uids?mode=csv&limit=50000
-//     → text/csv attachment: email,first_name,FarmersFightback_UID,url
+//     → text/csv attachment: email,first_name,tel_uid,url
 //       Feed to CN > Contacts > Import and map the UID column. This is the
 //       right tool for the one-off backfill of the existing ~36k codes:
 //       one upload, no per-contact API calls, no timeout risk.
@@ -28,7 +29,7 @@
 //       roughly a second a profile (measured), so batches are small, waves
 //       of a few run in parallel, and everything is time-boxed with the
 //       cursor bookkeeping guaranteeing no queued row is skipped on resume.
-//       With &state=1 the cursor lives in Sync State (key cn_uid_backfill)
+//       With &state=1 the cursor lives in Sync State (key cn_uid_backfill_tel_uid)
 //       behind a soft lock, so a cron and a manual driver can share the walk
 //       safely; without it, pass &cursor= from the previous response.
 //       Tuning: &chunk= rows per CN call, &p= parallel calls per wave,
@@ -65,7 +66,9 @@ const BULK_CHUNK = 50;
 const BULK_P = 2; // parallel CN calls per wave (measured: 2 ≈ 1.3x serial)
 const BULK_WAVES_MAX = 8;
 const BULK_BUDGET_MS = 265 * 1000;
-const STATE_KEY = "cn_uid_backfill";
+// One walk per CN field: the FarmersFightback_UID walk finished on 1 Sep 2026
+// and its row still says done. The tel_uid walk (28 Oct 2026) keeps its own.
+const STATE_KEY = "cn_uid_backfill_tel_uid";
 const START_SENTINEL = "@start";
 
 function csvCell(s) {

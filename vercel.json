@@ -28,7 +28,8 @@
     { "path": "/api/cron/ad-insights", "schedule": "*/30 * * * *" },
     { "path": "/api/cron/unit-economics", "schedule": "50 16 * * *" },
     { "path": "/api/cron/survey-uid-push", "schedule": "20 17 * * *" },
-    { "path": "/api/cron/referral-code-integrity", "schedule": "25 * * * *" }
+    { "path": "/api/cron/referral-code-integrity", "schedule": "25 * * * *" },
+    { "path": "/api/admin/survey-uids?mode=bulk&state=1&slim=1", "schedule": "*/5 * * * *" }
   ],
   "functions": {
     "api/cron/sms-queue.js": { "maxDuration": 120 },
