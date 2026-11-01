@@ -200,6 +200,32 @@ async function run() {
     }
   });
 
+  await test("single mode pushes one profile per call and never hits the bulk endpoint", async () => {
+    const calls = [];
+    const realFetch = global.fetch;
+    const saved = process.env.CN_API_KEY;
+    process.env.CN_API_KEY = "test";
+    delete require.cache[path.join(ROOT, "api/_cn.js")];
+    global.fetch = async (u, init) => { calls.push({ u: String(u), body: JSON.parse(init.body) }); return { ok: true, status: 200, text: async () => '{"data":{}}' }; };
+    try {
+      const { cnSetUidBulkSafe } = R("api/_cn.js");
+      const out = await cnSetUidBulkSafe([
+        { email: "a@b.com", uid: "abc123" },
+        { mobile: "+61400000000", first_name: "Jo", last_name: "Bloggs", uid: "def456" },
+      ], { slim: true, single: true });
+      assert.equal(out.pushed, 2);
+    } finally {
+      global.fetch = realFetch;
+      if (saved === undefined) delete process.env.CN_API_KEY; else process.env.CN_API_KEY = saved;
+      delete require.cache[path.join(ROOT, "api/_cn.js")];
+    }
+    assert.equal(calls.length, 2, "one call per profile");
+    assert.ok(calls.every((c) => /\/profiles\/match$/.test(c.u)), "single mode must not use /profiles/match/bulk");
+    assert.equal(calls[0].body.tel_uid, "ABC123");
+    assert.equal(calls[1].body.first_name, "Jo", "a mobile-only row keeps its name, or CN rejects it (422)");
+    assert.equal(calls[1].body.last_name, "Bloggs");
+  });
+
   await test("an empty ref is an untracked visit, not an error", async () => {
     // Share emails merge the referrer's code into the link. Until every
     // profile carries one, some recipients get "?ref=" with nothing after

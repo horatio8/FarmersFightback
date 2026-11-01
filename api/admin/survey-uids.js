@@ -124,8 +124,11 @@ module.exports = async function handler(req, res) {
     // Bulk: walk pages, buffer, flush to CN in chunk-sized bulk calls until
     // the walk drains or the time box runs out. Resumable via nextCursor.
     if (mode === "bulk") {
-      const chunk = Math.min(200, Math.max(10, Number(url.searchParams.get("chunk")) || BULK_CHUNK));
-      const P = Math.min(4, Math.max(1, Number(url.searchParams.get("p")) || BULK_P));
+      // &single=1: one /profiles/match per contact, many in flight (see
+      // cnSetUidBulkSafe). chunk is forced to 1 and p may go to 16.
+      const single = url.searchParams.get("single") === "1";
+      const chunk = single ? 1 : Math.min(200, Math.max(10, Number(url.searchParams.get("chunk")) || BULK_CHUNK));
+      const P = Math.min(single ? 16 : 4, Math.max(1, Number(url.searchParams.get("p")) || BULK_P));
       const slim = url.searchParams.get("slim") === "1";
       const useState = url.searchParams.get("state") === "1";
       const budget = Math.min(
@@ -186,14 +189,17 @@ module.exports = async function handler(req, res) {
       let pageCursor = cursorVal;
       let drained = false;
       let queued = 0;
-      const rowsTarget = chunk * P * BULK_WAVES_MAX;
+      const rowsTarget = single ? 3000 : chunk * P * BULK_WAVES_MAX;
       const gatherUntil = started + budget * 0.25;
       // Page size tracks the chunk so a page is either fully flushed or fully
       // pending. Airtable cursors are page-granular: with pages larger than a
       // run can flush, the resume cursor points at the start of a partly-done
       // page and re-pushes its flushed rows every run (~25% wasted CN time,
       // measured — writes are idempotent, so it cost throughput, not data).
-      const pageSize = Math.min(100, Math.max(10, chunk));
+      // Single mode reads full pages: at most one partly-flushed page (<100
+      // rows) is re-pushed per run, against a quarter of the budget lost to
+      // ten-row pages.
+      const pageSize = single ? 100 : Math.min(100, Math.max(10, chunk));
       while (!drained && queued < rowsTarget && Date.now() < gatherUntil) {
         const startCursor = pageCursor || START_SENTINEL;
         // eslint-disable-next-line no-await-in-loop
@@ -244,7 +250,7 @@ module.exports = async function handler(req, res) {
         // Each wave's retry cascade dies before the invocation budget does.
         const waveDeadline = Math.max(30000, budget - (Date.now() - started) - 15000);
         // eslint-disable-next-line no-await-in-loop
-        const outs = await Promise.all(parts.map((part) => cnSetUidBulkSafe(part.map((w) => w.row), { slim, deadlineMs: waveDeadline })));
+        const outs = await Promise.all(parts.map((part) => cnSetUidBulkSafe(part.map((w) => w.row), { slim, single, deadlineMs: waveDeadline })));
         lastWaveMs = Date.now() - t0;
         waves += 1;
         for (const out of outs) {

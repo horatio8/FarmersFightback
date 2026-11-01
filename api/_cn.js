@@ -146,9 +146,14 @@ function bulkRow(r, slim) {
   if (slim) {
     // Minimal payload: identity + the UID, nothing for CN to update beyond
     // the custom field. Used to probe/reduce CN's per-profile match cost.
+    // CN rejects a profile with neither an email nor first+last name (422),
+    // and one such row fails a whole bulk call, so mobile-only rows keep
+    // their names.
     return {
       email,
       mobile: email ? undefined : r.mobile,
+      first_name: email ? undefined : (r.first_name || undefined),
+      last_name: email ? undefined : (r.last_name || undefined),
       // Slim is the backfill payload: tel_uid only. The legacy alias already
       // holds these codes from the Sep 2026 walk, and every extra column is
       // more per-profile work for CN's matcher.
@@ -179,6 +184,21 @@ async function cnSetUidBulk(rows, opts = {}) {
 async function cnSetUidBulkSafe(rows, opts = {}) {
   const body = (rows || []).map((r) => bulkRow(r, opts.slim)).filter(Boolean);
   const skippedUpfront = (rows || []).length - body.length;
+  // Single mode: one /profiles/match per row, no bulk call. Since late Oct
+  // 2026 CN's gateway cuts /profiles/match/bulk off at ~60s and its matcher
+  // runs ~2.5-3.5s a profile, so any useful bulk chunk 504s and the
+  // split-retry burns the run. Singles finish in a few seconds each and the
+  // caller runs many in parallel.
+  if (opts.single) {
+    let pushed = 0, failed = 0, err;
+    for (const p of body) {
+      // eslint-disable-next-line no-await-in-loop
+      const one = await cnFetch("/profiles/match", p, "POST", { timeoutMs: 25000 });
+      if (one && one.ok) pushed += 1;
+      else { failed += 1; err = err || { status: one && one.status, body: one && one.body, error: one && one.error }; }
+    }
+    return { pushed, skipped: skippedUpfront, failed, calls: body.length, err };
+  }
   const deadline = Date.now() + (opts.deadlineMs || 200000);
   const out = await pushSplit(body, deadline);
   return { ...out, skipped: out.skipped + skippedUpfront };
