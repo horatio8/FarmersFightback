@@ -226,6 +226,28 @@ async function run() {
     assert.equal(calls[1].body.last_name, "Bloggs");
   });
 
+  await test("single mode retries a CN gateway blip once, but not a real rejection", async () => {
+    let n = 0;
+    const statuses = [502, 200, 422];
+    const realFetch = global.fetch;
+    const saved = process.env.CN_API_KEY;
+    process.env.CN_API_KEY = "test";
+    delete require.cache[path.join(ROOT, "api/_cn.js")];
+    global.fetch = async () => { const st = statuses[n++]; return { ok: st < 300, status: st, text: async () => "{}" }; };
+    try {
+      const { cnSetUidBulkSafe } = R("api/_cn.js");
+      const out = await cnSetUidBulkSafe([{ email: "a@b.com", uid: "abc123" }, { email: "c@d.com", uid: "def456" }],
+        { slim: true, single: true, retryDelayMs: 0 });
+      assert.equal(out.pushed, 1, "the 502 is retried and lands");
+      assert.equal(out.failed, 1, "the 422 fails without a retry");
+      assert.equal(n, 3, "exactly one retry");
+    } finally {
+      global.fetch = realFetch;
+      if (saved === undefined) delete process.env.CN_API_KEY; else process.env.CN_API_KEY = saved;
+      delete require.cache[path.join(ROOT, "api/_cn.js")];
+    }
+  });
+
   await test("an empty ref is an untracked visit, not an error", async () => {
     // Share emails merge the referrer's code into the link. Until every
     // profile carries one, some recipients get "?ref=" with nothing after

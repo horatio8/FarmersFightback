@@ -191,9 +191,19 @@ async function cnSetUidBulkSafe(rows, opts = {}) {
   // caller runs many in parallel.
   if (opts.single) {
     let pushed = 0, failed = 0, err;
+    // CN's edge throws brief bursts of 502s and nginx 404s on a healthy
+    // endpoint (seen 1 Nov 2026, clustered within seconds). One retry after a
+    // short pause rides those out; a real 4xx (422 etc.) is not retried.
+    const transient = (o) => !o.ok && (!o.status || o.status === 404 || o.status === 429 || o.status >= 500);
     for (const p of body) {
       // eslint-disable-next-line no-await-in-loop
-      const one = await cnFetch("/profiles/match", p, "POST", { timeoutMs: 25000 });
+      let one = await cnFetch("/profiles/match", p, "POST", { timeoutMs: 25000 });
+      if (one && transient(one)) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, opts.retryDelayMs == null ? 2000 : opts.retryDelayMs));
+        // eslint-disable-next-line no-await-in-loop
+        one = await cnFetch("/profiles/match", p, "POST", { timeoutMs: 25000 });
+      }
       if (one && one.ok) pushed += 1;
       else { failed += 1; err = err || { status: one && one.status, body: one && one.body, error: one && one.error }; }
     }
