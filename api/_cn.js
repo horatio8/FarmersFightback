@@ -149,7 +149,10 @@ function bulkRow(r, slim) {
     return {
       email,
       mobile: email ? undefined : r.mobile,
-      ...uidFields(r.uid),
+      // Slim is the backfill payload: tel_uid only. The legacy alias already
+      // holds these codes from the Sep 2026 walk, and every extra column is
+      // more per-profile work for CN's matcher.
+      [CN_UID_FIELD]: String(r.uid).toUpperCase(),
     };
   }
   return {

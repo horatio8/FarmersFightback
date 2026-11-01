@@ -58,7 +58,7 @@ const FIELDS = ["contact_id", "email", "mobile", "first_name", "last_name", "ref
 // Keep a push batch well inside the function execution limit. Each row is one
 // CN round trip, so this is the knob to turn if pushes start timing out.
 const PUSH_BATCH = 200;
-const CSV_LIMIT = 50000;
+const CSV_LIMIT = 120000; // the whole table in one file (~84k contacts, Nov 2026)
 // Bulk mode. CN's bulk matcher runs ~1s per profile and a call in flight
 // cannot be interrupted, so chunks stay small and every wave is guarded
 // against the remaining budget before it starts.

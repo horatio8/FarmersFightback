@@ -191,8 +191,10 @@ async function run() {
       const row = body[0];
       assert.equal(row.tel_uid, "ABC123",
         `row ${i}: Teller UID (tel_uid, renamed 28 Oct 2026) must carry the code, uppercased`);
-      assert.equal(row.FarmersFightback_UID, "ABC123",
+      if (i === 0) assert.equal(row.FarmersFightback_UID, "ABC123",
         `row ${i}: the legacy alias still backs older templates and must stay current`);
+      else assert.equal(row.FarmersFightback_UID, undefined,
+        "the slim backfill payload writes tel_uid only");
       assert.equal(row.custom1, undefined,
         `row ${i}: custom1 does not back the merge tag — writing it is a silent no-op`);
     }
