@@ -355,10 +355,6 @@
           {
             "label": "Apparel",
             "href": "/shop#apparel"
-          },
-          {
-            "label": "Signs & stickers",
-            "href": "/shop#signage-stickers"
           }
         ]
       }
@@ -1183,21 +1179,62 @@
     "enabled": true,
     "storeUrl": "https://shop.farmersfightback.com",
     "storeName": "Farmers Fightback shop",
-    "eyebrow": "Official merch",
-    "heading": "Wear the <em>Fightback</em>",
-    "lede": "Tees, quarter zips, crew sweats, caps, beanies and fence signs. And more to come.",
+    "eyebrow": "Stocktake sale",
+    "heading": "Stocktake <em>sale</em>",
+    "lede": "Tees, crew jumpers, quarter zips, caps and beanies from the stock we have on hand. When it's gone, it's gone.",
     "heroImage": "https://cdn.shopify.com/s/files/1/0744/3641/1623/files/Farmers_still_Don_T_have_justice-5.png?v=1788746438&width=2000&format=jpg",
     "note": "Orders are packed and posted by our volunteers from the Wimmera. Sold at cost plus a small margin for the fight.",
     "homepageBand": true,
-    "homepageHeading": "Wear the fight",
-    "homepageLede": "New merch is in. Every sale helps keep the pressure on the Government.",
+    "homepageHeading": "Stocktake sale",
+    "homepageLede": "Tees, jumpers, caps and beanies from the stock we have on hand. Every sale helps keep the pressure on the Government.",
     "featured": [
+      "cap-beige",
       "t-shirt-navy-mens",
-      "quarter-zip-beige-womens",
-      "cap-midnight-blue",
-      "sign"
+      "t-shirt-navy-womens",
+      "crew-beige-womens"
     ],
     "heroLayout": "banner",
-    "heroAlt": "Farmers Fightback supporters holding up tees, quarter zips and caps at the merch table"
+    "heroAlt": "Farmers Fightback supporters holding up tees, quarter zips and caps at the merch table",
+    "stocktake": {
+      "enabled": true,
+      "badge": "Stocktake sale",
+      "_comment": "Only these products and sizes show on the site. Picked on 3 Nov 2026 from Shopify inventory: every size listed had 5 or more units. Refresh as stock moves; a size that sells out shows as sold out from the live feed.",
+      "items": {
+        "t-shirt-navy-mens": [
+          "L",
+          "XL",
+          "2XL",
+          "3XL"
+        ],
+        "t-shirt-navy-womens": [
+          "L",
+          "XL",
+          "2XL"
+        ],
+        "t-shirt-beige-womens": [
+          "L",
+          "2XL"
+        ],
+        "t-shirt-beige-mens": [
+          "2XL"
+        ],
+        "crew-beige-womens": [
+          "M",
+          "L"
+        ],
+        "quarter-zip-beige-mens": [
+          "3XL"
+        ],
+        "quarter-zip-beige-womens": [
+          "2XL"
+        ],
+        "cap-beige": [
+          "One Size"
+        ],
+        "beanie-navy": [
+          "One Size"
+        ]
+      }
+    }
   }
 }

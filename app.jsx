@@ -1390,7 +1390,7 @@ function ShopCard({ p, store, campaign }) {
           : <ShopPlaceholder p={p} />}
         <span className="ff-shop-badges">
           {p.fit && <span className="ff-shop-badge">{SHOP_FIT_LABEL[p.fit] || p.fit}</span>}
-          {p.preorder && <span className="ff-shop-badge ff-shop-badge--pre">Pre-order</span>}
+          {p.badge && <span className="ff-shop-badge ff-shop-badge--sale">{p.badge}</span>}
           {!p.available && <span className="ff-shop-badge ff-shop-badge--out">Sold out</span>}
         </span>
       </a>
@@ -1405,8 +1405,11 @@ function ShopCard({ p, store, campaign }) {
           {p.compareAt && p.compareAt > (variant ? variant.price : p.price) && <s>{shopMoney(p.compareAt)}</s>}
         </p>
         <p className="ff-shop-ship">
-          {p.preorder ? "Pre-order \u00b7 ships in 2 to 3 weeks" : "In stock \u00b7 ships within 5 days"}
+          In stock \u00b7 ships within 5 days
         </p>
+        {!multi && variant && !/^(default title|one size)$/i.test(String(variant.title)) && (
+          <p className="ff-shop-onesize">{optionName}: {variant.title}</p>
+        )}
         {multi && (
           <label className="ff-shop-size">
             <span>{optionName}</span>
@@ -1419,7 +1422,7 @@ function ShopCard({ p, store, campaign }) {
         )}
         <div className="ff-shop-actions">
           {p.available && variant && variant.available
-            ? <a className="ff-btn ff-btn--red ff-btn--block" href={shopBuyUrl(store, variant.id)} rel="noopener" onClick={onBuy}>{p.preorder ? "Pre-order" : "Buy now"} <span aria-hidden="true">&rsaquo;</span></a>
+            ? <a className="ff-btn ff-btn--red ff-btn--block" href={shopBuyUrl(store, variant.id)} rel="noopener" onClick={onBuy}>Buy now <span aria-hidden="true">&rsaquo;</span></a>
             : <a className="ff-btn ff-btn--outline ff-btn--block" href={detailsUrl} rel="noopener">Notify me on the shop</a>}
           <a className="ff-link ff-shop-details" href={detailsUrl} rel="noopener">Details &amp; sizing &rarr;</a>
         </div>

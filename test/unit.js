@@ -2139,11 +2139,13 @@ async function run() {
 
   await test("the catalogue endpoint reshapes Shopify's feed and caches at the edge", async () => {
     const handler = R("api/shop.js");
+    const stocktake = site.shop.stocktake;
+    site.shop.stocktake = null; // fixture handles are not on the live list
     const realFetch = global.fetch;
     global.fetch = shopFetch(false);
     let res;
     try { res = shopRes(); await handler({ method: "GET", url: "/api/shop", headers: {} }, res); }
-    finally { global.fetch = realFetch; }
+    finally { global.fetch = realFetch; site.shop.stocktake = stocktake; }
     assert.equal(res.code, 200, JSON.stringify(res.body).slice(0, 200));
     assert.match(res.headers["Cache-Control"], /s-maxage=\d+/, "the catalogue must be cached at the edge");
     assert.equal(res.body.store.url, "https://shop.farmersfightback.com");
@@ -2155,7 +2157,6 @@ async function run() {
     assert.deepEqual(cap.collections, ["type-headwear"]); assert.equal(cap.fit, "unisex");
     // The store renamed Beige to Cream on 3 Sep 2026; both must still read.
     assert.equal(cap.colour, "Cream", "a renamed palette colour must still be recognised");
-    assert.equal(cap.preorder, true, "the Pre-order tag drives the badge and the dispatch line");
     const tee = res.body.products.find((p) => p.handle === "t-shirt-navy-mens");
     assert.equal(tee.colour, "Navy"); assert.equal(tee.fit, "mens"); assert.equal(tee.type, "T-Shirt");
     assert.deepEqual(tee.collections, ["apparel"]);
@@ -2164,7 +2165,6 @@ async function run() {
     assert.equal(tee.description, "Heavy cotton tee.", "body_html is flattened to text");
     assert.equal(tee.url, "https://shop.farmersfightback.com/products/t-shirt-navy-mens");
     assert.deepEqual(tee.variants.map((v) => v.available), [false, true, true]);
-    assert.equal(tee.preorder, false, "an untagged product is in stock, not pre-order");
     const stubby = res.body.products.find((p) => p.handle === "stubby-holder-red");
     assert.equal(stubby.available, false, "every variant sold out means the product is sold out");
     assert.deepEqual(stubby.tags, ["Accessories", "Merch", "Red", "Stubby Holders"], "comma-string tags are split");
@@ -2172,9 +2172,26 @@ async function run() {
     assert.equal(stubby.colour, "Red");
   });
 
-  await test("the shop page shows pre-order status and never a dead filter", () => {
-    assert.includes(app, 'ff-shop-badge--pre', "no pre-order badge on the card");
-    assert.includes(app, "ships in 2 to 3 weeks", "pre-order dispatch time is not shown to the buyer");
+  await test("the stocktake list limits the shop to the listed products and sizes", () => {
+    const { applyStocktake } = R("api/shop.js");
+    const mk = (handle, sizes) => ({ handle, price: 40, priceMax: 40, available: true, variants: sizes.map((s, i) => ({ id: i + 1, title: s, price: 40, available: true })) });
+    const out = applyStocktake([mk("tee", ["S", "M", "L", "XL"]), mk("cap", ["One Size"]), mk("sign", ["1200x600mm"])],
+      { enabled: true, badge: "Stocktake sale", items: { tee: ["L", "XL"], cap: ["One Size"] } });
+    assert.deepEqual(out.map((p) => p.handle), ["tee", "cap"], "a product not on the list is not shown");
+    assert.deepEqual(out[0].variants.map((v) => v.title), ["L", "XL"], "only the listed sizes are offered");
+    assert.equal(out[0].badge, "Stocktake sale");
+    assert.equal(applyStocktake([mk("sign", ["x"])], { enabled: false, items: {} }).length, 1, "switched off, everything shows");
+    // The live list must only name products that exist in the store's feed shape.
+    const live = site.shop.stocktake;
+    assert.ok(live && live.enabled && Object.keys(live.items).length >= 1, "the stocktake list is on");
+    for (const [h, sizes] of Object.entries(live.items)) assert.ok(Array.isArray(sizes) && sizes.length, h + " needs at least one size");
+    for (const id of site.shop.featured) assert.ok(live.items[id], "featured product " + id + " must be on the stocktake list");
+  });
+
+  await test("the shop page never mentions pre-orders and never shows a dead filter", () => {
+    // Pre-orders ended with the Nov 2026 stocktake sale: the store, the card
+    // and the buy button all speak of stock on hand only.
+    assert.ok(!/pre-?order/i.test(app.slice(app.indexOf("function ShopCard"), app.indexOf("function ShopSkeleton"))), "the shop card must not mention pre-orders");
     assert.includes(app, "ships within 5 days", "in-stock dispatch time is not shown to the buyer");
     assert.includes(app, '"Cream": "#e6dcc4"', "no swatch for the renamed Cream colourway");
     // Every footer shop link must point at a filter the page can actually show.

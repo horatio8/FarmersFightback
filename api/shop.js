@@ -16,7 +16,8 @@
 //   products: [{
 //     handle, title, type, tags, description, url,
 //     price, priceMax, compareAt, available,
-//     colour, fit, preorder,           // read from Shopify tags
+//     colour, fit,                     // read from Shopify tags
+//     badge,                           // e.g. "Stocktake sale" while one runs
 //     collections: [handle],
 //     image: { src, alt, width, height } | null,
 //     options: [{ name, values }],
@@ -85,10 +86,6 @@ function normaliseProduct(p, store, collectionsByHandle) {
     available: variants.some((v) => v.available),
     colour,
     fit: fitTag ? FITS[fitTag] : null,
-    // Shopify carries a "Pre-order" tag on made-to-order lines. Buyers need
-    // this before they pay: in stock ships in 5 days, pre-order takes 2 to 3
-    // weeks, and the shipping policy promises pre-orders are marked.
-    preorder: tags.some((x) => String(x).toLowerCase() === "pre-order"),
     collections: collectionsByHandle.get(p.handle) || [],
     image: img ? { src: img.src, alt: img.alt || p.title, width: img.width || null, height: img.height || null } : null,
     options: (p.options || []).map((o) => ({ name: o.name, values: o.values || [] })),
@@ -111,6 +108,33 @@ async function getJson(url) {
   const r = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json" } });
   if (!r.ok) throw new Error(`${url} -> HTTP ${r.status}`);
   return r.json();
+}
+
+// Stocktake sale (Nov 2026): only the products and sizes we hold plenty of
+// are shown, so buyers are offered what can actually ship. Shopify's public
+// feed says whether a size can be bought but not how many are left, so the
+// list is set in content/site.json (shop.stocktake.items: handle -> sizes),
+// picked from the Shopify inventory count. A size that sells out still
+// shows as sold out from the live feed; refresh the list as stock moves.
+function applyStocktake(products, cfg) {
+  if (!cfg || !cfg.enabled || !cfg.items) return products;
+  const out = [];
+  for (const p of products) {
+    const sizes = cfg.items[p.handle];
+    if (!Array.isArray(sizes) || !sizes.length) continue;
+    const variants = p.variants.filter((v) => sizes.includes(String(v.title)));
+    if (!variants.length) continue;
+    const prices = variants.map((v) => v.price).filter((n) => n !== null);
+    out.push({
+      ...p,
+      variants,
+      available: variants.some((v) => v.available),
+      price: prices.length ? Math.min(...prices) : p.price,
+      priceMax: prices.length ? Math.max(...prices) : p.priceMax,
+      badge: cfg.badge || null,
+    });
+  }
+  return out;
 }
 
 async function loadCatalogue(store = storeUrl()) {
@@ -136,9 +160,9 @@ async function loadCatalogue(store = storeUrl()) {
     } catch { /* a missing collection feed just leaves those products uncategorised */ }
   }));
 
-  const products = (productsJson.products || [])
+  const products = applyStocktake((productsJson.products || [])
     .map((p) => normaliseProduct(p, store, byHandle))
-    .filter((p) => p.variants.length);
+    .filter((p) => p.variants.length), site.shop && site.shop.stocktake);
 
   // A product in no collection would only ever show under "All", so it gets
   // a category of its own from its Shopify product type (e.g. the caps and
@@ -185,3 +209,4 @@ module.exports.storeUrl = storeUrl;
 module.exports.normaliseProduct = normaliseProduct;
 module.exports.buyUrl = buyUrl;
 module.exports.loadCatalogue = loadCatalogue;
+module.exports.applyStocktake = applyStocktake;
