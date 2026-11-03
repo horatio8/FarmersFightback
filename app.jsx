@@ -1263,13 +1263,12 @@ function HomePage() {
       <SocialProofPopup />
       <main>
         <Hero onWatch={() => setModal(true)} />
-        <TwinPromos />
+        <ShopBand />
         <IntroVideo />
         <Summary />
         <Petition />
         <AskJessBand />
         <ActionCards />
-        <ShopBand />
         <Quote />
         <DonateBand />
       </main>
