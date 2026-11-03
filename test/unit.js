@@ -2192,7 +2192,7 @@ async function run() {
     // Pre-orders ended with the Nov 2026 stocktake sale: the store, the card
     // and the buy button all speak of stock on hand only.
     assert.ok(!/pre-?order/i.test(app.slice(app.indexOf("function ShopCard"), app.indexOf("function ShopSkeleton"))), "the shop card must not mention pre-orders");
-    assert.includes(app, "ships within 5 days", "in-stock dispatch time is not shown to the buyer");
+    assert.includes(app, "all orders shipped before 15 November", "dispatch date is not shown to the buyer");
     assert.includes(app, '"Cream": "#e6dcc4"', "no swatch for the renamed Cream colourway");
     // Every footer shop link must point at a filter the page can actually show.
     const shopLinks = site.footer.columns.flatMap((c) => c.links).filter((l) => l.href.startsWith("/shop#"));

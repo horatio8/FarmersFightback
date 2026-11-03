@@ -1404,7 +1404,7 @@ function ShopCard({ p, store, campaign }) {
           {p.compareAt && p.compareAt > (variant ? variant.price : p.price) && <s>{shopMoney(p.compareAt)}</s>}
         </p>
         <p className="ff-shop-ship">
-          In stock · ships within 5 days
+          In stock · all orders shipped before 15 November
         </p>
         {!multi && variant && !/^(default title|one size)$/i.test(String(variant.title)) && (
           <p className="ff-shop-onesize">{optionName}: {variant.title}</p>
